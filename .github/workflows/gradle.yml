@@ -10,7 +10,7 @@ env:
   S3_BUCKET_NAME: manitoonebucket
   AWS_REGION: ap-northeast-2
   CODEDEPLOY_NAME: Final_Project_CD
-  CODEDEPLOY_GROUP: github-actions-group
+  CODEDEPLOY_GROUP: Final_Project_CD_Group
     
 jobs:
   build:

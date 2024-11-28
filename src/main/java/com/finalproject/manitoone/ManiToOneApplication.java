@@ -9,5 +9,7 @@ public class ManiToOneApplication {
     public static void main(String[] args) {
         SpringApplication.run(ManiToOneApplication.class, args);
     }
+    
+    // 안녕하세요
 
 }

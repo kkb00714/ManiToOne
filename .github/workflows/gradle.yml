@@ -9,8 +9,8 @@ on:
 env:
   S3_BUCKET_NAME: manitoonebucket
   AWS_REGION: ap-northeast-2
-  CODEDEPLOY_NAME: Final_Project_CD
-  CODEDEPLOY_GROUP: Final_Project_CD_Group
+  CODEDEPLOY_NAME: app-deploy
+  CODEDEPLOY_GROUP: app-deploy-group
     
 jobs:
   build:

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserAuthService {
+
   private final UserRepository userRepository;
 
   @Transactional
@@ -40,7 +41,7 @@ public class UserAuthService {
         .birth(userSignUpDTO.getBirth())
         .build();
 
-  userRepository.save(newUser);
-  return "회원가입이 완료됐습니다";
+    userRepository.save(newUser);
+    return "회원가입이 완료됐습니다";
   }
 }

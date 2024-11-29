@@ -15,14 +15,14 @@ import lombok.NoArgsConstructor;
 public class UserSignUpDTO {
 
   @Pattern(
-      regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$\n",
+      regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
       message = "유효한 이메일 주소를 입력해주세요."
   )
   @NotBlank(message = "이메일은 필수 입력값입니다.")
   private String email;
 
   @Pattern(
-      regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,16}$\n",
+      regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,16}$",
       message = "비밀번호는 영어, 숫자, 특수문자를 포함하여 8~16자리로 설정해야 합니다."
   )
   @NotBlank(message = "비밀번호는 필수 입력값입니다.")

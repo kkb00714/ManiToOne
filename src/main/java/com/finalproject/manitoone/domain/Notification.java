@@ -9,6 +9,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
@@ -30,8 +32,9 @@ public class Notification {
   @Column(name = "noti_id", nullable = false)
   private Long notiId;
 
-  @Column(name = "user_id", nullable = false)
-  private Long userId;
+  @ManyToOne
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
   @Column(name = "type", nullable = false)
   @Enumerated(EnumType.STRING)
@@ -55,9 +58,9 @@ public class Notification {
   public NotificationResponse toResponse() {
     return NotificationResponse.builder()
         .notiId(this.notiId)
-        .userId(this.userId)
+        .user(this.user)
         .type(this.type)
-        .content(this.type.getMessage(this.userId + ""))
+        .content(this.type.getMessage(this.user.getNickname()))
         .isRead(this.isRead)
         .createdAt(this.createdAt)
         .build();

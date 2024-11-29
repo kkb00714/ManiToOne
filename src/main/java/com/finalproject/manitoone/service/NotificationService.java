@@ -1,9 +1,9 @@
-package com.finalproject.manitoone.notification.service;
+package com.finalproject.manitoone.service;
 
-import com.finalproject.manitoone.notification.constants.NotiType;
-import com.finalproject.manitoone.notification.domain.dto.AddNotificationRequest;
-import com.finalproject.manitoone.notification.domain.dto.NotificationResponse;
-import com.finalproject.manitoone.notification.repository.NotificationRepository;
+import com.finalproject.manitoone.constants.NotiType;
+import com.finalproject.manitoone.domain.dto.AddNotificationRequest;
+import com.finalproject.manitoone.domain.dto.NotificationResponse;
+import com.finalproject.manitoone.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

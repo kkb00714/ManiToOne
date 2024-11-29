@@ -1,4 +1,4 @@
-package com.finalproject.manitoone.notification.controller;
+package com.finalproject.manitoone.controller;
 
 import org.springframework.stereotype.Controller;
 

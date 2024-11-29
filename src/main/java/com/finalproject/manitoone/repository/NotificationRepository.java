@@ -1,6 +1,6 @@
-package com.finalproject.manitoone.notification.repository;
+package com.finalproject.manitoone.repository;
 
-import com.finalproject.manitoone.notification.domain.Notification;
+import com.finalproject.manitoone.domain.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

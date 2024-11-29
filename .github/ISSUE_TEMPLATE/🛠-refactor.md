@@ -1,6 +1,6 @@
 ---
-name: "\U0001F577 Bug"
-about: 버그 제보
+name: "\U0001F6E0 Refactor"
+about: '리팩토링 '
 title: ''
 labels: ''
 assignees: ''

@@ -2,6 +2,7 @@ package com.finalproject.manitoone.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.finalproject.manitoone.constants.NotiType;
+import com.finalproject.manitoone.domain.User;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class NotificationResponseDto {
 
   private Long notiId;
-//  private User user;
+  private User user;
   private NotiType type;
   private String content;
   private Long relatedObjectId;

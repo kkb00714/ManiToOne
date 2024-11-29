@@ -62,7 +62,7 @@ public class User {
   private String role = "ROLE_USER";
 
   @Column(name = "unbaned_at")
-  private LocalDateTime unbanedAt;
+  private LocalDateTime unbannedAt;
 
   @Column(name = "created_at", nullable = false, columnDefinition = "timestamp default now()")
   @Builder.Default

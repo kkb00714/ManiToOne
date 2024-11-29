@@ -1,6 +1,7 @@
-package com.finalproject.manitoone.notifications.domain;
+package com.finalproject.manitoone.notification.domain;
 
-import com.finalproject.manitoone.notifications.constants.NotiType;
+import com.finalproject.manitoone.notification.constants.NotiType;
+import com.finalproject.manitoone.notification.domain.dto.NotificationResponse;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,4 +50,16 @@ public class Notification {
   @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
+
+  @Transient
+  public NotificationResponse toResponse() {
+    return NotificationResponse.builder()
+        .notiId(this.notiId)
+        .userId(this.userId)
+        .type(this.type)
+        .content(this.type.getMessage(this.userId + ""))
+        .isRead(this.isRead)
+        .createdAt(this.createdAt)
+        .build();
+  }
 }

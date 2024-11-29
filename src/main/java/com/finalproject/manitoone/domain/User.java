@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,7 +39,7 @@ public class User {
   private String nickname;
 
   @Column(name = "birth", nullable = false)
-  private LocalDateTime birth;
+  private LocalDate birth;
 
   @Column(name = "introduce", nullable = false, length = 100, columnDefinition = "default 기본소개를 입력해주세요.")
   @Builder.Default

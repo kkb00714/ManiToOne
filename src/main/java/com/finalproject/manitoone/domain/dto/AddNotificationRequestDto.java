@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AddNotificationRequest {
+public class AddNotificationRequestDto {
 
 //  private User receiveUser;
 //  private User sendUser;

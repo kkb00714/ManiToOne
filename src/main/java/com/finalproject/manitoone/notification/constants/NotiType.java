@@ -1,4 +1,4 @@
-package com.finalproject.manitoone.notifications.constants;
+package com.finalproject.manitoone.notification.constants;
 
 public enum NotiType {
 

@@ -1,7 +1,7 @@
 package com.finalproject.manitoone.domain;
 
 import com.finalproject.manitoone.constants.NotiType;
-import com.finalproject.manitoone.domain.dto.NotificationResponse;
+import com.finalproject.manitoone.domain.dto.NotificationResponseDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -50,8 +50,8 @@ public class Notification {
   private LocalDateTime createdAt = LocalDateTime.now();
 
   @Transient
-  public NotificationResponse toResponse() {
-    return NotificationResponse.builder()
+  public NotificationResponseDto toResponse() {
+    return NotificationResponseDto.builder()
         .notiId(this.notiId)
 //        .user(this.user)
         .type(this.type)

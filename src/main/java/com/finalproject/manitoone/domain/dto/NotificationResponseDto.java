@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NotificationResponse {
+public class NotificationResponseDto {
 
   private Long notiId;
 //  private User user;

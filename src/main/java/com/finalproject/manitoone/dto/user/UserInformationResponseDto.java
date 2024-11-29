@@ -18,7 +18,8 @@ public class UserInformationResponseDto {
   private List<UserInformationResponseDto> followers;
   private List<UserInformationResponseDto> followings;
 
-  public void setFollow(List<UserInformationResponseDto> followers, List<UserInformationResponseDto> followings) {
+  public void setFollow(List<UserInformationResponseDto> followers,
+      List<UserInformationResponseDto> followings) {
     this.followers = followers;
     this.followings = followings;
   }

@@ -1,7 +1,7 @@
-package com.finalproject.manitoone.notifications.domain.dto;
+package com.finalproject.manitoone.notification.domain.dto;
 
-import com.finalproject.manitoone.notifications.constants.NotiType;
-import com.finalproject.manitoone.notifications.domain.Notification;
+import com.finalproject.manitoone.notification.constants.NotiType;
+import com.finalproject.manitoone.notification.domain.Notification;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -14,7 +14,6 @@ public class UserInformationResponseDto {
   private String nickname;
   private String introduce;
   private String profileImage;
-  private Integer status;
   private List<UserInformationResponseDto> followers;
   private List<UserInformationResponseDto> followings;
 

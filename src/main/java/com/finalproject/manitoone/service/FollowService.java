@@ -2,7 +2,6 @@ package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.domain.Follow;
 import com.finalproject.manitoone.domain.User;
-import com.finalproject.manitoone.dto.follow.FollowRequestDto;
 import com.finalproject.manitoone.repository.FollowRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import java.util.Optional;

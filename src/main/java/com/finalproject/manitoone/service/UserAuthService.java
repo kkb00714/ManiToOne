@@ -27,7 +27,7 @@ public class UserAuthService {
     }
 
     // 닉네임 중복 체크
-    Optional<User> existUserByNickname = userRepository.findByNickname(userSignUpDTO.getNickname());
+    Optional<User> existUserByNickname = userRepository.findUserByNickname(userSignUpDTO.getNickname());
     if (existUserByNickname.isPresent()) {
       return "닉네임이 이미 사용중입니다.";
     }

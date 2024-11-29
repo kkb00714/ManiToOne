@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.NotiType;
+import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddNotificationRequest;
 import com.finalproject.manitoone.domain.dto.NotificationResponse;
 import com.finalproject.manitoone.repository.NotificationRepository;
@@ -13,9 +14,9 @@ public class NotificationService {
 
   private final NotificationRepository notificationRepository;
 
-  public AddNotificationRequest createAddNotificationRequest(Long userId, NotiType type, Long relatedObjectId) {
+  public AddNotificationRequest createAddNotificationRequest(User user, NotiType type, Long relatedObjectId) {
     return AddNotificationRequest.builder()
-        .userId(userId)
+        .user(user)
         .type(type)
         .relatedObjectId(relatedObjectId)
         .build();

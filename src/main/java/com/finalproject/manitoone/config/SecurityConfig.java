@@ -9,12 +9,13 @@ import org.springframework.security.web.SecurityFilterChain;
 
 public class SecurityConfig {
 
-    @Bean
-    protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests()
+  @Bean
+  protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable())
+        .authorizeRequests()
 //                .antMatchers("/admin/"**).hasRole("ADMIN") // 어드민 페이지 생성 및 롤 생성 시 활성화
-                .anyRequest().permitAll();
-        return http.build();
-    }
+        .anyRequest().permitAll();
+    return http.build();
+  }
 }

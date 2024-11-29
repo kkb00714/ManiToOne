@@ -1,7 +1,7 @@
-package com.finalproject.manitoone.notification.domain;
+package com.finalproject.manitoone.domain;
 
-import com.finalproject.manitoone.notification.constants.NotiType;
-import com.finalproject.manitoone.notification.domain.dto.NotificationResponse;
+import com.finalproject.manitoone.constants.NotiType;
+import com.finalproject.manitoone.domain.dto.NotificationResponse;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

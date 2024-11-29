@@ -9,8 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
@@ -32,16 +30,13 @@ public class Notification {
   @Column(name = "noti_id", nullable = false)
   private Long notiId;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+//  @ManyToOne
+//  @JoinColumn(name = "user_id", nullable = false)
+//  private User user;
 
   @Column(name = "type", nullable = false)
   @Enumerated(EnumType.STRING)
   private NotiType type;
-
-  @Column(name = "content", nullable = false, columnDefinition = "text")
-  private String content;
 
   @Column(name = "related_object_id", nullable = false, columnDefinition = "bigint COMMENT '게시글 댓글, 팔로워 유저, 마니또 피드 ID'")
   private Long relatedObjectId;
@@ -58,9 +53,8 @@ public class Notification {
   public NotificationResponse toResponse() {
     return NotificationResponse.builder()
         .notiId(this.notiId)
-        .user(this.user)
+//        .user(this.user)
         .type(this.type)
-        .content(this.type.getMessage(this.user.getNickname()))
         .isRead(this.isRead)
         .createdAt(this.createdAt)
         .build();

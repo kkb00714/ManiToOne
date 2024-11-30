@@ -1,11 +1,10 @@
 package com.finalproject.manitoone.domain.dto;
 
-import java.util.List;
+import com.finalproject.manitoone.domain.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @NoArgsConstructor
@@ -15,5 +14,11 @@ public class AddPostRequestDto {
 
   private String content;
   private Boolean isManito;
-  private List<MultipartFile> images;
+
+  public Post toEntity() {
+    return Post.builder()
+        .content(this.content)
+        .isManito(this.isManito)
+        .build();
+  }
 }

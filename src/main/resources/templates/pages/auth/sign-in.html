@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/common.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <link rel="icon" type="image/x-icon" th:href="@{/images/favicon/favicon.ico}">
+  <title>ManiToOne</title>
+</head>
+<body>
+<section class="sign-in-section">
+  <div class="logo-box">
+    <img th:src="@{/images/logo/long-logo.png}" alt="ManiToOne logo"/>
+  </div>
+  <div class="sign-in-container">
+    <form action="">
+      <div class="sign-in-input-container">
+        <input
+            class="sign-in-input"
+            type="text"
+            name="user-id"
+            id="user-id"
+            placeholder="사용자 아이디"
+            aria-label="사용자 아이디"
+        />
+        <input
+            class="sign-in-input"
+            type="password"
+            name="user-password"
+            id="user-password"
+            placeholder="비밀번호"
+            aria-label="비밀번호"
+        />
+        <button class="sign-in-button">로그인</button>
+      </div>
+    </form>
+  </div>
+  <div class="find-password-link-container">
+    <p>비밀번호를 잊으셨나요?</p>
+    <p class="find-password-link"><a th:href="@{/templates/pages/auth/find-password.html}">찾기</a>
+    </p>
+  </div>
+  <div class="sign-in-devider">
+    <hr class="sign-in-devider-line"/>
+    <p>또는</p>
+    <hr class="sign-in-devider-line"/>
+  </div>
+  <div class="external-login-container">
+    <button class="kakao-login">
+      <img
+          th:src="@{/images/logo/external-login-logo/google-login.png}"
+          alt=""
+      />
+    </button>
+    <button class="google-login">
+      <img
+          th:src="@{/images/logo/external-login-logo/kakao-login.png}"
+          alt=""
+      />
+    </button>
+  </div>
+  <div class="sign-up-link-container">
+    <p>계정이 없으신가요?</p>
+    <p class="sign-up-link"><a th:href="@{/templates/pages/auth/sign-up.html}">회원가입</a></p>
+  </div>
+</section>
+</body>
+</html>

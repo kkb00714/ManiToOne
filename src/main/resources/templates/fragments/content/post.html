@@ -1,0 +1,50 @@
+<!--작성 시간, 답글 보이지 않는 가장 기본 게시글 덩어리-->
+<div class="post-container" th:fragment="post">
+  <img
+      class="user-photo"
+      th:src="@{/images/icons/UI-user2.png}"
+      alt="user icon"
+  />
+  <div class="post-content">
+    <div class="user-info">
+      <span class="user-name">beer_lover</span>
+      <span class="passed-time">3분</span>
+    </div>
+    <p class="content-text">
+      오늘 일 완전 힘들었다... 스트레스 받아서 귀가하는 길에 지친
+      심신을 달래줄 맥주 한 캔 샀음~ <br/>
+      아쉽지만 치킨은 없다ㅋㅋ 이번달 돈 아껴야 해~~
+    </p>
+    <img
+        class="post-image"
+        th:src="@{/images/image-beer.webp}"
+        alt="beer image"
+    />
+    <div class="reaction-icons">
+      <img
+          class="tiny-icons"
+          th:src="@{/images/icons/icon-clover2.png}"
+          alt="I like this"
+      />
+      <span class="like-count">22</span>
+      <img
+          class="tiny-icons"
+          th:src="@{/images/icons/icon-comment2.png}"
+          alt="add reply"
+      />
+      <span class="reply-count">3</span>
+    </div>
+  </div>
+  <div class="option-icons">
+    <img
+        class="tiny-icons"
+        th:src="@{/images/icons/UI-more2.png}"
+        alt="more options"
+    />
+    <img
+        class="tiny-icons"
+        th:src="@{/images/icons/icon-add-friend.png}"
+        alt="add friend"
+    />
+  </div>
+</div>

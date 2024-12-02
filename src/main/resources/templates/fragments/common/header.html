@@ -1,0 +1,37 @@
+<header class="header-container" th:fragment="header">
+  <h1>ManiToOne</h1>
+  <div class="UI-icon-logo">
+    <a class="home-link" href="#"
+    ><img th:src="@{/images/logo/logo.png}" alt="home"
+    /></a>
+  </div>
+  <nav>
+    <ul>
+      <li class="UI-icon-list">
+        <button
+        ><img th:src="@{/images/icons/UI-home2.png}" alt="home"
+        /></button>
+      </li>
+      <li class="UI-icon-list">
+        <button>
+          <img
+              th:src="@{/images/icons/UI-notification2.png}"
+              alt="notification"
+          /></button>
+      </li>
+      <li class="UI-icon-list">
+        <button
+        ><img th:src="@{/images/icons/icon-clover2.png}" alt="manito"
+        /></button>
+      </li>
+      <li class="UI-icon-list">
+        <button
+        ><img th:src="@{/images/icons/UI-user2.png}" alt="user-profile"
+        /></button>
+      </li>
+    </ul>
+  </nav>
+  <div class="UI-icon-more">
+    <img th:src="@{/images/icons/UI-more2.png}" alt="Show-more-options"/>
+  </div>
+</header>

@@ -1,0 +1,84 @@
+<!--우측 메뉴 : 마니또 편지함 페이지 완성되고 난 이후에 링크 구현-->
+<article class="article-container" th:fragment="right-section">
+  <section class="search-section">
+    <form action="">
+      <div class="search-input-container">
+        <img
+            class="tiny-icons-linkless"
+            th:src="@{/images/icons/icon-search.png}"
+            alt="search icon"
+        />
+        <input
+            type="text"
+            name=""
+            id="search-input"
+            placeholder="찾고 싶은 내용이 있나요?"
+            aria-label="검색"
+        />
+      </div>
+    </form>
+  </section>
+  <section class="ai-suggestion-section">
+    <div class="ai-comment">
+      <h2>AI의 피드백</h2>
+      <p>
+        오늘은 기분이 좋아 보이시네요! 잠에 들기 전에 몸을 따뜻하게
+        녹여주는 샤워와 스트레칭을 추천드려요. 짧은 명상으로 하루를
+        정리하는 건 어떠신가요? 숙면을 도와주는 좋은 습관입니다.
+      </p>
+    </div>
+    <div class="ai-music-suggestion">
+      <h3>
+              <span
+              ><img
+                  class="tiny-icons-linkless"
+                  th:src="@{/images/icons/icon-music.png}"
+                  alt="music icon"/></span
+              >추천하는 음악
+      </h3>
+      <p class="music-title">Coldplay - Fix You</p>
+      <p class="music-link">
+        <a href="https://youtu.be/k4V3Mo61fJM?si=yZNgNJ6Fzqp0Z2pz"
+        >https://youtu.be/k4V3Mo61fJM?si=yZNgNJ6Fzqp0Z2pz</a
+        >
+      </p>
+    </div>
+  </section>
+  <section class="manito-letter-section">
+    <div class="manito-letter-container">
+      <h2>마니또 편지함</h2>
+      <div class="received-letter">
+        <h3>
+          <img
+              class="tiny-icons-linkless"
+              th:src="@{/images/icons/icon-email.png}"
+              alt="letter icon"
+          /><span>
+                  <a>받은 편지함</a></span
+        >
+        </h3>
+        <ul>
+          <li>저 주말에 놀러갈 건데 여기 좋아 보여</li>
+          <li>헉 완전 재밌어 보여요 다음엔 저도</li>
+          <li>저 님 팔로원데요 누군지 아시겠나요</li>
+        </ul>
+      </div>
+      <div class="sent-letter">
+        <h3>
+          <img
+              class="tiny-icons-linkless"
+              th:src="@{/images/icons/icon-email.png}"
+              alt="letter icon"
+          /><span>
+                  <a>보낸 편지함</a></span
+        >
+        </h3>
+        <ul>
+          <li>고생하셨습니다 힘들 땐 술로 풀어야</li>
+          <li>거기 저도 가봤는데 확실히 좋았네요</li>
+          <li>새벽 1시에 이거 보는데 무슨 짓이에요</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</article>

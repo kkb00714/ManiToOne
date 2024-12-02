@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/common.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <link rel="icon" type="image/x-icon" th:href="@{/images/favicon/favicon.ico}">
+  <title>ManiToOne</title>
+</head>
+<body>
+<section class="email-auth-section">
+  <div class="logo-box">
+    <img th:src="@{/images/logo/long-logo.png}" alt="ManiToOne logo"/>
+  </div>
+  <p class="email-auth-discription">
+    xxx@mail.com 이메일로 인증 메일을 전송했습니다.
+  </p>
+  <div class="email-auth-container">
+    <form action="">
+      <div class="email-auth-input-container">
+        <input
+            class="email-auth-number-input"
+            type="text"
+            name="email-auth-number"
+            id="email-auth-number"
+            placeholder="이메일 인증 번호 입력"
+            aria-label="이메일 인증 번호 입력"
+            required
+        />
+        <button class="sign-up-complete-button">이메일 인증 및 회원가입 완료하기</button>
+      </div>
+    </form>
+  </div>
+</section>
+</body>
+</html>

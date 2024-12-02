@@ -1,0 +1,38 @@
+<!--헤더, 우측 메뉴는 고정으로 페이지 자체가 넘어가는 것이 아니면 그 외의 화면 요소만 fragment로 로드합니다.-->
+<!--fragments/common -> 자잘히 쪼개진 공통 요소들-->
+<!--fragments/content -> 유사 페이지. 헤더, 우측 메뉴를 제외한 중앙 섹션 컨텐츠-->
+<!--fragments/modals -> 모달창 요소-->
+<!--pages/auth -> 로그인, 회원가입 페이지-->
+<!--페이지 자체가 따로 필요한 경우 pages에 추가해주시고-->
+<!--피그마 기반으로 기본 틀만 구성한 거라 없는 부분도 많고 기능은 다 빠져 있으니 자유롭게 추가/수정하십쇼-->
+<!--미구현 : 답글 모달, 관리자 페이지, 탭메뉴 이동, 더보기 메뉴, 게시물 상세로 이동하는 기능 등-->
+
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/common.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <link rel="icon" type="image/x-icon" th:href="@{/images/favicon/favicon.ico}">
+  <title>ManiToOne</title>
+</head>
+<body>
+<header th:replace="fragments/common/header :: header"></header>
+<main class="main-container">
+  <section class="middle-section" id="middleSection">
+    <!--여기에 중앙 컨텐츠가 들어갑니다-->
+    <div th:replace="fragments/content/timeline :: timeline"></div>
+    <div th:replace="fragments/modals/new-post-modal :: new-post-modal"></div>
+  </section>
+  <article th:replace="fragments/common/right-section :: right-section"></article>
+</main>
+<script th:src="@{/script/common.js}"></script>
+</body>
+</html>

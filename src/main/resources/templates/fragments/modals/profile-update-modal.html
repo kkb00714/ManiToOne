@@ -1,0 +1,86 @@
+<!-- 프로필 수정 모달 시작-->
+<div class="profile-update-modal" id="profileUpdateModalBackground"
+     th:fragment="profile-update-modal">
+  <div
+      class="profile-update-modal-container"
+      id="profileUpdateModalContainer"
+  >
+    <div class="profile-update-container">
+      <div class="profile-update-title">
+        <p>프로필 수정</p>
+        <img
+            class="tiny-icons"
+            id="closeProfileUpdateBtn"
+            th:src="@{/images/icons/icon-cancel.png}"
+            alt="close icon"
+        />
+      </div>
+      <form action="">
+        <div class="profile-input-container">
+          <div class="name-photo-container">
+            <div class="user-name-container">
+              <label class="user-profile-label" for="user-name"
+              >이름</label
+              >
+              <input
+                  class="profile-input"
+                  type="text"
+                  name="user-name"
+                  id="user-name"
+                  placeholder="이름 입력"
+                  required
+              />
+            </div>
+            <img
+                class="user-photo"
+                th:src="@{/images/icons/UI-user2.png}"
+                alt=""
+            />
+          </div>
+          <div class="user-nickname-container">
+            <label class="user-profile-label" for="user-nickname"
+            >닉네임</label
+            >
+            <input
+                class="profile-input"
+                type="text"
+                name="user-nickname"
+                id="user-nickname"
+                placeholder="닉네임 입력"
+                required
+            />
+          </div>
+          <div class="user-introduce-container">
+            <label class="user-profile-label" for="user-introduce"
+            >소개</label
+            >
+            <input
+                class="profile-input"
+                type="text"
+                name="user-intruduce"
+                id="user-introduce"
+                placeholder="소개 입력"
+                required
+            />
+          </div>
+          <div class="user-password-container">
+            <label class="user-profile-label" for="user-password"
+            >비밀번호</label
+            >
+            <input
+                class="profile-input"
+                type="password"
+                name="user-password"
+                id="user-password"
+                placeholder="비밀번호(영문 대-소문자, 숫자, 특수문자 포함 10~16자)"
+                aria-label="비밀번호 입력"
+                required
+            />
+          </div>
+          <button class="profile-update-complete-button">완료</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- 프로필 수정 모달 끝-->

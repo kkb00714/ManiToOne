@@ -47,6 +47,8 @@ public class PostService {
         .isManito(request.getIsManito())
         .build();
 
+    postRepository.save(post);
+
     // 이미지 저장
     List<MultipartFile> images = request.getImages();
 

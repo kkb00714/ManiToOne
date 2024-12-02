@@ -2,6 +2,7 @@ package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
+import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.repository.PostImageRepository;
@@ -24,9 +25,13 @@ public class PostService {
   private final PostImageRepository postImageRepository;
 
   // 게시글 생성
-  public PostResponseDto createPost(AddPostRequestDto request) throws IOException {
+  public PostResponseDto createPost(AddPostRequestDto request, User user) throws IOException {
     // text 저장
-    Post post = postRepository.save(request.toEntity());
+    Post post = Post.builder()
+        .user(user)
+        .content(request.getContent())
+        .isManito(request.getIsManito())
+        .build();
 
     // 이미지 저장
     List<MultipartFile> images = request.getImages();

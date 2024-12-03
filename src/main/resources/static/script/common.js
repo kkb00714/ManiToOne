@@ -89,7 +89,14 @@ function loadContent(page) {
   const middleSection = document.getElementById('middleSection');
   middleSection.innerHTML = '<div class="loading">Loading...</div>';
 
-  fetch(`/fragments/content/${page}`)
+  let url = '';
+  if (page === 'notification') {
+    url = "noti/테스트1";
+  } else {
+    url = '/fragments/content/' + page;
+  }
+
+  fetch(url)
   .then(response => {
     if (!response.ok) {
       throw new Error('Network response was not ok');

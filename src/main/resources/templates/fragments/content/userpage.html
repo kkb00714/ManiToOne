@@ -1,0 +1,28 @@
+<!--타 유저 페이지-->
+<section class="userpage-section" th:fragment="userpage">
+  <div class="profile-container">
+    <div class="profile-title">프로필</div>
+    <div class="profile-content">
+      <div class="profile-user-info">
+        <div class="user-name-box">
+          <p class="user-name">타 유저 이름</p>
+          <p class="user-nickname">타 유저 닉네임</p>
+        </div>
+        <p class="user-introduce">소개</p>
+        <p class="follower-count">팔로워 0명</p>
+      </div>
+      <div class="profile-user-photo">
+        <img
+            class="user-photo"
+            th:src="@{/images/icons/UI-user2.png}"
+            alt="user icon"
+        />
+      </div>
+    </div>
+  </div>
+  <div class="userpage-menu-switch">
+    <button class="user-post-menu-switch">피드</button>
+    <button class="like-it-menu-switch">좋아요 누른 피드</button>
+  </div>
+  <div th:replace="fragments/content/post :: post"></div>
+</section>

@@ -1,0 +1,28 @@
+<!--헤더 + 우측 메뉴 구성의 기본 틀입니다. 페이지 새로 만드실 거 아니면 쓰실 일 없을 겁니다.-->
+
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/common.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <title>ManiToOne</title>
+</head>
+<body>
+<header th:replace="fragments/common/header :: header"></header>
+<main class="main-container">
+  <section class="middle-section" id="middleSection" th:fragment="middle-content">
+    <!--여기에 중앙 컨텐츠가 들어갑니다-->
+  </section>
+  <article th:replace="fragments/common/right-section :: right-section"></article>
+</main>
+<script th:src="@{/script/common.js}"></script>
+</body>
+</html>

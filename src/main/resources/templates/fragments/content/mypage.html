@@ -1,0 +1,41 @@
+<section class="mypage-section" th:fragment="mypage">
+  <div class="profile-container">
+    <div class="profile-title">프로필</div>
+    <div class="profile-content">
+      <div class="profile-user-info">
+        <div class="user-name-box">
+          <p class="user-name">이름</p>
+          <p class="user-nickname">닉네임</p>
+        </div>
+        <p class="user-introduce">소개</p>
+        <p class="follower-count">팔로워 0명</p>
+      </div>
+      <div class="profile-user-photo">
+        <img
+            class="user-photo"
+            th:src="@{/images/icons/UI-user2.png}"
+            alt="user icon"
+        />
+      </div>
+    </div>
+    <button class="profile-update-button" id="openProfileUpdateBtn">
+      프로필 수정
+    </button>
+  </div>
+  <div class="mypage-menu-switch">
+    <button class="my-post-menu-switch">내 피드</button>
+    <button class="like-it-menu-switch">좋아요 누른 피드</button>
+    <button class="hidden-post-menu-switch">숨긴 피드</button>
+  </div>
+  <div class="new-post-form">
+    <img
+        class="user-photo"
+        th:src="@{/images/icons/UI-user2.png}"
+        alt="user icon"
+    />
+    <p id="openPostFormModalBtn">함께 나누고픈 감정이 있나요?</p>
+  </div>
+  <div th:replace="fragments/modals/profile-update-modal :: profile-update-modal"></div>
+  <div th:replace="fragments/modals/new-post-modal :: new-post-modal"></div>
+  <div th:replace="fragments/content/post :: post"></div>
+</section>

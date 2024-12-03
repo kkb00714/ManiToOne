@@ -15,14 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class UserAuthController {
+
   private final UserAuthService userAuthService;
 
   @PostMapping("/signup")
   public ResponseEntity<String> signUp(
       @Valid
       @RequestBody UserSignUpDTO userSignUpDTO
-      ) {
-    String message = userAuthService.registerUser(userSignUpDTO);
-    return ResponseEntity.status(HttpStatus.CREATED).body(message);
+  ) {
+    try {
+      userAuthService.registerUser(userSignUpDTO);
+      return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료됐습니다.");
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
   }
 }

@@ -16,30 +16,24 @@ public class UserAuthService {
 
   @Transactional
   public String registerUser(UserSignUpDTO userSignUpDTO) {
+    // DTO 내부 검증 호출 - 비밀번호 검증
+    userSignUpDTO.validatePasswords();
+
     // 이메일 중복 체크
     Optional<User> existUserByEmail = userRepository.findByEmail(userSignUpDTO.getEmail());
     if (existUserByEmail.isPresent()) {
-      return "이메일이 이미 사용중입니다.";
-    }
-
-    if (!userSignUpDTO.getPassword().equals(userSignUpDTO.getConfirmPassword())) {
-      return "비밀번호가 일치하지 않습니다.";
+      throw new IllegalArgumentException("이메일이 이미 사용중입니다.");
     }
 
     // 닉네임 중복 체크
-//    Optional<User> existUserByNickname = userRepository.findUserByNickname(userSignUpDTO.getNickname());
-//    if (existUserByNickname.isPresent()) {
-//      return "닉네임이 이미 사용중입니다.";
-//    }
+    Optional<User> existUserByNickname = userRepository.findUserByNickname(
+        userSignUpDTO.getNickname());
+    if (existUserByNickname.isPresent()) {
+      throw new IllegalArgumentException("닉네임이 이미 사용중입니다.");
+    }
 
     // 중복이 없으면 회원가입 진행
-    User newUser = User.builder()
-        .email(userSignUpDTO.getEmail())
-        .password(userSignUpDTO.getPassword())
-        .nickname(userSignUpDTO.getNickname())
-        .name(userSignUpDTO.getName())
-        .birth(userSignUpDTO.getBirth())
-        .build();
+    User newUser = userSignUpDTO.toEntity();
 
     userRepository.save(newUser);
     return "회원가입이 완료됐습니다";

@@ -25,7 +25,7 @@ public class NotificationService {
     return notificationRepository.save(AddNotificationRequestDto.builder()
         .receiveUser(userRepository.findUserByNickname(receiveUserNickname)
             .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다.")))
-        .sendUser(userRepository.findById(2L).orElseThrow())
+        .sendUser(sendUser)
         .type(type)
         .relatedObjectId(relatedObjectId)
         .build().toEntity()).toResponse();

@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PostResponseDto {
+public class PostViewResponseDto {
 
   private Long postId;
   private Long userId;

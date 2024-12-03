@@ -6,6 +6,7 @@ import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class UserAuthService {
 
   private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
   @Transactional
   public String registerUser(UserSignUpDTO userSignUpDTO) {
@@ -32,8 +34,11 @@ public class UserAuthService {
       throw new IllegalArgumentException("닉네임이 이미 사용중입니다.");
     }
 
+    // 비밀번호 암호화
+    String encryptedPassword = passwordEncoder.encode(userSignUpDTO.getPassword());
+
     // 중복이 없으면 회원가입 진행
-    User newUser = userSignUpDTO.toEntity();
+    User newUser = userSignUpDTO.toEntity(encryptedPassword);
 
     userRepository.save(newUser);
     return "회원가입이 완료됐습니다";

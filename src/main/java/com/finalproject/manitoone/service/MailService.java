@@ -43,7 +43,7 @@ public class MailService {
       body += "<h3>" + "감사합니다." + "</h3>";
       message.setText(body, "UTF-8", "html");
     } catch (MessagingException e) {
-      e.printStackTrace();
+      throw new RuntimeException("이메일 인증이 완료되지 않았습니다.");
     }
     return message;
   }

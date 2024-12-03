@@ -1,7 +1,6 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.NotiType;
-import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddNotificationRequestDto;
 import com.finalproject.manitoone.domain.dto.NotificationResponseDto;
@@ -35,7 +34,21 @@ public class NotificationService {
     return notificationRepository.findByIsReadAndUserOrderByNotiIdDesc(false,
             userRepository.findUserByNickname(nickname)
                 .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다."))).stream()
-        .map(Notification::toResponse)
+        .map(notification -> {
+          NotificationResponseDto notificationResponseDto = notification.toResponse();
+          notificationResponseDto.setTimeDifference();
+          if (notificationResponseDto.getType() == NotiType.POST_REPLY ||
+              notificationResponseDto.getType() == NotiType.POST_RE_REPLY ||
+              notificationResponseDto.getType() == NotiType.FOLLOW ||
+              notificationResponseDto.getType() == NotiType.LIKE_CLOVER) {
+            User sendUser = userRepository.findById(notificationResponseDto.getRelatedObjectId())
+                .orElseThrow(() -> new IllegalArgumentException("알림을 보낸 유저를 찾을 수 없습니다."));
+            notificationResponseDto.setContent(sendUser.getNickname());
+          } else {
+            notificationResponseDto.setContent(null);
+          }
+          return notificationResponseDto;
+        })
         .toList();
   }
 }

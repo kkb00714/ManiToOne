@@ -1,7 +1,6 @@
 package com.finalproject.manitoone.controller.view;
 
 import com.finalproject.manitoone.service.NotificationService;
-import com.finalproject.manitoone.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class NotificationViewController {
 
   private final NotificationService notificationService;
-  private final UserService userService;
 
   @GetMapping("/{nickname}")
   public String getNotifications(@PathVariable String nickname, Model model) {

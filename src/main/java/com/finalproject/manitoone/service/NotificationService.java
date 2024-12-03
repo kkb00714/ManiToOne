@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.NotiType;
+import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddNotificationRequestDto;
 import com.finalproject.manitoone.domain.dto.NotificationResponseDto;
@@ -50,5 +51,11 @@ public class NotificationService {
           return notificationResponseDto;
         })
         .toList();
+  }
+
+  public void readNotification(Long notiId) {
+    Notification notification = notificationRepository.findById(notiId)
+        .orElseThrow(() -> new IllegalArgumentException("알림이 존재하지 않습니다."));
+    notification.markAsRead();
   }
 }

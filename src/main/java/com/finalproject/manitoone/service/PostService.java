@@ -5,11 +5,8 @@ import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
-import com.finalproject.manitoone.dto.post.PostResponseDto;
+import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
-import com.finalproject.manitoone.domain.PostImage;
-import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
-import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
@@ -17,17 +14,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -82,26 +73,26 @@ public class PostService {
         .build());
   }
 
-  public List<PostResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
+  public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
     // TODO: 내 게시글인지는 어떻게 판별할까요?
     List<Post> posts = postRepository.findAllByIsBlindFalseAndIsHiddenFalseAndUser_Nickname(
             nickName,
             pageable)
         .orElseThrow(() -> new IllegalArgumentException("해당하는 유저 ID를 찾을 수 없습니다."));
 
-    List<PostResponseDto> postResponses = posts.stream()
-        .map(Post::toPostResponseDto)
+    List<PostViewResponseDto> postResponses = posts.stream()
+        .map(Post::toPostViewResponseDto)
         .toList();
 
     return addAdditionalDataToDto(postResponses);
   }
 
-  public List<PostResponseDto> getLikePostByNickName(String nickName, Pageable pageable) {
-    List<PostResponseDto> postResponses = userPostLikeRepository.findAllByUser_nicknameAndPost_IsHiddenFalseAndPost_IsBlindFalse(
+  public List<PostViewResponseDto> getLikePostByNickName(String nickName, Pageable pageable) {
+    List<PostViewResponseDto> postResponses = userPostLikeRepository.findAllByUser_nicknameAndPost_IsHiddenFalseAndPost_IsBlindFalse(
             nickName, pageable)
         .orElseThrow(() -> new IllegalArgumentException("해당하는 유저 ID를 찾을 수 없습니다."))
         .stream()
-        .map(userPostLike -> new PostResponseDto(
+        .map(userPostLike -> new PostViewResponseDto(
             userPostLike.getPost().getPostId(),
             userPostLike.getUser().getUserId(),
             userPostLike.getPost().getContent(),
@@ -114,18 +105,18 @@ public class PostService {
     return addAdditionalDataToDto(postResponses);
   }
 
-  public List<PostResponseDto> getMyHiddenPosts(String nickName, Pageable pageable) {
-    List<PostResponseDto> postResponses = postRepository.findAllByIsBlindFalseAndIsHiddenTrueAndUser_Nickname(
+  public List<PostViewResponseDto> getMyHiddenPosts(String nickName, Pageable pageable) {
+    List<PostViewResponseDto> postResponses = postRepository.findAllByIsBlindFalseAndIsHiddenTrueAndUser_Nickname(
             nickName, pageable)
         .orElseThrow(() -> new IllegalArgumentException("해당하는 유저 ID를 찾을 수 없습니다."))
         .stream()
-        .map(Post::toPostResponseDto)
+        .map(Post::toPostViewResponseDto)
         .toList();
 
     return addAdditionalDataToDto(postResponses);
   }
 
-  private List<PostResponseDto> addAdditionalDataToDto(List<PostResponseDto> postResponses) {
+  private List<PostViewResponseDto> addAdditionalDataToDto(List<PostViewResponseDto> postResponses) {
     postResponses.forEach(postResponseDto -> {
       List<PostImageResponseDto> postImages = postImageRepository.findAllByPost_PostId(
               postResponseDto.getPostId())

@@ -10,4 +10,6 @@ public interface UserPostLikeRepository extends JpaRepository<UserPostLike, Long
 
   Optional<List<UserPostLike>> findAllByUser_nicknameAndPost_IsHiddenFalseAndPost_IsBlindFalse(
       String nickName, Pageable pageable);
+
+  Optional<Integer> countAllByPost_PostId(Long postId);
 }

@@ -32,7 +32,7 @@ public class NotificationService {
   }
 
   public List<NotificationResponseDto> getAllUnReadNotifications(String nickname) {
-    return notificationRepository.findByIsReadAndUser(false,
+    return notificationRepository.findByIsReadAndUserOrderByNotiIdDesc(false,
             userRepository.findUserByNickname(nickname)
                 .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다."))).stream()
         .map(Notification::toResponse)

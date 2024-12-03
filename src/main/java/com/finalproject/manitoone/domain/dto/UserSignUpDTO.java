@@ -31,9 +31,6 @@ public class UserSignUpDTO {
   @NotBlank(message = "비밀번호는 필수 입력값입니다.")
   private String password;
 
-  @NotBlank(message = "비밀번호 확인은 필수 입력값입니다.")
-  private String confirmPassword;
-
   @NotBlank(message = "이름은 필수 입력값입니다.")
   private String name;
 
@@ -52,11 +49,5 @@ public class UserSignUpDTO {
         .nickname(this.nickname)
         .birth(this.birth)
         .build();
-  }
-
-  public void validatePasswords() {
-    if (!this.password.equals(this.confirmPassword)) {
-      throw new IllegalArgumentException("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
-    }
   }
 }

@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.domain;
 
-import com.finalproject.manitoone.dto.post.PostResponseDto;
+import com.finalproject.manitoone.domain.dto.PostResponseDto;
+import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,8 +60,23 @@ public class Post {
   @Builder.Default
   private Boolean isBlind = false;
 
+  @Transient
   public PostResponseDto toPostResponseDto() {
-    return new PostResponseDto(this.postId, this.user.getUserId(), this.content, this.createdAt, this.updatedAt,
+    return PostResponseDto.builder()
+        .postId(this.postId)
+        .user(this.user)
+        .content(this.content)
+        .createdAt(this.createdAt)
+        .updatedAt(this.updatedAt)
+        .isManito(this.isManito)
+        .isSelected(this.isSelected)
+        .isHidden(this.isHidden)
+        .isBlind(this.isBlind)
+        .build();
+  }
+
+  public PostViewResponseDto toPostViewResponseDto() {
+    return new PostViewResponseDto(this.postId, this.user.getUserId(), this.content, this.createdAt, this.updatedAt,
         null, null);
   }
 }

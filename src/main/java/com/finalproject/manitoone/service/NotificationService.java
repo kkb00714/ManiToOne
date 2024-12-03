@@ -31,8 +31,10 @@ public class NotificationService {
         .build().toEntity()).toResponse();
   }
 
-  public List<NotificationResponseDto> getAllUnReadNotifications(User user) {
-    return notificationRepository.findByIsReadAndUser(false, user).stream()
+  public List<NotificationResponseDto> getAllUnReadNotifications(String nickname) {
+    return notificationRepository.findByIsReadAndUser(false,
+            userRepository.findUserByNickname(nickname)
+                .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다."))).stream()
         .map(Notification::toResponse)
         .toList();
   }

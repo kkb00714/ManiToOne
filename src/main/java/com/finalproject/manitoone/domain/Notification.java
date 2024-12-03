@@ -62,4 +62,9 @@ public class Notification {
         .relatedObjectId(this.relatedObjectId)
         .build();
   }
+
+  @Transient
+  public void markAsRead() {
+    this.isRead = true;
+  }
 }

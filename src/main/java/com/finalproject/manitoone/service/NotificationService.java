@@ -7,6 +7,7 @@ import com.finalproject.manitoone.domain.dto.AddNotificationRequestDto;
 import com.finalproject.manitoone.domain.dto.NotificationResponseDto;
 import com.finalproject.manitoone.repository.NotificationRepository;
 import com.finalproject.manitoone.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -53,9 +54,14 @@ public class NotificationService {
         .toList();
   }
 
-  public void readNotification(Long notiId) {
+  public void readNotification(Long notiId, HttpSession session) {
+    User user = (User) session.getAttribute("user");
     Notification notification = notificationRepository.findById(notiId)
         .orElseThrow(() -> new IllegalArgumentException("알림이 존재하지 않습니다."));
+    if (!user.getNickname().equals(notification.getUser().getNickname())) {
+      throw new IllegalArgumentException("권한이 없습니다.");
+    }
     notification.markAsRead();
+    notificationRepository.save(notification);
   }
 }

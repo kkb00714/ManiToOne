@@ -55,10 +55,11 @@ public class Notification {
   public NotificationResponseDto toResponse() {
     return NotificationResponseDto.builder()
         .notiId(this.notiId)
-        .user(this.user)
+        .user(this.user.toUserInformationDto())
         .type(this.type)
         .isRead(this.isRead)
         .createdAt(this.createdAt)
+        .relatedObjectId(this.relatedObjectId)
         .build();
   }
 }

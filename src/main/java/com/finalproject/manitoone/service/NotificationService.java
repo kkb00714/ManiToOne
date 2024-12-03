@@ -56,6 +56,9 @@ public class NotificationService {
 
   public void readNotification(Long notiId, HttpSession session) {
     User user = (User) session.getAttribute("user");
+    if (user == null) {
+      throw new IllegalArgumentException("권한이 없습니다.");
+    }
     Notification notification = notificationRepository.findById(notiId)
         .orElseThrow(() -> new IllegalArgumentException("알림이 존재하지 않습니다."));
     if (!user.getNickname().equals(notification.getUser().getNickname())) {

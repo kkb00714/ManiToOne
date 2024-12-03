@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.service;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.User;
@@ -75,10 +76,12 @@ public class PostService {
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
     // TODO: 내 게시글인지는 어떻게 판별할까요?
+    // → 세션 기반 로그인 완성 시 세션에서 받아올 예정
     List<Post> posts = postRepository.findAllByIsBlindFalseAndIsHiddenFalseAndUser_Nickname(
             nickName,
             pageable)
-        .orElseThrow(() -> new IllegalArgumentException("해당하는 유저 ID를 찾을 수 없습니다."));
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
 
     List<PostViewResponseDto> postResponses = posts.stream()
         .map(Post::toPostViewResponseDto)
@@ -90,7 +93,8 @@ public class PostService {
   public List<PostViewResponseDto> getLikePostByNickName(String nickName, Pageable pageable) {
     List<PostViewResponseDto> postResponses = userPostLikeRepository.findAllByUser_nicknameAndPost_IsHiddenFalseAndPost_IsBlindFalse(
             nickName, pageable)
-        .orElseThrow(() -> new IllegalArgumentException("해당하는 유저 ID를 찾을 수 없습니다."))
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()))
         .stream()
         .map(userPostLike -> new PostViewResponseDto(
             userPostLike.getPost().getPostId(),
@@ -108,7 +112,8 @@ public class PostService {
   public List<PostViewResponseDto> getMyHiddenPosts(String nickName, Pageable pageable) {
     List<PostViewResponseDto> postResponses = postRepository.findAllByIsBlindFalseAndIsHiddenTrueAndUser_Nickname(
             nickName, pageable)
-        .orElseThrow(() -> new IllegalArgumentException("해당하는 유저 ID를 찾을 수 없습니다."))
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()))
         .stream()
         .map(Post::toPostViewResponseDto)
         .toList();
@@ -116,16 +121,19 @@ public class PostService {
     return addAdditionalDataToDto(postResponses);
   }
 
-  private List<PostViewResponseDto> addAdditionalDataToDto(List<PostViewResponseDto> postResponses) {
+  private List<PostViewResponseDto> addAdditionalDataToDto(
+      List<PostViewResponseDto> postResponses) {
     postResponses.forEach(postResponseDto -> {
       List<PostImageResponseDto> postImages = postImageRepository.findAllByPost_PostId(
               postResponseDto.getPostId())
-          .orElseThrow(() -> new IllegalArgumentException("해당하는 포스트 ID를 찾을 수 없습니다."))
+          .orElseThrow(() -> new IllegalArgumentException(
+              IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()))
           .stream()
           .map(postImage -> new PostImageResponseDto(postImage.getFileName()))  // 변환
           .toList();
       Integer likeCount = userPostLikeRepository.countAllByPost_PostId(postResponseDto.getPostId())
-          .orElseThrow(() -> new IllegalArgumentException("해당하는 포스트 ID를 찾을 수 없습니다."));
+          .orElseThrow(() -> new IllegalArgumentException(
+              IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
       postResponseDto.addLikeCount(likeCount);
       postResponseDto.addPostImages(postImages);
     });

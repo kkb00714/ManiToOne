@@ -18,22 +18,17 @@ public class NotificationService {
   private final NotificationRepository notificationRepository;
   private final UserRepository userRepository;
 
-  public AddNotificationRequestDto createAddNotificationRequest(String receiveUserNickname,
+  public NotificationResponseDto createNotification(
+      String receiveUserNickname,
       User sendUser, NotiType type,
       Long relatedObjectId) {
-
-    return AddNotificationRequestDto.builder()
+    return notificationRepository.save(AddNotificationRequestDto.builder()
         .receiveUser(userRepository.findUserByNickname(receiveUserNickname)
             .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다.")))
         .sendUser(userRepository.findById(2L).orElseThrow())
         .type(type)
         .relatedObjectId(relatedObjectId)
-        .build();
-  }
-
-  public NotificationResponseDto createNotification(
-      AddNotificationRequestDto addNotificationRequest) {
-    return notificationRepository.save(addNotificationRequest.toEntity()).toResponse();
+        .build().toEntity()).toResponse();
   }
 
   public List<NotificationResponseDto> getAllUnReadNotifications(User user) {

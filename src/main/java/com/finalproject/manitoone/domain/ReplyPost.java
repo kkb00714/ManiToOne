@@ -1,10 +1,7 @@
 package com.finalproject.manitoone.domain;
 
-import com.finalproject.manitoone.constants.NotiType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,38 +15,37 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "notification")
+@Table(name = "reply_post")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Notification {
+public class ReplyPost {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "noti_id", nullable = false)
-  private Long notiId;
+  @Column(name = "reply_post_id", nullable = false)
+  private Long replyPostId;
+
+  @ManyToOne
+  @JoinColumn(name = "post_id", nullable = false)
+  private Post post;
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @Column(name = "type", nullable = false)
-  @Enumerated(EnumType.STRING)
-  private NotiType type;
+  @Column(name = "content", nullable = false, columnDefinition = "text")
+  private String content;
 
-  @Column(name = "related_object_id", nullable = false, columnDefinition = "bigint COMMENT '게시글 댓글, 팔로워 유저, 마니또 피드 ID'")
-  private Long relatedObjectId;
+  @Column(name = "parrent_id")
+  private Long parrentId;
 
-  @Column(name = "is_read", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. 읽지 않음\\n1. 읽음'")
+  @Column(name = "is_blind", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. x\\n1. o\\n관리자가 숨길 수 있는 권한'")
   @Builder.Default
-  private Boolean isRead = false;
+  private Boolean isBlind = false;
 
   @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
-
-  public void markAsRead() {
-    this.isRead = true;
-  }
 }

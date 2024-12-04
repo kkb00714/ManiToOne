@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.service;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.Follow;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.repository.FollowRepository;
@@ -15,24 +16,26 @@ public class FollowService {
   private final FollowRepository followRepository;
   private final UserRepository userRepository;
 
-  public Boolean toggleFollow(Long userId, Long targetUserId) {
+  public Boolean toggleFollow(String myNickName, String targetNickName) {
 
-    if (userId.equals(targetUserId)) {
-      throw new IllegalArgumentException("자시 자신은 팔로우 할 수 없습니다.");
+    if (myNickName.equals(targetNickName)) {
+      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_FOLLOW_YOURSELF.getMessage());
     }
 
-    Optional<Follow> follow = followRepository.findByFollower_UserIdAndFollowing_UserId(userId,
-        targetUserId);
+    User my = userRepository.findUserByNickname(myNickName).orElseThrow(
+        () -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
+    User target = userRepository.findUserByNickname(targetNickName).orElseThrow(
+        () -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
+
+    Optional<Follow> follow = followRepository.findByFollower_UserIdAndFollowing_UserId(my.getUserId(),
+        target.getUserId());
 
     if (follow.isPresent()) {
       followRepository.delete(follow.get());
       return Boolean.FALSE;
     } else {
-      // TODO: 재사용 가능해 보이는 메시지를 Enum 클래스에 정의하기
-      User my = userRepository.findById(userId)
-          .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 유저를 찾을 수 없습니다."));
-      User target = userRepository.findById(targetUserId)
-          .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 유저를 찾을 수 없습니다."));
       Follow newFollow = new Follow(null, my, target);
       followRepository.save(newFollow);
       return Boolean.TRUE;

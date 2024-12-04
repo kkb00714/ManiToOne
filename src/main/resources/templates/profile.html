@@ -1,0 +1,252 @@
+<!--헤더, 우측 메뉴는 고정으로 페이지 자체가 넘어가는 것이 아니면 그 외의 화면 요소만 fragment로 로드합니다.-->
+<!--fragments/common -> 자잘히 쪼개진 공통 요소들-->
+<!--fragments/content -> 유사 페이지. 헤더, 우측 메뉴를 제외한 중앙 섹션 컨텐츠-->
+<!--fragments/modals -> 모달창 요소-->
+<!--pages/auth -> 로그인, 회원가입 페이지-->
+<!--페이지 자체가 따로 필요한 경우 pages에 추가해주시고-->
+<!--피그마 기반으로 기본 틀만 구성한 거라 없는 부분도 많고 기능은 다 빠져 있으니 자유롭게 추가/수정하십쇼-->
+<!--미구현 : 답글 모달, 관리자 페이지, 탭메뉴 이동, 더보기 메뉴, 게시물 상세로 이동하는 기능 등-->
+
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/common.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <link
+      rel="icon"
+      type="image/x-icon"
+      th:href="@{/images/favicon/favicon.ico}"
+  />
+  <title>ManiToOne</title>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      let pageNum = 0;
+      const userNickName = '[[${user.nickname}]]';
+      const postsContainer = document.getElementById("postsContainer");
+      let isLoading = false;
+      let hasMorePosts = true;
+      let currentCategory = 1; // 1: 내 피드, 2: 좋아요 누른 피드, 3: 숨긴 피드
+
+      window.addEventListener('scroll', function () {
+        if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 100) {
+          if (!isLoading && hasMorePosts) {
+            isLoading = true;
+            pageNum++;
+            loadPosts(pageNum);
+          }
+        }
+      });
+
+      // 카테고리 버튼 클릭 이벤트 처리
+      document.querySelector('.my-post-menu-switch').addEventListener('click', function() {
+        currentCategory = 1;
+        pageNum = 0; // 페이지 번호 초기화
+        hasMorePosts = true; // 게시물 로드 여부 초기화
+        postsContainer.innerHTML = ''; // 기존 게시물 비우기
+        loadPosts(pageNum); // 내 피드 게시물 로드
+      });
+
+      document.querySelector('.like-it-menu-switch').addEventListener('click', function() {
+        currentCategory = 2;
+        pageNum = 0; // 페이지 번호 초기화
+        hasMorePosts = true; // 게시물 로드 여부 초기화
+        postsContainer.innerHTML = ''; // 기존 게시물 비우기
+        loadPosts(pageNum); // 좋아요 누른 피드 게시물 로드
+      });
+
+      document.querySelector('.hidden-post-menu-switch').addEventListener('click', function() {
+        currentCategory = 3;
+        pageNum = 0; // 페이지 번호 초기화
+        hasMorePosts = true; // 게시물 로드 여부 초기화
+        postsContainer.innerHTML = ''; // 기존 게시물 비우기
+        loadPosts(pageNum); // 숨긴 피드 게시물 로드
+      });
+
+      function loadPosts(pageNum) {
+        let apiUrl = '';
+
+        // 카테고리별로 다른 API URL 설정
+        if (currentCategory === 1) {
+          apiUrl = `/api/post/by/[[${nickname}]]?page=${pageNum}`;
+        } else if (currentCategory === 2) {
+          apiUrl = `/api/post/[[${nickname}]]/liked?page=${pageNum}`;
+        } else if (currentCategory === 3) {
+          apiUrl = `/api/post/hidden?page=${pageNum}`;
+        }
+
+        fetch(apiUrl)
+        .then(response => response.json())
+        .then(posts => {
+          if (posts && posts.length > 0) {
+            posts.forEach(post => {
+              const postElement = createPostElement(post);
+              postsContainer.appendChild(postElement);
+            });
+          } else {
+            hasMorePosts = false; // 더 이상 게시물이 없으면 hasMorePosts를 false로 설정
+          }
+          isLoading = false;
+
+          // 게시물이 로드된 후에 addFriendButtons 이벤트 리스너 추가
+          addFriendButtonsEventListener();
+        })
+        .catch(error => {
+          console.error('Error loading posts:', error);
+          isLoading = false;
+        });
+      }
+
+      function createPostElement(post) {
+        const postElement = document.createElement("div");
+        postElement.classList.add("post-container");
+
+        const timeText = post.updatedAt ? `(수정됨) ${timeForToday(post.updatedAt)}` : timeForToday(post.createdAt);
+
+        postElement.innerHTML = `
+      <img class="user-photo" src="${post.profileImage || '/images/icons/UI-user2.png'}" alt="user icon" />
+      <div class="post-content">
+        <div class="user-info">
+          <span class="user-name">${post.nickName}</span>
+          <span class="passed-time" data-created-at="${post.createdAt}" data-updated-at="${post.updatedAt}">${timeText}</span>
+        </div>
+        <p class="content-text">${post.content}</p>
+        <div class="reaction-icons">
+          <img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="I like this" />
+          <span class="like-count">${post.likeCount}</span>
+          <img class="tiny-icons" src="/images/icons/icon-comment2.png" alt="add reply" />
+          <span class="reply-count">${post.replies.length}</span>
+        </div>
+      </div>
+      <div class="option-icons">
+        <img class="tiny-icons" src="/images/icons/UI-more2.png" alt="more options" />
+        ${userNickName !== post.nickName ? '<img class="tiny-icons" src="/images/icons/icon-add-friend.png" alt="add friend" data-target-id="' + post.nickName + '"/>' : ''}
+      </div>
+    `;
+        return postElement;
+      }
+
+      function timeForToday(value) {
+        const today = new Date();
+        const timeValue = new Date(value);
+
+        const betweenTime = Math.floor((today.getTime() - timeValue.getTime()) / 1000 / 60);
+        if (betweenTime < 1) {
+          return '방금전';
+        }
+        if (betweenTime < 60) {
+          return `${betweenTime}분전`;
+        }
+        const betweenTimeHour = Math.floor(betweenTime / 60);
+        if (betweenTimeHour < 24) {
+          return `${betweenTimeHour}시간전`;
+        }
+        const betweenTimeDay = Math.floor(betweenTime / 60 / 24);
+        if (betweenTimeDay < 30) {
+          return `${betweenTimeDay}일전`;
+        }
+        if (betweenTimeDay < 365) {
+          return `${Math.floor(betweenTimeDay / 30)}개월전`;
+        }
+        return `${Math.floor(betweenTimeDay / 365)}년전`;
+      }
+
+      function addFriendButtonsEventListener() {
+        const addFriendButtons = document.querySelectorAll('img[alt="add friend"]');
+
+        addFriendButtons.forEach(button => {
+          button.addEventListener("click", function () {
+            // TODO: 하드코딩된 내 아이디 제거
+            const myId = '테스트1';
+            const targetId = this.dataset.targetId;
+
+            // API 호출
+            fetch(`/api/follow/${myId}/${targetId}`)
+            .then(response => {
+              if (response.status === 201) {
+                location.reload();
+                this.alt = "remove friend"; // 팔로우 버튼을 언팔로우 버튼으로 변경
+              } else if (response.status === 200) {
+                location.reload();
+                this.alt = "add friend"; // 언팔로우 버튼을 팔로우 버튼으로 변경
+              } else if (response.status === 500) {
+                alert("wtf?");
+              }
+
+            })
+            .catch(error => {
+              console.error("API 호출 중 오류 발생:", error);
+            });
+          });
+        });
+      }
+
+      // 초기 로딩
+      loadPosts(pageNum);
+    });
+  </script>
+</head>
+<body>
+<header th:replace="fragments/common/header :: header"></header>
+<main class="main-container">
+  <section class="middle-section" id="middleSection">
+    <section class="mypage-section" th:fragment="mypage">
+      <div class="profile-container">
+        <div class="profile-title">프로필</div>
+        <div class="profile-content">
+          <div class="profile-user-info">
+            <div class="user-name-box">
+              <p class="user-name" th:text="${user.getName()}">이름</p>
+              <p class="user-nickname" th:text="${user.getNickname()}">닉네임</p>
+            </div>
+            <p class="user-introduce" th:text="${user.getIntroduce()}">소개</p>
+            <p class="follower-count">팔로워 [[${user.getFollowings().size()}]]명</p>
+          </div>
+          <div class="profile-user-photo">
+            <img
+                class="user-photo"
+                th:src="@{/images/icons/UI-user2.png}"
+                alt="user icon"
+            />
+          </div>
+        </div>
+        <button class="profile-update-button" id="openProfileUpdateBtn">
+          프로필 수정
+        </button>
+      </div>
+      <div class="mypage-menu-switch">
+        <button class="my-post-menu-switch">내 피드</button>
+        <button class="like-it-menu-switch">좋아요 누른 피드</button>
+        <button class="hidden-post-menu-switch">숨긴 피드</button>
+      </div>
+      <div class="new-post-form">
+        <img
+            class="user-photo"
+            th:src="@{/images/icons/UI-user2.png}"
+            alt="user icon"
+        />
+        <p id="openPostFormModalBtn">함께 나누고픈 감정이 있나요?</p>
+      </div>
+      <div th:replace="fragments/modals/profile-update-modal :: profile-update-modal"></div>
+      <div th:replace="fragments/modals/new-post-modal :: new-post-modal"></div>
+      <!--작성 시간, 답글 보이지 않는 가장 기본 게시글 덩어리-->
+      <div id="postsContainer" class="posts-container">
+
+      </div>
+    </section>
+  </section>
+  <article
+      th:replace="fragments/common/right-section :: right-section"
+  ></article>
+</main>
+<script th:src="@{/script/common.js}"></script>
+<script th:src="@{/script/newPost.js}"></script>
+</body>
+</html>

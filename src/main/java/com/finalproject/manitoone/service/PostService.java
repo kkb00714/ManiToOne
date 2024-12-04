@@ -1,12 +1,18 @@
 package com.finalproject.manitoone.service;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
+import com.finalproject.manitoone.dto.post.PostViewResponseDto;
+import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
+import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
+import com.finalproject.manitoone.repository.ReplyPostRepository;
+import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +20,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +30,8 @@ public class PostService {
 
   private final PostRepository postRepository;
   private final PostImageRepository postImageRepository;
+  private final UserPostLikeRepository userPostLikeRepository;
+  private final ReplyPostRepository replyPostRepository;
 
   // 게시글 생성
   public PostResponseDto createPost(AddPostRequestDto request, User user) throws IOException {
@@ -66,5 +75,89 @@ public class PostService {
         .fileName(originalFilename)
         .post(post)
         .build());
+  }
+
+  public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
+    // TODO: 내 게시글인지는 어떻게 판별할까요?
+    // → 세션 기반 로그인 완성 시 세션에서 받아올 예정
+    List<Post> posts = postRepository.findAllByIsBlindFalseAndIsHiddenFalseAndUser_Nickname(
+            nickName,
+            pageable)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
+
+    List<PostViewResponseDto> postResponses = posts.stream()
+        .map(post -> new PostViewResponseDto(post.getPostId(), post.getUser().getProfileImage(),
+            post.getUser().getNickname(), post.getContent(), post.getCreatedAt(),
+            post.getUpdatedAt()
+        ))
+        .toList();
+
+    return addAdditionalDataToDto(postResponses);
+  }
+
+  public List<PostViewResponseDto> getLikePostByNickName(String nickName, Pageable pageable) {
+    List<PostViewResponseDto> postResponses = userPostLikeRepository.findAllByUser_nicknameAndPost_IsHiddenFalseAndPost_IsBlindFalse(
+            nickName, pageable)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()))
+        .stream()
+        .map(userPostLike -> new PostViewResponseDto(
+            userPostLike.getPost().getPostId(),
+            userPostLike.getUser().getProfileImage(),
+            userPostLike.getUser().getNickname(),
+            userPostLike.getPost().getContent(),
+            userPostLike.getPost().getCreatedAt(),
+            userPostLike.getPost().getUpdatedAt())
+        ).toList();
+
+    return addAdditionalDataToDto(postResponses);
+  }
+
+  public List<PostViewResponseDto> getMyHiddenPosts(String nickName, Pageable pageable) {
+    List<PostViewResponseDto> postResponses = postRepository.findAllByIsBlindFalseAndIsHiddenTrueAndUser_Nickname(
+            nickName, pageable)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()))
+        .stream()
+        .map(post -> new PostViewResponseDto(
+            post.getPostId(),
+            post.getUser().getProfileImage(),
+            post.getUser().getNickname(),
+            post.getContent(),
+            post.getCreatedAt(),
+            post.getUpdatedAt()
+        ))
+        .toList();
+
+    return addAdditionalDataToDto(postResponses);
+  }
+
+  private List<PostViewResponseDto> addAdditionalDataToDto(
+      List<PostViewResponseDto> postResponses) {
+    postResponses.forEach(postResponseDto -> {
+      List<PostImageResponseDto> postImages = postImageRepository.findAllByPost_PostId(
+              postResponseDto.getPostId())
+          .orElseThrow(() -> new IllegalArgumentException(
+              IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()))
+          .stream()
+          .map(postImage -> new PostImageResponseDto(postImage.getFileName()))  // 변환
+          .toList();
+      Integer likeCount = userPostLikeRepository.countAllByPost_PostId(postResponseDto.getPostId())
+          .orElseThrow(() -> new IllegalArgumentException(
+              IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+      List<ReplyPostResponseDto> replies = replyPostRepository.findAllByPost_PostIdAndIsBlindFalse(
+              postResponseDto.getPostId()).orElseThrow(() -> new IllegalArgumentException(
+              IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()))
+          .stream()
+          .map(reply -> new ReplyPostResponseDto(reply.getUser().getNickname(),
+              reply.getUser().getProfileImage(), reply.getContent(), reply.getCreatedAt()))
+          .toList();
+      postResponseDto.addLikeCount(likeCount);
+      postResponseDto.addPostImages(postImages);
+      postResponseDto.addReplies(replies);
+    });
+
+    return postResponses;
   }
 }

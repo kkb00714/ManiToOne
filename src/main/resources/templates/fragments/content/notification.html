@@ -1,65 +1,18 @@
 <section class="notification-section" th:fragment="notification">
-  <div class="notification-container">
-    <img class="user-photo" th:src="@{/images/icons/UI-user2.png}" alt="user icon"/>
+  <div th:each="notification : ${notifications}" class="notification-container"
+       th:data-type="${notification.type}"
+       th:data-id="${notification.relatedObjectId}"
+       th:data-nickname="${notification.nickname}">
+    <img class="user-photo"
+         th:if="${notification.user != null and notification.user.profileImage != null}"
+         th:src="${notification.user.profileImage}"
+         alt="user icon"/>
     <div class="notification-content">
               <span class="notification-description"
-              >beer_lover 님이 나를 팔로우했습니다.</span
-              >
-      <span class="passed-time">3분</span>
-    </div>
-  </div>
-  <div class="notification-container">
-    <img class="user-photo" th:src="@{/images/icons/UI-user2.png}" alt="user icon"/>
-    <div class="notification-content">
-              <span class="notification-description"
-              >gimme_clover 님이 내 게시물에 클로버를 보냈습니다.</span
-              >
-      <span class="passed-time">8분</span>
-    </div>
-  </div>
-  <div class="notification-container">
-    <img class="user-photo" th:src="@{/images/icons/UI-user2.png}" alt="user icon"/>
-    <div class="notification-content">
-              <span class="notification-description"
-              >gimme_clover 님이 나를 팔로우했습니다.</span
-              >
-      <span class="passed-time">9분</span>
-    </div>
-  </div>
-  <div class="notification-container">
-    <img
-        class="user-photo"
-        th:src="@{/images/icons/icon-clover2.png}"
-        alt="user icon"
-    />
-    <div class="notification-content">
-              <span class="notification-description"
-              >내 게시물에 마니또가 답글을 남겼습니다. 어서 확인해봐요!
-              </span>
-      <span class="passed-time">1시간</span>
-    </div>
-  </div>
-  <div class="notification-container">
-    <img
-        class="user-photo"
-        th:src="@{/images/icons/icon-clover2.png}"
-        alt="user icon"
-    />
-    <div class="notification-content">
-              <span class="notification-description"
-              >두근두근! 나는 오늘 누구의 마니또가 되었을까요? 게시물을
-                확인하고 격려와 칭찬을 남기러 가요!
-              </span>
-      <span class="passed-time">4시간</span>
-    </div>
-  </div>
-  <div class="notification-container">
-    <img class="user-photo" th:src="@{/images/icons/UI-user2.png}" alt="user icon"/>
-    <div class="notification-content">
-              <span class="notification-description"
-              >home_keeper 님이 내 게시물에 답글을 남겼습니다.</span
-              >
-      <span class="passed-time">5시간</span>
+                    th:text="${notification.content}">
+                </span>
+      <span class="passed-time"
+            th:text="${notification.timeDifference}"></span>
     </div>
   </div>
 </section>

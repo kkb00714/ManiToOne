@@ -1,13 +1,13 @@
 package com.finalproject.manitoone.repository;
 
-import com.finalproject.manitoone.domain.PostImage;
+import com.finalproject.manitoone.domain.ReplyPost;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PostImageRepository extends JpaRepository<PostImage, Long> {
+public interface ReplyPostRepository extends JpaRepository<ReplyPost, Long> {
 
-  Optional<List<PostImage>> findAllByPost_PostId(Long postId);
+  Optional<List<ReplyPost>> findAllByPost_PostIdAndIsBlindFalse(Long postId);
 }

@@ -22,4 +22,12 @@ public class UserInformationResponseDto {
     this.followers = followers;
     this.followings = followings;
   }
+
+  public UserInformationResponseDto(String name, String nickname, String introduce,
+      String profileImage) {
+    this.name = name;
+    this.nickname = nickname;
+    this.introduce = introduce;
+    this.profileImage = profileImage;
+  }
 }

@@ -1,7 +1,6 @@
 package com.finalproject.manitoone.domain;
 
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
-import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -73,10 +72,5 @@ public class Post {
         .isHidden(this.isHidden)
         .isBlind(this.isBlind)
         .build();
-  }
-
-  public PostViewResponseDto toPostViewResponseDto() {
-    return new PostViewResponseDto(this.postId, this.user.getUserId(), this.content, this.createdAt, this.updatedAt,
-        null, null);
   }
 }

@@ -1,11 +1,12 @@
 package com.finalproject.manitoone.controller.view;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@Controller
 public class UserAuthViewController {
 
+  // TODO 회원가입 시 이메일 인증을 우선적으로 해야 함.
   @GetMapping("/register")
   public String getSignUpPage() {
     return "/pages/auth/sign-up";

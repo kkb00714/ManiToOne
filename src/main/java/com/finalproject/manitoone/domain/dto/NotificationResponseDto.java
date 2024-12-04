@@ -23,9 +23,8 @@ public class NotificationResponseDto {
   private String content;
   private String nickname;
   private Long relatedObjectId;
-  private Boolean isRead = false;
+  private Boolean isRead;
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-  private LocalDateTime createdAt = LocalDateTime.now();
+  private LocalDateTime createdAt;
   private String timeDifference;
-
 }

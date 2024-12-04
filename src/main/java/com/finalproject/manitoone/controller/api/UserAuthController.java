@@ -1,4 +1,4 @@
-package com.finalproject.manitoone.controller;
+package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.domain.dto.UserLoginRequestDto;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;

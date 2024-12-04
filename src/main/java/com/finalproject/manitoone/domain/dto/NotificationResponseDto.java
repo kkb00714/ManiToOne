@@ -36,7 +36,6 @@ public class NotificationResponseDto {
     this.isRead = notification.getIsRead();
     this.createdAt = notification.getCreatedAt();
     setTimeDifference();
-    setContent();
   }
 
   public void setTimeDifference() {
@@ -54,7 +53,7 @@ public class NotificationResponseDto {
     }
   }
 
-  public void setContent() {
+  public void setContent(String nickname) {
     this.content = this.type.getMessage(nickname);
   }
 }

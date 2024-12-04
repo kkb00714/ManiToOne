@@ -37,7 +37,18 @@ public class NotificationService {
     return notificationRepository.findByIsReadAndUserOrderByNotiIdDesc(false,
             userRepository.findUserByNickname(nickname)
                 .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다."))).stream()
-        .map(NotificationResponseDto::new)
+        .map(notification -> {
+          NotificationResponseDto notificationResponseDto = new NotificationResponseDto(
+              notification);
+          if (notificationResponseDto.getType().requiresUserName()) {
+            User sendUser = userRepository.findById(notificationResponseDto.getRelatedObjectId())
+                .orElseThrow(() -> new IllegalArgumentException("알림을 보낸 유저를 찾을 수 없습니다."));
+            notificationResponseDto.setContent(sendUser.getNickname());
+          } else {
+            notificationResponseDto.setContent(null);
+          }
+          return notificationResponseDto;
+        })
         .toList();
   }
 

@@ -1,0 +1,34 @@
+<nav class="nav-container" th:fragment="adminNav">
+  <h1>ManiToOne</h1>
+  <div class="UI-icon-logo">
+    <a class="home-link" href="#"
+    ><img th:src="@{/images/logo/logo.png}" alt="home"
+    /></a>
+  </div>
+  <nav>
+    <ul>
+      <li class="UI-icon-list">
+        <button
+        ><img th:src="@{/images/icons/UI-user2.png}" alt="users"
+        /></button>
+      </li>
+      <li class="UI-icon-list">
+        <button>
+          <img
+              th:src="@{/images/icons/Icon-article.png}"
+              alt="articles"
+          /></button>
+      </li>
+      <li class="UI-icon-list">
+        <button
+        ><img th:src="@{/images/icons/icon-report.png}" alt="report"
+        /></button>
+      </li>
+      <li class="UI-icon-list">
+        <button
+        ><img th:src="@{/images/icons/icon-clover2.png}" alt="monito"
+        /></button>
+      </li>
+    </ul>
+  </nav>
+</nav>

@@ -12,12 +12,21 @@
         ><img th:src="@{/images/icons/UI-home2.png}" alt="home"
         /></button>
       </li>
-      <li class="UI-icon-list">
-        <button>
-          <img
-              th:src="@{/images/icons/UI-notification2.png}"
-              alt="notification"
-          /></button>
+      <li class="UI-icon-list" th:if="${session.user != null}">
+        <!-- 세션에 유저가 있을 때 -->
+        <a th:href="@{/noti/테스트1}">
+          <button>
+            <img th:src="@{/images/icons/UI-notification2.png}" alt="notification" />
+          </button>
+        </a>
+      </li>
+      <li class="UI-icon-list" th:if="${session.user == null}">
+        <!-- 세션에 유저가 없을 때 -->
+        <a th:href="@{/login}">
+          <button>
+            <img th:src="@{/images/icons/UI-notification2.png}" alt="notification" />
+          </button>
+        </a>
       </li>
       <li class="UI-icon-list">
         <button

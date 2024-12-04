@@ -29,15 +29,19 @@ public class PostController {
 
   // 게시글 생성
   @PostMapping
-  public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
-      @AuthenticationPrincipal User user) {
-    try {
-      postService.createPost(request, user);
-      return ResponseEntity.status(HttpStatus.CREATED).build();
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
+  public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request));
   }
+
+//  public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
+//      @AuthenticationPrincipal User user) {
+//    try {
+//      postService.createPost(request, user);
+//      return ResponseEntity.status(HttpStatus.CREATED).build();
+//    } catch (Exception e) {
+//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+//    }
+//  }
 
   @GetMapping("/by/{nickName}")
   public ResponseEntity<List<PostViewResponseDto>> getPostsByUserId(@PathVariable String nickName,
@@ -46,7 +50,8 @@ public class PostController {
   }
 
   @GetMapping("/{nickName}/liked")
-  public ResponseEntity<List<PostViewResponseDto>> getLikedPostsByUserId(@PathVariable String nickName,
+  public ResponseEntity<List<PostViewResponseDto>> getLikedPostsByUserId(
+      @PathVariable String nickName,
       @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable) {
     return ResponseEntity.ok(postService.getLikePostByNickName(nickName, pageable));
   }

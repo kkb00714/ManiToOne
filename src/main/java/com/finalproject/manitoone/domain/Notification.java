@@ -1,7 +1,6 @@
 package com.finalproject.manitoone.domain;
 
 import com.finalproject.manitoone.constants.NotiType;
-import com.finalproject.manitoone.domain.dto.NotificationResponseDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +8,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
@@ -30,9 +31,9 @@ public class Notification {
   @Column(name = "noti_id", nullable = false)
   private Long notiId;
 
-//  @ManyToOne
-//  @JoinColumn(name = "user_id", nullable = false)
-//  private User user;
+  @ManyToOne
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
   @Column(name = "type", nullable = false)
   @Enumerated(EnumType.STRING)
@@ -50,13 +51,7 @@ public class Notification {
   private LocalDateTime createdAt = LocalDateTime.now();
 
   @Transient
-  public NotificationResponseDto toResponse() {
-    return NotificationResponseDto.builder()
-        .notiId(this.notiId)
-//        .user(this.user)
-        .type(this.type)
-        .isRead(this.isRead)
-        .createdAt(this.createdAt)
-        .build();
+  public void markAsRead() {
+    this.isRead = true;
   }
 }

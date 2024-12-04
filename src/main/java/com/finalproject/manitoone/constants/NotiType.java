@@ -19,4 +19,8 @@ public enum NotiType {
   public String getMessage(String userName) {
     return String.format(message, userName);
   }
+
+  public boolean requiresUserName() {
+    return message.contains("%s");
+  }
 }

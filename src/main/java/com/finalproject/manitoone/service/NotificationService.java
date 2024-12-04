@@ -23,13 +23,14 @@ public class NotificationService {
       String receiveUserNickname,
       User sendUser, NotiType type,
       Long relatedObjectId) {
-    return notificationRepository.save(AddNotificationRequestDto.builder()
-        .receiveUser(userRepository.findUserByNickname(receiveUserNickname)
-            .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다.")))
-        .sendUser(sendUser)
-        .type(type)
-        .relatedObjectId(relatedObjectId)
-        .build().toEntity()).toResponse();
+    return new NotificationResponseDto(
+        notificationRepository.save(AddNotificationRequestDto.builder()
+            .receiveUser(userRepository.findUserByNickname(receiveUserNickname)
+                .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다.")))
+            .sendUser(sendUser)
+            .type(type)
+            .relatedObjectId(relatedObjectId)
+            .build().toEntity()));
   }
 
   public List<NotificationResponseDto> getAllUnReadNotifications(String nickname) {
@@ -37,12 +38,10 @@ public class NotificationService {
             userRepository.findUserByNickname(nickname)
                 .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다."))).stream()
         .map(notification -> {
-          NotificationResponseDto notificationResponseDto = notification.toResponse();
+          NotificationResponseDto notificationResponseDto = new NotificationResponseDto(
+              notification);
           notificationResponseDto.setTimeDifference();
-          if (notificationResponseDto.getType() == NotiType.POST_REPLY ||
-              notificationResponseDto.getType() == NotiType.POST_RE_REPLY ||
-              notificationResponseDto.getType() == NotiType.FOLLOW ||
-              notificationResponseDto.getType() == NotiType.LIKE_CLOVER) {
+          if (notificationResponseDto.getType().requiresUserName()) {
             User sendUser = userRepository.findById(notificationResponseDto.getRelatedObjectId())
                 .orElseThrow(() -> new IllegalArgumentException("알림을 보낸 유저를 찾을 수 없습니다."));
             notificationResponseDto.setContent(sendUser.getNickname());

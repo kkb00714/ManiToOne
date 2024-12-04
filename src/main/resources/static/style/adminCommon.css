@@ -1,0 +1,85 @@
+h1 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  font-size: 0;
+}
+
+.nav-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 140px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 1rem 0;
+  box-sizing: border-box;
+  align-items: center;
+  background-color: #f3f3f3;
+  width: 5rem;
+  height: 100%;
+  box-shadow: 2px 0 3px rgba(171, 171, 171, 0.25);
+  margin-right: 5rem;
+}
+
+.nav-container img {
+  width: 2.5rem;
+  height: 2.5rem;
+  opacity: 75%;
+  transition: opacity 0.3s ease;
+}
+
+.nav-container img:hover {
+  opacity: 100%;
+}
+
+.UI-icon-logo img {
+  width: 4rem;
+  height: 4rem;
+  opacity: 100%;
+}
+
+.UI-icon-list {
+  margin: 2rem 0;
+}
+
+.UI-icon-more {
+  cursor: pointer;
+}
+
+.header-container img {
+  margin-left: 865px;
+  margin-top: 10px;
+  width: 350px;
+  height: 84px;
+}
+
+.middle-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.user-table {
+  width: 1700px;
+  border-collapse: collapse;
+  text-align: center;
+  font-size: 14px;
+}
+
+.user-table th, .user-table td {
+  border: 1px solid #ddd;
+  padding: 10px 0;
+  height: 55px;
+}
+
+.user-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.user-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}

@@ -11,7 +11,14 @@ public enum IllegalActionMessages {
   CANNOT_FIND_USER_BY_GIVEN_NICKNAME("해당하는 유저의 닉네임을 찾을 수 없습니다."),
   CANNOT_GET_FOLLOWERS("팔로워 정보를 가져오는 중 문제가 발생했습니다."),
   CANNOT_GET_FOLLOWING("팔로잉 정보를 가져오는 중 문제가 발생했습니다."),
-  CANNOT_FOLLOW_YOURSELF("자기 자신은 팔로우 할 수 없습니다.");
+  CANNOT_FOLLOW_YOURSELF("자기 자신은 팔로우 할 수 없습니다."),
+
+  // Auth
+  CANNOT_USE_EMAIL("이미 사용 중인 이메일입니다"),
+  CANNOT_USE_NICKNAME("이미 사용 중인 닉네임입니다"),
+  CANNOT_VERIFY_EMAIL("이메일 인증에 실패했습니다."),
+  CANNOT_FIND_EMAIL_OR_PASSWORD("이메일 및 비밀번호가 일치하지 않습니다."),
+  CANNOT_SUCCESS_LOGIN("로그인에 실패했습니다.");
 
   private final String message;
 }

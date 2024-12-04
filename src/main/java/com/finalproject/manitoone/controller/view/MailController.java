@@ -43,4 +43,21 @@ public class MailController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
+
+  // 비밀번호 초기화 메일 발송
+  @PostMapping("/password-reset")
+  public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+    String email = request.get("email");
+    String name = request.get("name");
+
+    try {
+      mailService.findPassword(email, name);
+      return ResponseEntity.ok("임시 비밀번호가 이메일로 전송되었습니다.");
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("비밀번호 초기화 실패: " + e.getMessage());
+    }
+  }
 }

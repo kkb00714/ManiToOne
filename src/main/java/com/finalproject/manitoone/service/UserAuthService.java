@@ -4,7 +4,6 @@ import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,9 +26,9 @@ public class UserAuthService {
     }
 
     // 2. 닉네임 중복 체크
-    Optional<User> existUserByNickname = userRepository.findUserByNickname(
+    boolean existUserByNickname = userRepository.existsByNickname(
         userSignUpDTO.getNickname());
-    if (existUserByNickname.isPresent()) {
+    if (existUserByNickname) {
       throw new IllegalArgumentException("닉네임이 이미 사용중입니다.");
     }
 

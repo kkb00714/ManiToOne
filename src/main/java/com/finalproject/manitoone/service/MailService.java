@@ -1,11 +1,9 @@
 package com.finalproject.manitoone.service;
 
-import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -49,8 +47,8 @@ public class MailService {
 
   public void verifyEmail(String email) {
     // 1. 중복 이메일 체크
-    Optional<User> existUserByEmail = userRepository.findByEmail(email);
-    if (existUserByEmail.isPresent()) {
+    boolean existUserByEmail = userRepository.existsByEmail(email);
+    if (existUserByEmail) {
       throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
     }
 

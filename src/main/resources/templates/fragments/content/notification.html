@@ -1,5 +1,8 @@
 <section class="notification-section" th:fragment="notification">
-  <div th:each="notification : ${notifications}" class="notification-container">
+  <div th:each="notification : ${notifications}" class="notification-container"
+       th:data-type="${notification.type}"
+       th:data-id="${notification.relatedObjectId}"
+       th:data-nickname="${notification.nickname}">
     <img class="user-photo"
          th:if="${notification.user != null and notification.user.profileImage != null}"
          th:src="${notification.user.profileImage}"

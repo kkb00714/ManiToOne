@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,7 +49,6 @@ public class Notification {
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
 
-  @Transient
   public void markAsRead() {
     this.isRead = true;
   }

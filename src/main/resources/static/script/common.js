@@ -91,7 +91,7 @@ function loadContent(page) {
 
   let url = '';
   if (page === 'notification') {
-    url = "noti/테스트1";
+    return;
   } else {
     url = '/fragments/content/' + page;
   }

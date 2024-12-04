@@ -1,17 +1,20 @@
 package com.finalproject.manitoone.domain.dto;
 
+import com.finalproject.manitoone.domain.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserSignUpDTO {
 
   @Pattern(
@@ -28,9 +31,6 @@ public class UserSignUpDTO {
   @NotBlank(message = "비밀번호는 필수 입력값입니다.")
   private String password;
 
-  @NotBlank(message = "비밀번호 확인은 필수 입력값입니다.")
-  private String confirmPassword;
-
   @NotBlank(message = "이름은 필수 입력값입니다.")
   private String name;
 
@@ -40,4 +40,14 @@ public class UserSignUpDTO {
 
   @NotNull(message = "생년월일은 필수 입력값입니다.")
   private LocalDate birth;
+
+  public User toEntity(String encryptedPassword) {
+    return User.builder()
+        .email(this.email)
+        .password(encryptedPassword)
+        .name(this.name)
+        .nickname(this.nickname)
+        .birth(this.birth)
+        .build();
+  }
 }

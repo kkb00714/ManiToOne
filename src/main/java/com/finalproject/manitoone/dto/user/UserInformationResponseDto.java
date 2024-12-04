@@ -1,7 +1,6 @@
 package com.finalproject.manitoone.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.finalproject.manitoone.domain.User;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,10 +23,11 @@ public class UserInformationResponseDto {
     this.followings = followings;
   }
 
-  public UserInformationResponseDto(User user) {
-    this.name = user.getName();
-    this.nickname = user.getNickname();
-    this.introduce = user.getIntroduce();
-    this.profileImage = user.getProfileImage();
+  public UserInformationResponseDto(String name, String nickname, String introduce,
+      String profileImage) {
+    this.name = name;
+    this.nickname = nickname;
+    this.introduce = introduce;
+    this.profileImage = profileImage;
   }
 }

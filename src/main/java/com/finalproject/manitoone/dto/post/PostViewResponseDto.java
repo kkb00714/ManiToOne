@@ -1,8 +1,6 @@
 package com.finalproject.manitoone.dto.post;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.finalproject.manitoone.domain.Post;
-import com.finalproject.manitoone.domain.ReplyPost;
 import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
 import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
 import java.time.LocalDateTime;
@@ -39,15 +37,13 @@ public class PostViewResponseDto {
     this.replies = replies;
   }
 
-  public PostViewResponseDto(Post post) {
-    this.postId = post.getPostId();
-    this.profileImage = post.getUser().getProfileImage();
-    this.nickName = post.getUser().getNickname();
-    this.content = post.getContent();
-    this.createdAt = post.getCreatedAt();
-    this.updatedAt = post.getUpdatedAt();
-    this.postImages = null;
-    this.likeCount = null;
-    this.replies = null;
+  public PostViewResponseDto(Long postId, String profileImage, String nickName,
+      String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    this.postId = postId;
+    this.profileImage = profileImage;
+    this.nickName = nickName;
+    this.content = content;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   }
 }

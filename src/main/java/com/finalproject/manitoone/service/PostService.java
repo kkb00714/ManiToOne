@@ -87,7 +87,10 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
 
     List<PostViewResponseDto> postResponses = posts.stream()
-        .map(PostViewResponseDto -> new PostViewResponseDto())
+        .map(post -> new PostViewResponseDto(post.getPostId(), post.getUser().getProfileImage(),
+            post.getUser().getNickname(), post.getContent(), post.getCreatedAt(),
+            post.getUpdatedAt()
+        ))
         .toList();
 
     return addAdditionalDataToDto(postResponses);
@@ -103,12 +106,9 @@ public class PostService {
             userPostLike.getPost().getPostId(),
             userPostLike.getUser().getProfileImage(),
             userPostLike.getUser().getNickname(),
-            userPostLike.getPost().getCreatedAt(),
-            userPostLike.getPost().getUpdatedAt(),
             userPostLike.getPost().getContent(),
-            null,
-            null,
-            null)
+            userPostLike.getPost().getCreatedAt(),
+            userPostLike.getPost().getUpdatedAt())
         ).toList();
 
     return addAdditionalDataToDto(postResponses);
@@ -120,7 +120,14 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()))
         .stream()
-        .map(PostViewResponseDto::new)
+        .map(post -> new PostViewResponseDto(
+            post.getPostId(),
+            post.getUser().getProfileImage(),
+            post.getUser().getNickname(),
+            post.getContent(),
+            post.getCreatedAt(),
+            post.getUpdatedAt()
+        ))
         .toList();
 
     return addAdditionalDataToDto(postResponses);

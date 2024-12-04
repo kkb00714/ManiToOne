@@ -22,7 +22,7 @@ public class MailController {
   public ResponseEntity<String> mailSend(@RequestBody Map<String, String> request) {
     String email = request.get("email");
     try {
-      mailService.sendMail(email);
+      mailService.verifyEmail(email);
       return ResponseEntity.ok("인증 메일이 전송되었습니다.");
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

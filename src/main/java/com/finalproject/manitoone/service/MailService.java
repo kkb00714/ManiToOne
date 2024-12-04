@@ -17,7 +17,6 @@ public class MailService {
 
   private final UserRepository userRepository;
   private final JavaMailSender javaMailSender;
-  // TODO 푸시할 때 실제 메일 숨기기
   private static final String senderEmail = "kkb00714@gmail.com";
 
   // 이메일 인증 여부 저장
@@ -48,7 +47,7 @@ public class MailService {
     return message;
   }
 
-  public void sendMail(String email) {
+  public void verifyEmail(String email) {
     // 1. 중복 이메일 체크
     Optional<User> existUserByEmail = userRepository.findByEmail(email);
     if (existUserByEmail.isPresent()) {

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/common.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <link rel="icon" type="image/x-icon" th:href="@{/images/favicon/favicon.ico}">
+  <title>ManiToOne</title>
+</head>
+<body>
+<header th:replace="fragments/common/header :: header"></header>
+<main class="main-container">
+  <section class="middle-section" id="middleSection">
+    <!--여기에 중앙 컨텐츠가 들어갑니다-->
+    <div th:replace="fragments/content/notification :: notification"></div>
+  </section>
+  <article th:replace="fragments/common/right-section :: right-section"></article>
+</main>
+<script th:src="@{/script/common.js}"></script>
+</body>
+</html>

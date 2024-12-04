@@ -16,7 +16,7 @@ public class AddPostRequestDto {
 
   private String content;
   private Boolean isManito;
-  List<MultipartFile> images;
+  // List<MultipartFile> images;
 
   public Post toEntity() {
     return Post.builder()

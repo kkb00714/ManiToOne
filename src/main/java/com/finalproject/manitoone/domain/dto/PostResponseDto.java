@@ -24,15 +24,9 @@ public class PostResponseDto {
   private Boolean isHidden;
   private Boolean isBlind;
 
-  public PostResponseDto(Post post) {
-    this.postId = post.getPostId();
-    this.user = post.getUser();
-    this.content = post.getContent();
-    this.createdAt = post.getCreatedAt();
-    this.updatedAt = post.getUpdatedAt();
-    this.isManito = post.getIsManito();
-    this.isSelected = post.getIsSelected();
-    this.isHidden = post.getIsHidden();
-    this.isBlind = post.getIsBlind();
+  public PostResponseDto(Long postId, String content, Boolean isManito) {
+    this.postId = postId;
+    this.content = content;
+    this.isManito = isManito;
   }
 }

@@ -84,7 +84,7 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
 
     List<PostViewResponseDto> postResponses = posts.stream()
-        .map(Post::toPostViewResponseDto)
+        .map(PostViewResponseDto::new)
         .toList();
 
     return addAdditionalDataToDto(postResponses);
@@ -115,7 +115,7 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()))
         .stream()
-        .map(Post::toPostViewResponseDto)
+        .map(PostViewResponseDto::new)
         .toList();
 
     return addAdditionalDataToDto(postResponses);

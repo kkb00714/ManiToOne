@@ -18,6 +18,6 @@ public class NotificationViewController {
   @GetMapping("/{nickname}")
   public String getNotifications(@PathVariable String nickname, Model model) {
     model.addAttribute("notifications", notificationService.getAllUnReadNotifications(nickname));
-    return "fragments/content/notification :: notification"; // 타임리프 Fragment 반환
+    return "/pages/notifications";
   }
 }

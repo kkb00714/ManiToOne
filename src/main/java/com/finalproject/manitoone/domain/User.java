@@ -67,4 +67,8 @@ public class User {
   @Column(name = "created_at", nullable = false, columnDefinition = "timestamp default now()")
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
 }

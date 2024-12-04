@@ -1,14 +1,16 @@
 package com.finalproject.manitoone.service;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.security.SecureRandom;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +19,7 @@ public class MailService {
 
   private final UserRepository userRepository;
   private final JavaMailSender javaMailSender;
-  // TODO 푸시할 때 실제 메일 숨기기
+  private final PasswordEncoder passwordEncoder;
   private static final String senderEmail = "kkb00714@gmail.com";
 
   // 이메일 인증 여부 저장
@@ -43,16 +45,20 @@ public class MailService {
       body += "<h3>" + "감사합니다." + "</h3>";
       message.setText(body, "UTF-8", "html");
     } catch (MessagingException e) {
-      throw new RuntimeException("이메일 인증이 완료되지 않았습니다.");
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_VERIFY_EMAIL_NUMBER.getMessage()
+      );
     }
     return message;
   }
 
-  public void sendMail(String email) {
+  public void verifyEmail(String email) {
     // 1. 중복 이메일 체크
-    Optional<User> existUserByEmail = userRepository.findByEmail(email);
-    if (existUserByEmail.isPresent()) {
-      throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+    boolean existUserByEmail = userRepository.existsByEmail(email);
+    if (existUserByEmail) {
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_USE_EMAIL.getMessage()
+      );
     }
 
     int number = createNumber();
@@ -65,7 +71,9 @@ public class MailService {
   public void verifyNumber(String email, int inputNumber) {
     Integer savedNumber = verificationMap.get(email);
     if (savedNumber == null || savedNumber != inputNumber) {
-      throw new IllegalArgumentException("인증번호가 올바르지 않습니다.");
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_VERIFY_EMAIL_NUMBER.getMessage()
+      );
     }
     // 인증 완료된 이메일 저장
     verifiedEmailMap.put(email, true);
@@ -80,5 +88,54 @@ public class MailService {
   // 인증 이메일 제거 (회원가입 후 정리)
   public void removeVerifiedEmail(String email) {
     verifiedEmailMap.remove(email);
+  }
+
+  // 랜덤 비밀번호 생성 메서드
+  private String generateRandomPassword(int length) {
+    String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+    StringBuilder password = new StringBuilder();
+    SecureRandom random = new SecureRandom();
+
+    for (int i = 0; i < length; i++) {
+      int index = random.nextInt(characters.length());
+      password.append(characters.charAt(index));
+    }
+    return password.toString();
+  }
+
+  // 비밀번호 초기화 메서드
+  public void findPassword(String email, String name) {
+
+    // 1. 이메일로 사용자 검색 및 이름 일치 여부 확인
+    User user = userRepository.findByEmail(email)
+        .filter(u -> u.getName().equals(name))
+        .orElseThrow(() ->
+            new IllegalArgumentException(IllegalActionMessages.CANNOT_FIND_ANY_USER.getMessage()));
+
+    // 2. 임시 비밀번호 생성
+    String temporaryPassword = generateRandomPassword(12);
+
+    // 3. 비밀번호 암호화 및 업데이트
+    String encodedPassword = passwordEncoder.encode(temporaryPassword);
+    user.setPassword(encodedPassword);
+    userRepository.save(user);
+
+    // 4. 이메일 발송
+    MimeMessage message = javaMailSender.createMimeMessage();
+    try {
+      message.setFrom(senderEmail);
+      message.setRecipients(MimeMessage.RecipientType.TO, email);
+      message.setSubject("비밀번호 초기화 안내");
+      String body = "<h3>안녕하세요,</h3>";
+      body += "<p>임시 비밀번호는 다음과 같습니다:</p>";
+      body += "<h2>" + temporaryPassword + "</h2>";
+      body += "<p>로그인 후 즉시 비밀번호를 변경하시기 바랍니다.</p>";
+      message.setText(body, "UTF-8", "html");
+      javaMailSender.send(message);
+    } catch (MessagingException e) {
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_VERIFY_EMAIL.getMessage()
+      );
+    }
   }
 }

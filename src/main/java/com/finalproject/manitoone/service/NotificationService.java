@@ -33,9 +33,13 @@ public class NotificationService {
             .build().toEntity()));
   }
 
-  public List<NotificationResponseDto> getAllUnReadNotifications(String nickname) {
+  public List<NotificationResponseDto> getAllUnReadNotifications(HttpSession session) {
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+      throw new IllegalArgumentException("권한이 없습니다.");
+    }
     return notificationRepository.findByIsReadAndUserOrderByNotiIdDesc(false,
-            userRepository.findUserByNickname(nickname)
+            userRepository.findUserByNickname(user.getNickname())
                 .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다."))).stream()
         .map(notification -> {
           NotificationResponseDto notificationResponseDto = new NotificationResponseDto(

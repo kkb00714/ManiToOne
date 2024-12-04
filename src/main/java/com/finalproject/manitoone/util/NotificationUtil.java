@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.util;
 
 import com.finalproject.manitoone.constants.NotiType;
+import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddNotificationRequestDto;
 import com.finalproject.manitoone.domain.dto.NotificationResponseDto;
@@ -26,17 +27,16 @@ public class NotificationUtil {
    * @param relatedObjectId 알림을 클릭했을 때 이동할 페이지의 대상 ID (예: 게시글 ID, 사용자 ID 등)
    * @return 생성된 알림 정보를 포함하는 {@link NotificationResponseDto}
    */
-  public NotificationResponseDto createNotification(
+  public Notification createNotification(
       String receiveUserNickname,
       User sendUser, NotiType type,
       Long relatedObjectId) {
-    return new NotificationResponseDto(
-        notificationRepository.save(AddNotificationRequestDto.builder()
-            .receiveUser(userRepository.findUserByNickname(receiveUserNickname)
-                .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다.")))
-            .sendUser(sendUser)
-            .type(type)
-            .relatedObjectId(relatedObjectId)
-            .build().toEntity()));
+    return notificationRepository.save(AddNotificationRequestDto.builder()
+        .receiveUser(userRepository.findUserByNickname(receiveUserNickname)
+            .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다.")))
+        .sendUser(sendUser)
+        .type(type)
+        .relatedObjectId(relatedObjectId)
+        .build().toEntity());
   }
 }

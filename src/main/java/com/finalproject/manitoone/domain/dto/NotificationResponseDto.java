@@ -34,6 +34,9 @@ public class NotificationResponseDto {
     this.nickname = notification.getUser().getNickname();
     this.relatedObjectId = notification.getRelatedObjectId();
     this.isRead = notification.getIsRead();
+    this.createdAt = notification.getCreatedAt();
+    setTimeDifference();
+    setContent();
   }
 
   public void setTimeDifference() {
@@ -51,7 +54,7 @@ public class NotificationResponseDto {
     }
   }
 
-  public void setContent(String nickname) {
+  public void setContent() {
     this.content = this.type.getMessage(nickname);
   }
 }

@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.service;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -40,7 +41,9 @@ public class MailService {
       body += "<h3>" + "감사합니다." + "</h3>";
       message.setText(body, "UTF-8", "html");
     } catch (MessagingException e) {
-      throw new RuntimeException("이메일 인증이 완료되지 않았습니다.");
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_VERIFY_EMAIL_NUMBER.getMessage()
+      );
     }
     return message;
   }
@@ -49,7 +52,9 @@ public class MailService {
     // 1. 중복 이메일 체크
     boolean existUserByEmail = userRepository.existsByEmail(email);
     if (existUserByEmail) {
-      throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_USE_EMAIL.getMessage()
+      );
     }
 
     int number = createNumber();
@@ -62,7 +67,9 @@ public class MailService {
   public void verifyNumber(String email, int inputNumber) {
     Integer savedNumber = verificationMap.get(email);
     if (savedNumber == null || savedNumber != inputNumber) {
-      throw new IllegalArgumentException("인증번호가 올바르지 않습니다.");
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_VERIFY_EMAIL_NUMBER.getMessage()
+      );
     }
     // 인증 완료된 이메일 저장
     verifiedEmailMap.put(email, true);

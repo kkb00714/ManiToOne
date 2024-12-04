@@ -24,14 +24,18 @@ public class UserAuthService {
 
     // 1. 이메일 인증 여부 확인
     if (!mailService.isVerified(email)) {
-      throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_VERIFY_EMAIL.getMessage()
+      );
     }
 
     // 2. 닉네임 중복 체크
     boolean existUserByNickname = userRepository.existsByNickname(
         userSignUpDTO.getNickname());
     if (existUserByNickname) {
-      throw new IllegalArgumentException("닉네임이 이미 사용중입니다.");
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_USE_NICKNAME.getMessage()
+      );
     }
 
     // 3. 비밀번호 암호화 후 회원 저장

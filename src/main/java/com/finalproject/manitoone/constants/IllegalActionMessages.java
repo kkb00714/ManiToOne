@@ -17,6 +17,7 @@ public enum IllegalActionMessages {
   CANNOT_USE_EMAIL("이미 사용 중인 이메일입니다"),
   CANNOT_USE_NICKNAME("이미 사용 중인 닉네임입니다"),
   CANNOT_VERIFY_EMAIL("이메일 인증에 실패했습니다."),
+  CANNOT_VERIFY_EMAIL_NUMBER("이메일 인증번호가 일치하지 않습니다."),
   CANNOT_FIND_EMAIL_OR_PASSWORD("이메일 및 비밀번호가 일치하지 않습니다."),
   CANNOT_SUCCESS_LOGIN("로그인에 실패했습니다.");
 

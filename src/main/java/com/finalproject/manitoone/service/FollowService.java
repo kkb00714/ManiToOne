@@ -16,25 +16,26 @@ public class FollowService {
   private final FollowRepository followRepository;
   private final UserRepository userRepository;
 
-  public Boolean toggleFollow(Long userId, Long targetUserId) {
+  public Boolean toggleFollow(String myNickName, String targetNickName) {
 
-    if (userId.equals(targetUserId)) {
+    if (myNickName.equals(targetNickName)) {
       throw new IllegalArgumentException(IllegalActionMessages.CANNOT_FOLLOW_YOURSELF.getMessage());
     }
 
-    Optional<Follow> follow = followRepository.findByFollower_UserIdAndFollowing_UserId(userId,
-        targetUserId);
+    User my = userRepository.findUserByNickname(myNickName).orElseThrow(
+        () -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
+    User target = userRepository.findUserByNickname(targetNickName).orElseThrow(
+        () -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
+
+    Optional<Follow> follow = followRepository.findByFollower_UserIdAndFollowing_UserId(my.getUserId(),
+        target.getUserId());
 
     if (follow.isPresent()) {
       followRepository.delete(follow.get());
       return Boolean.FALSE;
     } else {
-      User my = userRepository.findById(userId)
-          .orElseThrow(() -> new IllegalArgumentException(
-              IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
-      User target = userRepository.findById(targetUserId)
-          .orElseThrow(() -> new IllegalArgumentException(
-              IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
       Follow newFollow = new Follow(null, my, target);
       followRepository.save(newFollow);
       return Boolean.TRUE;

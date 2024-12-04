@@ -21,23 +21,25 @@ public class UserService {
     User user = userRepository.findUserByNickname(nickname)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_BY_GIVEN_NICKNAME.getMessage()));
-    UserInformationResponseDto userInformation = new UserInformationResponseDto(
-        userRepository.findUserByNickname(nickname)
-            .orElseThrow(() -> new IllegalArgumentException(
-                IllegalActionMessages.CANNOT_FIND_USER_BY_GIVEN_NICKNAME.getMessage())));
+    UserInformationResponseDto userInformation = new UserInformationResponseDto(user.getName(),
+        user.getNickname(), user.getIntroduce(), user.getProfileImage());
 
     List<Follow> followersList = followRepository.findAllByFollower_UserId(user.getUserId())
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_GET_FOLLOWERS.getMessage()));
     List<UserInformationResponseDto> followers = followersList.stream()
-        .map(follow -> new UserInformationResponseDto(follow.getFollowing()))
+        .map(follow -> new UserInformationResponseDto(follow.getFollowing().getName(),
+            follow.getFollowing().getNickname(), follow.getFollowing().getIntroduce(),
+            follow.getFollowing().getProfileImage()))
         .toList();
 
     List<Follow> followingsList = followRepository.findAllByFollowing_UserId(user.getUserId())
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_GET_FOLLOWING.getMessage()));
     List<UserInformationResponseDto> followings = followingsList.stream()
-        .map(follow -> new UserInformationResponseDto(follow.getFollower()))
+        .map(follow -> new UserInformationResponseDto(follow.getFollower().getName(),
+            follow.getFollower().getNickname(), follow.getFollower().getIntroduce(),
+            follow.getFollower().getProfileImage()))
         .toList();
 
     userInformation.setFollow(followers, followings);

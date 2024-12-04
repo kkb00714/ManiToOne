@@ -8,8 +8,10 @@ import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
+import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
+import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,6 +31,7 @@ public class PostService {
   private final PostRepository postRepository;
   private final PostImageRepository postImageRepository;
   private final UserPostLikeRepository userPostLikeRepository;
+  private final ReplyPostRepository replyPostRepository;
 
   // 게시글 생성
   public PostResponseDto createPost(AddPostRequestDto request, User user) throws IOException {
@@ -84,7 +87,10 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
 
     List<PostViewResponseDto> postResponses = posts.stream()
-        .map(PostViewResponseDto::new)
+        .map(post -> new PostViewResponseDto(post.getPostId(), post.getUser().getProfileImage(),
+            post.getUser().getNickname(), post.getContent(), post.getCreatedAt(),
+            post.getUpdatedAt()
+        ))
         .toList();
 
     return addAdditionalDataToDto(postResponses);
@@ -98,12 +104,11 @@ public class PostService {
         .stream()
         .map(userPostLike -> new PostViewResponseDto(
             userPostLike.getPost().getPostId(),
-            userPostLike.getUser().getUserId(),
+            userPostLike.getUser().getProfileImage(),
+            userPostLike.getUser().getNickname(),
             userPostLike.getPost().getContent(),
             userPostLike.getPost().getCreatedAt(),
-            userPostLike.getPost().getUpdatedAt(),
-            null,
-            null)
+            userPostLike.getPost().getUpdatedAt())
         ).toList();
 
     return addAdditionalDataToDto(postResponses);
@@ -115,7 +120,14 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()))
         .stream()
-        .map(PostViewResponseDto::new)
+        .map(post -> new PostViewResponseDto(
+            post.getPostId(),
+            post.getUser().getProfileImage(),
+            post.getUser().getNickname(),
+            post.getContent(),
+            post.getCreatedAt(),
+            post.getUpdatedAt()
+        ))
         .toList();
 
     return addAdditionalDataToDto(postResponses);
@@ -134,8 +146,16 @@ public class PostService {
       Integer likeCount = userPostLikeRepository.countAllByPost_PostId(postResponseDto.getPostId())
           .orElseThrow(() -> new IllegalArgumentException(
               IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+      List<ReplyPostResponseDto> replies = replyPostRepository.findAllByPost_PostIdAndIsBlindFalse(
+              postResponseDto.getPostId()).orElseThrow(() -> new IllegalArgumentException(
+              IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()))
+          .stream()
+          .map(reply -> new ReplyPostResponseDto(reply.getUser().getNickname(),
+              reply.getUser().getProfileImage(), reply.getContent(), reply.getCreatedAt()))
+          .toList();
       postResponseDto.addLikeCount(likeCount);
       postResponseDto.addPostImages(postImages);
+      postResponseDto.addReplies(replies);
     });
 
     return postResponses;

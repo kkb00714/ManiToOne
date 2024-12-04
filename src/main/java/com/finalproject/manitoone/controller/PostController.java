@@ -47,7 +47,7 @@ public class PostController {
 
   @GetMapping("/{nickName}/liked")
   public ResponseEntity<List<PostViewResponseDto>> getLikedPostsByUserId(@PathVariable String nickName,
-      @PageableDefault(sort = "postId", direction = Sort.Direction.DESC) Pageable pageable) {
+      @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable) {
     return ResponseEntity.ok(postService.getLikePostByNickName(nickName, pageable));
   }
 

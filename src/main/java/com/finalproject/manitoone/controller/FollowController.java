@@ -16,10 +16,11 @@ public class FollowController {
 
   private final FollowService followService;
 
-  @GetMapping("/{myId}/{targetId}")
-  public ResponseEntity<Void> followUnfollow(@PathVariable Long myId, @PathVariable Long targetId) {
+  @GetMapping("/{myNickName}/{targetNickName}")
+  public ResponseEntity<Void> followUnfollow(@PathVariable String myNickName,
+      @PathVariable String targetNickName) {
     // TODO: 내 유저의 ID를 추후 세션에서 받아오도록 변경 필요
-    if (followService.toggleFollow(myId, targetId)) {
+    if (Boolean.TRUE.equals(followService.toggleFollow(myNickName, targetNickName))) {
       return ResponseEntity.status(HttpStatus.CREATED).build();
     } else {
       return ResponseEntity.status(HttpStatus.OK).build();

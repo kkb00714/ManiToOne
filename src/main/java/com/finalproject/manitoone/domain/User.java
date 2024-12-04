@@ -1,7 +1,5 @@
 package com.finalproject.manitoone.domain;
 
-import com.finalproject.manitoone.dto.user.UserInformationResponseDto;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -63,23 +61,10 @@ public class User {
   @Builder.Default
   private String role = "ROLE_USER";
 
-
   @Column(name = "unbanned_at")
   private LocalDateTime unbannedAt;
 
   @Column(name = "created_at", nullable = false, columnDefinition = "timestamp default now()")
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
-
-  public UserInformationResponseDto toUserInformationDto() {
-    return new UserInformationResponseDto(
-        this.name,
-        this.nickname,
-        this.introduce,
-        this.profileImage,
-        null,
-        null
-    );
-  }
-
 }

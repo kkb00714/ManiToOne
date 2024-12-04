@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.finalproject.manitoone.domain.User;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,5 +22,12 @@ public class UserInformationResponseDto {
       List<UserInformationResponseDto> followings) {
     this.followers = followers;
     this.followings = followings;
+  }
+
+  public UserInformationResponseDto(User user) {
+    this.name = user.getName();
+    this.nickname = user.getNickname();
+    this.introduce = user.getIntroduce();
+    this.profileImage = user.getProfileImage();
   }
 }

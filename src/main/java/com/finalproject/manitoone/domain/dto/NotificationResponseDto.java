@@ -31,7 +31,6 @@ public class NotificationResponseDto {
   public NotificationResponseDto(Notification notification) {
     this.notiId = notification.getNotiId();
     this.type = notification.getType();
-    this.nickname = notification.getUser().getNickname();
     this.relatedObjectId = notification.getRelatedObjectId();
     this.isRead = notification.getIsRead();
     this.createdAt = notification.getCreatedAt();
@@ -54,6 +53,7 @@ public class NotificationResponseDto {
   }
 
   public void setContent(String nickname) {
+    this.nickname = nickname;
     this.content = this.type.getMessage(nickname);
   }
 }

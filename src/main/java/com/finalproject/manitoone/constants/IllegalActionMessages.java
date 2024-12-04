@@ -14,6 +14,7 @@ public enum IllegalActionMessages {
   CANNOT_FOLLOW_YOURSELF("자기 자신은 팔로우 할 수 없습니다."),
 
   // Auth
+  CANNOT_FIND_ANY_USER("해당하는 유저를 찾을 수 없습니다."),
   CANNOT_USE_EMAIL("이미 사용 중인 이메일입니다"),
   CANNOT_USE_NICKNAME("이미 사용 중인 닉네임입니다"),
   CANNOT_VERIFY_EMAIL("이메일 인증에 실패했습니다."),

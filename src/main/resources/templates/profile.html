@@ -26,11 +26,11 @@
       type="image/x-icon"
       th:href="@{/images/favicon/favicon.ico}"
   />
-  <title>ManiToOne</title>
-  <style>
-
-  </style>
+  <script th:inline="javascript">
+    var userNickName = /*[[${user.nickname}]]*/ '테스트1';
+  </script>
   <script th:src="@{/script/profile.js}"></script>
+  <title>ManiToOne</title>
 </head>
 <body>
 <header th:replace="fragments/common/header :: header"></header>

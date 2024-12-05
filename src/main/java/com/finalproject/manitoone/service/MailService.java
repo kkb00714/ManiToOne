@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MailService {
 
-  private static final String senderEmail = "kkb00714@gmail.com";
+  private static final String SENDER_EMAIL = "kkb00714@gmail.com";
   private static final Random RANDOM = new Random();
 
   private final UserRepository userRepository;
@@ -40,7 +40,7 @@ public class MailService {
     MimeMessage message = javaMailSender.createMimeMessage();
 
     try {
-      message.setFrom(senderEmail);
+      message.setFrom(SENDER_EMAIL);
       message.setRecipients(RecipientType.TO, email);
       message.setSubject("이메일 인증");
       String body = "";
@@ -95,12 +95,12 @@ public class MailService {
   }
 
   // 랜덤 비밀번호 생성 메서드
-  private String generateRandomPassword(int length) {
+  private String generateRandomPassword() {
     String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
     StringBuilder password = new StringBuilder();
     SecureRandom random = new SecureRandom();
 
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < 12; i++) {
       int index = random.nextInt(characters.length());
       password.append(characters.charAt(index));
     }
@@ -117,7 +117,7 @@ public class MailService {
             new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
 
     // 2. 임시 비밀번호 생성
-    String temporaryPassword = generateRandomPassword(12);
+    String temporaryPassword = generateRandomPassword();
 
     // 3. 비밀번호 암호화 및 업데이트
     String encodedPassword = passwordEncoder.encode(temporaryPassword);
@@ -127,7 +127,7 @@ public class MailService {
     // 4. 이메일 발송
     MimeMessage message = javaMailSender.createMimeMessage();
     try {
-      message.setFrom(senderEmail);
+      message.setFrom(SENDER_EMAIL);
       message.setRecipients(RecipientType.TO, email);
       message.setSubject("비밀번호 초기화 안내");
       String body = "<h3>안녕하세요,</h3>";

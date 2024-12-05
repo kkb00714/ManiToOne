@@ -1,7 +1,6 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.ManitoErrorMessages;
-import com.finalproject.manitoone.util.TimeFormatter;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.User;
@@ -11,6 +10,7 @@ import com.finalproject.manitoone.dto.manito.ManitoPageResponseDto;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.UserRepository;
+import com.finalproject.manitoone.util.TimeFormatter;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -123,7 +123,7 @@ public class ManitoService {
         .orElseThrow(() -> new EntityNotFoundException(
             ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
 
-    if (!manitoLetter.getPostId().getUser().getNickname().equals(userNickname)) {
+    if (!manitoLetter.getPost().getUser().getNickname().equals(userNickname)) {
       throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_VISIBILITY.getMessage());
     }
 
@@ -136,7 +136,7 @@ public class ManitoService {
         .orElseThrow(() -> new EntityNotFoundException(
             ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
 
-    if (!manitoLetter.getPostId().getUser().getNickname().equals(userNickname)) {
+    if (!manitoLetter.getPost().getUser().getNickname().equals(userNickname)) {
       throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_REPORT.getMessage());
     }
 

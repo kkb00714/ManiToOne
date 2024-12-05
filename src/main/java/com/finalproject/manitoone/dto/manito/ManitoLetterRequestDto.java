@@ -3,6 +3,7 @@ package com.finalproject.manitoone.dto.manito;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.User;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -16,7 +17,8 @@ import lombok.NoArgsConstructor;
 public class ManitoLetterRequestDto {
 
   @NotNull
-  @Size(max = 600)
+  @NotBlank
+  @Size(min = 1, max = 600)
   private String letterContent;
 
   @Size(max = 200)
@@ -28,7 +30,9 @@ public class ManitoLetterRequestDto {
 
   // 특수문자, 스크립트 입력값 정제
   private String sanitizeText(String text) {
-    if (text == null || text.trim().isEmpty()) return "";
+    if (text == null || text.trim().isEmpty()) {
+      return "";
+    }
     return text.replace("<", "&lt;")
         .replace(">", "&gt;")
         .replace("&", "&amp;")
@@ -38,7 +42,9 @@ public class ManitoLetterRequestDto {
 
   // YouTube URL 정제 + 형식 검증
   private String validateAndSanitizeYoutubeUrl(String url) {
-    if (url == null || url.trim().isEmpty()) return "";
+    if (url == null || url.trim().isEmpty()) {
+      return "";
+    }
 
     String sanitizedUrl = url.replace("<", "")
         .replace(">", "")
@@ -66,7 +72,7 @@ public class ManitoLetterRequestDto {
     String safeMusicComment = sanitizeText(musicComment);
 
     return ManitoLetter.builder()
-        .postId(post)
+        .post(post)
         .user(user)
         .letterContent(safeContent)
         .musicUrl(safeUrl)

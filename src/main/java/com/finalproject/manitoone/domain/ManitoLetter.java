@@ -31,7 +31,7 @@ public class ManitoLetter {
 
   @OneToOne
   @JoinColumn(name = "post_id", nullable = false)
-  private Post postId;
+  private Post post;
 
   @OneToOne
   @JoinColumn(name = "user_id", nullable = false)
@@ -62,7 +62,7 @@ public class ManitoLetter {
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
 
-  @Column(name = "is_answer_report", nullable = false , columnDefinition = "tinyint DEFAULT 0 COMMENT '0. 신고 안됨\\n1. 신고됨'")
+  @Column(name = "is_answer_report", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. 신고 안됨\\n1. 신고됨'")
   @Builder.Default
   private boolean isAnswerReport = false;
 
@@ -102,11 +102,11 @@ public class ManitoLetter {
 
   // 검증 로직
   public boolean isOwnedBy(User user) {
-    return this.postId.getUser().equals(user);
+    return this.post.getUser().equals(user);
   }
 
   public void validateOwnership(String userNickname) {
-    if (!this.postId.getUser().getNickname().equals(userNickname)) {
+    if (!this.post.getUser().getNickname().equals(userNickname)) {
       throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_REPLY.getMessage());
     }
   }

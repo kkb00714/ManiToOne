@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface ReplyPostRepository extends JpaRepository<ReplyPost, Long> {
 
   Optional<List<ReplyPost>> findAllByPost_PostIdAndIsBlindFalse(Long postId);
+
+  Optional<List<ReplyPost>> findAllByPostPostId(Long postId);
 }

@@ -69,7 +69,16 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
+    List<PostImage> imageList = postImageRepository.findAllByPost_PostId(post.getPostId())
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_IMAGE_WITH_GIVEN_ID.getMessage()
+        ));
+
     postRepository.delete(post);
+
+    for (PostImage image : imageList) {
+      postImageRepository.delete(image);
+    }
   }
 
   // 게시글 숨기기

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,16 +36,6 @@ public class PostController {
     log.info("response: {}, {}", post.getContent(), post.getIsManito());
     return ResponseEntity.status(HttpStatus.CREATED).body(post);
   }
-
-//  public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
-//      @AuthenticationPrincipal User user) {
-//    try {
-//      postService.createPost(request, user);
-//      return ResponseEntity.status(HttpStatus.CREATED).build();
-//    } catch (Exception e) {
-//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//    }
-//  }
 
   @GetMapping("/by/{nickName}")
   public ResponseEntity<List<PostViewResponseDto>> getPostsByUserId(@PathVariable String nickName,

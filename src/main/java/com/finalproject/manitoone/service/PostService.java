@@ -1,5 +1,7 @@
 package com.finalproject.manitoone.service;
 
+import static java.time.LocalDate.now;
+
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
@@ -36,30 +38,13 @@ public class PostService {
   // 게시글 생성
   public PostResponseDto createPost(AddPostRequestDto request) {
     Post post = postRepository.save(request.toEntity());
-    return new PostResponseDto(post.getPostId(), post.getContent(), post.getIsManito());
-  }
 
-//  public PostResponseDto createPost(AddPostRequestDto request, User user) throws IOException {
-//    // text 저장
-//    Post post = Post.builder()
-//        .user(user)
-//        .content(request.getContent())
-//        .isManito(request.getIsManito())
-//        .build();
-//
-//    postRepository.save(post);
-//
-//    // 이미지 저장
-//    List<MultipartFile> images = request.getImages();
-//
-//    if (images != null && !images.isEmpty()) {
-//      for (MultipartFile image : images) {
-//        saveImage(post, image);
-//      }
-//    }
-//
-//    return post.toPostResponseDto();
-//  }
+    return PostResponseDto.builder()
+        .postId(post.getPostId())
+        .content(post.getContent())
+        .isManito(post.getIsManito())
+        .build();
+  }
 
   // 이미지 저장
 //  private void saveImage(Post post, MultipartFile image) throws IOException {

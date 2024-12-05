@@ -13,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,13 @@ public class PostController {
   @DeleteMapping("/{postId}")
   public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId) {
     postService.deletePost(postId);
+    return ResponseEntity.ok().build();
+  }
+
+  // 게시글 숨기기
+  @PutMapping("/hidden/{postId}")
+  public ResponseEntity<Void> hidePost(@PathVariable("postId") Long postId) {
+    postService.hidePost(postId);
     return ResponseEntity.ok().build();
   }
 

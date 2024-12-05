@@ -72,13 +72,13 @@ public class PostService {
     postRepository.delete(post);
   }
 
-  // 특정 게시글 조회
-  public PostResponseDto findByPostId(Long postId) {
+  // 게시글 숨기기
+  public void hidePost(Long postId) {
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
-    return new PostResponseDto(post.getPostId(), post.getContent(), post.getIsManito());
+    post.hidePost(true);
   }
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {

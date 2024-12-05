@@ -3,6 +3,7 @@ package com.finalproject.manitoone.service;
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.repository.UserRepository;
+import jakarta.mail.Message.RecipientType;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.security.SecureRandom;
@@ -37,7 +38,7 @@ public class MailService {
 
     try {
       message.setFrom(senderEmail);
-      message.setRecipients(MimeMessage.RecipientType.TO, email);
+      message.setRecipients(RecipientType.TO, email);
       message.setSubject("이메일 인증");
       String body = "";
       body += "<h3>" + "요청하신 인증 번호입니다." + "</h3>";
@@ -46,7 +47,7 @@ public class MailService {
       message.setText(body, "UTF-8", "html");
     } catch (MessagingException e) {
       throw new IllegalArgumentException(
-          IllegalActionMessages.CANNOT_VERIFY_EMAIL_NUMBER.getMessage()
+          IllegalActionMessages.EMAIL_VERIFICATION_CODE_MISMATCH.getMessage()
       );
     }
     return message;
@@ -57,7 +58,7 @@ public class MailService {
     boolean existUserByEmail = userRepository.existsByEmail(email);
     if (existUserByEmail) {
       throw new IllegalArgumentException(
-          IllegalActionMessages.CANNOT_USE_EMAIL.getMessage()
+          IllegalActionMessages.EMAIL_ALREADY_IN_USE.getMessage()
       );
     }
 
@@ -72,7 +73,7 @@ public class MailService {
     Integer savedNumber = verificationMap.get(email);
     if (savedNumber == null || savedNumber != inputNumber) {
       throw new IllegalArgumentException(
-          IllegalActionMessages.CANNOT_VERIFY_EMAIL_NUMBER.getMessage()
+          IllegalActionMessages.EMAIL_VERIFICATION_CODE_MISMATCH.getMessage()
       );
     }
     // 인증 완료된 이메일 저장
@@ -110,7 +111,7 @@ public class MailService {
     User user = userRepository.findByEmail(email)
         .filter(u -> u.getName().equals(name))
         .orElseThrow(() ->
-            new IllegalArgumentException(IllegalActionMessages.CANNOT_FIND_ANY_USER.getMessage()));
+            new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
 
     // 2. 임시 비밀번호 생성
     String temporaryPassword = generateRandomPassword(12);
@@ -124,7 +125,7 @@ public class MailService {
     MimeMessage message = javaMailSender.createMimeMessage();
     try {
       message.setFrom(senderEmail);
-      message.setRecipients(MimeMessage.RecipientType.TO, email);
+      message.setRecipients(RecipientType.TO, email);
       message.setSubject("비밀번호 초기화 안내");
       String body = "<h3>안녕하세요,</h3>";
       body += "<p>임시 비밀번호는 다음과 같습니다:</p>";
@@ -134,7 +135,7 @@ public class MailService {
       javaMailSender.send(message);
     } catch (MessagingException e) {
       throw new IllegalArgumentException(
-          IllegalActionMessages.CANNOT_VERIFY_EMAIL.getMessage()
+          IllegalActionMessages.EMAIL_VERIFICATION_FAILED.getMessage()
       );
     }
   }

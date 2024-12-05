@@ -22,9 +22,9 @@ public class SecurityConfig {
 //        .formLogin(custom -> custom
 //            .loginPage("/login")
 //            )
-        .logout(logout -> logout
-            .logoutUrl("/logout")
+        .logout(custom -> custom
             .logoutSuccessUrl("/")
+            .invalidateHttpSession(true)
         )
         .csrf(AbstractHttpConfigurer::disable)
         .build();

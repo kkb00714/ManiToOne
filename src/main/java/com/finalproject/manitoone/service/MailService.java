@@ -8,6 +8,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,10 +19,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MailService {
 
+  private static final String senderEmail = "kkb00714@gmail.com";
+  private static final Random RANDOM = new Random();
+
   private final UserRepository userRepository;
   private final JavaMailSender javaMailSender;
   private final PasswordEncoder passwordEncoder;
-  private static final String senderEmail = "kkb00714@gmail.com";
 
   // 이메일 인증 여부 저장
   private final Map<String, Integer> verificationMap = new ConcurrentHashMap<>();
@@ -30,7 +33,7 @@ public class MailService {
 
   // 랜덤으로 숫자 생성
   public static int createNumber() {
-    return (int) (Math.random() * (90000)) + 100000; // Math.random() * (최댓값-최소값+1) + 최소값
+    return RANDOM.nextInt(90000) + 100000; // (최댓값 - 최소값)  + 최소값
   }
 
   public MimeMessage createMail(String email, int number) {

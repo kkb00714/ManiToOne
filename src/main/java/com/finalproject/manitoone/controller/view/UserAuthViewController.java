@@ -11,6 +11,11 @@ public class UserAuthViewController {
     return "/pages/auth/email-auth";
   }
 
+  @GetMapping("/register-info")
+  public String getInfoInputPage() {
+    return "/pages/auth/sign-up";
+  }
+
   @GetMapping("/login")
   public String getSignInPage() {
     return "/pages/auth/sign-in";

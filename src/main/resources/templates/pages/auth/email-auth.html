@@ -20,10 +20,11 @@
     <img th:src="@{/images/logo/long-logo.png}" alt="ManiToOne logo"/>
   </div>
   <p class="email-auth-discription">
-    회원가입에 사용할 이메일을 입력하여 인증해주세요.
+    회원가입에 사용할 이메일을 입력하여 인증해주세요.<br/>
+    메일은 3분 내로 전송됩니다 :)
   </p>
   <div class="email-auth-container">
-    <form id="emailInputForm" th:action="@{/api/email-auth}" method="post" >
+    <form id="emailInputForm" th:action="@{/api/email-auth}" method="post">
       <div class="email-auth-input-container">
         <input
             class="email-auth-number-input"
@@ -34,7 +35,7 @@
             aria-label="이메일 입력"
             required
         />
-        <button class="sign-up-complete-button" type="submit">다음</button>
+        <button class="sign-up-complete-button" type="submit">메일 인증하기</button>
       </div>
     </form>
   </div>
@@ -42,9 +43,10 @@
 
 <div id="emailAuthModal" class="modal" style="display: none;">
   <div class="modal-content">
-    <span class="close-button">x</span>
+    <span class="close-button">(임시 x 버튼)</span>
     <h2>인증번호 입력</h2>
-    <p th:text="${email} + ' 로 전송된 인증번호를 입력하세요.'"></p>
+    <p th:text="'해당 이메일로 전송된 인증번호를 입력하세요.'">
+    </p>
     <form id="authCodeForm" th:action="@{/api/email-check}" method="post">
       <input
           type="text"
@@ -84,7 +86,7 @@
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({email : emailInput}),
+      body: JSON.stringify({email: emailInput}),
     })
     .then(response => response.text())
     .then(data => {
@@ -101,6 +103,46 @@
     });
   });
 
+  document.getElementById('emailAuthModal').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const authCode = document.getElementById('authCode').value;
+    const emailInput = document.getElementById('email').value;
+
+    if (!authCode) {
+      alert('인증번호를 입력해주세요.')
+      return;
+    }
+    // 인증번호 확인 요청
+    fetch('/api/email-check', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: emailInput,
+        verificationCode: parseInt(authCode, 10),
+      }),
+    })
+    .then(response => response.text())
+    .then(data => {
+      if (data) {
+        alert('이메일 인증이 완료되었습니다!');
+        window.location.href = '/register-info';
+      } else {
+        alert('인증 실패: ' + data);
+      }
+    })
+    .catch(error => {
+      console.error('Error: ', error.message);
+      alert('인증번호 확인 중 문제가 발생했습니다.');
+    });
+  });
+
+  // 모달 닫기
+  document.querySelector('.close-button').addEventListener('click', function () {
+    document.getElementById('emailAuthModal').style.display = 'none';
+  });
 </script>
 </body>
 </html>

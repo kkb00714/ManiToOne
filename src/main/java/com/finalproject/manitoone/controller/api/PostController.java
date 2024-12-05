@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.controller.api;
 
+import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,8 +31,9 @@ public class PostController {
 
   // 게시글 생성
   @PostMapping
-  public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request) {
-    PostResponseDto post = postService.createPost(request);
+  public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
+      @AuthenticationPrincipal User user) {
+    PostResponseDto post = postService.createPost(request, user);
     return ResponseEntity.status(HttpStatus.CREATED).body(post);
   }
 
@@ -45,6 +48,14 @@ public class PostController {
   @PutMapping("/hidden/{postId}")
   public ResponseEntity<Void> hidePost(@PathVariable("postId") Long postId) {
     postService.hidePost(postId);
+    return ResponseEntity.ok().build();
+  }
+
+  // 게시글 좋아요
+  @PostMapping("/like/{postId}")
+  public ResponseEntity<Void> likePost(@PathVariable("postId") Long postId,
+      @AuthenticationPrincipal User user) {
+    postService.likePost(postId, user);
     return ResponseEntity.ok().build();
   }
 

@@ -38,10 +38,15 @@ public class PostService {
   private final ReplyPostRepository replyPostRepository;
 
   // 게시글 생성
-  public PostResponseDto createPost(AddPostRequestDto request) {
-    Post post = postRepository.save(request.toEntity());
+  public PostResponseDto createPost(AddPostRequestDto request, User user) {
+    Post post = postRepository.save(Post.builder()
+        .content(request.getContent())
+        .user(user)
+        .isManito(request.getIsManito())
+        .build());
 
-    return new PostResponseDto(post.getPostId(), post.getContent(), post.getIsManito());
+    return new PostResponseDto(post.getPostId(), post.getUser(), post.getContent(),
+        post.getIsManito());
   }
 
   // 이미지 저장
@@ -116,6 +121,19 @@ public class PostService {
     post.hidePost(true);
 
     postRepository.save(post);
+  }
+
+  // 게시글 좋아요
+  public void likePost(Long postId, User user) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    userPostLikeRepository.save(UserPostLike.builder()
+        .post(post)
+        .user(user)
+        .build());
   }
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {

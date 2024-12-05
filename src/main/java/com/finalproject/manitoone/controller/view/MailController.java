@@ -15,12 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class MailController {
 
+  private static final String EMAIL_KEY = "email";
+  private static final String VERIFICATION_CODE_KEY = "verificationCode";
+  private static final String NAME_KEY = "name";
+
   private final MailService mailService;
 
   // 인증 메일 전송
   @PostMapping("/email-validate")
   public ResponseEntity<String> mailSend(@RequestBody Map<String, String> request) {
-    String email = request.get("email");
+    String email = request.get(EMAIL_KEY);
     try {
       mailService.verifyEmail(email);
       return ResponseEntity.ok("인증 메일이 전송되었습니다.");
@@ -33,8 +37,8 @@ public class MailController {
   // 인증번호 일치여부 확인
   @PostMapping("/email-check")
   public ResponseEntity<String> mailCheck(@RequestBody Map<String, Object> request) {
-    String email = (String) request.get("email");
-    int verificationCode = (Integer) request.get("verificationCode");
+    String email = (String) request.get(EMAIL_KEY);
+    int verificationCode = (Integer) request.get(VERIFICATION_CODE_KEY);
 
     try {
       mailService.verifyNumber(email, verificationCode);
@@ -47,8 +51,8 @@ public class MailController {
   // 비밀번호 초기화 메일 발송
   @PostMapping("/password-reset")
   public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
-    String email = request.get("email");
-    String name = request.get("name");
+    String email = request.get(EMAIL_KEY);
+    String name = request.get(NAME_KEY);
 
     try {
       mailService.findPassword(email, name);

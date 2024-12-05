@@ -6,9 +6,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class UserAuthViewController {
 
-  // TODO 회원가입 시 이메일 인증을 우선적으로 해야 함.
   @GetMapping("/register")
   public String getSignUpPage() {
+    return "/pages/auth/email-auth";
+  }
+
+  @GetMapping("/register-info")
+  public String getInfoInputPage() {
     return "/pages/auth/sign-up";
   }
 

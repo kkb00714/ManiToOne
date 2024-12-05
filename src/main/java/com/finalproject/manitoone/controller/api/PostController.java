@@ -1,18 +1,17 @@
-package com.finalproject.manitoone.controller;
+package com.finalproject.manitoone.controller.api;
 
-import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.service.PostService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/post")
 public class PostController {
 
@@ -30,7 +30,10 @@ public class PostController {
   // 게시글 생성
   @PostMapping
   public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request));
+    PostResponseDto post = postService.createPost(request);
+    log.info("request: {}, {}", request.getContent(), request.getIsManito());
+    log.info("response: {}, {}", post.getContent(), post.getIsManito());
+    return ResponseEntity.status(HttpStatus.CREATED).body(post);
   }
 
 //  public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,

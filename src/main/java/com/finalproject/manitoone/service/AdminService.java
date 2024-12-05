@@ -7,7 +7,6 @@ import com.finalproject.manitoone.domain.dto.admin.UserSearchResponseDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +44,7 @@ public class AdminService {
         .where(builder)
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
-        .orderBy(user.userId.desc())
+        .orderBy(user.userId.asc())
         .fetch();
 
     long total = queryFactory
@@ -54,13 +53,13 @@ public class AdminService {
         .fetchCount();
 
     List<UserSearchResponseDto> dtoList = users.stream()
-        .map(this::convertToDto)
-        .collect(Collectors.toList());
+        .map(this::toUserSearchResponseDto)
+        .toList();
 
     return new PageImpl<>(dtoList, pageable, total);
   }
 
-  private UserSearchResponseDto convertToDto(User user) {
+  private UserSearchResponseDto toUserSearchResponseDto(User user) {
     return UserSearchResponseDto.builder()
         .userId(user.getUserId())
         .email(user.getEmail())

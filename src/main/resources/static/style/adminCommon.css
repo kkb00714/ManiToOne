@@ -49,37 +49,158 @@ h1 {
   cursor: pointer;
 }
 
+.header-container {
+  margin-left: 135px;
+}
+
+.header-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1700px;
+  margin: 0 auto;
+}
+
 .header-container img {
-  margin-left: 865px;
-  margin-top: 10px;
   width: 350px;
   height: 84px;
 }
 
+.main-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 50px;
+  margin-left: 100px;
+}
+
 .middle-section {
   width: 100%;
+}
+
+.table-box {
   display: flex;
+  flex-direction: column;
   justify-content: center;
 }
 
-.user-table {
+.table-header {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.table-container {
   width: 1700px;
+  margin: 0 auto;
   border-collapse: collapse;
+  border: none;
+  margin-top: 20px;
+}
+.table-container th, .table-container td {
+  border: none;
   text-align: center;
-  font-size: 14px;
-}
-
-.user-table th, .user-table td {
-  border: 1px solid #ddd;
-  padding: 10px 0;
   height: 55px;
+  font-size: 20px;
 }
 
-.user-table th {
-  background-color: #f4f4f4;
+thead tr th:first-child, tbody tr td:first-child{
+  box-shadow: -5px 0px 5px -2px rgba(0, 0, 0, 0.1); /* 왼쪽 그림자 */
+  border-radius: 10px 0 0 10px;
+}
+
+thead tr th:last-child, tbody tr td:last-child {
+  box-shadow: 5px 0px 5px -2px rgba(0, 0, 0, 0.1); /* 오른쪽 그림자 */
+  border-radius: 0 10px 10px 0;
+}
+
+.table-container th {
+  border: none;
   font-weight: bold;
+  background-color: #E7E7E7;
 }
 
-.user-table tr:nth-child(even) {
-  background-color: #f9f9f9;
+thead {
+  margin-top: 20px;
+}
+
+.table-container tbody td {
+  background-color: #F5F5F5;
+}
+
+.paging, .navbar {
+  width: 1700px;
+  margin: 0 auto;
+}
+
+.paging {
+  margin-top: 25px;
+}
+
+.pagination, .navbar .page-num-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination {
+  font-size: 25px;
+}
+
+.page-num-box {
+  gap: 10px
+}
+
+.page-img {
+  width: 24px;
+  height: 24px;
+}
+
+.page-link {
+  display: flex;
+  align-items: center;
+}
+
+.navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.me-2, .btn-outline-success{
+  height: 50px;
+}
+
+.form-control {
+  width: 140px;
+}
+
+.form-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  padding: 5px 10px;
+  background-color: #F5F5F5;
+  border-radius: 10px;
+  width: 80px;
+}
+
+.form-select::-ms-expand {
+  display: none; /* IE에서 기본 드롭다운 버튼 제거 */
+}
+
+.form-control {
+  padding: 5px 10px;
+  border-radius: 10px;
+  background-color: #F5F5F5;
+  border: none;
+}
+
+.btn-outline-success {
+  background-color: #3F624C;
+  color: #FFFFFF;
+  width: 100px;
+  height: 50px;
+  border-radius: 10px;
 }

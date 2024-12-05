@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/adminCommon.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <link rel="icon" type="image/x-icon" th:href="@{/images/favicon/favicon.ico}">
+  <title>ManiToOne AdminPage User</title>
+</head>
+<body>
+<header th:replace="fragments/admin/adminHeader :: adminHeader"></header>
+<nav th:replace="fragments/admin/adminNav :: adminNav"></nav>
+<main class="main-container">
+  <section class="middle-section" id="middleSection">
+    <div class="table-box">
+      <table class="table-container">
+        <caption class="table-header">회원 관리</caption>
+        <thead>
+        <tr>
+          <th>No</th>
+          <th>이름</th>
+          <th>닉네임</th>
+          <th>이메일</th>
+          <th>생년월일</th>
+          <th>역할</th>
+          <th>정지 해제 날짜</th>
+          <th>상태</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>1</td>
+          <td>홍길동</td>
+          <td>y_sk</td>
+          <td>test@test.com</td>
+          <td>1994.07.08</td>
+          <td>일반</td>
+          <td>없음</td>
+          <td>활동</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>유니크</td>
+          <td>2099.09.09</td>
+          <td>정지</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <nav aria-label="Page navigation" class="paging">
+        <ul class="pagination">
+
+          <!-- 이전 페이지 그룹 버튼 -->
+          <li>
+            <a class="page-link"
+               aria-label="Previous Group">
+              <img class="page-img" th:src="@{/images/admin/previous_group.png}"/>
+            </a>
+          </li>
+          <li>
+            <a class="page-link">
+              <img class="page-img" th:src="@{/images/admin/previous.png}"/>
+            </a>
+          </li>
+
+          <!-- 페이지 번호 버튼 (현재 페이지 그룹에서 5개씩만 표시) -->
+          <li class="page-num-box">
+            <a class="page-link-number">1</a>
+            <a class="page-link-number">2</a>
+            <a class="page-link-number">3</a>
+            <a class="page-link-number">4</a>
+          </li>
+
+          <!-- 다음 페이지 그룹 버튼 -->
+          <li>
+            <a class="page-link" aria-label="Next Group">
+              <img class="page-img" th:src="@{/images/admin/next.png}"/>
+            </a>
+          </li>
+          <li>
+            <a class="page-link">
+              <img class="page-img" th:src="@{/images/admin/next_group.png}"/>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <nav class="navbar bg-light">
+        <div class="container-fluid justify-content-center">
+          <form class="d-flex" role="search" method="get" onsubmit="return setSearchAction(this)">
+            <!-- 말머리 선택 드롭다운 -->
+            <select id="filterSelect" class="form-select me-2" aria-label="말머리 선택">
+              <option value="nickname">닉네임</option>
+              <option value="userId">아이디</option>
+            </select>
+
+            <!-- 검색 입력 및 버튼 -->
+            <input id="searchQuery" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">검색</button>
+          </form>
+        </div>
+      </nav>
+    </div>
+
+  </section>
+</main>
+</body>
+</html>

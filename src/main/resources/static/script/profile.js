@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
   let pageNum = 0;
-  const userNickName = '테스트1'//'[[${user.nickname}]]';
   const postsContainer = document.getElementById("postsContainer");
   let isLoading = false;
   let hasMorePosts = true;
@@ -8,12 +7,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   window.addEventListener('scroll', handleScroll);
 
-  document.querySelector('.my-post-menu-switch').addEventListener('click',
-      () => switchCategory(1));
-  document.querySelector('.like-it-menu-switch').addEventListener('click',
-      () => switchCategory(2));
-  document.querySelector('.hidden-post-menu-switch').addEventListener('click',
-      () => switchCategory(3));
+  document.querySelector('.my-post-menu-switch').addEventListener('click', () => switchCategory(1));
+  document.querySelector('.like-it-menu-switch').addEventListener('click', () => switchCategory(2));
+  document.querySelector('.hidden-post-menu-switch').addEventListener('click', () => switchCategory(3));
 
   loadPosts(pageNum);
 
@@ -62,9 +58,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function getApiUrl(pageNum) {
     if (currentCategory === 1) {
-      return `/api/post/by/[[${nickname}]]?page=${pageNum}`;
+      return `/api/post/by/${userNickName}?page=${pageNum}`;
     } else if (currentCategory === 2) {
-      return `/api/post/[[${nickname}]]/liked?page=${pageNum}`;
+      return `/api/post/${userNickName}/liked?page=${pageNum}`;
     } else if (currentCategory === 3) {
       return `/api/post/hidden?page=${pageNum}`;
     }
@@ -74,14 +70,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const postElement = document.createElement("div");
     postElement.classList.add("post-container");
 
-    const timeText = post.updatedAt ? `(수정됨) ${timeForToday(post.updatedAt)}` : timeForToday(
-        post.createdAt);
+    const timeText = post.updatedAt ? `(수정됨) ${timeForToday(post.updatedAt)}` : timeForToday(post.createdAt);
 
     postElement.innerHTML = `
           <img class="user-photo" src="${post.profileImage || '/images/icons/UI-user2.png'}" alt="user icon" />
           <div class="post-content">
             <div class="user-info">
-              <span class="user-name">${post.nickName}</span>
+              <a href="/profile/${post.nickName}" class="user-name">${post.nickName}</a>
               <span class="passed-time" data-created-at="${post.createdAt}" data-updated-at="${post.updatedAt}">${timeText}</span>
             </div>
             <p class="content-text">${post.content}</p>
@@ -99,7 +94,8 @@ document.addEventListener("DOMContentLoaded", function () {
         : ''}
             <div class="more-options-menu hidden">
               <ul>
-                ${userNickName === post.nickName ? `<li><a href="#" class="hide-post" data-post-id="${post.postId}">숨기기</a></li>`
+                ${userNickName === post.nickName
+        ? `<li><a href="#" class="hide-post" data-post-id="${post.postId}">숨기기</a></li>`
         : `<li><a href="#" class="report-post" data-post-id="${post.postId}">신고하기</a></li>`}
               </ul>
             </div>
@@ -141,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function handleAddFriendClick() {
-    const myId = '테스트1'; // 내 아이디
+    const myId = userNickName; // 내 아이디
     const targetId = this.dataset.targetId;
 
     fetch(`/api/follow/${myId}/${targetId}`)
@@ -170,8 +166,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function handleMoreOptionsClick(event, moreOptionsButton) {
-  const optionsMenu = moreOptionsButton.closest('.option-icons').querySelector(
-      '.more-options-menu');
+  const optionsMenu = moreOptionsButton.closest('.option-icons').querySelector('.more-options-menu');
 
   if (!optionsMenu) {
     return;

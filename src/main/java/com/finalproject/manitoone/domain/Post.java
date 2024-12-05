@@ -75,6 +75,6 @@ public class Post {
   }
 
   public void hidePost(Boolean isHidden) {
-    this.isHidden = isHidden;
+    this.isHidden = true;
   }
 }

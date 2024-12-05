@@ -5,7 +5,9 @@ import static java.time.LocalDate.now;
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
+import com.finalproject.manitoone.domain.ReplyPost;
 import com.finalproject.manitoone.domain.User;
+import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
@@ -69,16 +71,40 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
-    List<PostImage> imageList = postImageRepository.findAllByPost_PostId(post.getPostId())
+    deleteImages(postId);
+    deleteReplies(postId);
+    deleteLikes(postId);
+    postRepository.delete(post);
+  }
+
+  // 게시글 이미지 삭제
+  private void deleteImages(Long postId) {
+    List<PostImage> imageList = postImageRepository.findAllByPostPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_IMAGE_WITH_GIVEN_ID.getMessage()
         ));
 
-    postRepository.delete(post);
+    postImageRepository.deleteAll(imageList);
+  }
 
-    for (PostImage image : imageList) {
-      postImageRepository.delete(image);
-    }
+  // 게시글 답글 삭제
+  private void deleteReplies(Long postId) {
+    List<ReplyPost> replyList = replyPostRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    replyPostRepository.deleteAll(replyList);
+  }
+
+  // 게시글 좋아요 삭제
+  private void deleteLikes(Long postId) {
+    List<UserPostLike> likeList = userPostLikeRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
+        ));
+
+    userPostLikeRepository.deleteAll(likeList);
   }
 
   // 게시글 숨기기
@@ -88,6 +114,8 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
     post.hidePost(true);
+
+    postRepository.save(post);
   }
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {

@@ -53,6 +53,23 @@ h1 {
   margin-left: 135px;
 }
 
+.table-header {
+  margin: 0 auto;
+  width: 1700px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 2rem;
+}
+
+.caption-header {
+  margin-right: 670px;
+}
+
+.user-state {
+  font-size: 12px;
+}
+
 .header-box {
   display: flex;
   align-items: center;
@@ -84,17 +101,12 @@ h1 {
   justify-content: center;
 }
 
-.table-header {
-  font-size: 2rem;
-  margin-bottom: 20px;
-}
-
 .table-container {
   width: 1700px;
   margin: 0 auto;
   border-collapse: collapse;
   border: none;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 .table-container th, .table-container td {
   border: none;

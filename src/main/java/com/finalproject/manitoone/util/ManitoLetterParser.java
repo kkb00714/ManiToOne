@@ -3,10 +3,10 @@ package com.finalproject.manitoone.util;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class ManitoCommentParser {
+public class ManitoLetterParser {
   private static final String SEPARATOR = "\u0000";
 
-  public static String combineComment(String content, String musicUrl, String musicComment){
+  public static String combineLetter(String content, String musicUrl, String musicComment){
     content = content.replace(SEPARATOR, "");
     musicUrl = (musicUrl != null) ? musicUrl.replace(SEPARATOR, "") : "";
     musicComment = (musicComment != null) ? musicComment.replace(SEPARATOR, "") : "";

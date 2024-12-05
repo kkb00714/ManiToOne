@@ -2,8 +2,8 @@ package com.finalproject.manitoone.controller;
 
 import com.finalproject.manitoone.constants.ManitoErrorMessages;
 import com.finalproject.manitoone.dto.manito.ManitoAnswerRequestDto;
-import com.finalproject.manitoone.dto.manito.ManitoCommentRequestDto;
-import com.finalproject.manitoone.dto.manito.ManitoCommentResponseDto;
+import com.finalproject.manitoone.dto.manito.ManitoLetterRequestDto;
+import com.finalproject.manitoone.dto.manito.ManitoLetterResponseDto;
 import com.finalproject.manitoone.dto.manito.ManitoPageResponseDto;
 import com.finalproject.manitoone.service.ManitoService;
 import jakarta.validation.Valid;
@@ -30,47 +30,47 @@ public class ManitoController {
 
   private final ManitoService manitoService;
 
-  // 마니또 답글(편지) 생성
-  @PutMapping("/manito/reply/{manitoPostId}")
-  public ResponseEntity<ManitoCommentResponseDto> createManitoReply(
+  // 마니또 편지 생성
+  @PutMapping("/manito/letter/{manitoPostId}")
+  public ResponseEntity<ManitoLetterResponseDto> createManitoLetter(
       @PathVariable Long manitoPostId,
-      @Valid @RequestBody ManitoCommentRequestDto request,
+      @Valid @RequestBody ManitoLetterRequestDto request,
       @AuthenticationPrincipal UserDetails userDetails
   ) {
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(manitoService.createReply(manitoPostId, request, userDetails.getUsername()));
+        .body(manitoService.createLetter(manitoPostId, request, userDetails.getUsername()));
   }
 
-  // 답글(편지)에 대한 감사 인사
+  // 편지에 대한 감사 인사
   @PutMapping("/manito/answer/{manitoPostId}")
-  public ResponseEntity<ManitoCommentResponseDto> answerManitoReply(
+  public ResponseEntity<ManitoLetterResponseDto> answerManitoLetter(
       @PathVariable Long manitoPostId,
       @Valid @RequestBody ManitoAnswerRequestDto request,
       @AuthenticationPrincipal UserDetails userDetails
   ) {
     return ResponseEntity.ok(
-        manitoService.answerManitoReply(manitoPostId, request.getAnswerComment(),
+        manitoService.answerManitoLetter(manitoPostId, request.getAnswerComment(),
             userDetails.getUsername())
     );
   }
 
-  // 답글(편지) 신고
+  // 편지 신고
   @PutMapping("/manito/report/{manitoPostId}")
-  public ResponseEntity<Void> reportManitoReply(
+  public ResponseEntity<Void> reportManitoLetter(
       @PathVariable Long manitoPostId,
       @AuthenticationPrincipal UserDetails userDetails
   ) {
-    manitoService.reportManitoReply(manitoPostId, userDetails.getUsername());
+    manitoService.reportManitoLetter(manitoPostId, userDetails.getUsername());
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  // 답글(편지) 공개 여부
-  @PutMapping("/manito/hide/reply/{manitoPostId}")
-  public ResponseEntity<Void> toggleManitoReplyVisibility(
+  // 편지 공개 여부
+  @PutMapping("/manito/hide/letter/{manitoPostId}")
+  public ResponseEntity<Void> toggleManitoLetterVisibility(
       @PathVariable Long manitoPostId,
       @AuthenticationPrincipal UserDetails userDetails
   ) {
-    manitoService.toggleManitoReplyVisibility(manitoPostId, userDetails.getUsername());
+    manitoService.toggleManitoLetterVisibility(manitoPostId, userDetails.getUsername());
     return ResponseEntity.ok().build();
   }
 

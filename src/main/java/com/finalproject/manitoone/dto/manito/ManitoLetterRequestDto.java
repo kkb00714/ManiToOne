@@ -1,7 +1,7 @@
 package com.finalproject.manitoone.dto.manito;
 
-import com.finalproject.manitoone.util.ManitoCommentParser;
-import com.finalproject.manitoone.domain.ManitoComment;
+import com.finalproject.manitoone.util.ManitoLetterParser;
+import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.User;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ManitoCommentRequestDto {
+public class ManitoLetterRequestDto {
 
   @NotNull
   @Size(max = 600)
@@ -26,11 +26,11 @@ public class ManitoCommentRequestDto {
   @Size(max = 100)
   private String musicComment;
 
-  public ManitoComment toEntity(Post post, User user) {
-    return ManitoComment.builder()
+  public ManitoLetter toEntity(Post post, User user) {
+    return ManitoLetter.builder()
         .postId(post)
         .user(user)
-        .comment(ManitoCommentParser.combineComment(content, musicUrl, musicComment))
+        .letter(ManitoLetterParser.combineLetter(content, musicUrl, musicComment))
         .build();
   }
 }

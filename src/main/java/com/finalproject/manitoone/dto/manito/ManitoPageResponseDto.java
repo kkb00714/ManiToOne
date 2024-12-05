@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 public class ManitoPageResponseDto {
 
-  private List<ManitoCommentResponseDto> content;
+  private List<ManitoLetterResponseDto> content;
   private int currentPage;
   private int totalPages;
   private long totalElements;

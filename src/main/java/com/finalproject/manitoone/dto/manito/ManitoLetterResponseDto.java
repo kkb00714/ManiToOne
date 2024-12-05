@@ -5,15 +5,15 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ManitoCommentResponseDto {
+public class ManitoLetterResponseDto {
 
-  private Long manitoCommentId;
+  private Long manitoLetterId;
   private String content;
   private String musicUrl;
   private String musicComment;
   private boolean isPublic;
   private boolean isReport;
-  private String answerComment;
+  private String answerLetter;
   private String timeDiff;
   private boolean isOwner;
 }

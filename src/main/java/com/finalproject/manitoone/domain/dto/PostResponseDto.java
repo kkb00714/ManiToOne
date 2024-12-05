@@ -17,16 +17,5 @@ public class PostResponseDto {
   private Long postId;
   private User user;
   private String content;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
   private Boolean isManito;
-  private Boolean isSelected;
-  private Boolean isHidden;
-  private Boolean isBlind;
-
-  public PostResponseDto(Long postId, String content, Boolean isManito) {
-    this.postId = postId;
-    this.content = content;
-    this.isManito = isManito;
-  }
 }

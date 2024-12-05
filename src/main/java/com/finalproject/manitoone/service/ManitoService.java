@@ -1,7 +1,6 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.ManitoErrorMessages;
-import com.finalproject.manitoone.util.ManitoLetterParser;
 import com.finalproject.manitoone.util.TimeFormatter;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;

@@ -45,7 +45,7 @@ public class ManitoService {
     ManitoLetter manitoLetter = requestDto.toEntity(post, user);
     ManitoLetter savedLetter = manitoLetterRepository.save(manitoLetter);
 
-    return buildResponseDto(savedLetter, userNickname);
+    return buildLetterResponseDto(savedLetter, userNickname);
   }
 
   // 편지 생성 유효성 검사
@@ -67,7 +67,8 @@ public class ManitoService {
     }
   }
 
-  private ManitoLetterResponseDto buildResponseDto(ManitoLetter letter,
+  // ResponseDto 변환
+  private ManitoLetterResponseDto buildLetterResponseDto(ManitoLetter letter,
       String currentUserNickname) {
     User currentUser = userRepository.findUserByNickname(currentUserNickname)
         .orElseThrow(
@@ -86,13 +87,14 @@ public class ManitoService {
         .build();
   }
 
+  // 받은 편지 조회
   public ManitoPageResponseDto getReceiveManito(String nickname, Pageable pageable) {
     Page<ManitoLetter> letters = manitoLetterRepository.findByPostId_User_Nickname(nickname,
         pageable);
 
     return ManitoPageResponseDto.builder()
         .content(letters.getContent().stream()
-            .map(letter -> buildResponseDto(letter, nickname))
+            .map(letter -> buildLetterResponseDto(letter, nickname))
             .toList())
         .currentPage(letters.getNumber())
         .totalPages(letters.getTotalPages())
@@ -101,12 +103,13 @@ public class ManitoService {
         .build();
   }
 
+  // 보낸 편지 조회
   public ManitoPageResponseDto getSendManito(String nickname, Pageable pageable) {
     Page<ManitoLetter> letters = manitoLetterRepository.findByUser_Nickname(nickname, pageable);
 
     return ManitoPageResponseDto.builder()
         .content(letters.getContent().stream()
-            .map(letter -> buildResponseDto(letter, nickname))
+            .map(letter -> buildLetterResponseDto(letter, nickname))
             .toList())
         .currentPage(letters.getNumber())
         .totalPages(letters.getTotalPages())
@@ -115,17 +118,17 @@ public class ManitoService {
         .build();
   }
 
-
-  // 편지에 답장
-  public ManitoLetterResponseDto answerManitoLetter(Long manitoLetterId, String answerLetter,
-      String userNickname) {
+  // 편지 공개 토글
+  public void toggleManitoLetterVisibility(Long manitoLetterId, String userNickname) {
     ManitoLetter manitoLetter = manitoLetterRepository.findById(manitoLetterId)
         .orElseThrow(() -> new EntityNotFoundException(
             ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
 
-    manitoLetter.addAnswer(answerLetter, userNickname);
+    if (!manitoLetter.getPostId().getUser().getNickname().equals(userNickname)) {
+      throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_VISIBILITY.getMessage());
+    }
 
-    return buildResponseDto(manitoLetter, userNickname);
+    manitoLetter.toggleVisibility(userNickname);
   }
 
   // 편지 신고
@@ -141,17 +144,16 @@ public class ManitoService {
     manitoLetter.reportLetter();
   }
 
-  // 편지 공개 토글
-  public void toggleManitoLetterVisibility(Long manitoLetterId, String userNickname) {
+  // 편지에 답장
+  public ManitoLetterResponseDto answerManitoLetter(Long manitoLetterId, String answerLetter,
+      String userNickname) {
     ManitoLetter manitoLetter = manitoLetterRepository.findById(manitoLetterId)
         .orElseThrow(() -> new EntityNotFoundException(
             ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
 
-    if (!manitoLetter.getPostId().getUser().getNickname().equals(userNickname)) {
-      throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_VISIBILITY.getMessage());
-    }
+    manitoLetter.addAnswer(answerLetter, userNickname);
 
-    manitoLetter.toggleVisibility(userNickname);
+    return buildLetterResponseDto(manitoLetter, userNickname);
   }
 
   // 답장 신고

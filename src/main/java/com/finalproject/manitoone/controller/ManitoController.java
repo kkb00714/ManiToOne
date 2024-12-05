@@ -41,7 +41,7 @@ public class ManitoController {
         .body(manitoService.createLetter(manitoPostId, request, userDetails.getUsername()));
   }
 
-  // 편지에 대한 감사 인사
+  // 편지에 대한 답장
   @PutMapping("/manito/answer/{manitoPostId}")
   public ResponseEntity<ManitoLetterResponseDto> answerManitoLetter(
       @PathVariable Long manitoPostId,

@@ -4,7 +4,8 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ManitoLetterParser {
-  private static final String SEPARATOR = "\u0000";
+  private static final String SEPARATOR = "|||";
+  // parser 대신 entity 추가 고려
 
   public static String combineLetter(String content, String musicUrl, String musicComment){
     content = content.replace(SEPARATOR, "");

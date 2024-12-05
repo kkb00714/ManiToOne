@@ -66,15 +66,15 @@ public class UserAuthController {
 
   @GetMapping("/logout")
   public String logout(HttpServletRequest request, HttpServletResponse response) {
-    new SecurityContextLogoutHandler().logout(request, response,
-        SecurityContextHolder.getContext().getAuthentication());
-
     HttpSession session = request.getSession(false); // 현재 세션 가져오기
     if (session != null) {
       session.invalidate(); // 세션 무효화
     } else {
       throw new IllegalArgumentException(IllegalActionMessages.FAILED_LOGOUT.getMessage());
     }
+
+    new SecurityContextLogoutHandler().logout(request, response,
+        SecurityContextHolder.getContext().getAuthentication());
 
     return "redirect:/login";
   }

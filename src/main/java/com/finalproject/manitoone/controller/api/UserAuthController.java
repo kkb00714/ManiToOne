@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.controller.api;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.dto.UserLoginRequestDto;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
@@ -40,7 +41,7 @@ public class UserAuthController {
   }
 
   @PostMapping("/local-login")
-  public ResponseEntity<?> signIn(
+  public ResponseEntity<Object> signIn(
       @RequestBody UserLoginRequestDto userLoginRequestDto,
       HttpSession session
   ) {
@@ -49,32 +50,32 @@ public class UserAuthController {
           userLoginRequestDto.getEmail(),
           userLoginRequestDto.getPassword()
       );
-      session.setAttribute("user", responseDto);
+
+      session.setAttribute("email", responseDto.getEmail());
+      session.setAttribute("name", responseDto.getName());
+      session.setAttribute("nickname", responseDto.getNickname());
+      session.setAttribute("profileImage", responseDto.getProfileImage());
+      session.setAttribute("introduce", responseDto.getIntroduce());
+
       return ResponseEntity.ok(responseDto);
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body(e.getMessage());
+      return ResponseEntity.badRequest()
+          .body(new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
     }
   }
 
   @GetMapping("/logout")
   public String logout(HttpServletRequest request, HttpServletResponse response) {
-    new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+    new SecurityContextLogoutHandler().logout(request, response,
+        SecurityContextHolder.getContext().getAuthentication());
 
     HttpSession session = request.getSession(false); // 현재 세션 가져오기
     if (session != null) {
       session.removeAttribute("user");
+    } else {
+      throw new IllegalArgumentException(IllegalActionMessages.FAILED_LOGOUT.getMessage());
     }
 
     return "redirect:/login";
-  }
-
-  // 테스트용 - 현재 로그인된 유저 정보 반환
-  @GetMapping("/current-user")
-  public ResponseEntity<?> getSessionInfo(HttpSession session) {
-    UserLoginResponseDto loginUser = (UserLoginResponseDto) session.getAttribute("user");
-    if (loginUser == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인된 유저 정보가 없습니다.");
-    }
-    return ResponseEntity.ok(loginUser);
   }
 }

@@ -1,6 +1,5 @@
 package com.finalproject.manitoone.domain.dto;
 
-import com.finalproject.manitoone.domain.Post;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

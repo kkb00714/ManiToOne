@@ -65,7 +65,6 @@ public class ManitoLetterRequestDto {
   }
 
   // 정제된 값으로 엔티티 변환
-  // parser를 통해서 letter를 조합 처리
   public ManitoLetter toEntity(Post post, User user) {
     String safeContent = sanitizeText(letterContent);
     String safeUrl = validateAndSanitizeYoutubeUrl(musicUrl);

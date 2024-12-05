@@ -172,6 +172,27 @@ thead {
   align-items: center;
 }
 
+.page-link-number {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.page-link.disabled, .page-link-number.disabled {
+  pointer-events: none;
+}
+
+.page-link.active, .page-link-number.active {
+  cursor: pointer;
+}
+
+.page-link-number.active {
+  color: #A5A5A5;
+}
+
+.page-link-number.active {
+  color: #A5A5A5;
+}
+
 .navbar {
   display: flex;
   justify-content: center;

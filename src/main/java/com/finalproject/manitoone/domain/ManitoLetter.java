@@ -37,8 +37,15 @@ public class ManitoLetter {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @Column(name = "letter", columnDefinition = "text")
-  private String letter;
+  // letter을 삭제하고 letter-content, music-url, music-comment로 분리함
+  @Column(name = "letter-content", nullable = false)
+  private String letterContent;
+
+  @Column(name = "music-url")
+  private String musicUrl;
+
+  @Column(name = "music-comment")
+  private String musicComment;
 
   @Column(name = "is_report", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. 신고 안됨\\n1. 신고됨'")
   @Builder.Default
@@ -55,7 +62,6 @@ public class ManitoLetter {
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
 
-  // 답장 신고 컬럼 추가
   @Column(name = "is_answer_report", nullable = false , columnDefinition = "tinyint DEFAULT 0 COMMENT '0. 신고 안됨\\n1. 신고됨'")
   @Builder.Default
   private boolean isAnswerReport = false;

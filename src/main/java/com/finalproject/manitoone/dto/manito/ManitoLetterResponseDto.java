@@ -8,7 +8,7 @@ import lombok.Getter;
 public class ManitoLetterResponseDto {
 
   private Long manitoLetterId;
-  private String content;
+  private String letterContent;
   private String musicUrl;
   private String musicComment;
   private boolean isPublic;

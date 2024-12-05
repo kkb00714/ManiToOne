@@ -3,7 +3,6 @@ package com.finalproject.manitoone.dto.manito;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.User;
-import com.finalproject.manitoone.util.ManitoLetterParser;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -18,7 +17,7 @@ public class ManitoLetterRequestDto {
 
   @NotNull
   @Size(max = 600)
-  private String content;
+  private String letterContent;
 
   @Size(max = 200)
   private String musicUrl;
@@ -62,14 +61,16 @@ public class ManitoLetterRequestDto {
   // 정제된 값으로 엔티티 변환
   // parser를 통해서 letter를 조합 처리
   public ManitoLetter toEntity(Post post, User user) {
-    String safeContent = sanitizeText(content);
+    String safeContent = sanitizeText(letterContent);
     String safeUrl = validateAndSanitizeYoutubeUrl(musicUrl);
     String safeMusicComment = sanitizeText(musicComment);
 
     return ManitoLetter.builder()
         .postId(post)
         .user(user)
-        .letter(ManitoLetterParser.combineLetter(safeContent, safeUrl, safeMusicComment))
+        .letterContent(safeContent)
+        .musicUrl(safeUrl)
+        .musicComment(safeMusicComment)
         .build();
   }
 }

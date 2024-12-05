@@ -76,9 +76,9 @@ public class ManitoService {
 
     return ManitoLetterResponseDto.builder()
         .manitoLetterId(letter.getManitoLetterId())
-        .content(ManitoLetterParser.extractContent(letter.getLetter()))
-        .musicUrl(ManitoLetterParser.extractMusicUrl(letter.getLetter()))
-        .musicComment(ManitoLetterParser.extractMusicComment(letter.getLetter()))
+        .letterContent(letter.getLetterContent())
+        .musicUrl(letter.getMusicUrl())
+        .musicComment(letter.getMusicComment())
         .isPublic(letter.isPublic())
         .isReport(letter.isReport())
         .answerLetter(letter.getAnswerLetter())

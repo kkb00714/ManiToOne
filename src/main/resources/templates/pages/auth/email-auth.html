@@ -20,24 +20,87 @@
     <img th:src="@{/images/logo/long-logo.png}" alt="ManiToOne logo"/>
   </div>
   <p class="email-auth-discription">
-    xxx@mail.com 이메일로 인증 메일을 전송했습니다.
+    회원가입에 사용할 이메일을 입력하여 인증해주세요.
   </p>
   <div class="email-auth-container">
-    <form action="">
+    <form id="emailInputForm" th:action="@{/api/email-auth}" method="post" >
       <div class="email-auth-input-container">
         <input
             class="email-auth-number-input"
             type="text"
-            name="email-auth-number"
-            id="email-auth-number"
-            placeholder="이메일 인증 번호 입력"
-            aria-label="이메일 인증 번호 입력"
+            name="email"
+            id="email"
+            placeholder="이메일 입력"
+            aria-label="이메일 입력"
             required
         />
-        <button class="sign-up-complete-button">이메일 인증 및 회원가입 완료하기</button>
+        <button class="sign-up-complete-button" type="submit">다음</button>
       </div>
     </form>
   </div>
 </section>
+
+<div id="emailAuthModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close-button">x</span>
+    <h2>인증번호 입력</h2>
+    <p th:text="${email} + ' 로 전송된 인증번호를 입력하세요.'"></p>
+    <form id="authCodeForm" th:action="@{/api/email-check}" method="post">
+      <input
+          type="text"
+          id="authCode"
+          name="authCode"
+          placeholder="인증번호 입력"
+          required
+      />
+      <button type="submit" class="verify-auth-code-button">
+        인증하기
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById('emailInputForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // 빈 값 제출 불가
+
+    const emailInput = document.getElementById('email').value;
+
+    if (!emailInput) {
+      alert('이메일을 입력해주세요.');
+      return;
+    }
+
+    // 유효성 검사
+    const emailValidate = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailValidate.test(emailInput)) {
+      alert('올바른 이메일 주소를 입력해주세요.');
+      return;
+    }
+
+    // 메일 전송
+    fetch('/api/email-validate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({email : emailInput}),
+    })
+    .then(response => response.text())
+    .then(data => {
+      if (data) {
+        alert(emailInput + ' 으로 메일을 전송했습니다!')
+        document.getElementById('emailAuthModal').style.display = 'block'; // 모달 열기...?
+      } else {
+        alert('메일 전송에 실패했습니다 : ' + data);
+      }
+    })
+    .catch(error => {
+      console.error('Error: ', error.message);
+      alert('메일 전송 중 문제가 발생했습니다.');
+    });
+  });
+
+</script>
 </body>
 </html>

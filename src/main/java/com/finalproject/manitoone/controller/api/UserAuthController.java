@@ -71,7 +71,7 @@ public class UserAuthController {
 
     HttpSession session = request.getSession(false); // 현재 세션 가져오기
     if (session != null) {
-      session.removeAttribute("user");
+      session.invalidate(); // 세션 무효화
     } else {
       throw new IllegalArgumentException(IllegalActionMessages.FAILED_LOGOUT.getMessage());
     }

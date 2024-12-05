@@ -1,9 +1,13 @@
 package com.finalproject.manitoone.service;
 
+import static java.time.LocalDate.now;
+
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
+import com.finalproject.manitoone.domain.ReplyPost;
 import com.finalproject.manitoone.domain.User;
+import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
@@ -34,46 +38,101 @@ public class PostService {
   private final ReplyPostRepository replyPostRepository;
 
   // 게시글 생성
-  public PostResponseDto createPost(AddPostRequestDto request, User user) throws IOException {
-    // text 저장
-    Post post = Post.builder()
-        .user(user)
+  public PostResponseDto createPost(AddPostRequestDto request, User user) {
+    Post post = postRepository.save(Post.builder()
         .content(request.getContent())
+        .user(user)
         .isManito(request.getIsManito())
-        .build();
+        .build());
 
-    postRepository.save(post);
-
-    // 이미지 저장
-    List<MultipartFile> images = request.getImages();
-
-    if (images != null && !images.isEmpty()) {
-      for (MultipartFile image : images) {
-        saveImage(post, image);
-      }
-    }
-
-    return post.toPostResponseDto();
+    return new PostResponseDto(post.getPostId(), post.getUser(), post.getContent(),
+        post.getIsManito());
   }
 
   // 이미지 저장
-  private void saveImage(Post post, MultipartFile image) throws IOException {
-    // 파일 저장 경로 지정
-    String uploadDir = "src/main/resources/static/img/upload/";
-    Path uploadPath = Paths.get(uploadDir);
-    if (!Files.exists(uploadPath)) {
-      Files.createDirectories(uploadPath);
-    }
+//  private void saveImage(Post post, MultipartFile image) throws IOException {
+//    // 파일 저장 경로 지정
+//    String uploadDir = "src/main/resources/static/img/upload/";
+//    Path uploadPath = Paths.get(uploadDir);
+//    if (!Files.exists(uploadPath)) {
+//      Files.createDirectories(uploadPath);
+//    }
+//
+//    // 이미지 저장
+//    String originalFilename = image.getOriginalFilename();
+//    String uniqueFileName = UUID.randomUUID() + "-" + originalFilename;
+//    Path filePath = uploadPath.resolve(uniqueFileName);
+//    Files.write(filePath, image.getBytes());
+//
+//    postImageRepository.save(PostImage.builder()
+//        .fileName(originalFilename)
+//        .post(post)
+//        .build());
+//  }
 
-    // 이미지 저장
-    String originalFilename = image.getOriginalFilename();
-    String uniqueFileName = UUID.randomUUID() + "-" + originalFilename;
-    Path filePath = uploadPath.resolve(uniqueFileName);
-    Files.write(filePath, image.getBytes());
+  // 게시글 삭제
+  public void deletePost(Long postId) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
-    postImageRepository.save(PostImage.builder()
-        .fileName(originalFilename)
+    deleteImages(postId);
+    deleteReplies(postId);
+    deleteLikes(postId);
+    postRepository.delete(post);
+  }
+
+  // 게시글 이미지 삭제
+  private void deleteImages(Long postId) {
+    List<PostImage> imageList = postImageRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_IMAGE_WITH_GIVEN_ID.getMessage()
+        ));
+
+    postImageRepository.deleteAll(imageList);
+  }
+
+  // 게시글 답글 삭제
+  private void deleteReplies(Long postId) {
+    List<ReplyPost> replyList = replyPostRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    replyPostRepository.deleteAll(replyList);
+  }
+
+  // 게시글 좋아요 삭제
+  private void deleteLikes(Long postId) {
+    List<UserPostLike> likeList = userPostLikeRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
+        ));
+
+    userPostLikeRepository.deleteAll(likeList);
+  }
+
+  // 게시글 숨기기
+  public void hidePost(Long postId) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    post.hidePost(true);
+
+    postRepository.save(post);
+  }
+
+  // 게시글 좋아요
+  public void likePost(Long postId, User user) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    userPostLikeRepository.save(UserPostLike.builder()
         .post(post)
+        .user(user)
         .build());
   }
 

@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface PostImageRepository extends JpaRepository<PostImage, Long> {
 
   Optional<List<PostImage>> findAllByPost_PostId(Long postId);
+
+  Optional<List<PostImage>> findAllByPostPostId(Long postId);
 }

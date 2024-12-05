@@ -15,4 +15,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
   Optional<List<Post>> findAllByIsBlindFalseAndIsHiddenTrueAndUser_Nickname(String nickName,
       Pageable pageable);
+
+  Optional<Post> findByPostId(Long postId);
 }

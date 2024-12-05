@@ -1,4 +1,4 @@
-package com.finalproject.manitoone.controller;
+package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
@@ -13,7 +13,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,12 +33,30 @@ public class PostController {
   @PostMapping
   public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
       @AuthenticationPrincipal User user) {
-    try {
-      postService.createPost(request, user);
-      return ResponseEntity.status(HttpStatus.CREATED).build();
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
+    PostResponseDto post = postService.createPost(request, user);
+    return ResponseEntity.status(HttpStatus.CREATED).body(post);
+  }
+
+  // 게시글 삭제
+  @DeleteMapping("/{postId}")
+  public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId) {
+    postService.deletePost(postId);
+    return ResponseEntity.ok().build();
+  }
+
+  // 게시글 숨기기
+  @PutMapping("/hidden/{postId}")
+  public ResponseEntity<Void> hidePost(@PathVariable("postId") Long postId) {
+    postService.hidePost(postId);
+    return ResponseEntity.ok().build();
+  }
+
+  // 게시글 좋아요
+  @PostMapping("/like/{postId}")
+  public ResponseEntity<Void> likePost(@PathVariable("postId") Long postId,
+      @AuthenticationPrincipal User user) {
+    postService.likePost(postId, user);
+    return ResponseEntity.ok().build();
   }
 
   @GetMapping("/by/{nickName}")
@@ -46,7 +66,8 @@ public class PostController {
   }
 
   @GetMapping("/{nickName}/liked")
-  public ResponseEntity<List<PostViewResponseDto>> getLikedPostsByUserId(@PathVariable String nickName,
+  public ResponseEntity<List<PostViewResponseDto>> getLikedPostsByUserId(
+      @PathVariable String nickName,
       @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable) {
     return ResponseEntity.ok(postService.getLikePostByNickName(nickName, pageable));
   }

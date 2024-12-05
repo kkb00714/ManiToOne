@@ -73,4 +73,8 @@ public class Post {
         .isBlind(this.isBlind)
         .build();
   }
+
+  public void hidePost(Boolean isHidden) {
+    this.isHidden = isHidden;
+  }
 }

@@ -39,11 +39,7 @@ public class PostService {
   public PostResponseDto createPost(AddPostRequestDto request) {
     Post post = postRepository.save(request.toEntity());
 
-    return PostResponseDto.builder()
-        .postId(post.getPostId())
-        .content(post.getContent())
-        .isManito(post.getIsManito())
-        .build();
+    return new PostResponseDto(post.getPostId(), post.getContent(), post.getIsManito());
   }
 
   // 이미지 저장
@@ -66,6 +62,24 @@ public class PostService {
 //        .post(post)
 //        .build());
 //  }
+
+  // 게시글 삭제
+  public void deletePost(Long postId) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    postRepository.delete(post);
+  }
+
+  // 특정 게시글 조회
+  public PostResponseDto findByPostId(Long postId) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    return new PostResponseDto(post.getPostId(), post.getContent(), post.getIsManito());
+  }
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
     // TODO: 내 게시글인지는 어떻게 판별할까요?

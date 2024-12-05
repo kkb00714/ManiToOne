@@ -6,23 +6,21 @@ import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.service.PostService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 @RequestMapping("/api/post")
 public class PostController {
 
@@ -32,9 +30,14 @@ public class PostController {
   @PostMapping
   public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request) {
     PostResponseDto post = postService.createPost(request);
-    log.info("request: {}, {}", request.getContent(), request.getIsManito());
-    log.info("response: {}, {}", post.getContent(), post.getIsManito());
     return ResponseEntity.status(HttpStatus.CREATED).body(post);
+  }
+
+  // 게시글 삭제
+  @DeleteMapping("/{postId}")
+  public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId) {
+    postService.deletePost(postId);
+    return ResponseEntity.ok().build();
   }
 
   @GetMapping("/by/{nickName}")

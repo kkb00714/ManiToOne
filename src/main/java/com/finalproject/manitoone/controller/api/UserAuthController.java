@@ -4,11 +4,15 @@ import com.finalproject.manitoone.domain.dto.UserLoginRequestDto;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
 import com.finalproject.manitoone.service.UserAuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,6 +54,18 @@ public class UserAuthController {
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
+  }
+
+  @GetMapping("/logout")
+  public String logout(HttpServletRequest request, HttpServletResponse response) {
+    new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+
+    HttpSession session = request.getSession(false); // 현재 세션 가져오기
+    if (session != null) {
+      session.removeAttribute("user");
+    }
+
+    return "redirect:/login";
   }
 
   // 테스트용 - 현재 로그인된 유저 정보 반환

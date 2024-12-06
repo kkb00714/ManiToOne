@@ -1,32 +1,26 @@
 document.addEventListener("DOMContentLoaded", function () {
   const tableBody = document.querySelector("#user-table-body");
-  const pagination = document.querySelector(".pagination"); // 페이징 컨테이너
+  const pagination = document.querySelector(".pagination");
+  let requestBody = {}
 
-  // 첫 번째 페이지 데이터 로드
   loadPage(1);
 
   function loadPage(page) {
-    const requestBody = {};
-
+    syncSearchFields();
     fetch(`/admin/users?page=${page - 1}`, {
-      method: "POST", // POST 방식
+      method: "POST",
       headers: {
-        "Content-Type": "application/json", // JSON 형식으로 데이터 전송
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestBody) // 요청 본문에 JSON 데이터를 포함
+      body: JSON.stringify(requestBody)
     })
     .then((response) => {
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
-      return response.json(); // 응답 데이터를 JSON으로 변환
+      return response.json();
     })
     .then((data) => {
-      console.log(data); // 서버에서 받은 JSON 데이터를 확인
-      console.log(data.content)
-      console.log(data.content[0])
-      console.log(data.content[0].userId)
-      // 테이블 업데이트
       tableBody.innerHTML = data.content
       .map(
           (user) => `
@@ -43,10 +37,10 @@ document.addEventListener("DOMContentLoaded", function () {
       )
       .join("");
 
-      renderPagination(page, data.totalPages); // totalPages를 서버 응답에서 가져올 경우 사용
+      renderPagination(page, data.totalPages);
     })
     .catch((error) => {
-      console.error("Error:", error); // 에러를 콘솔에 출력
+      console.error("Error:", error);
     });
   }
 
@@ -58,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const nextGroupFirstPage = endPage + 1;
 
     let html = `
-            <!-- 이전 그룹 버튼 -->
+
             <li>
                 <a class="page-link ${currentPage <= 1 ? "disabled" : "active"}" data-page="1">
                     <img class="page-img"
@@ -88,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     html += `
-            <!-- 다음 그룹 버튼 -->
+
             <li>
                 <a class="page-link ${endPage === totalPages ? "disabled"
         : "active"}" data-page="${nextGroupFirstPage}">
@@ -109,18 +103,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     pagination.innerHTML = html;
 
-    // 페이징 버튼 이벤트 바인딩
+    document.querySelector("form").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const filterSelect = document.querySelector("#filterSelect").value;
+      const searchQuery = document.querySelector("#searchQuery").value.trim();
+
+      if (filterSelect && searchQuery) {
+        requestBody = { [filterSelect]: searchQuery };
+        loadPage(1);
+      }
+    });
+
     document.querySelectorAll(".page-link, .page-link-number").forEach((button) => {
       if (!button.classList.contains("disabled")) {
         button.addEventListener("click", () => {
           const page = parseInt(button.dataset.page, 10);
-          loadPage(page); // 선택한 페이지 데이터 로드
+          loadPage(page);
         });
       }
     });
   }
 
-  // Status 값을 텍스트로 변환하는 함수
   function getStatusText(status) {
     switch (status) {
       case 1:
@@ -131,6 +135,20 @@ document.addEventListener("DOMContentLoaded", function () {
         return "탈퇴";
       default:
         return "알 수 없음";
+    }
+  }
+
+  function syncSearchFields() {
+    const filterSelect = document.querySelector("#filterSelect");
+    const searchQuery = document.querySelector("#searchQuery");
+
+    const [key] = Object.keys(requestBody);
+    if (key) {
+      filterSelect.value = key;
+      searchQuery.value = requestBody[key];
+    } else {
+      const defaultFilter = filterSelect.options[0].value;
+      requestBody = { [defaultFilter]: "" };
     }
   }
 });

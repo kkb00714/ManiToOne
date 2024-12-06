@@ -1,7 +1,6 @@
 package com.finalproject.manitoone.controller.view;
 
 import com.finalproject.manitoone.constants.Role;
-import com.finalproject.manitoone.service.AdminService;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -13,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminViewController {
-
-  private final AdminService adminService;
 
   @GetMapping
   public String adminIndex() {

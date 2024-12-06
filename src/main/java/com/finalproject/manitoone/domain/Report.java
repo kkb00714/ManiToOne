@@ -1,5 +1,7 @@
 package com.finalproject.manitoone.domain;
 
+import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.constants.ReportType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,13 +28,13 @@ public class Report {
   private Long reportId;
 
   @Column(name = "report_type", nullable = false, length = 100)
-  private String reportType;
+  private ReportType reportType;
 
   @Column(name = "user_id", nullable = false)
   private Long userId;
 
   @Column(name = "type", nullable = false, length = 100, columnDefinition = "varchar(100) COMMENT '게시글 신고\\n댓글 신고\\n마니또 신고'")
-  private String type;
+  private ReportObjectType type;
 
   @Column(name = "report_object_id", nullable = false, columnDefinition = "int COMMENT '게시글, 댓글, 마니또 ID'")
   private Long reportObjectId;

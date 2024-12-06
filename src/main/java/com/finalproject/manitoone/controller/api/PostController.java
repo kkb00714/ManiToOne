@@ -3,6 +3,7 @@ package com.finalproject.manitoone.controller.api;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
+import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.service.PostService;
 import java.util.List;
@@ -29,7 +30,7 @@ public class PostController {
 
   private final PostService postService;
 
-  // 게시글 생성
+  // 게시글 생성 (미완성)
   @PostMapping
   public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
       @AuthenticationPrincipal User user) {
@@ -51,13 +52,20 @@ public class PostController {
     return ResponseEntity.ok().build();
   }
 
-  // 게시글 좋아요
+  // 게시글 좋아요 (미완성)
   @PostMapping("/like/{postId}")
   public ResponseEntity<Void> likePost(@PathVariable("postId") Long postId,
       @AuthenticationPrincipal User user) {
     postService.likePost(postId, user);
     return ResponseEntity.ok().build();
   }
+
+  // 게시글 신고 (미완성)
+//  @PutMapping("/report/{postId}/{reportType}")
+//  public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId, @PathVariable("")
+//      @AuthenticationPrincipal User user) {
+//
+//  }
 
   @GetMapping("/by/{nickName}")
   public ResponseEntity<List<PostViewResponseDto>> getPostsByUserId(@PathVariable String nickName,

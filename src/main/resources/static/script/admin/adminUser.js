@@ -4,10 +4,29 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchButton = document.querySelector("#searchButton");
   const searchQuery = document.querySelector("#searchQuery");
   let requestBody = {}
+  let currentStatus = "";
+
+  const handleSearchClick = () => {
+    const filterSelect = document.querySelector("#filterSelect").value;
+    const searchQuery = document.querySelector(
+        "#searchQuery").value.trim();
+
+    if (!searchQuery) {
+      alert("검색어를 입력해 주세요.");
+      return;
+    }
+
+    if (filterSelect && searchQuery) {
+      requestBody = {[filterSelect]: searchQuery};
+      loadPage(1);
+    }
+  }
 
   loadPage(1);
 
   function loadPage(page) {
+    searchButton.removeEventListener("click", handleSearchClick);
+    searchButton.addEventListener("click", handleSearchClick);
     syncSearchFields();
     fetch(`/admin/users?page=${page - 1}`, {
       method: "POST",
@@ -111,23 +130,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     pagination.innerHTML = html;
 
-    searchButton.addEventListener("click",
-        function () {
-          const filterSelect = document.querySelector("#filterSelect").value;
-          const searchQuery = document.querySelector(
-              "#searchQuery").value.trim();
-
-          if (!searchQuery) {
-            alert("검색어를 입력해 주세요.");
-            return;
-          }
-
-          if (filterSelect && searchQuery) {
-            requestBody = {[filterSelect]: searchQuery};
-            loadPage(1);
-          }
-        });
-
     searchQuery.addEventListener("keydown", function (event) {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -145,6 +147,22 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         });
   }
+
+  let statusLinkItems = document.querySelectorAll('.status-filter');
+
+  statusLinkItems.forEach((link) => {
+    link.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      document.querySelectorAll(".status-filter").forEach((link) => link.classList.remove("active"));
+      this.classList.add("active");
+
+      currentStatus = this.dataset.status;
+      requestBody.status = currentStatus || null;
+
+      loadPage(1);
+    });
+  });
 
   function getStatusText(status) {
     switch (status) {

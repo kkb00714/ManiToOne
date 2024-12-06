@@ -111,10 +111,8 @@ public class MailService {
   public void findPassword(String email, String name) {
 
     // 1. 이메일로 사용자 검색 및 이름 일치 여부 확인
-    User user = userRepository.findByEmail(email)
-        .filter(u -> u.getName().equals(name))
-        .orElseThrow(() ->
-            new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
+    User user = userRepository.findByEmailAndName(email, name)
+        .orElseThrow(() -> new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
 
     // 2. 임시 비밀번호 생성
     String temporaryPassword = generateRandomPassword();

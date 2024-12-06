@@ -44,8 +44,6 @@
       </nav>
       <nav class="navbar bg-light">
         <div class="container-fluid justify-content-center">
-          <form class="d-flex" role="search" method="get" onsubmit="return setSearchAction(this)">
-            <!-- 말머리 선택 드롭다운 -->
             <select id="filterSelect" class="form-select me-2" aria-label="말머리 선택">
               <option value="nickname">닉네임</option>
               <option value="name">이름</option>
@@ -55,8 +53,7 @@
             <!-- 검색 입력 및 버튼 -->
             <input id="searchQuery" class="form-control me-2" type="search" placeholder="Search"
                    aria-label="Search">
-            <button class="btn btn-outline-success">검색</button>
-          </form>
+            <button id="searchButton" class="btn btn-outline-success">검색</button>
         </div>
       </nav>
     </div>

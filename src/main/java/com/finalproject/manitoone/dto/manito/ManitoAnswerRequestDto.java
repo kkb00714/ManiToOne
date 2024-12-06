@@ -15,6 +15,6 @@ public class ManitoAnswerRequestDto {
 
   @NotNull
   @NotBlank
-  @Size(min = 1, max = 400)
+  @Size(min = 1, max = 500)
   private String answerComment;
 }

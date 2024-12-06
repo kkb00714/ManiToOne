@@ -1,0 +1,49 @@
+<div th:fragment="manito-confirm-message-modal">
+<!--  편지 팝업-->
+  <div class="confirmation-popup" id="letterConfirmationPopup" style="display: none;">
+    <div class="confirmation-content">
+      <p>정말 전송하시겠습니까?</p>
+      <p class="warning-text">편지를 보내고 나면 수정하거나 삭제할 수 없어요!</p>
+      <div class="confirmation-buttons">
+        <button class="confirm-btn" id="letterConfirmSendBtn">확인</button>
+        <button class="cancel-btn" id="letterCancelSendBtn">취소</button>
+      </div>
+    </div>
+  </div>
+  <div class="confirmation-popup" id="letterSuccessPopup" style="display: none;">
+    <div class="confirmation-content">
+      <p class="success-text">편지가 전송되었습니다!</p>
+      <div class="confirmation-buttons">
+        <button class="confirm-btn" id="letterSuccessConfirmBtn">확인</button>
+      </div>
+    </div>
+  </div>
+<!--  답장 팝업-->
+  <div class="confirmation-popup" id="sendConfirmationPopup" style="display: none;">
+    <div class="confirmation-content">
+      <p>정말 전송하시겠습니까?</p>
+      <p class="warning-text">편지를 보내고 나면 수정하거나 삭제할 수 없어요!</p>
+      <div class="confirmation-buttons">
+        <button class="confirm-btn" id="confirmSendBtn">확인</button>
+        <button class="cancel-btn" id="cancelSendBtn">취소</button>
+      </div>
+    </div>
+  </div>
+  <div class="confirmation-popup" id="sendSuccessPopup" style="display: none;">
+    <div class="confirmation-content">
+      <p class="success-text">편지가 전송되었습니다!</p>
+      <div class="confirmation-buttons">
+        <button class="confirm-btn" id="successConfirmBtn">확인</button>
+      </div>
+    </div>
+  </div>
+<!--  공통 경고 팝업-->
+  <div class="confirmation-popup" id="warningPopup" style="display: none;">
+    <div class="confirmation-content">
+      <p class="warning-text" id="warningMessage"></p>
+      <div class="confirmation-buttons">
+        <button class="confirm-btn" id="warningConfirmBtn">확인</button>
+      </div>
+    </div>
+  </div>
+</div>

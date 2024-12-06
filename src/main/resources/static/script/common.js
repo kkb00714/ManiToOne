@@ -8,7 +8,8 @@ class BaseModal {
     this.initializeEventListeners();
     this.initializeTextareas();
 
-    if (modalId === 'manitoLetterModalContainer') {
+    if (modalId === 'manitoLetterModalContainer' ||
+        modalId === 'manitoLetterReplyModalContainer') {
       this.initializeSendConfirmation();
     }
   }
@@ -36,21 +37,17 @@ class BaseModal {
     element.style.height = (element.scrollHeight) + 'px';
   }
 
-  // 스크롤 잠금 메서드 추가
   lockScroll() {
     document.body.style.overflow = 'hidden';
-    document.body.style.paddingRight = this.getScrollbarWidth() + 'px'; // 스크롤바 너비만큼 패딩 추가
+    document.body.style.paddingRight = this.getScrollbarWidth() + 'px';
   }
 
-  // 스크롤 잠금 해제 메서드 추가
   unlockScroll() {
     document.body.style.overflow = '';
-    document.body.style.paddingRight = ''; // 패딩 제거
+    document.body.style.paddingRight = '';
   }
 
-  // 스크롤바 너비 계산 메서드 추가
   getScrollbarWidth() {
-    // 스크롤바 너비 계산
     const outer = document.createElement('div');
     outer.style.visibility = 'hidden';
     outer.style.overflow = 'scroll';
@@ -67,12 +64,12 @@ class BaseModal {
 
   open() {
     [this.modal, this.background].forEach((el) => (el.style.display = "block"));
-    this.lockScroll(); // 모달 열 때 스크롤 잠금
+    this.lockScroll();
   }
 
   close() {
     [this.modal, this.background].forEach((el) => (el.style.display = "none"));
-    this.unlockScroll(); // 모달 닫을 때 스크롤 잠금 해제
+    this.unlockScroll();
   }
 
   showWarning(message) {
@@ -89,44 +86,46 @@ class BaseModal {
   }
 
   isValidYoutubeUrl(url) {
-    if (!url) return true; // URL이 비어있으면 통과 (필수 아님)
+    if (!url) {
+      return true;
+    }
 
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
     return youtubeRegex.test(url);
   }
 
   validateForm() {
-    const letterText = this.modal.querySelector('#manito-letter-text-input');
-    const musicUrl = this.modal.querySelector('#music-link-input');
+    const letterText = this.modal.querySelector('textarea');
 
-    // 편지 내용 검사
     if (!letterText.value.trim()) {
-      this.showWarning('편지 내용을 작성해주세요.');
+      const message = this.modal.id === 'manitoLetterReplyModalContainer'
+          ? '답장 내용을 작성해주세요.'
+          : '편지 내용을 작성해주세요.';
+      this.showWarning(message);
       letterText.focus();
       return false;
     }
 
-    // YouTube URL 검사 (입력된 경우에만)
-    if (musicUrl.value.trim() && !this.isValidYoutubeUrl(musicUrl.value.trim())) {
-      this.showWarning('Youtube url을 입력해주세요.');
-      musicUrl.focus();
-      return false;
+    if (this.modal.id === 'manitoLetterModalContainer') {
+      const musicUrl = this.modal.querySelector('#music-link-input');
+      if (musicUrl && musicUrl.value.trim() && !this.isValidYoutubeUrl(musicUrl.value.trim())) {
+        this.showWarning('Youtube url을 입력해주세요.');
+        musicUrl.focus();
+        return false;
+      }
     }
 
     return true;
   }
 
-  // 폼 초기화 메서드 추가
   resetForm() {
     if (this.modal) {
-      // textarea 초기화
       const textareas = this.modal.getElementsByTagName('textarea');
       Array.from(textareas).forEach(textarea => {
         textarea.value = '';
-        this.adjustTextareaHeight(textarea); // 높이도 초기화
+        this.adjustTextareaHeight(textarea);
       });
 
-      // input 초기화
       const inputs = this.modal.getElementsByTagName('input');
       Array.from(inputs).forEach(input => {
         input.value = '';
@@ -135,43 +134,44 @@ class BaseModal {
   }
 
   initializeSendConfirmation() {
-    const sendButton = this.modal.querySelector('.send-letter-button');
-    const confirmationPopup = document.getElementById('sendConfirmationPopup');
-    const successPopup = document.getElementById('sendSuccessPopup');
-    const confirmBtn = document.getElementById('confirmSendBtn');
-    const cancelBtn = document.getElementById('cancelSendBtn');
-    const successConfirmBtn = document.getElementById('successConfirmBtn');
+    const sendButton = this.modal.querySelector('.send-letter-button, .send-letter-reply-button');
+
+    const isLetterModal = this.modal.id === 'manitoLetterModalContainer';
+    const confirmationPopup = document.getElementById(isLetterModal ? 'letterConfirmationPopup' : 'sendConfirmationPopup');
+    const successPopup = document.getElementById(isLetterModal ? 'letterSuccessPopup' : 'sendSuccessPopup');
+    const confirmBtn = document.getElementById(isLetterModal ? 'letterConfirmSendBtn' : 'confirmSendBtn');
+    const cancelBtn = document.getElementById(isLetterModal ? 'letterCancelSendBtn' : 'cancelSendBtn');
+    const successConfirmBtn = document.getElementById(isLetterModal ? 'letterSuccessConfirmBtn' : 'successConfirmBtn');
 
     if (sendButton && confirmationPopup && confirmBtn && cancelBtn) {
-      sendButton.addEventListener('click', (e) => {
+      sendButton.replaceWith(sendButton.cloneNode(true));
+      const newSendButton = this.modal.querySelector('.send-letter-button, .send-letter-reply-button');
+
+      newSendButton.addEventListener('click', (e) => {
         e.preventDefault();
         if (this.validateForm()) {
           confirmationPopup.style.display = 'block';
         }
       });
 
-      confirmBtn.addEventListener('click', (e) => {
+      confirmBtn.onclick = (e) => {
         e.preventDefault();
         confirmationPopup.style.display = 'none';
         successPopup.style.display = 'block';
+        console.log('전송 완료!');
+      };
 
-        // 여기에 실제 전송 로직 추가
-        console.log('편지 전송 완료!');
-
-        // 폼 초기화 추가
-        this.resetForm();
-      });
-
-      cancelBtn.addEventListener('click', (e) => {
+      cancelBtn.onclick = (e) => {
         e.preventDefault();
         confirmationPopup.style.display = 'none';
-      });
+      };
 
-      successConfirmBtn.addEventListener('click', (e) => {
+      successConfirmBtn.onclick = (e) => {
         e.preventDefault();
         successPopup.style.display = 'none';
+        this.resetForm();
         this.close();
-      });
+      };
     }
   }
 }
@@ -220,6 +220,7 @@ class ProfileUpdateModal extends BaseModal {
   }
 }
 
+
 function initializeModals() {
   try {
     if (document.getElementById("newPostFormModalContainer")) {
@@ -239,7 +240,6 @@ function initializeModals() {
   }
 }
 
-// 모든 textarea 자동 리사이즈를 위한 전역 함수 추가
 function initializeAllTextareas() {
   const allTextareas = document.getElementsByTagName('textarea');
   Array.from(allTextareas).forEach(textarea => {
@@ -248,10 +248,8 @@ function initializeAllTextareas() {
       textarea.style.height = (textarea.scrollHeight) + 'px';
     };
 
-    // 초기 높이 설정
     adjustHeight();
 
-    // 이벤트 리스너 추가
     textarea.addEventListener('input', adjustHeight);
   });
 }
@@ -278,7 +276,7 @@ function loadContent(page) {
     middleSection.innerHTML = html;
     history.pushState({page: page}, '', `/${page}`);
     initializeModals();
-    initializeAllTextareas(); // 새로운 콘텐츠에 대한 textarea 초기화 추가
+    initializeAllTextareas();
   })
   .catch(error => {
     console.error('Error:', error);
@@ -319,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   initializeModals();
-  initializeAllTextareas(); // 페이지 로드 시 모든 textarea 초기화
+  initializeAllTextareas();
 });
 
 function toggleManito(element, type) {
@@ -327,10 +325,12 @@ function toggleManito(element, type) {
   const isChecked = img.src.includes('icon-check.png');
 
   if (isChecked) {
-    img.src = img.getAttribute('data-unchecked-src').replace('@{', '').replace('}', '');
+    img.src = img.getAttribute('data-unchecked-src').replace('@{', '').replace(
+        '}', '');
     element.style.opacity = '0.3';
   } else {
-    img.src = img.getAttribute('data-checked-src').replace('@{', '').replace('}', '');
+    img.src = img.getAttribute('data-checked-src').replace('@{', '').replace(
+        '}', '');
     element.style.opacity = '1';
   }
 

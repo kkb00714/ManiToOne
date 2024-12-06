@@ -7,7 +7,7 @@
   </div>
   <section class="todays-manito-section">
     <div class="todays-manito-post">
-      <div th:replace = "fragments/content/post"></div>
+      <div th:replace="~{fragments/content/post}"></div>
     </div>
   </section>
   <div class="send-letter-container">
@@ -32,10 +32,10 @@
   <button class="reply-button" id="openManitoLetterModalBtn">
     이 게시물에 편지 보내기
   </button>
-  <div th:replace="fragments/common/manito-letter-box :: manito-letter-box"></div>
-  <div th:replace="fragments/modals/manito-letter-modal :: manito-letter-modal"></div>
-  <div th:replace="fragments/modals/manito-letter-reply-modal :: manito-letter-reply-modal"></div>
-
+  <div th:replace="~{fragments/common/manito-letter-box :: manito-letter-box}"></div>
+  <div th:replace="~{fragments/modals/manito-letter-modal :: manito-letter-modal}"></div>
+  <div th:replace="~{fragments/modals/manito-letter-reply-modal :: manito-letter-reply-modal}"></div>
   <div
-      th:replace="fragments/modals/manito-letter-reply-sent-modal :: manito-letter-reply-sent-modal"></div>
+      th:replace="~{fragments/modals/manito-letter-reply-sent-modal :: manito-letter-reply-sent-modal}"></div>
+  <div th:replace="~{fragments/modals/manito-confirm-message-modal :: manito-confirm-message-modal}"></div>
 </div>

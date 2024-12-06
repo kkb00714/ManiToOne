@@ -16,12 +16,12 @@
   <title>ManiToOne</title>
 </head>
 <body>
-<header th:replace="fragments/common/header :: header"></header>
+<header th:replace="~{fragments/common/header :: header}"></header>
 <main class="main-container">
   <section class="middle-section" id="middleSection" th:fragment="middle-content">
     <!--여기에 중앙 컨텐츠가 들어갑니다-->
   </section>
-  <article th:replace="fragments/common/right-section :: right-section"></article>
+  <article th:replace="~{fragments/common/right-section :: right-section}"></article>
 </main>
 <script th:src="@{/script/common.js}"></script>
 </body>

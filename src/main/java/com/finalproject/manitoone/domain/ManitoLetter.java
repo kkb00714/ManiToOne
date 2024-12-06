@@ -37,7 +37,6 @@ public class ManitoLetter {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  // letter을 삭제하고 letter-content, music-url, music-comment로 분리함
   @Column(name = "letter-content", nullable = false)
   private String letterContent;
 

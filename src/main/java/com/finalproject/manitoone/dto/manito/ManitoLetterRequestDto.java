@@ -18,7 +18,7 @@ public class ManitoLetterRequestDto {
 
   @NotNull
   @NotBlank
-  @Size(min = 1, max = 600)
+  @Size(min = 1, max = 500)
   private String letterContent;
 
   @Size(max = 200)
@@ -26,7 +26,6 @@ public class ManitoLetterRequestDto {
 
   @Size(max = 100)
   private String musicComment;
-
 
   // 특수문자, 스크립트 입력값 정제
   private String sanitizeText(String text) {

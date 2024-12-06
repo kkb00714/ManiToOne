@@ -23,7 +23,7 @@
     두근두근~ 마니또를 확인하려면 가입하세요!
   </p>
   <div class="sign-up-container">
-    <form action="">
+    <form id="sign-up-form" th:action="@{/api/signup}" method="post">
       <div class="sign-up-input-container">
         <input
             class="sign-up-input"
@@ -34,6 +34,9 @@
             aria-label="이메일 주소 입력"
             required
         />
+        <p><span id="email-error" class="error-message"></span></p>
+
+        <span>비밀번호(영문 대-소문자, 숫자, 특수문자 포함 10~16자)</span>
         <input
             class="sign-up-input"
             type="password"
@@ -43,6 +46,8 @@
             aria-label="비밀번호 입력"
             required
         />
+        <p><span id="password-error" class="error-message"></span></p>
+
         <input
             class="sign-up-input"
             type="text"
@@ -52,6 +57,8 @@
             aria-label="이름 입력"
             required
         />
+        <p><span id="name-error" class="error-message"></span></p>
+
         <input
             class="sign-up-input"
             type="text"
@@ -61,6 +68,8 @@
             aria-label="닉네임 입력"
             required
         />
+        <p><span id="nickname-error" class="error-message"></span></p>
+
         <input
             class="sign-up-input"
             type="date"
@@ -69,6 +78,8 @@
             aria-label="생년월일 입력"
             required
         />
+        <p><span id="birth-error" class="error-message"></span></p>
+
         <button class="sign-up-button">가입</button>
       </div>
     </form>
@@ -79,5 +90,118 @@
     <p class="sign-in-link"><a th:href="@{/templates/pages/auth/sign-in.html}">로그인</a></p>
   </div>
 </section>
+
+<script>
+  document.getElementById("sign-up-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const email = document.getElementById("user-email").value;
+    const password = document.getElementById("user-password").value;
+    const name = document.getElementById("user-name").value;
+    const nickname = document.getElementById("user-nickname").value;
+    const birth = document.getElementById("user-birthday").value;
+
+    const emailError = document.getElementById("email-error");
+    const passwordError = document.getElementById("password-error");
+    const nameError = document.getElementById("name-error");
+    const nicknameError = document.getElementById("nickname-error");
+    const birthError = document.getElementById("birth-error");
+
+    emailError.textContent = "";
+    passwordError.textContent = "";
+    nameError.textContent = "";
+    nicknameError.textContent = "";
+    birthError.textContent = "";
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+    const nicknameRegex = /^.{2,10}$/;
+
+    let isValid = true;
+    let firstErrorField = null;
+
+    if (!emailRegex.test(email)) {
+      emailError.textContent = "유효한 이메일 주소를 입력해주세요.";
+      if (!firstErrorField) {
+        firstErrorField = document.getElementById("user-email");
+      }
+      isValid = false;
+    }
+
+    if (!passwordRegex.test(password)) {
+      passwordError.textContent =
+          "비밀번호는 영어, 숫자, 특수문자를 포함하여 8~16자리여야 합니다.";
+      if (!firstErrorField) {
+        firstErrorField = document.getElementById("user-password");
+      }
+      isValid = false;
+    }
+
+    if (name === "") {
+      nameError.textContent = "이름은 필수 입력값입니다.";
+      if (!firstErrorField) {
+        firstErrorField = document.getElementById("user-name");
+      }
+      isValid = false;
+    }
+
+    if (!nicknameRegex.test(nickname)) {
+      nicknameError.textContent = "닉네임은 2~10자리로 설정해야 합니다.";
+      if (!firstErrorField) {
+        firstErrorField = document.getElementById("user-nickname");
+      }
+      isValid = false;
+    }
+
+    if (!birth) {
+      birthError.textContent = "생년월일은 필수 입력값입니다.";
+      if (!firstErrorField) {
+        firstErrorField = document.getElementById("user-birthday");
+      }
+      isValid = false;
+    }
+
+    if (!isValid) {
+      // 첫 번째 에러 필드에 포커스 설정
+      if (firstErrorField) {
+        firstErrorField.focus();
+      }
+      return; // API 호출 중단
+    }
+
+    const requestData = {
+      email: email,
+      password: password,
+      name: name,
+      nickname: nickname,
+      birth: birth,
+    };
+
+    fetch('/api/signup', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.text();
+      } else {
+        return response.text().then(errorText => {
+          throw new Error(errorText);
+        });
+      }
+    })
+    .then(message => {
+      alert(message);
+      window.location.href = "/login";
+    })
+    .catch(error => {
+      alert('회원가입 실패 : ' + error.message);
+    });
+  });
+</script>
+
 </body>
 </html>

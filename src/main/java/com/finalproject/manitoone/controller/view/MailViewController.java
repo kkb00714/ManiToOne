@@ -10,4 +10,9 @@ public class MailViewController {
   public String getResetPage() {
     return "/pages/auth/find-password";
   }
+
+  @GetMapping("/password-reset-confirm")
+  public String getConfirmPage() {
+    return "/pages/auth/find-password-after";
+  }
 }

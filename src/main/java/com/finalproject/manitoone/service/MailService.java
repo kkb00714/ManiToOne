@@ -3,10 +3,12 @@ package com.finalproject.manitoone.service;
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.repository.UserRepository;
+import jakarta.mail.Message.RecipientType;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -17,10 +19,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MailService {
 
+  private static final String SENDER_EMAIL = "kkb00714@gmail.com";
+  private static final Random RANDOM = new Random();
+
   private final UserRepository userRepository;
   private final JavaMailSender javaMailSender;
   private final PasswordEncoder passwordEncoder;
-  private static final String senderEmail = "kkb00714@gmail.com";
 
   // 이메일 인증 여부 저장
   private final Map<String, Integer> verificationMap = new ConcurrentHashMap<>();
@@ -29,15 +33,15 @@ public class MailService {
 
   // 랜덤으로 숫자 생성
   public static int createNumber() {
-    return (int) (Math.random() * (90000)) + 100000; // Math.random() * (최댓값-최소값+1) + 최소값
+    return RANDOM.nextInt(90000) + 100000; // (최댓값 - 최소값)  + 최소값
   }
 
   public MimeMessage createMail(String email, int number) {
     MimeMessage message = javaMailSender.createMimeMessage();
 
     try {
-      message.setFrom(senderEmail);
-      message.setRecipients(MimeMessage.RecipientType.TO, email);
+      message.setFrom(SENDER_EMAIL);
+      message.setRecipients(RecipientType.TO, email);
       message.setSubject("이메일 인증");
       String body = "";
       body += "<h3>" + "요청하신 인증 번호입니다." + "</h3>";
@@ -46,7 +50,7 @@ public class MailService {
       message.setText(body, "UTF-8", "html");
     } catch (MessagingException e) {
       throw new IllegalArgumentException(
-          IllegalActionMessages.CANNOT_VERIFY_EMAIL_NUMBER.getMessage()
+          IllegalActionMessages.EMAIL_VERIFICATION_CODE_MISMATCH.getMessage()
       );
     }
     return message;
@@ -57,7 +61,7 @@ public class MailService {
     boolean existUserByEmail = userRepository.existsByEmail(email);
     if (existUserByEmail) {
       throw new IllegalArgumentException(
-          IllegalActionMessages.CANNOT_USE_EMAIL.getMessage()
+          IllegalActionMessages.EMAIL_ALREADY_IN_USE.getMessage()
       );
     }
 
@@ -72,7 +76,7 @@ public class MailService {
     Integer savedNumber = verificationMap.get(email);
     if (savedNumber == null || savedNumber != inputNumber) {
       throw new IllegalArgumentException(
-          IllegalActionMessages.CANNOT_VERIFY_EMAIL_NUMBER.getMessage()
+          IllegalActionMessages.EMAIL_VERIFICATION_CODE_MISMATCH.getMessage()
       );
     }
     // 인증 완료된 이메일 저장
@@ -91,12 +95,12 @@ public class MailService {
   }
 
   // 랜덤 비밀번호 생성 메서드
-  private String generateRandomPassword(int length) {
+  private String generateRandomPassword() {
     String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
     StringBuilder password = new StringBuilder();
     SecureRandom random = new SecureRandom();
 
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < 12; i++) {
       int index = random.nextInt(characters.length());
       password.append(characters.charAt(index));
     }
@@ -110,10 +114,10 @@ public class MailService {
     User user = userRepository.findByEmail(email)
         .filter(u -> u.getName().equals(name))
         .orElseThrow(() ->
-            new IllegalArgumentException(IllegalActionMessages.CANNOT_FIND_ANY_USER.getMessage()));
+            new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
 
     // 2. 임시 비밀번호 생성
-    String temporaryPassword = generateRandomPassword(12);
+    String temporaryPassword = generateRandomPassword();
 
     // 3. 비밀번호 암호화 및 업데이트
     String encodedPassword = passwordEncoder.encode(temporaryPassword);
@@ -123,8 +127,8 @@ public class MailService {
     // 4. 이메일 발송
     MimeMessage message = javaMailSender.createMimeMessage();
     try {
-      message.setFrom(senderEmail);
-      message.setRecipients(MimeMessage.RecipientType.TO, email);
+      message.setFrom(SENDER_EMAIL);
+      message.setRecipients(RecipientType.TO, email);
       message.setSubject("비밀번호 초기화 안내");
       String body = "<h3>안녕하세요,</h3>";
       body += "<p>임시 비밀번호는 다음과 같습니다:</p>";
@@ -134,7 +138,7 @@ public class MailService {
       javaMailSender.send(message);
     } catch (MessagingException e) {
       throw new IllegalArgumentException(
-          IllegalActionMessages.CANNOT_VERIFY_EMAIL.getMessage()
+          IllegalActionMessages.EMAIL_VERIFICATION_FAILED.getMessage()
       );
     }
   }

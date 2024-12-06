@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/adminCommon.css}"/>
+  <link rel="stylesheet" th:href="@{/style/adminUser.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -63,8 +64,9 @@
         </div>
       </nav>
     </div>
-    <script th:src="@{/script/admin/adminUser.js}"></script>
   </section>
+  <div th:replace="fragments/admin/modals/user-modal :: user-modal"></div>
+  <script th:src="@{/script/admin/adminUser.js}"></script>
 </main>
 </body>
 </html>

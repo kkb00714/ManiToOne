@@ -34,6 +34,10 @@ public class AdminService {
       builder.and(user.email.containsIgnoreCase(userSearchRequestDto.getEmail()));
     }
 
+    if (userSearchRequestDto.getName() != null && !userSearchRequestDto.getName().isEmpty()) {
+      builder.and(user.name.containsIgnoreCase(userSearchRequestDto.getName()));
+    }
+
     if (userSearchRequestDto.getStatus() != null) {
       builder.and(user.status.eq(userSearchRequestDto.getStatus()));
     }

@@ -8,6 +8,7 @@ import lombok.Setter;
 public class UserSearchRequestDto {
 
   private String nickname;
+  private String name;
   private String email;
   private Integer status;
 }

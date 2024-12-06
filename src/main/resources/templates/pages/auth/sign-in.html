@@ -44,7 +44,7 @@
   </div>
   <div class="find-password-link-container">
     <p>비밀번호를 잊으셨나요?</p>
-    <p class="find-password-link"><a th:href="@{/templates/pages/auth/find-password.html}">찾기</a>
+    <p class="find-password-link"><a th:href="@{/find-password}">찾기</a>
     </p>
   </div>
   <div class="sign-in-devider">
@@ -68,8 +68,52 @@
   </div>
   <div class="sign-up-link-container">
     <p>계정이 없으신가요?</p>
-    <p class="sign-up-link"><a th:href="@{/templates/pages/auth/sign-up.html}">회원가입</a></p>
+    <p class="sign-up-link"><a th:href="@{/register}">회원가입</a></p>
   </div>
 </section>
+
+<script>
+  document.querySelector(".sign-in-button").addEventListener("click", function (event) {
+    event.preventDefault();
+
+    const userId = document.getElementById("user-id").value;
+    const password = document.getElementById("user-password").value;
+
+    // 입력값 검증
+    if (!userId || !password) {
+      alert("아이디와 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    const loginData = {
+      email: userId,
+      password: password,
+    };
+
+    fetch('/api/local-login', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(loginData),
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return response.text().then(errorText => {
+          throw new Error(errorText);
+        });
+      }
+    })
+    .then(userInfo => {
+      alert("로그인 성공! 환영합니다.");
+      window.location.href = "/";
+    })
+    .catch(error => {
+      alert("로그인 실패: " + error.message);
+    });
+  });
+</script>
 </body>
 </html>

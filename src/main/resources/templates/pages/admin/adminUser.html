@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/adminCommon.css}"/>
+  <link rel="stylesheet" th:href="@{/style/adminUser.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <link rel="icon" type="image/x-icon" th:href="@{/images/favicon/favicon.ico}">
+  <title>ManiToOne AdminPage User</title>
+</head>
+<body>
+<header th:replace="fragments/admin/adminHeader :: adminHeader"></header>
+<nav th:replace="fragments/admin/adminNav :: adminNav"></nav>
+<main class="main-container">
+  <section class="middle-section" id="middleSection">
+    <div class="table-box">
+      <div class="table-header"><span class="caption-header">회원 관리</span> <span
+          class="user-state">
+        <a href="#" class="status-filter active" data-status=""
+        >전체</a>
+    <a href="#" class="status-filter" data-status="1">활동</a>
+    <a href="#" class="status-filter" data-status="2">정지</a>
+    <a href="#" class="status-filter" data-status="3">탈퇴</a></span>
+      </div>
+      <table class="table-container">
+        <thead>
+        <tr>
+          <th>No</th>
+          <th>이름</th>
+          <th>닉네임</th>
+          <th>이메일</th>
+          <th>생년월일</th>
+          <th>역할</th>
+          <th>정지 해제 날짜</th>
+          <th>상태</th>
+        </tr>
+        </thead>
+        <tbody id="user-table-body">
+        </tbody>
+      </table>
+
+      <nav aria-label="Page navigation" class="paging">
+        <ul class="pagination">
+        </ul>
+      </nav>
+      <nav class="navbar bg-light">
+        <div class="container-fluid justify-content-center">
+          <select id="filterSelect" class="form-select me-2" aria-label="말머리 선택">
+            <option value="nickname">닉네임</option>
+            <option value="name">이름</option>
+            <option value="email">이메일</option>
+          </select>
+
+          <!-- 검색 입력 및 버튼 -->
+          <input id="searchQuery" class="form-control me-2" type="search" placeholder="Search"
+                 aria-label="Search">
+          <button id="searchButton" class="btn btn-outline-success">검색</button>
+        </div>
+      </nav>
+    </div>
+  </section>
+  <div th:replace="fragments/admin/modals/user-modal :: user-modal"></div>
+  <script th:src="@{/script/admin/adminUser.js}"></script>
+</main>
+</body>
+</html>

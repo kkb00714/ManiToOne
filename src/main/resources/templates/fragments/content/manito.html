@@ -7,67 +7,19 @@
   </div>
   <section class="todays-manito-section">
     <div class="todays-manito-post">
-      <div class="post-container">
-        <img
-            class="user-photo"
-            th:src="@{/images/icons/UI-user2.png}"
-            alt="user icon"
-        />
-        <div class="post-content">
-          <div class="user-info">
-            <span class="user-name">beer_lover</span>
-            <span class="passed-time">7시간 전</span>
-          </div>
-          <p class="content-text">
-            오늘 일 완전 힘들었다... 스트레스 받아서 귀가하는 길에 지친
-            심신을 달래줄 맥주 한 캔 샀음~ <br/>
-            아쉽지만 치킨은 없다ㅋㅋ 이번달 돈 아껴야 해~~
-          </p>
-          <img
-              class="post-image"
-              th:src="@{/images/image-beer.webp}"
-              alt="beer image"
-          />
-          <div class="reaction-icons">
-            <img
-                class="tiny-icons"
-                th:src="@{/images/icons/icon-clover2.png}"
-                alt="I like this"
-            />
-            <span class="like-count">22</span>
-            <img
-                class="tiny-icons"
-                th:src="@{/images/icons/icon-comment2.png}"
-                alt="add reply"
-            />
-            <span class="reply-count">3</span>
-          </div>
-        </div>
-        <div class="option-icons">
-          <img
-              class="tiny-icons"
-              th:src="@{/images/icons/UI-more2.png}"
-              alt="more options"
-          />
-          <img
-              class="tiny-icons"
-              th:src="@{/images/icons/icon-add-friend.png}"
-              alt="add friend"
-          />
-        </div>
-      </div>
+      <div th:replace = "fragments/content/post"></div>
     </div>
   </section>
   <div class="send-letter-container">
     <p class="send-letter-description">
-      <span class="highlight">답장 보내기</span> 버튼을 눌러
+      <span class="highlight">편지 보내기</span> 버튼을 눌러
       <span class="highlight">beer_lover</span> 님께 익명의 격려와 공감을
-      보내보세요!<br/>추천하고 싶은 음악이 있다면 답장에 음악 링크를
+      보내보세요!<br/>추천하고 싶은 음악이 있다면 편지에 음악 링크를
       첨부해주세요.<br/>따뜻한 진심을 담은 응원이 모두를 행복하게
       만듭니다.
     </p>
     <p class="send-letter-terms">
-      ※ 마니또로 보내는 답장은 익명 처리됩니다. 받는 상대에게 내 계정
+      ※ 마니또로 보내는 편지는 익명 처리됩니다. 받는 상대에게 내 계정
       정보가 보이지 않습니다.<br/>※ 초면의 상대에게 상호 존중을 담아
       존댓말을 사용해주세요.<br/>※ 사용자 간의 존중과 긍정적인 소통을
       유지하기 위해 비난, 욕설, 모욕, 혐오 표현 또는 기타 부적절한
@@ -78,7 +30,7 @@
     </p>
   </div>
   <button class="reply-button" id="openManitoLetterModalBtn">
-    이 게시물에 답장 보내기
+    이 게시물에 편지 보내기
   </button>
   <div th:replace="fragments/common/manito-letter-box :: manito-letter-box"></div>
   <div th:replace="fragments/modals/manito-letter-modal :: manito-letter-modal"></div>

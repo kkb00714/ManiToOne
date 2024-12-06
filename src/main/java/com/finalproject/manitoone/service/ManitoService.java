@@ -123,7 +123,7 @@ public class ManitoService {
         .orElseThrow(() -> new EntityNotFoundException(
             ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
 
-    if (!manitoLetter.getPost().getUser().getNickname().equals(userNickname)) {
+    if (!manitoLetter.getPostId().getUser().getNickname().equals(userNickname)) {
       throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_VISIBILITY.getMessage());
     }
 
@@ -136,7 +136,7 @@ public class ManitoService {
         .orElseThrow(() -> new EntityNotFoundException(
             ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
 
-    if (!manitoLetter.getPost().getUser().getNickname().equals(userNickname)) {
+    if (!manitoLetter.getPostId().getUser().getNickname().equals(userNickname)) {
       throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_REPORT.getMessage());
     }
 

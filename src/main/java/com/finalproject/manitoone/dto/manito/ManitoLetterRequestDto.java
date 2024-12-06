@@ -71,7 +71,7 @@ public class ManitoLetterRequestDto {
     String safeMusicComment = sanitizeText(musicComment);
 
     return ManitoLetter.builder()
-        .post(post)
+        .postId(post)
         .user(user)
         .letterContent(safeContent)
         .musicUrl(safeUrl)

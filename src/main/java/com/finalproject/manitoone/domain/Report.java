@@ -35,7 +35,7 @@ public class Report {
   private String type;
 
   @Column(name = "report_object_id", nullable = false, columnDefinition = "int COMMENT '게시글, 댓글, 마니또 ID'")
-  private Integer reportObjectId;
+  private Long reportObjectId;
 
   @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
   @Builder.Default

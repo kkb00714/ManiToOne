@@ -3,8 +3,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const pagination = document.querySelector(".pagination");
   const searchButton = document.querySelector("#searchButton");
   const searchQuery = document.querySelector("#searchQuery");
+  const modalContainer = document.querySelector("#profileUpdateModalContainer");
+  const modalBackground = document.querySelector("#profileUpdateModalBackground");
+  const closeModalButton = document.querySelector("#closeProfileUpdateBtn");
   let requestBody = {}
   let currentStatus = "";
+
+  function formatDatetime(input) {
+    if (!input) return "없음";
+
+    const [date, time] = input.split("T");
+    const [hours, minutes] = time.split(":");
+    return `${date} ${hours}:${minutes}`;
+  }
 
   const handleSearchClick = () => {
     const filterSelect = document.querySelector("#filterSelect").value;
@@ -28,6 +39,9 @@ document.addEventListener("DOMContentLoaded", function () {
     searchButton.removeEventListener("click", handleSearchClick);
     searchButton.addEventListener("click", handleSearchClick);
     syncSearchFields();
+
+    tableBody.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
+
     fetch(`/admin/users?page=${page - 1}`, {
       method: "POST",
       headers: {
@@ -45,16 +59,17 @@ document.addEventListener("DOMContentLoaded", function () {
       tableBody.innerHTML = data.content
       .map(
           (user) => `
-                        <tr>
-                            <td>${user.userId}</td>
-                            <td>${user.name}</td>
-                            <td>${user.nickname}</td>
-                            <td>${user.email}</td>
-                            <td>${user.birth}</td>
-                            <td>${user.role}</td>
-                            <td>${user.unbannedAt ? user.unbannedAt : '없음'}</td>
-                            <td>${getStatusText(user.status)}</td>
-                        </tr>`
+<tr data-user='${JSON.stringify(user)}'>
+          <td>${user.userId}</td>
+          <td>${user.name}</td>
+          <td>${user.nickname}</td>
+          <td>${user.email}</td>
+          <td>${user.birth}</td>
+          <td>${user.role}</td>
+          <td>${formatDatetime(user.unbannedAt)}</td>
+          <td>${getStatusText(user.status)}</td>
+        </tr>
+                      `
       )
       .join("");
 
@@ -190,4 +205,113 @@ document.addEventListener("DOMContentLoaded", function () {
       requestBody = {[defaultFilter]: ""};
     }
   }
+
+  let originalData = {}
+
+  tableBody.addEventListener("click", function (event) {
+    const row = event.target.closest("tr");
+    if (row) {
+      const userData = JSON.parse(row.dataset.user);
+      userData.status = parseInt(userData.status, 10);
+      originalData = userData;
+      openProfileModal(userData);
+    }
+  });
+
+  function formatToDatetimeLocal(input) {
+    if (!input) return null;
+
+    const [date, time] = input.split("T");
+    const [hours, minutes] = time.split(":");
+    return `${date}T${hours}:${minutes}`;
+  }
+
+  function openProfileModal(userData) {
+    document.querySelector("#user-name").value = userData.name || "";
+    document.querySelector("#user-nickname").value = userData.nickname || "";
+    document.querySelector("#user-introduce").value = userData.introduce || "";
+    document.querySelector("#user-email").value = userData.email || "";
+    document.querySelector("#user-birth").value = userData.birth || "";
+    document.querySelector("#user-role").value = userData.role || "";
+    document.querySelector("#user-unbanned").value = formatToDatetimeLocal(userData.unbannedAt);
+    document.querySelector("#user-status").value = userData.status;
+    document.querySelector(".user-photo").src = userData.profileImage;
+
+    modalContainer.style.display = "block";
+    modalBackground.style.display = "block";
+
+    closeModalButton.addEventListener("click", function () {
+      modalContainer.style.display = "none";
+      modalBackground.style.display = "none";
+    });
+
+    modalBackground.addEventListener("click", function (event) {
+      if (event.target === modalBackground) {
+        modalContainer.style.display = "none";
+        modalBackground.style.display = "none";
+      }
+    });
+  }
+
+  document.querySelector("#clearDateButton").addEventListener("click", function (e) {
+    e.preventDefault();
+    const dateInput = document.querySelector("#user-unbanned");
+    dateInput.value = "";
+  });
+
+  function getFormData(form) {
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => {
+      if (key === "status") {
+        data[key] = value ? parseInt(value, 10) : null;
+      } else {
+        data[key] = value === "" ? null : value;
+      }
+    });
+    return data;
+  }
+
+  function getChangedData(original, current) {
+    const changedData = {};
+    for (const key in current) {
+      let originalValue = original[key];
+      let currentValue = current[key];
+
+      if (key === "unbannedAt") {
+        originalValue = removeSecondsFromDatetime(originalValue);
+        currentValue = removeSecondsFromDatetime(currentValue);
+        if (originalValue === currentValue) {
+          continue;
+        }
+      }
+
+      if (current[key] !== original[key]) {
+        changedData[key] = current[key];
+      }
+    }
+    return changedData;
+  }
+
+  function removeSecondsFromDatetime(input) {
+    if (!input) return input;
+    const [date, time] = input.split("T");
+    const [hours, minutes] = time.split(":");
+    return `${date}T${hours}:${minutes}`;
+  }
+
+  const form = document.querySelector("#profile_form");
+  const saveButton = document.querySelector("#update_profile_button");
+
+  saveButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    const currentData = getFormData(form);
+    const changedData = getChangedData(originalData, currentData);
+
+    if (Object.keys(changedData).length === 0) {
+      alert("변경된 값이 없습니다.");
+      return;
+    }
+
+  });
 });

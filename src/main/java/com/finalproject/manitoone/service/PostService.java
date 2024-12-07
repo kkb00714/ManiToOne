@@ -1,13 +1,16 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.ReplyPost;
+import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
+import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
@@ -42,6 +45,7 @@ public class PostService {
   private final ReportRepository reportRepository;
 
   // 게시글 생성 (미완성)
+  // TODO: User 객체 Session을 통해 가져오기
   public PostResponseDto createPost(AddPostRequestDto request, User user) {
     Post post = postRepository.save(Post.builder()
         .content(request.getContent())
@@ -151,13 +155,29 @@ public class PostService {
         .build());
   }
 
-  // 게시글 신고
-//  public ReportResponseDto reportPost(Long postId, User user) {
-//    Post post = postRepository.findByPostId(postId)
-//        .orElseThrow(() -> new IllegalArgumentException(
-//            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
-//        ));
-//  }
+  // 게시글 신고 (미완성)
+  // TODO: User 객체 Session을 통해 가져오기
+  public ReportResponseDto reportPost(Long postId, AddReportRequestDto request, User user) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    Report report = reportRepository.save(Report.builder()
+        .reportType(request.getReportType())
+        .userId(user.getUserId())
+        .type(ReportObjectType.POST)
+        .reportObjectId(post.getPostId())
+        .build());
+
+    return ReportResponseDto.builder()
+        .reportId(report.getReportId())
+        .userId(report.getUserId())
+        .reportObjectId(report.getReportObjectId())
+        .reportType(report.getReportType())
+        .type(report.getType())
+        .build();
+  }
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
     // TODO: 내 게시글인지는 어떻게 판별할까요?

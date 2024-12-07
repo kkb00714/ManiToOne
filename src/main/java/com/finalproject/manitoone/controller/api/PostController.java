@@ -2,6 +2,7 @@ package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
+import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
@@ -61,11 +62,13 @@ public class PostController {
   }
 
   // 게시글 신고 (미완성)
-//  @PutMapping("/report/{postId}/{reportType}")
-//  public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId, @PathVariable("")
-//      @AuthenticationPrincipal User user) {
-//
-//  }
+  @PutMapping("/report/{postId}")
+  public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId,
+      @RequestBody AddReportRequestDto request,
+      @AuthenticationPrincipal User user) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(postService.reportPost(postId, request, user));
+  }
 
   @GetMapping("/by/{nickName}")
   public ResponseEntity<List<PostViewResponseDto>> getPostsByUserId(@PathVariable String nickName,

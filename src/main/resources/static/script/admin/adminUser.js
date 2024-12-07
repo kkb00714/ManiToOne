@@ -239,6 +239,8 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector("#user-status").value = userData.status;
     document.querySelector(".user-photo").src = userData.profileImage;
 
+    originalData["profileImage"] = userData.profileImage;
+
     modalContainer.style.display = "block";
     modalBackground.style.display = "block";
 
@@ -356,5 +358,61 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch((error) => {
       alert(`${error.message}`);
     });
+  });
+
+  const profileImage = document.querySelector("#user-photo");
+  const profileImageInput = document.querySelector("#profile-image-input");
+  const modal = document.querySelector("#image-action-modal");
+  const deletePhotoBtn = document.querySelector("#delete-photo-btn");
+  const uploadPhotoBtn = document.querySelector("#upload-photo-btn");
+  const closeModalBtn = document.querySelector("#close-modal-btn");
+  const modalOverlay = document.querySelector("#modal-overlay");
+  const defaultImageSrc = "/img/defaultProfile.png";
+
+  profileImage.addEventListener("click", () => {
+    modal.style.display = "block";
+    modalOverlay.style.display = "block";
+  });
+
+  const closeModal = () => {
+    modal.style.display = "none";
+    modalOverlay.style.display = "none";
+  };
+
+  closeModalBtn.addEventListener("click", closeModal);
+
+  modalOverlay.addEventListener("click", closeModal);
+
+  deletePhotoBtn.addEventListener("click", () => {
+    profileImage.src = defaultImageSrc; // 기본 이미지로 변경
+    profileImageInput.value = ""; // 파일 입력 초기화
+    closeModal(); // 모달 닫기
+  });
+
+  // "컴퓨터에서 업로드" 버튼 동작
+  uploadPhotoBtn.addEventListener("click", () => {
+    profileImageInput.click(); // 파일 선택창 열기
+    closeModal(); // 모달 닫기
+  });
+
+  // 파일 선택 시 미리 보기 업데이트
+  profileImageInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // 이미지 파일인지 확인
+      if (!file.type.startsWith("image/")) {
+        alert("이미지 파일만 선택할 수 있습니다.");
+        profileImageInput.value = ""; // 초기화
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        profileImage.src = e.target.result; // 미리 보기 이미지 변경
+      };
+
+      reader.readAsDataURL(file);
+    }
   });
 });

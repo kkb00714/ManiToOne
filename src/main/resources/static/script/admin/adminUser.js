@@ -207,11 +207,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   let originalData = {}
+  let clickedRow = null;
 
   tableBody.addEventListener("click", function (event) {
     const row = event.target.closest("tr");
     if (row) {
       const userData = JSON.parse(row.dataset.user);
+      clickedRow = row;
       userData.status = parseInt(userData.status, 10);
       originalData = userData;
       openProfileModal(userData);
@@ -282,7 +284,14 @@ document.addEventListener("DOMContentLoaded", function () {
         originalValue = removeSecondsFromDatetime(originalValue);
         currentValue = removeSecondsFromDatetime(currentValue);
         if (originalValue === currentValue) {
+          changedData["clearUnbannedAt"] = false;
           continue;
+        } else {
+          if (currentValue === null) {
+            changedData["clearUnbannedAt"] = true;
+          } else {
+            changedData["clearUnbannedAt"] = false;
+          }
         }
       }
 
@@ -312,6 +321,40 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("변경된 값이 없습니다.");
       return;
     }
+    fetch(`/admin/users/${originalData.userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(changedData),
+    })
+    .then((response) => {
+      if (!response.ok) {
+        return response.text().then((message) => {
+          // 서버에서 보낸 에러 메시지를 포함한 예외를 던짐
+          throw new Error(message);
+        });
+      }
+      return response.json();
+    })
+    .then((updatedUser) => {
+      clickedRow.dataset.user = JSON.stringify(updatedUser);
+      clickedRow.innerHTML = `
+          <td>${updatedUser.userId}</td>
+          <td>${updatedUser.name}</td>
+          <td>${updatedUser.nickname}</td>
+          <td>${updatedUser.email}</td>
+          <td>${updatedUser.birth}</td>
+          <td>${updatedUser.role}</td>
+          <td>${formatDatetime(updatedUser.unbannedAt)}</td>
+          <td>${getStatusText(updatedUser.status)}</td>
+      `;
 
+      modalContainer.style.display = "none";
+      modalBackground.style.display = "none";
+    })
+    .catch((error) => {
+      alert(`${error.message}`);
+    });
   });
 });

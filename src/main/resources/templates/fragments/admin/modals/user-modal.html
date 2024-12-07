@@ -1,6 +1,14 @@
 <!-- 프로필 수정 모달 시작-->
 <div class="profile-update-modal" id="profileUpdateModalBackground"
      th:fragment="user-modal">
+  <div class="modal-overlay" id="modal-overlay"></div>
+  <div id="image-action-modal" class="image-action-modal">
+    <div class="modal-content">
+      <button id="delete-photo-btn" class="action-button">기본 이미지로 변경</button>
+      <button id="upload-photo-btn" class="action-button">컴퓨터에서 업로드</button>
+      <button id="close-modal-btn" class="action-button">취소</button>
+    </div>
+  </div>
   <div
       class="profile-update-modal-container"
       id="profileUpdateModalContainer"
@@ -32,8 +40,16 @@
               />
             </div>
             <img
+                id="user-photo"
                 class="user-photo"
                 alt="프로필 이미지"
+            />
+            <input
+                type="file"
+                id="profile-image-input"
+                name="profileImage"
+                accept="image/*"
+                style="display: none;"
             />
           </div>
           <div class="user-nickname-container">

@@ -47,7 +47,7 @@ public class PostService {
   private final ReportRepository reportRepository;
 
   // 게시글 생성 (미완성)
-  // TODO: User 객체 Session을 통해 가져오기, 이미지 업로드
+  // TODO: 이미지 업로드
   public PostResponseDto createPost(AddPostRequestDto request, User user) {
     Post post = postRepository.save(Post.builder()
         .content(request.getContent())

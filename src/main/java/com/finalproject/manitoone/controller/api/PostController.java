@@ -37,10 +37,11 @@ public class PostController {
   private final PostService postService;
 
   // 게시글 생성
-  // TODO: User 객체 Session을 통해 가져오기, 이미지 업로드
+  // TODO: 이미지 업로드
   @PostMapping
   public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
-      @AuthenticationPrincipal User user) {
+      HttpSession session) {
+    User user = (User) session.getAttribute("user");
     return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, user));
   }
 

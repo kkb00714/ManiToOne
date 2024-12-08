@@ -213,7 +213,6 @@ public class PostService {
   }
 
   // 게시글 신고
-  // TODO: User 객체 Session을 통해 가져오기
   public ReportResponseDto reportPost(Long postId, AddReportRequestDto request, User user) {
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(

@@ -99,11 +99,11 @@ public class PostController {
   }
 
   // 게시글 신고
-  // TODO: User 객체 Session을 통해 가져오기
   @PutMapping("/report/{postId}")
   public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId,
       @RequestBody AddReportRequestDto request,
-      @AuthenticationPrincipal User user) {
+      HttpSession session) {
+    User user = (User) session.getAttribute("user");
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(postService.reportPost(postId, request, user));
   }

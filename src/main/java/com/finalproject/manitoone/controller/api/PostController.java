@@ -69,6 +69,12 @@ public class PostController {
   }
 
   // 게시글 상세 조회
+  // TODO: 답변, 이미지 조회
+  @GetMapping("/{postId}")
+  public ResponseEntity<PostResponseDto> getPostDetail(@PathVariable("postId") Long postId) {
+    PostResponseDto post = postService.getPostDetail(postId);
+    return ResponseEntity.ok(post);
+  }
 
   // 게시글 삭제
   @DeleteMapping("/{postId}")

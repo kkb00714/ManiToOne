@@ -120,6 +120,20 @@ public class PostService {
   }
 
   // 게시글 상세 조회
+  // TODO: 답변, 이미지 조회
+  public PostResponseDto getPostDetail(Long postId) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return new PostResponseDto(
+        post.getPostId(),
+        post.getUser(),
+        post.getContent(),
+        post.getIsManito()
+    );
+  }
 
   // 게시글 삭제
   public void deletePost(Long postId) {

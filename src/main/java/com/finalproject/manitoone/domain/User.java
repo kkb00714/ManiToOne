@@ -71,4 +71,9 @@ public class User {
   public void setPassword(String password) {
     this.password = password;
   }
+
+  public void setStatus(Integer status) {
+    this.status = status;
+  }
+
 }

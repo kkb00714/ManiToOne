@@ -163,8 +163,8 @@
       isValid = false;
     }
 
-    if (!birth) {
-      birthError.textContent = "생년월일은 필수 입력값입니다.";
+    if (new Date(birth) > new Date()) {
+      birthError.textContent = "미래 날짜는 입력할 수 없습니다.";
       if (!firstErrorField) {
         firstErrorField = document.getElementById("user-birthday");
       }

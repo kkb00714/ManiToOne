@@ -19,4 +19,5 @@ public class ReplyResponseDto {
   private Long parentId;
   private String content;
   private LocalDateTime createdAt;
+  private Boolean isBlind;
 }

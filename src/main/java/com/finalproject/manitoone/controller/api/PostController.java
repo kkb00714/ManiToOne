@@ -5,8 +5,10 @@ import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
+import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.service.PostService;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -37,6 +40,25 @@ public class PostController {
       @AuthenticationPrincipal User user) {
     return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, user));
   }
+
+  // 게시글 수정
+  @PutMapping("{postId}")
+  public ResponseEntity<PostResponseDto> updatePost(@PathVariable("postId") Long postId,
+      @RequestBody UpdatePostRequestDto request,
+      HttpSession session) {
+    User user = (User) session.getAttribute("user");
+
+    if (user != null) {
+      return ResponseEntity.status(HttpStatus.ACCEPTED)
+          .body(postService.updatePost(postId, request, user));
+    } else {
+      return ResponseEntity.badRequest().build();
+    }
+  }
+
+  // 게시글 조회
+
+  // 게시글 상세 조회
 
   // 게시글 삭제
   @DeleteMapping("/{postId}")

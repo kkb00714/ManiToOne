@@ -13,6 +13,7 @@ import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
+import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
 import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
@@ -77,6 +78,32 @@ public class PostService {
 //        .post(post)
 //        .build());
 //  }
+
+  // 게시글 수정
+  public PostResponseDto updatePost(Long postId, UpdatePostRequestDto request, User user) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    if (post.getUser().getUserId() != user.getUserId()) {
+      throw new IllegalArgumentException(IllegalActionMessages.DIFFERENT_USER.getMessage());
+    }
+
+    post.updatePost(request.getContent());
+
+    Post updatedPost = postRepository.save(post);
+
+    return PostResponseDto.builder()
+        .postId(updatedPost.getPostId())
+        .user(updatedPost.getUser())
+        .content(updatedPost.getContent())
+        .isManito(updatedPost.getIsManito())
+        .build();
+  }
+
+  // 게시글 조회
+
+  // 게시글 상세 조회
 
   // 게시글 삭제
   public void deletePost(Long postId) {

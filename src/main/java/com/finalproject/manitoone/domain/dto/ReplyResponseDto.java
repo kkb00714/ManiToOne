@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ReplyResponseDto {
+
   private Post post;
   private User user;
   private Long parentId;

@@ -163,4 +163,13 @@ public class ManitoService {
 
     manitoLetter.reportAnswer(userNickname);
   }
+
+  // 단일 편지 조회
+  public ManitoLetterResponseDto getLetter(Long letterId) {
+    ManitoLetter letter = manitoLetterRepository.findById(letterId)
+        .orElseThrow(() -> new EntityNotFoundException(
+            ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
+
+    return buildLetterResponseDto(letter, letter.getPostId().getUser().getNickname());
+  }
 }

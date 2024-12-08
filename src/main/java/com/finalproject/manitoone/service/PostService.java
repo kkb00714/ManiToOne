@@ -85,7 +85,7 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
-    if (post.getUser().getUserId() != user.getUserId()) {
+    if (!post.getUser().getUserId().equals(user.getUserId())) {
       throw new IllegalArgumentException(IllegalActionMessages.DIFFERENT_USER.getMessage());
     }
 

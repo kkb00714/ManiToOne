@@ -91,10 +91,9 @@ public class PostController {
   }
 
   // 게시글 좋아요
-  // TODO: User 객체 Session을 통해 가져오기
   @PostMapping("/like/{postId}")
-  public ResponseEntity<Void> likePost(@PathVariable("postId") Long postId,
-      @AuthenticationPrincipal User user) {
+  public ResponseEntity<Void> likePost(@PathVariable("postId") Long postId, HttpSession session) {
+    User user = (User) session.getAttribute("user");
     postService.likePost(postId, user);
     return ResponseEntity.ok().build();
   }

@@ -200,7 +200,6 @@ public class PostService {
   }
 
   // 게시글 좋아요
-  // TODO: User 객체 Session을 통해 가져오기
   public void likePost(Long postId, User user) {
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(

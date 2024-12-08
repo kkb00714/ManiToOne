@@ -120,7 +120,7 @@ public class PostService {
   }
 
   // 게시글 상세 조회
-  // TODO: 답변, 이미지 조회
+  // TODO: 이미지 조회
   public PostResponseDto getPostDetail(Long postId) {
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(

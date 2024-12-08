@@ -38,8 +38,8 @@ public class ReplyPost {
   @Column(name = "content", nullable = false, columnDefinition = "text")
   private String content;
 
-  @Column(name = "parrent_id")
-  private Long parrentId;
+  @Column(name = "parent_id")
+  private Long parentId;
 
   @Column(name = "is_blind", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. x\\n1. o\\n관리자가 숨길 수 있는 권한'")
   @Builder.Default

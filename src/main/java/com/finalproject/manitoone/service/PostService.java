@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,7 +47,7 @@ public class PostService {
   private final ReportRepository reportRepository;
 
   // 게시글 생성 (미완성)
-  // TODO: User 객체 Session을 통해 가져오기
+  // TODO: User 객체 Session을 통해 가져오기, 이미지 업로드
   public PostResponseDto createPost(AddPostRequestDto request, User user) {
     Post post = postRepository.save(Post.builder()
         .content(request.getContent())
@@ -80,6 +81,7 @@ public class PostService {
 //  }
 
   // 게시글 수정
+  // TODO: 이미지 수정 
   public PostResponseDto updatePost(Long postId, UpdatePostRequestDto request, User user) {
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
@@ -101,7 +103,21 @@ public class PostService {
         .build();
   }
 
-  // 게시글 조회
+  // 전체 게시글 조회
+  public Page<PostResponseDto> getPosts(Pageable pageable) {
+    Page<Post> posts = postRepository.findAll(pageable);
+
+    if (posts.isEmpty()) {
+      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_FIND_ANY_POST.getMessage());
+    }
+
+    return posts.map(post -> new PostResponseDto(
+        post.getPostId(),
+        post.getUser(),
+        post.getContent(),
+        post.getIsManito()
+    ));
+  }
 
   // 게시글 상세 조회
 
@@ -169,7 +185,8 @@ public class PostService {
     postRepository.save(post);
   }
 
-  // 게시글 좋아요 (미완성)
+  // 게시글 좋아요
+  // TODO: User 객체 Session을 통해 가져오기
   public void likePost(Long postId, User user) {
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
@@ -182,7 +199,7 @@ public class PostService {
         .build());
   }
 
-  // 게시글 신고 (미완성)
+  // 게시글 신고
   // TODO: User 객체 Session을 통해 가져오기
   public ReportResponseDto reportPost(Long postId, AddReportRequestDto request, User user) {
     Post post = postRepository.findByPostId(postId)

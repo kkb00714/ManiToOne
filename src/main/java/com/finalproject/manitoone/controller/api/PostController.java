@@ -11,6 +11,8 @@ import com.finalproject.manitoone.service.PostService;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,7 +36,8 @@ public class PostController {
 
   private final PostService postService;
 
-  // 게시글 생성 (미완성)
+  // 게시글 생성
+  // TODO: User 객체 Session을 통해 가져오기, 이미지 업로드
   @PostMapping
   public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
       @AuthenticationPrincipal User user) {
@@ -42,6 +45,7 @@ public class PostController {
   }
 
   // 게시글 수정
+  // TODO: 이미지 수정
   @PutMapping("{postId}")
   public ResponseEntity<PostResponseDto> updatePost(@PathVariable("postId") Long postId,
       @RequestBody UpdatePostRequestDto request,
@@ -56,7 +60,13 @@ public class PostController {
     }
   }
 
-  // 게시글 조회
+  // 모든 게시글 조회
+  @GetMapping("s")
+  public ResponseEntity<Page<PostResponseDto>> getPosts(
+      @PageableDefault(sort = "postId", direction = Sort.Direction.DESC) Pageable pageable) {
+    Page<PostResponseDto> posts = postService.getPosts(pageable);
+    return ResponseEntity.ok(posts);
+  }
 
   // 게시글 상세 조회
 
@@ -74,7 +84,8 @@ public class PostController {
     return ResponseEntity.ok().build();
   }
 
-  // 게시글 좋아요 (미완성)
+  // 게시글 좋아요
+  // TODO: User 객체 Session을 통해 가져오기
   @PostMapping("/like/{postId}")
   public ResponseEntity<Void> likePost(@PathVariable("postId") Long postId,
       @AuthenticationPrincipal User user) {
@@ -82,7 +93,8 @@ public class PostController {
     return ResponseEntity.ok().build();
   }
 
-  // 게시글 신고 (미완성)
+  // 게시글 신고
+  // TODO: User 객체 Session을 통해 가져오기
   @PutMapping("/report/{postId}")
   public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId,
       @RequestBody AddReportRequestDto request,

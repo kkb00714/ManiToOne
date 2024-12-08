@@ -62,7 +62,7 @@ public class PostController {
   }
 
   // 모든 게시글 조회
-  @GetMapping("s")
+  @GetMapping
   public ResponseEntity<Page<PostResponseDto>> getPosts(
       @PageableDefault(sort = "postId", direction = Sort.Direction.DESC) Pageable pageable) {
     Page<PostResponseDto> posts = postService.getPosts(pageable);

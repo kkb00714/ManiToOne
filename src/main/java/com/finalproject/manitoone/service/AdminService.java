@@ -8,22 +8,32 @@ import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchResponseDto;
 import com.finalproject.manitoone.repository.UserRepository;
+import com.finalproject.manitoone.util.FileUtil;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
 public class AdminService {
 
+  private static final String PROFILE_IMAGE_DIR = "/home/profile/images/";
+  private static final String TEST_DIR = "C:\\test_image\\";
+
   private final JPAQueryFactory queryFactory;
 
   private final UserRepository userRepository;
+
+  private final FileUtil fileUtil;
 
   public Page<UserSearchResponseDto> searchUsers(UserSearchRequestDto userSearchRequestDto,
       Pageable pageable) {
@@ -87,7 +97,8 @@ public class AdminService {
 
   public UserProfileResponseDto updateUser(UserProfileRequestDto userProfileRequestDto) {
     User user = userRepository.findById(userProfileRequestDto.getUserId())
-        .orElseThrow(() -> new IllegalArgumentException(IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
 
     if (userProfileRequestDto.getEmail() != null) {
       if (isDuplicateEmail(userProfileRequestDto.getEmail())) {
@@ -104,7 +115,8 @@ public class AdminService {
     }
     if (userProfileRequestDto.getNickname() != null) {
       if (isDuplicateNickname(userProfileRequestDto.getNickname())) {
-        throw new IllegalArgumentException(IllegalActionMessages.NICKNAME_ALREADY_IN_USE.getMessage());
+        throw new IllegalArgumentException(
+            IllegalActionMessages.NICKNAME_ALREADY_IN_USE.getMessage());
       }
       user = user.toBuilder()
           .nickname(userProfileRequestDto.getNickname())
@@ -135,7 +147,7 @@ public class AdminService {
           .role(userProfileRequestDto.getRole())
           .build();
     }
-    if (userProfileRequestDto.getClearUnbannedAt()) {
+    if (Boolean.TRUE.equals(userProfileRequestDto.getClearUnbannedAt())) {
       user = user.toBuilder()
           .unbannedAt(null)
           .build();
@@ -172,5 +184,38 @@ public class AdminService {
 
   private boolean isDuplicateNickname(String nickname) {
     return userRepository.existsByNickname(nickname);
+  }
+
+  public UserProfileResponseDto updateProfileImage(Long userId, MultipartFile profileImageFile) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
+
+    if (user.getProfileImage() != null && !user.isDefaultImage()) {
+      String existingImagePath = user.getProfileImage(); // 기존 이미지의 절대 경로를 구성
+      File existingImageFile = new File(existingImagePath);
+
+      if (existingImageFile.exists()) {
+        fileUtil.cleanUp(Paths.get(existingImagePath));
+      }
+    }
+
+    if (profileImageFile == null) {
+      user.updateDefaultImage();
+    } else {
+      String uploadDir = TEST_DIR;
+      File uploadDirectory = new File(uploadDir);
+
+      if (!uploadDirectory.exists()) {
+        fileUtil.createDir(Paths.get(uploadDir));
+      }
+
+      String uniqueFileName = UUID.randomUUID() + "_" + profileImageFile.getOriginalFilename();
+      String finalFilePath = uploadDir + uniqueFileName;
+
+      fileUtil.save(Paths.get(finalFilePath), profileImageFile);
+      user.updateProfileImage(finalFilePath);
+    }
+    return toUserProfileResponseDto(userRepository.save(user));
   }
 }

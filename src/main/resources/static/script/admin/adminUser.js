@@ -332,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function () {
     changedData["userId"] = originalData["userId"];
     console.log(changedData);
 
-    fetch(`/admin/users`, {
+    fetch("/admin/users", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -342,7 +342,6 @@ document.addEventListener("DOMContentLoaded", function () {
     .then((response) => {
       if (!response.ok) {
         return response.text().then((message) => {
-          // 서버에서 보낸 에러 메시지를 포함한 예외를 던짐
           throw new Error(message);
         });
       }
@@ -376,7 +375,33 @@ document.addEventListener("DOMContentLoaded", function () {
   const uploadPhotoBtn = document.querySelector("#upload-photo-btn");
   const closeModalBtn = document.querySelector("#close-modal-btn");
   const modalOverlay = document.querySelector("#modal-overlay");
-  const defaultImageSrc = "/img/defaultProfile.png";
+
+  function updateProfileImage(file) {
+    const formData = new FormData();
+    formData.append("profileImageFile", file);
+
+    const userId = originalData.userId;
+
+    fetch(`/admin/users/${userId}`, {
+      method: "PUT",
+      body: formData,
+    })
+    .then((response) => {
+      if (!response.ok) {
+        return response.text().then((message) => {
+          throw new Error(message);
+        });
+      }
+      return response.json();
+    })
+    .then((updatedUser) => {
+      alert("프로필 이미지가 성공적으로 업데이트되었습니다.");
+      profileImage.src = updatedUser.profileImage;
+    })
+    .catch((error) => {
+      alert(`프로필 이미지 업데이트에 실패했습니다: ${error.message}`);
+    });
+  }
 
   profileImage.addEventListener("click", () => {
     modal.style.display = "block";
@@ -393,35 +418,34 @@ document.addEventListener("DOMContentLoaded", function () {
   modalOverlay.addEventListener("click", closeModal);
 
   deletePhotoBtn.addEventListener("click", () => {
-    profileImage.src = defaultImageSrc; // 기본 이미지로 변경
-    profileImageInput.value = ""; // 파일 입력 초기화
-    closeModal(); // 모달 닫기
+    // profileImage.src = defaultImageSrc;
+    // profileImageInput.value = "";
+    updateProfileImage(null);
+    closeModal();
   });
 
-  // "컴퓨터에서 업로드" 버튼 동작
   uploadPhotoBtn.addEventListener("click", () => {
-    profileImageInput.click(); // 파일 선택창 열기
-    closeModal(); // 모달 닫기
+    profileImageInput.click();
+    closeModal();
   });
 
-  // 파일 선택 시 미리 보기 업데이트
   profileImageInput.addEventListener("change", (event) => {
     const file = event.target.files[0];
     if (file) {
-      // 이미지 파일인지 확인
       if (!file.type.startsWith("image/")) {
         alert("이미지 파일만 선택할 수 있습니다.");
-        profileImageInput.value = ""; // 초기화
+        profileImageInput.value = "";
         return;
       }
 
-      const reader = new FileReader();
+      // const reader = new FileReader();
+      //
+      // reader.onload = (e) => {
+      //   profileImage.src = e.target.result;
+      // };
 
-      reader.onload = (e) => {
-        profileImage.src = e.target.result; // 미리 보기 이미지 변경
-      };
-
-      reader.readAsDataURL(file);
+      // reader.readAsDataURL(file);
+      updateProfileImage(file);
     }
   });
 });

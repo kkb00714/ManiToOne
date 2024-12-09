@@ -1,6 +1,13 @@
 <!-- 프로필 수정 모달 시작-->
 <div class="profile-update-modal" id="profileUpdateModalBackground"
      th:fragment="user-modal">
+  <input
+      type="file"
+      id="profile-image-input"
+      name="profileImage"
+      accept="image/*"
+      style="display: none;"
+  />
   <div class="modal-overlay" id="modal-overlay"></div>
   <div id="image-action-modal" class="image-action-modal">
     <div class="modal-content">
@@ -43,13 +50,6 @@
                 id="user-photo"
                 class="user-photo"
                 alt="프로필 이미지"
-            />
-            <input
-                type="file"
-                id="profile-image-input"
-                name="profileImage"
-                accept="image/*"
-                style="display: none;"
             />
           </div>
           <div class="user-nickname-container">

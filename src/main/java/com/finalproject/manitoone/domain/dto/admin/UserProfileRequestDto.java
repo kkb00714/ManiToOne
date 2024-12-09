@@ -23,5 +23,5 @@ public class UserProfileRequestDto {
   private String role;
   private LocalDateTime unbannedAt;
   private LocalDateTime createdAt;
-  private Boolean clearUnbannedAt;
+  private Boolean clearUnbannedAt = false;
 }

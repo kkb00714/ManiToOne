@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -70,5 +71,17 @@ public class User {
 
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  public void updateDefaultImage() {
+    this.profileImage = "/img/defaultProfile.png";
+  }
+
+  public boolean isDefaultImage() {
+    return Objects.equals(this.profileImage, "/img/defaultProfile.png");
+  }
+
+  public void updateProfileImage(String profileImage) {
+    this.profileImage = profileImage;
   }
 }

@@ -14,6 +14,7 @@ import com.finalproject.manitoone.domain.dto.UpdateReplyRequestDto;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -135,4 +136,19 @@ public class ReplyService {
   }
 
   // 답글의 답글 조회
+  public List<ReplyResponseDto> getReReplies(Long postId) {
+    List<ReplyPost> rereplies = replyPostRepository.findAllByPostPostIdAndParentIdIsNotNull(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return rereplies.stream().map(rereply -> new ReplyResponseDto(
+        rereply.getPost(),
+        rereply.getUser(),
+        rereply.getParentId(),
+        rereply.getContent(),
+        rereply.getCreatedAt(),
+        rereply.getIsBlind()
+    )).toList();
+  }
 }

@@ -8,6 +8,7 @@ import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdateReplyRequestDto;
 import com.finalproject.manitoone.service.ReplyService;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -89,4 +90,9 @@ public class ReplyController {
   }
 
   // 답글의 답글 조회
+  @GetMapping("/rereplies/{postId}")
+  public ResponseEntity<List<ReplyResponseDto>> getReReplies(@PathVariable("postId") Long postId) {
+    List<ReplyResponseDto> rereplies = replyService.getReReplies(postId);
+    return ResponseEntity.ok(rereplies);
+  }
 }

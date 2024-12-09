@@ -17,6 +17,13 @@ document.addEventListener("DOMContentLoaded", function () {
     return `${date} ${hours}:${minutes}`;
   }
 
+  function formatDatetimeSecond(input) {
+    if (!input) return "없음";
+
+    const [date, time] = input.split("T");
+    return `${date} ${time}`;
+  }
+
   const handleSearchClick = () => {
     const filterSelect = document.querySelector("#filterSelect").value;
     const searchQuery = document.querySelector(
@@ -66,6 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${user.email}</td>
           <td>${user.birth}</td>
           <td>${user.role}</td>
+          <td>${formatDatetimeSecond(user.createdAt)}</td>
           <td>${formatDatetime(user.unbannedAt)}</td>
           <td>${getStatusText(user.status)}</td>
         </tr>
@@ -239,8 +247,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector("#user-status").value = userData.status;
     document.querySelector(".user-photo").src = userData.profileImage;
 
-    originalData["profileImage"] = userData.profileImage;
-
     modalContainer.style.display = "block";
     modalBackground.style.display = "block";
 
@@ -286,7 +292,6 @@ document.addEventListener("DOMContentLoaded", function () {
         originalValue = removeSecondsFromDatetime(originalValue);
         currentValue = removeSecondsFromDatetime(currentValue);
         if (originalValue === currentValue) {
-          changedData["clearUnbannedAt"] = false;
           continue;
         } else {
           if (currentValue === null) {
@@ -317,13 +322,17 @@ document.addEventListener("DOMContentLoaded", function () {
   saveButton.addEventListener("click", (e) => {
     e.preventDefault();
     const currentData = getFormData(form);
-    const changedData = getChangedData(originalData, currentData);
+    let changedData = getChangedData(originalData, currentData);
 
     if (Object.keys(changedData).length === 0) {
       alert("변경된 값이 없습니다.");
       return;
     }
-    fetch(`/admin/users/${originalData.userId}`, {
+
+    changedData["userId"] = originalData["userId"];
+    console.log(changedData);
+
+    fetch(`/admin/users`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

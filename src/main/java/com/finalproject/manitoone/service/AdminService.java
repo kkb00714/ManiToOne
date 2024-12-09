@@ -85,9 +85,8 @@ public class AdminService {
         .build();
   }
 
-  public UserProfileResponseDto updateUser(Long userId,
-      UserProfileRequestDto userProfileRequestDto) {
-    User user = userRepository.findById(userId)
+  public UserProfileResponseDto updateUser(UserProfileRequestDto userProfileRequestDto) {
+    User user = userRepository.findById(userProfileRequestDto.getUserId())
         .orElseThrow(() -> new IllegalArgumentException(IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
 
     if (userProfileRequestDto.getEmail() != null) {

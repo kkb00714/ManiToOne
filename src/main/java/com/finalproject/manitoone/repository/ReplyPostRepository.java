@@ -14,4 +14,8 @@ public interface ReplyPostRepository extends JpaRepository<ReplyPost, Long> {
   Optional<List<ReplyPost>> findAllByPostPostId(Long postId);
 
   Optional<ReplyPost> findByReplyPostId(Long replyPostId);
+
+  Optional<List<ReplyPost>> findAllByPostPostIdAndParentIdIsNull(Long postId);
+
+  Optional<List<ReplyPost>> findAllByPostPostIdAndParentIdIsNotNull(Long postId);
 }

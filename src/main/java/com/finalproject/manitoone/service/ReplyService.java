@@ -15,6 +15,8 @@ import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -113,4 +115,24 @@ public class ReplyService {
     return new ReportResponseDto(report.getReportId(), report.getUserId(),
         report.getReportObjectId(), report.getReportType(), report.getType());
   }
+
+  // 답글 조회
+  public Page<ReplyResponseDto> getReplies(Long postId, Pageable pageable) {
+    Page<ReplyPost> replies = replyPostRepository.findAllByPostPostIdAndParentIdIsNull(postId,
+            pageable)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return replies.map(reply -> new ReplyResponseDto(
+        reply.getPost(),
+        reply.getUser(),
+        reply.getParentId(),
+        reply.getContent(),
+        reply.getCreatedAt(),
+        reply.getIsBlind()
+    ));
+  }
+
+  // 답글의 답글 조회
 }

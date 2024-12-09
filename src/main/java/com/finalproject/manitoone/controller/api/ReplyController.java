@@ -9,9 +9,14 @@ import com.finalproject.manitoone.domain.dto.UpdateReplyRequestDto;
 import com.finalproject.manitoone.service.ReplyService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -74,4 +79,14 @@ public class ReplyController {
     ReportResponseDto report = replyService.reportReply(replyId, request, user);
     return ResponseEntity.status(HttpStatus.ACCEPTED).body(report);
   }
+
+  // 답글 조회
+  @GetMapping("/replies/{postId}")
+  public ResponseEntity<Page<ReplyResponseDto>> getReplies(@PathVariable("postId") Long postId,
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    Page<ReplyResponseDto> replies = replyService.getReplies(postId, pageable);
+    return ResponseEntity.ok(replies);
+  }
+
+  // 답글의 답글 조회
 }

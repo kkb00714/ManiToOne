@@ -1,8 +1,7 @@
 package com.finalproject.manitoone.service;
 
-import static java.time.LocalDate.now;
-
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.ReplyPost;
@@ -10,12 +9,15 @@ import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
+import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
 import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
+import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
+import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,8 +38,10 @@ public class PostService {
   private final PostImageRepository postImageRepository;
   private final UserPostLikeRepository userPostLikeRepository;
   private final ReplyPostRepository replyPostRepository;
+  private final ManitoLetterRepository manitoLetterRepository;
+  private final ReportRepository reportRepository;
 
-  // 게시글 생성
+  // 게시글 생성 (미완성)
   public PostResponseDto createPost(AddPostRequestDto request, User user) {
     Post post = postRepository.save(Post.builder()
         .content(request.getContent())
@@ -79,6 +83,7 @@ public class PostService {
     deleteImages(postId);
     deleteReplies(postId);
     deleteLikes(postId);
+    deleteManitoLetters(postId);
     postRepository.delete(post);
   }
 
@@ -112,6 +117,16 @@ public class PostService {
     userPostLikeRepository.deleteAll(likeList);
   }
 
+  // 마니또 편지 삭제
+  private void deleteManitoLetters(Long postId) {
+    List<ManitoLetter> manitoLetterList = manitoLetterRepository.findAllByPostIdPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_MANITO_LETTER_WITH_GIVEN_ID.getMessage()
+        ));
+
+    manitoLetterRepository.deleteAll(manitoLetterList);
+  }
+
   // 게시글 숨기기
   public void hidePost(Long postId) {
     Post post = postRepository.findByPostId(postId)
@@ -123,7 +138,7 @@ public class PostService {
     postRepository.save(post);
   }
 
-  // 게시글 좋아요
+  // 게시글 좋아요 (미완성)
   public void likePost(Long postId, User user) {
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
@@ -135,6 +150,14 @@ public class PostService {
         .user(user)
         .build());
   }
+
+  // 게시글 신고
+//  public ReportResponseDto reportPost(Long postId, User user) {
+//    Post post = postRepository.findByPostId(postId)
+//        .orElseThrow(() -> new IllegalArgumentException(
+//            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
+//        ));
+//  }
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
     // TODO: 내 게시글인지는 어떻게 판별할까요?

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/adminCommon.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <link rel="icon" type="image/x-icon" th:href="@{/images/favicon/favicon.ico}">
+  <title>ManiToOne AdminPage</title>
+</head>
+<body>
+<header th:replace="fragments/admin/adminHeader :: adminHeader"></header>
+<nav th:replace="fragments/admin/adminNav :: adminNav"></nav>
+<main class="main-container">
+  <section class="middle-section" id="middleSection">
+
+  </section>
+</main>
+</body>
+</html>

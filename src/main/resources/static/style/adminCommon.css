@@ -1,0 +1,259 @@
+h1 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  font-size: 0;
+}
+
+.nav-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 140px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 1rem 0;
+  box-sizing: border-box;
+  align-items: center;
+  background-color: #f3f3f3;
+  width: 5rem;
+  height: 100%;
+  box-shadow: 2px 0 3px rgba(171, 171, 171, 0.25);
+  margin-right: 5rem;
+}
+
+.nav-container img {
+  width: 2.5rem;
+  height: 2.5rem;
+  opacity: 75%;
+  transition: opacity 0.3s ease;
+}
+
+.nav-container img:hover {
+  opacity: 100%;
+}
+
+.UI-icon-logo img {
+  width: 4rem;
+  height: 4rem;
+  opacity: 100%;
+}
+
+.UI-icon-list {
+  margin: 2rem 0;
+}
+
+.UI-icon-more {
+  cursor: pointer;
+}
+
+.header-container {
+  margin-left: 135px;
+}
+
+.table-header {
+  margin: 0 auto;
+  width: 1700px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 2rem;
+}
+
+.caption-header {
+  margin-right: 670px;
+}
+
+.user-state {
+  font-size: 12px;
+}
+
+.header-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1700px;
+  margin: 0 auto;
+}
+
+.header-container img {
+  width: 350px;
+  height: 84px;
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 50px;
+  margin-left: 100px;
+}
+
+.middle-section {
+  width: 100%;
+}
+
+.table-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.table-container {
+  width: 1700px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  border: none;
+  margin-top: 10px;
+}
+.table-container th, .table-container td {
+  border: none;
+  text-align: center;
+  height: 55px;
+  font-size: 20px;
+}
+
+thead tr th:first-child, tbody tr td:first-child{
+  box-shadow: -5px 0px 5px -2px rgba(0, 0, 0, 0.1); /* 왼쪽 그림자 */
+  border-radius: 10px 0 0 10px;
+}
+
+thead tr th:last-child, tbody tr td:last-child {
+  box-shadow: 5px 0px 5px -2px rgba(0, 0, 0, 0.1); /* 오른쪽 그림자 */
+  border-radius: 0 10px 10px 0;
+}
+
+.table-container th {
+  border: none;
+  font-weight: bold;
+  background-color: #E7E7E7;
+}
+
+thead {
+  margin-top: 20px;
+}
+
+.table-container tbody td {
+  background-color: #F5F5F5;
+}
+
+.paging, .navbar {
+  width: 1700px;
+  margin: 0 auto;
+}
+
+.paging {
+  margin-top: 25px;
+}
+
+.pagination, .navbar .page-num-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination {
+  font-size: 25px;
+}
+
+.page-num-box {
+  gap: 10px
+}
+
+.page-img {
+  width: 24px;
+  height: 24px;
+}
+
+.page-link {
+  display: flex;
+  align-items: center;
+}
+
+.page-link-number {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.page-link.disabled, .page-link-number.disabled {
+  pointer-events: none;
+}
+
+.page-link.active, .page-link-number.active {
+  cursor: pointer;
+}
+
+.page-link-number.active {
+  color: #A5A5A5;
+}
+
+.page-link-number.active {
+  color: #A5A5A5;
+}
+
+.navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.me-2, .btn-outline-success{
+  height: 50px;
+}
+
+.form-control {
+  width: 140px;
+}
+
+.form-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  padding: 5px 10px;
+  background-color: #F5F5F5;
+  border-radius: 10px;
+  width: 80px;
+  text-align: center;
+}
+
+.form-select::-ms-expand {
+  display: none; /* IE에서 기본 드롭다운 버튼 제거 */
+}
+
+.form-control {
+  padding: 5px 10px;
+  border-radius: 10px;
+  background-color: #F5F5F5;
+  border: none;
+}
+
+.btn-outline-success {
+  background-color: #3F624C;
+  color: #FFFFFF;
+  width: 100px;
+  height: 50px;
+  border-radius: 10px;
+}
+
+.user-state a {
+  color: #A5A5A5;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.user-state a.active {
+  color: black;
+  pointer-events: none;
+}
+
+.user-state a:hover {
+  text-decoration: underline; /* 마우스 오버 시 강조 */
+}
+
+tbody tr {
+  cursor: pointer;
+}

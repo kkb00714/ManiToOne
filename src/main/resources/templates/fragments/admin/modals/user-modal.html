@@ -1,0 +1,129 @@
+<!-- 프로필 수정 모달 시작-->
+<div class="profile-update-modal" id="profileUpdateModalBackground"
+     th:fragment="user-modal">
+  <div
+      class="profile-update-modal-container"
+      id="profileUpdateModalContainer"
+  >
+    <div class="profile-update-container">
+      <div class="profile-update-title">
+        <p>프로필 수정</p>
+        <img
+            class="tiny-icons"
+            id="closeProfileUpdateBtn"
+            th:src="@{/images/icons/icon-cancel.png}"
+            alt="close icon"
+        />
+      </div>
+      <form id="profile_form">
+        <div class="profile-input-container">
+          <div class="name-photo-container">
+            <div class="user-name-container">
+              <label class="user-profile-label" for="user-name"
+              >이름</label
+              >
+              <input
+                  class="profile-input"
+                  type="text"
+                  name="name"
+                  id="user-name"
+                  placeholder="이름 입력"
+                  required
+              />
+            </div>
+            <img
+                class="user-photo"
+                th:src="@{/images/icons/UI-user2.png}"
+                alt=""
+            />
+          </div>
+          <div class="user-nickname-container">
+            <label class="user-profile-label" for="user-nickname"
+            >닉네임</label
+            >
+            <input
+                class="profile-input"
+                type="text"
+                name="nickname"
+                id="user-nickname"
+                placeholder="닉네임 입력"
+                required
+            />
+          </div>
+          <div class="user-introduce-container">
+            <label class="user-profile-label" for="user-introduce"
+            >소개</label
+            >
+            <input
+                class="profile-input"
+                type="text"
+                name="introduce"
+                id="user-introduce"
+                placeholder="소개 입력"
+                required
+            />
+          </div>
+          <div class="user-email-container">
+            <label class="user-profile-label" for="user-email"
+            >이메일</label
+            >
+            <input
+                class="email-input"
+                type="text"
+                name="email"
+                id="user-email"
+                placeholder="이메일 입력"
+                required
+            />
+          </div>
+          <div class="user-birth-container">
+            <label class="user-profile-label" for="user-birth"
+            >생년월일</label
+            >
+            <input
+                class="birth-input"
+                type="date"
+                name="birth"
+                id="user-birth"
+                required
+            />
+          </div>
+          <div class="user-role-container">
+            <label class="user-profile-label" for="user-role"
+            >역할</label
+            >
+            <select class="role-select" name="role" id="user-role" required>
+              <!-- 서버에서 roles 모델 데이터로 옵션 생성 -->
+              <option th:each="role : ${roles}" th:value="${role}" th:text="${role}"></option>
+            </select>
+          </div>
+          <div class="user-unbanned-container">
+            <label class="user-profile-label" for="user-unbanned">정지 해제 날짜</label>
+            <div class="unbanned-box">
+              <input
+                  class="unbanned-input"
+                  type="datetime-local"
+                  name="unbannedAt"
+                  id="user-unbanned"
+                  required
+              />
+              <button id="clearDateButton" class="clearDateButton">초기화</button>
+            </div>
+          </div>
+          <div class="user-status-container">
+            <label class="user-profile-label" for="user-status"
+            >역할</label
+            >
+            <select class="status-select" name="status" id="user-status" required>
+              <option th:value="1" th:text="활동"></option>
+              <option th:value="2" th:text="정지"></option>
+              <option th:value="3" th:text="탈퇴"></option>
+            </select>
+          </div>
+          <button class="profile-update-complete-button" id="update_profile_button">완료</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- 프로필 수정 모달 끝-->

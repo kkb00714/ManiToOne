@@ -1,0 +1,196 @@
+.profile-update-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.profile-update-modal-container {
+  background-color: #f3f3f3;
+  border-radius: 20px;
+  box-shadow: 0 0 2px 2px rgba(171, 171, 171, 0.25);
+  display: none;
+  z-index: 2;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 40rem;
+  min-width: 25rem;
+  width: 100%;
+  height: auto;
+}
+
+.profile-update-title {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.profile-update-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  box-sizing: border-box;
+  padding: 1.3rem;
+}
+
+.profile-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  font-size: 0.9rem;
+}
+
+.profile-input-container input {
+  all: unset;
+  border-bottom: 3px solid rgba(171, 171, 171, 0.25);
+}
+
+.profile-input-container select {
+  border: none;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  background-color: #F5F5F5;
+  border-bottom: 3px solid rgba(171, 171, 171, 0.25);
+}
+
+.name-photo-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.name-photo-container > .user-photo {
+  width: 4rem;
+  height: 4rem;
+  display: block;
+  margin-left: 1rem;
+}
+
+.user-name-container {
+  margin-top: auto;
+}
+
+.user-profile-label {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.profile-update-complete-button {
+  background-color: #3f624c;
+  color: #f3f3f3;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+
+.tiny-icons {
+  width: 1.3rem;
+  height: 1.3rem;
+  opacity: 75%;
+}
+
+.tiny-icons:hover {
+  cursor: pointer;
+}
+
+.tiny-icons-linkless {
+  width: 1.3rem;
+  height: 1.3rem;
+  opacity: 75%;
+}
+
+.profile-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  font-size: 0.9rem;
+}
+
+.profile-input-container input {
+  all: unset;
+  border-bottom: 3px solid rgba(171, 171, 171, 0.25);
+}
+
+.name-photo-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.name-photo-container > .user-photo {
+  width: 4rem;
+  height: 4rem;
+  display: block;
+  margin-left: 1rem;
+}
+
+.user-name-container,
+.user-nickname-container,
+.user-introduce-container,
+.user-password-container,
+.user-email-container,
+.user-birth-container,
+.user-role-container,
+.user-unbanned-container,
+.user-status-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.user-name-container {
+  margin-top: auto;
+}
+
+.user-profile-label {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.user-photo {
+  height: 3rem;
+  width: 3rem;
+}
+
+.user-photo:hover {
+  cursor: pointer;
+}
+
+.profile-update-complete-button {
+  background-color: #3f624c;
+  color: #f3f3f3;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.clearDateButton {
+  background-color: #3f624c;
+  color: #f3f3f3;
+  border-radius: 10px;
+  height: 30px;
+  width: 60px;
+  font-size: 15px;
+}
+
+.unbanned-input {
+  width: 88% !important;
+}
+
+.unbanned-box {
+  display: flex;
+  gap: 10px;
+}

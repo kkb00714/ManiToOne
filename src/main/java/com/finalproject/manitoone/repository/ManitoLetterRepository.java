@@ -3,6 +3,7 @@ package com.finalproject.manitoone.repository;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.User;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +18,6 @@ public interface ManitoLetterRepository extends JpaRepository<ManitoLetter, Long
   Page<ManitoLetter> findByUser_Nickname(String nickname, Pageable pageable);
 
   Optional<ManitoLetter> findByPostIdAndUser(Post post, User user);
+
+  Optional<List<ManitoLetter>> findAllByPostIdPostId(Long postId);
 }

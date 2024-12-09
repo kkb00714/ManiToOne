@@ -48,4 +48,8 @@ public class ReplyPost {
   @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
+
+  public void updateReply(String content) {
+    this.content = content;
+  }
 }

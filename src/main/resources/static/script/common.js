@@ -12,8 +12,12 @@ class BaseModal {
   }
 
   initializeEventListeners() {
-    if (this.openBtn) this.openBtn.onclick = () => this.open();
-    if (this.closeBtn) this.closeBtn.onclick = () => this.close();
+    if (this.openBtn) {
+      this.openBtn.onclick = () => this.open();
+    }
+    if (this.closeBtn) {
+      this.closeBtn.onclick = () => this.close();
+    }
   }
 
   initializeTextareas() {
@@ -60,14 +64,16 @@ class BaseModal {
 
   open() {
     if (this.modal && this.background) {
-      [this.modal, this.background].forEach((el) => (el.style.display = "block"));
+      [this.modal, this.background].forEach(
+          (el) => (el.style.display = "block"));
       this.lockScroll();
     }
   }
 
   close() {
     if (this.modal && this.background) {
-      [this.modal, this.background].forEach((el) => (el.style.display = "none"));
+      [this.modal, this.background].forEach(
+          (el) => (el.style.display = "none"));
       this.unlockScroll();
     }
   }
@@ -142,34 +148,44 @@ const CommonUtils = {
 
   loadContent(page) {
     const middleSection = document.getElementById('middleSection');
-    if (!middleSection) return;
+    if (!middleSection) {
+      return;
+    }
 
-    middleSection.innerHTML = '<div class="loading">Loading...</div>';
+    middleSection.innerHTML = '<div class="loading">불러오는 중...</div>';
 
-    if (page === 'notification') return;
+    if (page === 'notification') {
+      return;
+    }
 
     const url = '/fragments/content/' + page;
 
     fetch(url)
     .then(response => {
-      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
       return response.text();
     })
     .then(html => {
       middleSection.innerHTML = html;
       history.pushState({page: page}, '', `/${page}`);
 
-      // 페이지별 스크립트 로드 및 초기화
       if (page === 'manito') {
-        const scriptElement = document.createElement('script');
-        scriptElement.src = '/script/manito.js';
-        scriptElement.onload = () => {
-          // 스크립트 로드 완료 후 초기화
+        if (!document.querySelector('script[src="/script/manito.js"]')) {
+          const scriptElement = document.createElement('script');
+          scriptElement.src = '/script/manito.js';
+          scriptElement.onload = () => {
+            if (typeof ManitoPage !== 'undefined') {
+              ManitoPage.init();
+            }
+          };
+          document.body.appendChild(scriptElement);
+        } else {
           if (typeof ManitoPage !== 'undefined') {
             ManitoPage.init();
           }
-        };
-        document.body.appendChild(scriptElement);
+        }
       }
 
       this.initializePageModals();
@@ -199,7 +215,9 @@ const CommonUtils = {
     navButtons.forEach(button => {
       button.addEventListener('click', () => {
         const buttonType = button.querySelector('img')?.alt;
-        if (!buttonType) return;
+        if (!buttonType) {
+          return;
+        }
 
         switch (buttonType) {
           case 'home':

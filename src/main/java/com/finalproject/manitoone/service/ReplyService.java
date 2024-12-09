@@ -6,6 +6,7 @@ import com.finalproject.manitoone.domain.ReplyPost;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddReplyRequestDto;
 import com.finalproject.manitoone.domain.dto.ReplyResponseDto;
+import com.finalproject.manitoone.domain.dto.UpdateReplyRequestDto;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,5 +53,25 @@ public class ReplyService {
     return new ReplyResponseDto(childReply.getPost(), childReply.getUser(),
         childReply.getParentId(), childReply.getContent(), childReply.getCreatedAt(),
         childReply.getIsBlind());
+  }
+
+  // 답글 수정
+  public ReplyResponseDto updateReply(Long replyId, UpdateReplyRequestDto request, User user) {
+    ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    if (!reply.getUser().equals(user)) {
+      throw new IllegalArgumentException(IllegalActionMessages.DIFFERENT_USER.getMessage());
+    }
+
+    reply.updateReply(request.getContent());
+
+    ReplyPost updatedReply = replyPostRepository.save(reply);
+
+    return new ReplyResponseDto(updatedReply.getPost(), updatedReply.getUser(),
+        updatedReply.getParentId(), updatedReply.getContent(), updatedReply.getCreatedAt(),
+        updatedReply.getIsBlind());
   }
 }

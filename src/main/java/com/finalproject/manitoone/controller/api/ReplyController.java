@@ -16,18 +16,28 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/reply")
+@RequestMapping("/api")
 public class ReplyController {
 
   private final ReplyService replyService;
 
   // 답글 생성
-  @PostMapping("/{postId}")
+  @PostMapping("/reply/{postId}")
   public ResponseEntity<ReplyResponseDto> createReply(@PathVariable("postId") Long postId,
       @RequestBody AddReplyRequestDto request,
       HttpSession session) {
     User user = (User) session.getAttribute("user");
     ReplyResponseDto reply = replyService.createReply(postId, request, user);
     return ResponseEntity.status(HttpStatus.CREATED).body(reply);
+  }
+
+  // 답글의 답글 생성
+  @PostMapping("/rereply/{replyId}")
+  public ResponseEntity<ReplyResponseDto> createReReply(@PathVariable("replyId") Long replyId,
+      @RequestBody AddReplyRequestDto request,
+      HttpSession session) {
+    User user = (User) session.getAttribute("user");
+    ReplyResponseDto rereply = replyService.createReReply(replyId, request, user);
+    return ResponseEntity.status(HttpStatus.CREATED).body(rereply);
   }
 }

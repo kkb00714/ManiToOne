@@ -34,4 +34,23 @@ public class ReplyService {
     return new ReplyResponseDto(reply.getPost(), reply.getUser(), reply.getParentId(),
         reply.getContent(), reply.getCreatedAt(), reply.getIsBlind());
   }
+
+  // 답글의 답글 생성
+  public ReplyResponseDto createReReply(Long replyId, AddReplyRequestDto request, User user) {
+    ReplyPost parentReply = replyPostRepository.findByReplyPostId(replyId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    ReplyPost childReply = replyPostRepository.save(ReplyPost.builder()
+        .post(parentReply.getPost())
+        .user(user)
+        .content(request.getContent())
+        .parentId(parentReply.getParentId())
+        .build());
+
+    return new ReplyResponseDto(childReply.getPost(), childReply.getUser(),
+        childReply.getParentId(), childReply.getContent(), childReply.getCreatedAt(),
+        childReply.getIsBlind());
+  }
 }

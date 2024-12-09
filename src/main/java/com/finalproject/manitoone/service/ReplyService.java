@@ -74,4 +74,19 @@ public class ReplyService {
         updatedReply.getParentId(), updatedReply.getContent(), updatedReply.getCreatedAt(),
         updatedReply.getIsBlind());
   }
+
+  // 게시글 삭제
+  public void deleteReply(Long replyId, User user) {
+    ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    if (!reply.getUser().equals(user)) {
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_DELETE_POST_AND_REPLY.getMessage());
+    }
+
+    replyPostRepository.delete(reply);
+  }
 }

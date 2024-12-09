@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -52,4 +53,15 @@ public class ReplyController {
     ReplyResponseDto updatedReply = replyService.updateReply(replyId, request, user);
     return ResponseEntity.ok(updatedReply);
   }
+
+  // 게시글 삭제
+  @DeleteMapping("/reply/{replyId}")
+  public ResponseEntity<Void> deleteReply(@PathVariable("replyId") Long replyId,
+      HttpSession session) {
+    User user = (User) session.getAttribute("user");
+    replyService.deleteReply(replyId, user);
+    return ResponseEntity.ok().build();
+  }
+
+  // 게시글 신고
 }

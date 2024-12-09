@@ -2,7 +2,9 @@ package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddReplyRequestDto;
+import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.ReplyResponseDto;
+import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdateReplyRequestDto;
 import com.finalproject.manitoone.service.ReplyService;
 import jakarta.servlet.http.HttpSession;
@@ -54,7 +56,7 @@ public class ReplyController {
     return ResponseEntity.ok(updatedReply);
   }
 
-  // 게시글 삭제
+  // 답글 삭제
   @DeleteMapping("/reply/{replyId}")
   public ResponseEntity<Void> deleteReply(@PathVariable("replyId") Long replyId,
       HttpSession session) {
@@ -63,5 +65,13 @@ public class ReplyController {
     return ResponseEntity.ok().build();
   }
 
-  // 게시글 신고
+  // 답글 신고
+  @PutMapping("/reply/report/{replyId}")
+  public ResponseEntity<ReportResponseDto> reportReply(@PathVariable("replyId") Long replyId,
+      @RequestBody AddReportRequestDto request,
+      HttpSession session) {
+    User user = (User) session.getAttribute("user");
+    ReportResponseDto report = replyService.reportReply(replyId, request, user);
+    return ResponseEntity.status(HttpStatus.ACCEPTED).body(report);
+  }
 }

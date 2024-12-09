@@ -1,14 +1,19 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.ReplyPost;
+import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddReplyRequestDto;
+import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.ReplyResponseDto;
+import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdateReplyRequestDto;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
+import com.finalproject.manitoone.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +23,7 @@ public class ReplyService {
 
   private final PostRepository postRepository;
   private final ReplyPostRepository replyPostRepository;
+  private final ReportRepository reportRepository;
 
   // 답글 생성
   public ReplyResponseDto createReply(Long postId, AddReplyRequestDto request, User user) {
@@ -75,7 +81,7 @@ public class ReplyService {
         updatedReply.getIsBlind());
   }
 
-  // 게시글 삭제
+  // 답글 삭제
   public void deleteReply(Long replyId, User user) {
     ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
@@ -88,5 +94,23 @@ public class ReplyService {
     }
 
     replyPostRepository.delete(reply);
+  }
+
+  // 답글 신고
+  public ReportResponseDto reportReply(Long replyId, AddReportRequestDto request, User user) {
+    ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    Report report = reportRepository.save(Report.builder()
+        .reportType(request.getReportType())
+        .userId(user.getUserId())
+        .type(ReportObjectType.REPLY)
+        .reportObjectId(reply.getReplyPostId())
+        .build());
+
+    return new ReportResponseDto(report.getReportId(), report.getUserId(),
+        report.getReportObjectId(), report.getReportType(), report.getType());
   }
 }

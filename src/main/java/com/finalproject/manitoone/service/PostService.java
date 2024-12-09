@@ -93,7 +93,7 @@ public class PostService {
     }
 
     post.updatePost(request.getContent());
-    post.changeUpdateDate(LocalDateTime.now());
+    post.changeUpdatedDate(LocalDateTime.now());
 
     Post updatedPost = postRepository.save(post);
 

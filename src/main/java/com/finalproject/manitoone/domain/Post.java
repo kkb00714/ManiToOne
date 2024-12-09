@@ -65,7 +65,7 @@ public class Post {
     this.content = content;
   }
 
-  public void changeUpdateDate(LocalDateTime updatedAt) {
+  public void changeUpdatedDate(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
   }
 }

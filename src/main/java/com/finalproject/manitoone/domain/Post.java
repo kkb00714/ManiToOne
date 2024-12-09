@@ -64,4 +64,8 @@ public class Post {
   public void updatePost(String content) {
     this.content = content;
   }
+
+  public void changeUpdateDate(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
 }

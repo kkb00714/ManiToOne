@@ -11,6 +11,7 @@ import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchResponseDto;
+import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.FileUtil;
 import com.querydsl.core.BooleanBuilder;
@@ -36,6 +37,7 @@ public class AdminService {
   private final JPAQueryFactory queryFactory;
 
   private final UserRepository userRepository;
+  private final PostRepository postRepository;
 
   private final FileUtil fileUtil;
 
@@ -230,7 +232,8 @@ public class AdminService {
     BooleanBuilder builder = new BooleanBuilder();
 
     // nickname 조건 (User 기반 검색)
-    if (postSearchRequestDto.getNickname() != null && !postSearchRequestDto.getNickname().isEmpty()) {
+    if (postSearchRequestDto.getNickname() != null && !postSearchRequestDto.getNickname()
+        .isEmpty()) {
       builder.and(post.user.nickname.containsIgnoreCase(postSearchRequestDto.getNickname()));
     }
 
@@ -287,5 +290,13 @@ public class AdminService {
         .isHidden(post.getIsHidden())
         .isBlind(post.getIsBlind())
         .build();
+  }
+
+  public PostSearchResponseDto updateBlind(Long postId) {
+    Post post = postRepository.findByPostId(postId).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    post.updateBlind();
+    return toPostSearchResponseDto(post);
   }
 }

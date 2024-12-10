@@ -41,6 +41,8 @@ public class UserSignUpDTO {
   @NotNull(message = "생년월일은 필수 입력값입니다.")
   private LocalDate birth;
 
+  private String provider;
+
   public User toEntity(String encryptedPassword) {
     return User.builder()
         .email(this.email)
@@ -48,6 +50,7 @@ public class UserSignUpDTO {
         .name(this.name)
         .nickname(this.nickname)
         .birth(this.birth)
+        .provider(this.provider)
         .build();
   }
 }

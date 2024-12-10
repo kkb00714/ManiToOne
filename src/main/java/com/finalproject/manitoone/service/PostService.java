@@ -66,7 +66,7 @@ public class PostService {
     aiPostLogRepository.save(aiPost);
 
     return new PostResponseDto(post.getPostId(), post.getUser(), post.getContent(),
-        post.getIsManito());
+        post.getCreatedAt(), post.getUpdatedAt(), post.getIsManito());
   }
 
   // 이미지 저장
@@ -110,6 +110,8 @@ public class PostService {
         .postId(updatedPost.getPostId())
         .user(updatedPost.getUser())
         .content(updatedPost.getContent())
+        .createdAt(updatedPost.getCreatedAt())
+        .updatedAt(updatedPost.getUpdatedAt())
         .isManito(updatedPost.getIsManito())
         .build();
   }
@@ -126,6 +128,8 @@ public class PostService {
         post.getPostId(),
         post.getUser(),
         post.getContent(),
+        post.getCreatedAt(),
+        post.getUpdatedAt(),
         post.getIsManito()
     ));
   }
@@ -142,6 +146,8 @@ public class PostService {
         post.getPostId(),
         post.getUser(),
         post.getContent(),
+        post.getCreatedAt(),
+        post.getUpdatedAt(),
         post.getIsManito()
     );
   }

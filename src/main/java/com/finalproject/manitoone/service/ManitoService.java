@@ -1,8 +1,6 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.ManitoErrorMessages;
-import com.finalproject.manitoone.util.ManitoLetterParser;
-import com.finalproject.manitoone.util.TimeFormatter;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.User;
@@ -12,6 +10,7 @@ import com.finalproject.manitoone.dto.manito.ManitoPageResponseDto;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.UserRepository;
+import com.finalproject.manitoone.util.TimeFormatter;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -76,9 +75,9 @@ public class ManitoService {
 
     return ManitoLetterResponseDto.builder()
         .manitoLetterId(letter.getManitoLetterId())
-        .content(ManitoLetterParser.extractContent(letter.getLetter()))
-        .musicUrl(ManitoLetterParser.extractMusicUrl(letter.getLetter()))
-        .musicComment(ManitoLetterParser.extractMusicComment(letter.getLetter()))
+        .letterContent(letter.getLetterContent())
+        .musicUrl(letter.getMusicUrl())
+        .musicComment(letter.getMusicComment())
         .isPublic(letter.isPublic())
         .isReport(letter.isReport())
         .answerLetter(letter.getAnswerLetter())
@@ -163,5 +162,14 @@ public class ManitoService {
             ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
 
     manitoLetter.reportAnswer(userNickname);
+  }
+
+  // 단일 편지 조회
+  public ManitoLetterResponseDto getLetter(Long letterId) {
+    ManitoLetter letter = manitoLetterRepository.findById(letterId)
+        .orElseThrow(() -> new EntityNotFoundException(
+            ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
+
+    return buildLetterResponseDto(letter, letter.getPostId().getUser().getNickname());
   }
 }

@@ -8,6 +8,7 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class TimeFormatter {
+
   public static String formatTimeDiff(LocalDateTime createdAt) {
     Duration duration = Duration.between(createdAt, LocalDateTime.now());
     long minutes = duration.toMinutes();
@@ -21,7 +22,7 @@ public class TimeFormatter {
     } else {
       Period period = Period.between(createdAt.toLocalDate(), LocalDate.now());
       if (period.getYears() > 0) { // 1년 이상
-        return  period.getYears() + "년 전";
+        return period.getYears() + "년 전";
       } else if (period.getMonths() > 0) { // 1달 이상
         return period.getMonths() + "달 전";
       } else {

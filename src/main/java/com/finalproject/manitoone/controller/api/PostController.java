@@ -10,6 +10,7 @@ import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.service.PostService;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort.Direction;
@@ -75,6 +76,13 @@ public class PostController {
   public ResponseEntity<PostResponseDto> getPostDetail(@PathVariable("postId") Long postId) {
     PostResponseDto post = postService.getPostDetail(postId);
     return ResponseEntity.ok(post);
+  }
+  
+  public CompletableFuture<ResponseEntity<PostResponseDto>> createPost(@RequestBody AddPostRequestDto request,
+      @AuthenticationPrincipal User user) {
+    PostResponseDto post = postService.createPost(request, user);
+    return CompletableFuture.supplyAsync(
+        () -> ResponseEntity.status(HttpStatus.CREATED).body(post));
   }
 
   // 게시글 삭제

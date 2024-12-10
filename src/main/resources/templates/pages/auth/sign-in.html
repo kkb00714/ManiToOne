@@ -53,17 +53,16 @@
     <hr class="sign-in-devider-line"/>
   </div>
   <div class="external-login-container">
-    <button class="kakao-login">
-      <img
-          th:src="@{/images/logo/external-login-logo/google-login.png}"
-          alt=""
-      />
-    </button>
+<!--    <button class="kakao-login">-->
+<!--      <img-->
+<!--          th:src="@{/images/logo/external-login-logo/google-login.png}"-->
+<!--          alt=""-->
+<!--      />-->
+<!--    </button>-->
     <button class="google-login">
-      <img
-          th:src="@{/images/logo/external-login-logo/kakao-login.png}"
-          alt=""
-      />
+      <a th:href="@{/oauth2/authorization/google}" class="google-login">
+        <img th:src="@{/images/logo/external-login-logo/google-login.png}" alt="Google 로그인"/>
+      </a>
     </button>
   </div>
   <div class="sign-up-link-container">

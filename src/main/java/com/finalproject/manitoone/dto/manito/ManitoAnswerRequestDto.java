@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.dto.manito;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class ManitoAnswerRequestDto {
 
   @NotNull
-  @Size(max = 400)
+  @NotBlank
+  @Size(min = 1, max = 500)
   private String answerComment;
 }

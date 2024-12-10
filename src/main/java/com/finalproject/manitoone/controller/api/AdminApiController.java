@@ -55,6 +55,6 @@ public class AdminApiController {
 
   @PutMapping("/blind/post/{postId}")
   public ResponseEntity<Object> blindPost(@PathVariable Long postId) {
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(adminService.updateBlind(postId));
   }
 }

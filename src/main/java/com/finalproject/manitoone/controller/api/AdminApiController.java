@@ -61,6 +61,7 @@ public class AdminApiController {
 
   @DeleteMapping("/post/{postId}")
   public ResponseEntity<Object> deletePost(@PathVariable Long postId) {
-    return null;
+    adminService.deletePost(postId);
+    return ResponseEntity.ok().build();
   }
 }

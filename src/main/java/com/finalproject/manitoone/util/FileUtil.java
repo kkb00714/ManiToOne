@@ -12,7 +12,7 @@ public class FileUtil {
 
   public void cleanUp(Path path) {
     try {
-      Files.delete(path);
+      Files.deleteIfExists(path);
     } catch (IOException e) {
       throw new IllegalArgumentException("이미지를 삭제할 수 없습니다: " + e);
     }

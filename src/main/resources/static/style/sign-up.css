@@ -4,3 +4,8 @@
   margin-top: 5px;
   display: block;
 }
+
+input[readonly] {
+  color: #a9a9a9;
+  cursor: not-allowed;
+}

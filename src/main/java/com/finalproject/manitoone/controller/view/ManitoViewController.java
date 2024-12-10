@@ -16,7 +16,7 @@ public class ManitoViewController {
 
   private final ManitoService manitoService;
 
-  @GetMapping("/view/fragments/manito-letter")
+  @GetMapping("/fragments/manito-letter")
   public String getManitoLetterFragment(@RequestParam Long letterId, Model model) {
     ManitoLetterResponseDto letter = manitoService.getLetter(letterId);
     model.addAttribute("letter", letter);

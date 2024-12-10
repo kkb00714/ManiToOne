@@ -85,8 +85,8 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${post.user.email}</td>
           <td>${post.content.length > 15 ? post.content.substring(0, 15) + '...' : post.content}</td>
           <td>${formatDatetimeSecond(post.createdAt)}</td>
-          <td>${post.isBlind ? 'O' : 'X'}</td>
-          <td>변경</td>
+          <td class="blind-status">${post.isBlind ? 'O' : 'X'}</td>
+          <td><a href="#" class="change-status" data-id="${post.postId}">변경</a></td>
         </tr>
                       `
       )
@@ -191,10 +191,45 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll(".status-filter").forEach((link) => link.classList.remove("active"));
       this.classList.add("active");
 
-      currentStatus = this.dataset.status;
-      requestBody.status = currentStatus || null;
+      const currentStatus = this.dataset.status;
+
+      if (currentStatus === "0") {
+        requestBody.isBlind = false;
+      } else if (currentStatus === "1") {
+        requestBody.isBlind = true;
+      } else {
+        requestBody.isBlind = null;
+      }
 
       loadPage(1);
+    });
+  });
+
+  document.querySelectorAll('.change-status').forEach(link => {
+    link.addEventListener('click', async function (event) {
+      event.preventDefault();
+
+      const postId = this.dataset.id; // 클릭된 링크의 postId 가져오기
+      const currentRow = this.closest('tr'); // 현재 행(tr) 요소
+      const blindStatusCell = currentRow.querySelector('.blind-status'); // XO 상태 표시하는 셀
+
+      try {
+        // 서버로 블라인드 상태 변경 요청
+        const response = await fetch(`/admin/blind/post/${postId}`, {
+          method: 'PUT',
+        });
+
+        if (!response.ok) {
+          throw new Error('블라인드 상태 변경에 실패했습니다.');
+        }
+
+        // 서버에서 변경된 상태를 받아 업데이트
+        const updatedPost = await response.json();
+        blindStatusCell.textContent = updatedPost.isBlind ? 'O' : 'X'; // XO 상태 업데이트
+      } catch (error) {
+        console.error(error.message);
+        alert('블라인드 상태 변경 중 오류가 발생했습니다.');
+      }
     });
   });
 });

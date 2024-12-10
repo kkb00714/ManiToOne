@@ -30,4 +30,9 @@ public class AdminViewController {
   public String adminPosts() {
     return "pages/admin/adminPost";
   }
+
+  @GetMapping("/reports")
+  public String adminReports() {
+    return "pages/admin/adminReport";
+  }
 }

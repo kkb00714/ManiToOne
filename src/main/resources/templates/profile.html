@@ -33,7 +33,7 @@
   <title>ManiToOne</title>
 </head>
 <body>
-<header th:replace="fragments/common/header :: header"></header>
+<header th:replace="~{fragments/common/header :: header}"></header>
 <main class="main-container">
   <section class="middle-section" id="middleSection">
     <section class="mypage-section" th:fragment="mypage">
@@ -73,8 +73,8 @@
         />
         <p id="openPostFormModalBtn">함께 나누고픈 감정이 있나요?</p>
       </div>
-      <div th:replace="fragments/modals/profile-update-modal :: profile-update-modal"></div>
-      <div th:replace="fragments/modals/new-post-modal :: new-post-modal"></div>
+      <div th:replace="~{fragments/modals/profile-update-modal :: profile-update-modal}"></div>
+      <div th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"></div>
       <!--작성 시간, 답글 보이지 않는 가장 기본 게시글 덩어리-->
       <div id="postsContainer" class="posts-container">
 
@@ -82,7 +82,7 @@
     </section>
   </section>
   <article
-      th:replace="fragments/common/right-section :: right-section"
+      th:replace="~{fragments/common/right-section :: right-section}"
   ></article>
 </main>
 <script th:src="@{/script/common.js}"></script>

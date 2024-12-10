@@ -294,28 +294,16 @@ const ManitoPage = {
     }
   },
 
-  // 마니또 관련 토글 기능
-  toggleManito(element, type) {
-    const img = element.querySelector('img');
-    const isChecked = img.src.includes('icon-check.png');
-
-    if (isChecked) {
-      img.src = img.getAttribute('data-unchecked-src').replace('@{',
-          '').replace('}', '');
-      element.style.opacity = '0.3';
-    } else {
-      img.src = img.getAttribute('data-checked-src').replace('@{', '').replace(
-          '}', '');
-      element.style.opacity = '1';
-    }
-  },
-
   // 전체 페이지 초기화
   init() {
     this.letterBox.init();
     this.modals.init();
-    window.toggleManito = this.toggleManito;
+
+    window.toggleManito = (element, type) => CommonUtils.toggleElement(element, type);
   }
 };
 
 window.ManitoPage = ManitoPage;
+document.addEventListener('DOMContentLoaded', () => {
+  ManitoPage.init();
+});

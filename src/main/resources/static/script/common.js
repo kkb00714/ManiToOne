@@ -105,6 +105,16 @@ class BaseModal {
       Array.from(inputs).forEach(input => {
         input.value = '';
       });
+
+      // 토글 요소들 초기화
+      const toggleElements = this.modal.querySelectorAll('[data-checked-src]');
+      Array.from(toggleElements).forEach(element => {
+        const img = element.querySelector('img');
+        if (img) {
+          img.src = img.getAttribute('data-unchecked-src').replace('@{', '').replace('}', '');
+          element.style.opacity = '0.3';
+        }
+      });
     }
   }
 }
@@ -159,45 +169,30 @@ const CommonUtils = {
     }
   },
 
-  // initializeNavigation() {
-  //   const navButtons = document.querySelectorAll('.UI-icon-list button');
-  //   navButtons.forEach(button => {
-  //     button.addEventListener('click', () => {
-  //       const buttonType = button.querySelector('img')?.alt;
-  //       if (!buttonType) {
-  //         return;
-  //       }
-  //
-  //       switch (buttonType) {
-  //         case 'home':
-  //           window.location.href = '/';
-  //           break;
-  //         case 'notification':
-  //           window.location.href = '/page/notification';
-  //           break;
-  //         case 'manito':
-  //           window.location.href = '/page/manito';
-  //           break;
-  //         case 'user-profile':
-  //           window.location.href = '/page/profile';
-  //           break;
-  //       }
-  //     });
-  //   });
-  //
-  //   const logoLink = document.querySelector('.home-link');
-  //   if (logoLink) {
-  //     logoLink.addEventListener('click', (e) => {
-  //       e.preventDefault();
-  //       window.location.href = '/';
-  //     });
-  //   }
-  // }
+  // 토글 기능
+  toggleElement(element, type) {
+    const img = element.querySelector('img');
+    if (!img) return;
+
+    const isChecked = img.src.includes('icon-check.png');
+
+    if (isChecked) {
+      img.src = img.getAttribute('data-unchecked-src').replace('@{', '').replace('}', '');
+      element.style.opacity = '0.3';
+    } else {
+      img.src = img.getAttribute('data-checked-src').replace('@{', '').replace('}', '');
+      element.style.opacity = '1';
+    }
+  }
 };
 
 // 페이지 로드시 초기화
 document.addEventListener('DOMContentLoaded', () => {
-  // CommonUtils.initializeNavigation();
   CommonUtils.initializePageModals();
   CommonUtils.initializeAllTextareas();
+
+  // 전역 토글 함수 설정
+  window.toggleManito = function(element, type) {
+    CommonUtils.toggleElement(element, type);
+  };
 });

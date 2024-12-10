@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class User implements OAuth2User {
 
   @Id
@@ -89,6 +90,18 @@ public class User implements OAuth2User {
     this.password = password;
   }
 
+  public void updateDefaultImage() {
+    this.profileImage = "/img/defaultProfile.png";
+  }
+
+  public boolean isDefaultImage() {
+    return Objects.equals(this.profileImage, "/img/defaultProfile.png");
+  }
+
+  public void updateProfileImage(String profileImage) {
+    this.profileImage = profileImage;
+  }
+  
   public void setStatus(Integer status) {
     this.status = status;
   }

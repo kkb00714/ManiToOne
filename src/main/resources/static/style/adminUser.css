@@ -70,6 +70,8 @@
   height: 4rem;
   display: block;
   margin-left: 1rem;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .user-name-container {
@@ -193,4 +195,8 @@
 .unbanned-box {
   display: flex;
   gap: 10px;
+}
+
+.admin-user-image {
+  opacity: 100% !important;
 }

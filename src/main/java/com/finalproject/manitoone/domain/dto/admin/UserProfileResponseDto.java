@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserProfileRequestDto {
+public class UserProfileResponseDto {
+
   private Long userId;
   private String email;
   private String name;
@@ -23,5 +24,5 @@ public class UserProfileRequestDto {
   private String role;
   private LocalDateTime unbannedAt;
   private LocalDateTime createdAt;
-  private Boolean clearUnbannedAt = false;
+
 }

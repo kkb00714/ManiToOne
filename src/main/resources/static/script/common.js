@@ -146,57 +146,6 @@ const CommonUtils = {
     });
   },
 
-  loadContent(page) {
-    const middleSection = document.getElementById('middleSection');
-    if (!middleSection) {
-      return;
-    }
-
-    middleSection.innerHTML = '<div class="loading">불러오는 중...</div>';
-
-    if (page === 'notification') {
-      return;
-    }
-
-    const url = '/fragments/content/' + page;
-
-    fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.text();
-    })
-    .then(html => {
-      middleSection.innerHTML = html;
-      history.pushState({page: page}, '', `/${page}`);
-
-      if (page === 'manito') {
-        if (!document.querySelector('script[src="/script/manito.js"]')) {
-          const scriptElement = document.createElement('script');
-          scriptElement.src = '/script/manito.js';
-          scriptElement.onload = () => {
-            if (typeof ManitoPage !== 'undefined') {
-              ManitoPage.init();
-            }
-          };
-          document.body.appendChild(scriptElement);
-        } else {
-          if (typeof ManitoPage !== 'undefined') {
-            ManitoPage.init();
-          }
-        }
-      }
-
-      this.initializePageModals();
-      this.initializeAllTextareas();
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      middleSection.innerHTML = '<div class="error">Failed to load content</div>';
-    });
-  },
-
   initializePageModals() {
     try {
       if (document.getElementById("newPostFormModalContainer")) {
@@ -210,45 +159,45 @@ const CommonUtils = {
     }
   },
 
-  initializeNavigation() {
-    const navButtons = document.querySelectorAll('.UI-icon-list button');
-    navButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const buttonType = button.querySelector('img')?.alt;
-        if (!buttonType) {
-          return;
-        }
-
-        switch (buttonType) {
-          case 'home':
-            this.loadContent('timeline');
-            break;
-          case 'notification':
-            this.loadContent('notification');
-            break;
-          case 'manito':
-            this.loadContent('manito');
-            break;
-          case 'user-profile':
-            this.loadContent('mypage');
-            break;
-        }
-      });
-    });
-
-    const logoLink = document.querySelector('.home-link');
-    if (logoLink) {
-      logoLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.loadContent('timeline');
-      });
-    }
-  }
+  // initializeNavigation() {
+  //   const navButtons = document.querySelectorAll('.UI-icon-list button');
+  //   navButtons.forEach(button => {
+  //     button.addEventListener('click', () => {
+  //       const buttonType = button.querySelector('img')?.alt;
+  //       if (!buttonType) {
+  //         return;
+  //       }
+  //
+  //       switch (buttonType) {
+  //         case 'home':
+  //           window.location.href = '/';
+  //           break;
+  //         case 'notification':
+  //           window.location.href = '/page/notification';
+  //           break;
+  //         case 'manito':
+  //           window.location.href = '/page/manito';
+  //           break;
+  //         case 'user-profile':
+  //           window.location.href = '/page/profile';
+  //           break;
+  //       }
+  //     });
+  //   });
+  //
+  //   const logoLink = document.querySelector('.home-link');
+  //   if (logoLink) {
+  //     logoLink.addEventListener('click', (e) => {
+  //       e.preventDefault();
+  //       window.location.href = '/';
+  //     });
+  //   }
+  // }
 };
 
 // 페이지 로드시 초기화
 document.addEventListener('DOMContentLoaded', () => {
-  CommonUtils.initializeNavigation();
+  // CommonUtils.initializeNavigation();
   CommonUtils.initializePageModals();
   CommonUtils.initializeAllTextareas();
 });

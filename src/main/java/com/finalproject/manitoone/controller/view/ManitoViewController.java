@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping("/view")
+@RequestMapping("/manito")
 @RequiredArgsConstructor
 public class ManitoViewController {
 
@@ -21,5 +21,10 @@ public class ManitoViewController {
     ManitoLetterResponseDto letter = manitoService.getLetter(letterId);
     model.addAttribute("letter", letter);
     return "fragments/common/manito-letter :: manito-letter(letter=${letter})";
+  }
+
+  @GetMapping
+  public String getManitoPage(Model model) {
+    return "pages/manito";
   }
 }

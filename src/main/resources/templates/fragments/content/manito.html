@@ -7,7 +7,7 @@
   </div>
   <section class="todays-manito-section">
     <div class="todays-manito-post">
-      <div th:replace="~{fragments/content/post}"></div>
+      <div th:replace="~{fragments/content/post}" th:if="${post != null}" th:each="post : ${posts}"></div>
     </div>
   </section>
   <div class="send-letter-container">

@@ -1,5 +1,5 @@
 <!--홈 화면 타임라인 + 새 게시물 작성-->
-<section class="new-post-form-section" th:fragment="timeline">
+<section class="new-post-form-section" th:fragment="new-post-form">
   <div class="new-post-form">
     <img
         class="user-photo"
@@ -11,7 +11,7 @@
   <div th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"></div>
 </section>
 <section class="timeline-section" th:fragment="timeline">
-  <div class="timeline">
-    <div th:replace="~{fragments/content/post :: post}"></div>
+  <div class="timeline-posts">
+
   </div>
 </section>

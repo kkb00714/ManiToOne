@@ -8,9 +8,11 @@
   <nav>
     <ul>
       <li class="UI-icon-list">
+        <a th:href="@{/}">
         <button
         ><img th:src="@{/images/icons/UI-home2.png}" alt="home"
         /></button>
+        </a>
       </li>
       <li class="UI-icon-list" th:if="${session.user != null}">
         <!-- 세션에 유저가 있을 때 -->
@@ -29,14 +31,16 @@
         </a>
       </li>
       <li class="UI-icon-list">
+        <a th:href="@{/manito}">
         <button
         ><img th:src="@{/images/icons/icon-clover2.png}" alt="manito"
         /></button>
+        </a>
       </li>
       <li class="UI-icon-list">
-        <button
-        ><img th:src="@{/images/icons/UI-user2.png}" alt="user-profile"
-        /></button>
+        <a th:href="@{/profile/{nickname}(nickname=${session.user?.nickname})}">
+          <button><img th:src="@{/images/icons/UI-user2.png}" alt="user-profile"/></button>
+        </a>
       </li>
     </ul>
   </nav>

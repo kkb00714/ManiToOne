@@ -51,6 +51,7 @@ public class PostService {
   private final ManitoLetterRepository manitoLetterRepository;
   private final ReportRepository reportRepository;
   private final AiPostLogRepository aiPostLogRepository;
+  private final UserService userService;
 
   // 게시글 생성 (미완성)
   // TODO: 이미지 업로드
@@ -328,5 +329,24 @@ public class PostService {
     });
 
     return postResponses;
+  }
+
+  // 타임라인 조회를 위한 메서드
+  public Page<PostViewResponseDto> getTimelinePosts(String nickname, Pageable pageable) {
+    //TODO : 현재 로그인한 사용자의 ID를 가져오는 로직
+    User currentUser = userService.getCurrentUser(nickname);
+
+    Page<Post> posts = postRepository.findTimelinePostsByUserId(currentUser.getUserId(), pageable);
+    return posts.map(post -> {
+      PostViewResponseDto dto = new PostViewResponseDto(
+      post.getPostId(),
+      post.getUser().getProfileImage(),
+      post.getUser().getNickname(),
+      post.getContent(),
+      post.getCreatedAt(),
+      post.getUpdatedAt()
+          );
+      return addAdditionalDataToDto(List.of(dto)).get(0);
+    });
   }
 }

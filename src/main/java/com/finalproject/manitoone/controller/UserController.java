@@ -19,12 +19,10 @@ public class UserController {
 
   private final UserService userService;
 
-  //TODO: 확인하셨다면 이 줄과 27번째 줄(System.out)을 지우고 커밋 부탁드립니다.
   @Async
   @GetMapping("/{nickname}")
   public CompletableFuture<ResponseEntity<UserInformationResponseDto>> getUserInformation(
       @PathVariable String nickname) {
-    System.out.println(AlanUtil.getAlanAnswer("나 오늘 치킨 6마리 먹었다"));
     return CompletableFuture.supplyAsync(
         () -> ResponseEntity.ok(userService.getUserByNickname(nickname)));
   }

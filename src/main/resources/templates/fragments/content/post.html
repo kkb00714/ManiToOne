@@ -2,7 +2,7 @@
 <div class="post-container" th:fragment="post(post)">
   <img
       class="user-photo"
-      th:src="${post.profileImage} ?: @{/images/icons/UI-user2.png}"
+      th:src="${post.profileImage ?: '/images/icons/UI-user2.png'}"
       alt="user icon"
   />
   <div class="post-content">
@@ -15,7 +15,7 @@
       심신을 달래줄 맥주 한 캔 샀음~ <br/>
       아쉽지만 치킨은 없다ㅋㅋ 이번달 돈 아껴야 해~~
     </p>
-    <img th:if="${post.postImages != null and !post.postImages.empty}"
+    <img th:if="${post.postImages != null and not #lists.isEmpty(post.postImages)}"
         class="post-image"
         th:src="@{'/images/upload/' + ${post.postImages[0].fileName}}"
         alt="beer image"

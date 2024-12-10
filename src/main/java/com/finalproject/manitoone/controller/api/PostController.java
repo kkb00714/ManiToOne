@@ -47,7 +47,7 @@ public class PostController {
 
   // 게시글 수정
   // TODO: 이미지 수정
-  @PutMapping("{postId}")
+  @PutMapping("/{postId}")
   public ResponseEntity<PostResponseDto> updatePost(@PathVariable("postId") Long postId,
       @RequestBody UpdatePostRequestDto request,
       HttpSession session) {

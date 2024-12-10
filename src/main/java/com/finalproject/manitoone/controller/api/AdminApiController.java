@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.controller.api;
 
+import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
@@ -43,5 +44,12 @@ public class AdminApiController {
   public ResponseEntity<Object> updateUserProfileImage(@PathVariable Long userId,
       @RequestPart(required = false) MultipartFile profileImageFile) {
     return ResponseEntity.ok(adminService.updateProfileImage(userId, profileImageFile));
+  }
+
+  @PostMapping("/posts")
+  public ResponseEntity<Object> getAllPosts(
+      @PageableDefault(size = 2, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
+      @RequestBody PostSearchRequestDto postSearchRequestDto) {
+    return ResponseEntity.ok(adminService.searchPosts(postSearchRequestDto, pageable));
   }
 }

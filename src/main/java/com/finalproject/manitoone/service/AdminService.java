@@ -297,6 +297,6 @@ public class AdminService {
         IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
     post.updateBlind();
-    return toPostSearchResponseDto(post);
+    return toPostSearchResponseDto(postRepository.save(post));
   }
 }

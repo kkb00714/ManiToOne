@@ -219,3 +219,7 @@
 .user-state a:hover {
   text-decoration: underline; /* 마우스 오버 시 강조 */
 }
+
+.caption-header {
+  margin-right: 630px !important;
+}

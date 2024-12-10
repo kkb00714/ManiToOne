@@ -1,3 +1,22 @@
 .admin-post-image {
   opacity: 100% !important;
 }
+
+.blind-status {
+  font-size: 12px;
+}
+
+.blind-status a {
+  color: #A5A5A5;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.blind-status a.active {
+  color: black;
+  pointer-events: none;
+}
+
+.blind-status a:hover {
+  text-decoration: underline; /* 마우스 오버 시 강조 */
+}

@@ -4,7 +4,7 @@ body {
   background-color: #ebedeb;
   font-family: Inter, sans-serif;
   font-size: 1rem;
-  letter-spacing: -0.05rem;;
+  letter-spacing: -0.05rem;
   min-width: 35rem;
   color: #303030;
 }
@@ -538,7 +538,7 @@ h1 {
 .recommend-music {
   display: flex;
   align-items: center;
-  gap:0.3rem;
+  gap: 0.3rem;
 }
 
 .manito-reaction-container {
@@ -719,8 +719,10 @@ h1 {
   width: 100%;
 }
 
-#manito-letter-text-input, #music-link-input, #manito-music-comment-input {
-  all : unset;
+#manito-letter-text-input,
+#music-link-input,
+#manito-music-comment-input {
+  all: unset;
   font-weight: normal;
   width: 100%;
   font-size: 1rem;
@@ -730,16 +732,17 @@ h1 {
   resize: none;
 }
 
-textarea::placeholder, #music-link-input::placeholder{
+textarea::placeholder,
+#music-link-input::placeholder {
   opacity: 50%;
   line-height: 1.2rem;
 }
 
-#manito-letter-text-input{
+#manito-letter-text-input {
   min-height: 4rem;
 }
 #manito-music-comment-input {
-  min-height:3rem;
+  min-height: 3rem;
 }
 
 .ai-post-comment {
@@ -759,7 +762,7 @@ textarea::placeholder, #music-link-input::placeholder{
 }
 
 .manito-recommend-music > .recommend-music {
-  min-width:9rem;
+  min-width: 9rem;
 }
 
 .send-letter-button-container {
@@ -847,7 +850,7 @@ textarea::placeholder, #music-link-input::placeholder{
 }
 
 #manito-letter-reply-input {
-  all : unset;
+  all: unset;
   font-weight: normal;
   width: 100%;
   font-size: 1rem;
@@ -856,12 +859,12 @@ textarea::placeholder, #music-link-input::placeholder{
   overflow-wrap: break-word;
   resize: none;
   min-height: 3rem;
-  margin-top:0.1rem;
+  margin-top: 0.1rem;
 }
 
 #manito-letter-reply-input::placeholder {
   font-size: 1rem;
-  color : #303030;
+  color: #303030;
   opacity: 50%;
   line-height: 1.2rem;
 }
@@ -912,7 +915,7 @@ textarea::placeholder, #music-link-input::placeholder{
   width: 90%;
   max-width: 400px;
   text-align: center;
-  border : 1px solid #3f624c;
+  border: 1px solid #3f624c;
 }
 
 .confirmation-content {
@@ -936,10 +939,11 @@ textarea::placeholder, #music-link-input::placeholder{
   gap: 1rem;
   justify-content: center;
   margin-top: 0.5rem;
-  font-size : 0.9rem;
+  font-size: 0.9rem;
 }
 
-.confirm-btn, .cancel-btn {
+.confirm-btn,
+.cancel-btn {
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
   cursor: pointer;
@@ -997,7 +1001,7 @@ textarea::placeholder, #music-link-input::placeholder{
 }
 
 .manito-letter-box-switch::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -3px;
   height: 3px;

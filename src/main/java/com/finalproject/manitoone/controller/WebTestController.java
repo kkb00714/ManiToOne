@@ -28,4 +28,9 @@ public class WebTestController {
   public String getSignInPage() {
     return "/pages/auth/sign-in";
   }
+
+  @GetMapping("/post-detail")
+  public String getPostDetail() {
+    return "/pages/post/postDetail";
+  }
 }

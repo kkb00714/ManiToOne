@@ -4,12 +4,14 @@ import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.dto.UserLoginRequestDto;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
+import com.finalproject.manitoone.service.CustomOAuth2UserService;
 import com.finalproject.manitoone.service.UserAuthService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserAuthController {
 
   private final UserAuthService userAuthService;
+  private final CustomOAuth2UserService customOAuth2UserService;
 
   @PostMapping("/signup")
   public ResponseEntity<String> signUp(
@@ -59,4 +62,19 @@ public class UserAuthController {
     }
   }
 
+  @PostMapping("/oauth-login")
+  public ResponseEntity<Object> oauthLogin() {
+    try {
+      UserLoginResponseDto userInfo = customOAuth2UserService.getUserInfoFromSession();
+      return ResponseEntity.ok(userInfo);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(401).body(e.getMessage());
+    }
+  }
+
+  @DeleteMapping("/cancel-account")
+  public ResponseEntity<String> deleteUser(@RequestBody UserLoginRequestDto userLoginRequestDto) {
+    userAuthService.deleteUser(userLoginRequestDto.getEmail(), userLoginRequestDto.getPassword());
+    return ResponseEntity.ok("회원 탈퇴 처리되었습니다.");
+  }
 }

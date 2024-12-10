@@ -44,7 +44,7 @@ public class UserAuthService {
   }
 
   @Transactional
-  public UserLoginResponseDto localLogin(String email, String password) {
+  public User validateUserCredentials(String email, String password) {
     User user = userRepository.findByEmail(email)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.INVALID_EMAIL_OR_PASSWORD.getMessage()));
@@ -54,6 +54,24 @@ public class UserAuthService {
           IllegalActionMessages.INVALID_EMAIL_OR_PASSWORD.getMessage());
     }
 
+    if (user.getStatus() != 1) {
+      throw new IllegalArgumentException("로그인할 수 없는 상태입니다.");
+    }
+
+    return user;
+  }
+
+
+  @Transactional
+  public UserLoginResponseDto localLogin(String email, String password) {
+    User user = validateUserCredentials(email, password);
     return new UserLoginResponseDto(user);
   }
+
+  @Transactional
+  public void deleteUser(String email, String password) {
+    User user = validateUserCredentials(email, password);
+    user.setStatus(3);
+  }
+
 }

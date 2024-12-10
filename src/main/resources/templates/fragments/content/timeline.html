@@ -8,10 +8,10 @@
     />
     <p id="openPostFormModalBtn">함께 나누고픈 감정이 있나요?</p>
   </div>
-  <div th:replace="fragments/modals/new-post-modal :: new-post-modal"></div>
+  <div th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"></div>
 </section>
 <section class="timeline-section" th:fragment="timeline">
   <div class="timeline">
-    <div th:replace="fragments/content/post :: post"></div>
+    <div th:replace="~{fragments/content/post :: post}"></div>
   </div>
 </section>

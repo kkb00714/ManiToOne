@@ -6,6 +6,7 @@
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
   <link rel="stylesheet" th:href="@{/style/email-auth.css}"/>
+  <link rel="stylesheet" th:href="@{/style/loading.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -36,7 +37,10 @@
             aria-label="이메일 입력"
             required
         />
-        <button class="sign-up-complete-button" type="submit">메일 인증하기</button>
+        <button id="emailAuthButton" class="sign-up-complete-button">
+          <span class="button-text">메일 인증하기</span>
+          <span id="emailLoadingSpinner" class="loading-spinner" style="display: none;"></span>
+        </button>
       </div>
     </form>
   </div>
@@ -71,6 +75,7 @@
           <button type="submit" class="verify-auth-code-button">
             인증하기
           </button>
+          <span id="authCodeLoadingSpinner" class="loading-spinner" style="display: none;"></span>
         </form>
       </div>
     </div>
@@ -82,6 +87,11 @@
     event.preventDefault(); // 빈 값 제출 불가
 
     const emailInput = document.getElementById('email').value;
+    const emailAuthButton = document.getElementById('emailAuthButton');
+    const buttonText = emailAuthButton.querySelector('.button-text');
+    const loadingSpinner = emailAuthButton.querySelector('#emailLoadingSpinner');
+    buttonText.style.display = 'none'
+    loadingSpinner.style.display = 'inline-block';
 
     if (!emailInput) {
       alert('이메일을 입력해주세요.');

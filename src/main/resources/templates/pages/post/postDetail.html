@@ -1,38 +1,184 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="user-nickname" th:content="${userNickname}">
-  <link rel="stylesheet" th:href="@{/style/reset.css}" />
-  <link rel="stylesheet" th:href="@{/style/common.css}" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="user-nickname" th:content="${userNickname}" />
+    <link rel="stylesheet" th:href="@{/style/reset.css}" />
+    <link rel="stylesheet" th:href="@{/style/common.css}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
       href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
       rel="stylesheet"
-  />
-  <link
+    />
+    <link
       rel="icon"
       type="image/x-icon"
       th:href="@{/images/favicon/favicon.ico}"
-  />
-  <title>ManiToOne</title>
-</head>
-<body>
-<header th:replace="~{fragments/common/header :: header}"></header>
-<main class="main-container">
-  <section class="middle-section" id="middleSection">
-    <!--여기에 중앙 컨텐츠가 들어갑니다-->
-    <div th:replace="~{fragments/content/timeline :: timeline}"></div>
-    <div
-        th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"
-    ></div>
-  </section>
-  <article
-      th:replace="~{fragments/common/right-section :: right-section}"
-  ></article>
-</main>
-<script th:src="@{/script/common.js}"></script>
-</body>
+    />
+    <title>ManiToOne</title>
+  </head>
+  <body>
+    <header th:replace="~{fragments/common/header :: header}"></header>
+    <main class="main-container">
+      <section class="middle-section" id="middleSection">
+        <!--여기에 중앙 컨텐츠가 들어갑니다-->
+        <section class="timeline-section">
+          <div class="timeline">
+            <div class="post-container">
+              <img
+                class="user-photo"
+                th:src="@{/images/icons/UI-user2.png}"
+                alt="user icon"
+              />
+              <div class="post-content">
+                <div class="user-info">
+                  <span class="user-name" th:text="${post.user.nickname}"
+                    >beer_lover</span
+                  >
+                  <span
+                    class="passed-time"
+                    th:text="${post.updatedAt != null ? #strings.concat(#dates.format(post.updatedAt, 'mm'), '분') : #strings.concat(#dates.format(post.createdAt, 'mm'), '분')}"
+                    >3분</span
+                  >
+                </div>
+                <p class="content-text" th:text="${post.content}">
+                  오늘 일 완전 힘들었다... 스트레스 받아서 귀가하는 길에 지친
+                  심신을 달래줄 맥주 한 캔 샀음~ <br />
+                  아쉽지만 치킨은 없다ㅋㅋ 이번달 돈 아껴야 해~~
+                </p>
+                <img
+                  class="post-image"
+                  th:src="@{/images/image-beer.webp}"
+                  alt="beer image"
+                />
+                <p
+                  class="post-time"
+                  th:text="${post.updatedAt != null ? #dates.format(post.updatedAt, 'yyyy년 MM월 dd일 a hh시 mm분') : #dates.format(post.createdAt, 'yyyy년 MM월 dd일 a hh시 mm분')}"
+                >
+                  2024년 11월 27일 오후 11시 33분
+                </p>
+                <div class="reaction-icons">
+                  <img
+                    class="tiny-icons"
+                    th:src="@{/images/icons/icon-clover2.png}"
+                    alt="I like this"
+                  />
+                  <span class="like-count">22</span>
+                  <img
+                    class="tiny-icons"
+                    th:src="@{/images/icons/icon-comment2.png}"
+                    alt="add reply"
+                  />
+                  <span class="reply-count">3</span>
+                </div>
+              </div>
+              <div class="option-icons">
+                <img
+                  class="tiny-icons"
+                  th:src="@{/images/icons/UI-more2.png}"
+                  alt="more options"
+                />
+                <img
+                  class="tiny-icons"
+                  th:src="@{/images/icons/icon-add-friend.png}"
+                  alt="add friend"
+                />
+              </div>
+            </div>
+            <div class="reply-devider">
+              <p class="reply-devider-text">답글</p>
+            </div>
+            <div class="post-container">
+              <img
+                class="user-photo"
+                th:src="@{/images/icons/UI-user2.png}"
+                alt="user icon"
+              />
+              <div class="post-content">
+                <div class="user-info">
+                  <span class="user-name">ForeverUrFriend</span>
+                  <span class="passed-time">2분</span>
+                </div>
+                <p class="content-text">나 방금 치킨 시켰는데 오실?</p>
+                <div class="reaction-icons">
+                  <img
+                    class="tiny-icons"
+                    th:src="@{/images/icons/icon-clover2.png}"
+                    alt="I like this"
+                  />
+                  <span class="like-count">1</span>
+                  <img
+                    class="tiny-icons"
+                    th:src="@{/images/icons/icon-comment2.png}"
+                    alt="add reply"
+                  />
+                  <span class="reply-count">1</span>
+                </div>
+              </div>
+              <div class="option-icons">
+                <img
+                  class="tiny-icons"
+                  th:src="@{/images/icons/UI-more2.png}"
+                  alt="more options"
+                />
+                <img
+                  class="tiny-icons"
+                  th:src="@{/images/icons/icon-add-friend.png}"
+                  alt="add friend"
+                />
+              </div>
+            </div>
+            <div class="post-container">
+              <img
+                class="user-photo"
+                th:src="@{/images/icons/UI-user2.png}"
+                alt="user icon"
+              />
+              <div class="post-content">
+                <div class="user-info">
+                  <span class="user-name">letmegohome</span>
+                  <span class="passed-time">1분</span>
+                </div>
+                <p class="content-text">
+                  지금 11시 반인데 이제 퇴근했다고? zzㅋㅋㅋ
+                </p>
+                <div class="reaction-icons">
+                  <img
+                    class="tiny-icons"
+                    th:src="@{/images/icons/icon-clover2.png}"
+                    alt="I like this"
+                  />
+                  <span class="like-count">2</span>
+                  <img
+                    class="tiny-icons"
+                    th:src="@{/images/icons/icon-comment2.png}"
+                    alt="add reply"
+                  />
+                  <span class="reply-count">1</span>
+                </div>
+              </div>
+              <div class="option-icons">
+                <img
+                  class="tiny-icons"
+                  th:src="@{/images/icons/UI-more2.png}"
+                  alt="more options"
+                />
+                <img
+                  class="tiny-icons"
+                  th:src="@{/images/icons/icon-add-friend.png}"
+                  alt="add friend"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+      <article
+        th:replace="~{fragments/common/right-section :: right-section}"
+      ></article>
+    </main>
+    <script th:src="@{/script/common.js}"></script>
+  </body>
 </html>

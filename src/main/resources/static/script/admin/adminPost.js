@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
     searchButton.addEventListener("click", handleSearchClick);
     syncSearchFields();
 
-    tableBody.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="9">Loading...</td></tr>';
 
     fetch(`/admin/posts?page=${page - 1}`, {
       method: "POST",

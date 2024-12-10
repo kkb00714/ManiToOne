@@ -106,7 +106,6 @@ class BaseModal {
         input.value = '';
       });
 
-      // 토글 요소들 초기화
       const toggleElements = this.modal.querySelectorAll('[data-checked-src]');
       Array.from(toggleElements).forEach(element => {
         const img = element.querySelector('img');

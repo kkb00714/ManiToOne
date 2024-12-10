@@ -91,7 +91,7 @@ class ManitoLetterModal extends BaseModal {
   }
 }
 
-// 마니또 페이지 관련 기능을 관리하는 객체
+// 마니또 페이지 관련 기능을 관리
 const ManitoPage = {
   // 편지함 관련 상태와 메서드
   letterBox: {

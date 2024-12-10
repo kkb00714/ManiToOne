@@ -26,19 +26,13 @@ import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.util.AlanUtil;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -348,5 +342,24 @@ public class PostService {
           );
       return addAdditionalDataToDto(List.of(dto)).get(0);
     });
+  }
+
+  // 단순 postId로 PostViewResponseDto를 가져오는 메서드 (마니또에서 씁니다)
+  public PostViewResponseDto getPost(Long postId) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    PostViewResponseDto postResponse = new PostViewResponseDto(
+        post.getPostId(),
+        post.getUser().getProfileImage(),
+        post.getUser().getNickname(),
+        post.getContent(),
+        post.getCreatedAt(),
+        post.getUpdatedAt()
+    );
+
+    // addAdditionalDataToDto 메서드를 활용하여 추가 데이터(이미지, 좋아요 수, 답글) 설정
+    return addAdditionalDataToDto(List.of(postResponse)).get(0);
   }
 }

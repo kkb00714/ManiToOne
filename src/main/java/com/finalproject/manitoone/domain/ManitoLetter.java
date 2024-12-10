@@ -37,13 +37,13 @@ public class ManitoLetter {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @Column(name = "letter-content", nullable = false)
+  @Column(name = "letter_content", nullable = false)
   private String letterContent;
 
-  @Column(name = "music-url")
+  @Column(name = "music_url")
   private String musicUrl;
 
-  @Column(name = "music-comment")
+  @Column(name = "music_comment")
   private String musicComment;
 
   @Column(name = "is_report", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. 신고 안됨\\n1. 신고됨'")
@@ -58,8 +58,7 @@ public class ManitoLetter {
   private String answerLetter;
 
   @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
-  @Builder.Default
-  private LocalDateTime createdAt = LocalDateTime.now();
+  private LocalDateTime createdAt;
 
   @Column(name = "is_answer_report", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. 신고 안됨\\n1. 신고됨'")
   @Builder.Default

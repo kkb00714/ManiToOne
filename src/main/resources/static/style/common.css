@@ -416,6 +416,42 @@ h1 {
   flex-direction: column;
 }
 
+/* 타임라인 빈 상태 스타일 */
+.empty-timeline {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  padding: 2rem;
+}
+
+.empty-timeline-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 400px;
+}
+
+.empty-timeline-icon {
+  width: 4rem;
+  height: 4rem;
+  opacity: 70%;
+  margin-bottom: 1.5rem;
+}
+
+.empty-timeline-title {
+  color: #3f624c;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.empty-timeline-description {
+  color: #8f8f8f;
+  line-height: 1.5;
+}
+
 /* 일반 게시물 서식 설정 */
 .post-container {
   display: flex;

@@ -143,11 +143,20 @@ const Timeline = {
 
   showEmptyState() {
     this.container.innerHTML = `
-            <div class="empty-timeline">
-                <p>아직 표시할 게시물이 없습니다.</p>
-                <p>다른 사용자를 팔로우하고 게시물을 확인해보세요!</p>
-            </div>
-        `;
+      <div class="empty-timeline">
+        <div class="empty-timeline-content">
+          <img 
+            src="/images/icons/UI-clover2.png" 
+            alt="empty state icon" 
+            class="empty-timeline-icon"
+          />
+          <h2 class="empty-timeline-title">아직 표시할 게시물이 없습니다</h2>
+          <p class="empty-timeline-description">
+            다른 사용자를 팔로우하고 새로운 이야기를 발견해보세요!
+          </p>
+        </div>
+      </div>
+    `;
   },
 
   showError() {

@@ -22,19 +22,35 @@ document.addEventListener("DOMContentLoaded", function () {
     return `${date} ${time}`;
   }
 
-  // function syncSearchFields() {
-  //   const filterSelect = document.querySelector("#filterSelect");
-  //   const searchQuery = document.querySelector("#searchQuery");
-  //
-  //   const [key] = Object.keys(requestBody);
-  //   if (key) {
-  //     filterSelect.value = key;
-  //     searchQuery.value = requestBody[key];
-  //   } else {
-  //     const defaultFilter = filterSelect.options[0].value;
-  //     requestBody = {[defaultFilter]: ""};
-  //   }
-  // }
+  function syncSearchFields() {
+    const filterSelect = document.querySelector("#filterSelect");
+    const searchQuery = document.querySelector("#searchQuery");
+
+    const [key] = Object.keys(requestBody);
+    if (key) {
+      filterSelect.value = key;
+      searchQuery.value = requestBody[key];
+    } else {
+      const defaultFilter = filterSelect.options[0].value;
+      requestBody = {[defaultFilter]: ""};
+    }
+  }
+
+  const handleSearchClick = () => {
+    const filterSelect = document.querySelector("#filterSelect").value;
+    const searchQuery = document.querySelector(
+        "#searchQuery").value.trim();
+
+    if (!searchQuery) {
+      alert("검색어를 입력해 주세요.");
+      return;
+    }
+
+    if (filterSelect && searchQuery) {
+      requestBody = {[filterSelect]: searchQuery};
+      loadPage(1);
+    }
+  }
 
   loadPage(1);
 
@@ -181,18 +197,4 @@ document.addEventListener("DOMContentLoaded", function () {
       loadPage(1);
     });
   });
-
-  function syncSearchFields() {
-    const filterSelect = document.querySelector("#filterSelect");
-    const searchQuery = document.querySelector("#searchQuery");
-
-    const [key] = Object.keys(requestBody);
-    if (key) {
-      filterSelect.value = key;
-      searchQuery.value = requestBody[key];
-    } else {
-      const defaultFilter = filterSelect.options[0].value;
-      requestBody = {[defaultFilter]: ""};
-    }
-  }
 });

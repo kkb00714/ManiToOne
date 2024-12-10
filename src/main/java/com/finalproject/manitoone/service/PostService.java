@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.domain.AiPostLog;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
@@ -13,12 +14,14 @@ import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
 import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
+import com.finalproject.manitoone.repository.AiPostLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
+import com.finalproject.manitoone.util.AlanUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,14 +44,19 @@ public class PostService {
   private final ReplyPostRepository replyPostRepository;
   private final ManitoLetterRepository manitoLetterRepository;
   private final ReportRepository reportRepository;
+  private final AiPostLogRepository aiPostLogRepository;
 
   // 게시글 생성 (미완성)
+  @Async
   public PostResponseDto createPost(AddPostRequestDto request, User user) {
     Post post = postRepository.save(Post.builder()
         .content(request.getContent())
         .user(user)
         .isManito(request.getIsManito())
         .build());
+
+    AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
+    aiPostLogRepository.save(aiPost);
 
     return new PostResponseDto(post.getPostId(), post.getUser(), post.getContent(),
         post.getIsManito());

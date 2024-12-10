@@ -5,15 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchQuery = document.querySelector("#searchQuery");
 
   let requestBody = {}
-  let currentStatus = "";
-
-  function formatDatetime(input) {
-    if (!input) return "없음";
-
-    const [date, time] = input.split("T");
-    const [hours, minutes] = time.split(":");
-    return `${date} ${hours}:${minutes}`;
-  }
+  let currentPage = 1;
 
   function formatDatetimeSecond(input) {
     if (!input) return "없음";
@@ -55,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
   loadPage(1);
 
   function loadPage(page) {
+    currentPage = page;
     searchButton.removeEventListener("click", handleSearchClick);
     searchButton.addEventListener("click", handleSearchClick);
     syncSearchFields();
@@ -87,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${formatDatetimeSecond(post.createdAt)}</td>
           <td class="blind-status">${post.isBlind ? 'O' : 'X'}</td>
           <td><a href="#" class="change-status" data-id="${post.postId}">변경</a></td>
+          <td><a href="#" class="delete-post" data-id="${post.postId}">삭제</a></td>
         </tr>
                       `
       )
@@ -205,13 +199,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // 게시글 블라인드 처리
   document.addEventListener("click", function (event) {
     if (event.target.classList.contains("change-status")) {
       event.preventDefault();
 
-      const postId = event.target.dataset.id; // 클릭된 링크의 postId 가져오기
-      const currentRow = event.target.closest('tr'); // 현재 행(tr) 요소
-      const blindStatusCell = currentRow.querySelector('.blind-status'); // XO 상태 표시하는 셀
+      const postId = event.target.dataset.id;
+      const currentRow = event.target.closest('tr');
+      const blindStatusCell = currentRow.querySelector('.blind-status');
 
       fetch(`/admin/blind/post/${postId}`, {
         method: "PUT",
@@ -223,11 +218,40 @@ document.addEventListener("DOMContentLoaded", function () {
         return response.json();
       })
       .then((data) => {
-        blindStatusCell.textContent = data.isBlind ? 'O' : 'X'; // XO 상태 업데이트
+        blindStatusCell.textContent = data.isBlind ? 'O' : 'X';
       })
       .catch((error) => {
         console.error("Error:", error);
       });
+    }
+  });
+
+  // 게시글 삭제 처리
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("delete-post")) {
+      event.preventDefault();
+
+      const postId = event.target.dataset.id;
+
+      if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+        console.log(postId);
+        fetch(`/admin/post/${postId}`, {
+          method: "DELETE",
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to delete post");
+          }
+          return response.text();
+        })
+        .then((data) => {
+          loadPage(currentPage);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("게시글 삭제 중 오류가 발생했습니다.");
+        });
+      }
     }
   });
 });

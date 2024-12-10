@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
+import com.finalproject.manitoone.domain.dto.admin.ReportSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
@@ -63,5 +64,12 @@ public class AdminApiController {
   public ResponseEntity<Object> deletePost(@PathVariable Long postId) {
     adminService.deletePost(postId);
     return ResponseEntity.ok().build();
+  }
+
+  @PostMapping("/reports")
+  public ResponseEntity<Object> getReports (
+      @PageableDefault(size = 2, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
+      @RequestBody ReportSearchRequestDto reportSearchRequestDto) {
+    return ResponseEntity.ok(null);
   }
 }

@@ -416,6 +416,33 @@ h1 {
   flex-direction: column;
 }
 
+/* 타임라인 로더 스타일 */
+.timeline-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100px;
+  padding: 1.5rem;
+}
+
+.loader-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loader-text {
+  color: #8f8f8f;
+  font-size: 1.1rem;
+  animation: fadeInOut 1.5s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
 /* 타임라인 빈 상태 스타일 */
 .empty-timeline {
   display: flex;

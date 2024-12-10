@@ -131,7 +131,11 @@ const Timeline = {
     if (!document.querySelector('.timeline-loader')) {
       const loader = document.createElement('div');
       loader.className = 'timeline-loader';
-      loader.innerHTML = '로딩 중...';
+      loader.innerHTML = `
+        <div class="loader-content">
+          <span class="loader-text">로딩 중...</span>
+        </div>
+      `;
       this.container.appendChild(loader);
     }
   },

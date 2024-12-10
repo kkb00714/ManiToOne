@@ -1,3 +1,22 @@
-.admin-post-image {
+.admin-report-image {
   opacity: 100% !important;
+}
+
+.type {
+  font-size: 12px;
+}
+
+.type a {
+  color: #A5A5A5;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.type a.active {
+  color: black;
+  pointer-events: none;
+}
+
+.type a:hover {
+  text-decoration: underline; /* 마우스 오버 시 강조 */
 }

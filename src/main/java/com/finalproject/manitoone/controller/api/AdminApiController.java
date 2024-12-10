@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.controller.api;
 
+import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -43,5 +45,23 @@ public class AdminApiController {
   public ResponseEntity<Object> updateUserProfileImage(@PathVariable Long userId,
       @RequestPart(required = false) MultipartFile profileImageFile) {
     return ResponseEntity.ok(adminService.updateProfileImage(userId, profileImageFile));
+  }
+
+  @PostMapping("/posts")
+  public ResponseEntity<Object> getAllPosts(
+      @PageableDefault(size = 2, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
+      @RequestBody PostSearchRequestDto postSearchRequestDto) {
+    return ResponseEntity.ok(adminService.searchPosts(postSearchRequestDto, pageable));
+  }
+
+  @PutMapping("/blind/post/{postId}")
+  public ResponseEntity<Object> blindPost(@PathVariable Long postId) {
+    return ResponseEntity.ok(adminService.updateBlind(postId));
+  }
+
+  @DeleteMapping("/post/{postId}")
+  public ResponseEntity<Object> deletePost(@PathVariable Long postId) {
+    adminService.deletePost(postId);
+    return ResponseEntity.ok().build();
   }
 }

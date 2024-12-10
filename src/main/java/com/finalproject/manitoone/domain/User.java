@@ -6,12 +6,19 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @Entity
 @Table(name = "user")
@@ -19,7 +26,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User implements OAuth2User {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,6 +75,15 @@ public class User {
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
 
+  @Column(name = "login_id", nullable = true, columnDefinition = "oauth id")
+  private String loginId;
+
+  @Column(name = "provider", nullable = false, columnDefinition = "google, kakao, ..., ")
+  private String provider;
+
+  @Transient
+  private Map<String, Object> attributes;
+
   public void setPassword(String password) {
     this.password = password;
   }
@@ -76,4 +92,21 @@ public class User {
     this.status = status;
   }
 
+  public void setLoginId(String loginId) {
+    this.loginId = loginId;
+  }
+
+  public void setProvider(String provider) {
+    this.provider = provider;
+  }
+
+  @Override
+  public Map<String, Object> getAttributes() {
+    return attributes;
+  }
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+  }
 }

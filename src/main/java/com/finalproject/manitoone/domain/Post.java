@@ -60,4 +60,12 @@ public class Post {
   public void hidePost(Boolean isHidden) {
     this.isHidden = isHidden;
   }
+
+  public void updatePost(String content) {
+    this.content = content;
+  }
+
+  public void changeUpdatedDate(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
 }

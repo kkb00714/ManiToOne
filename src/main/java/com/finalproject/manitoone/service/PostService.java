@@ -1,16 +1,20 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.domain.AiPostLog;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.ReplyPost;
+import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
+import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
+import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
 import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
@@ -26,9 +30,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -47,6 +53,7 @@ public class PostService {
   private final AiPostLogRepository aiPostLogRepository;
 
   // 게시글 생성 (미완성)
+  // TODO: 이미지 업로드
   @Async
   public PostResponseDto createPost(AddPostRequestDto request, User user) {
     Post post = postRepository.save(Post.builder()
@@ -82,6 +89,62 @@ public class PostService {
 //        .post(post)
 //        .build());
 //  }
+
+  // 게시글 수정
+  // TODO: 이미지 수정 
+  public PostResponseDto updatePost(Long postId, UpdatePostRequestDto request, User user) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    if (!post.getUser().getUserId().equals(user.getUserId())) {
+      throw new IllegalArgumentException(IllegalActionMessages.DIFFERENT_USER.getMessage());
+    }
+
+    post.updatePost(request.getContent());
+    post.changeUpdatedDate(LocalDateTime.now());
+
+    Post updatedPost = postRepository.save(post);
+
+    return PostResponseDto.builder()
+        .postId(updatedPost.getPostId())
+        .user(updatedPost.getUser())
+        .content(updatedPost.getContent())
+        .isManito(updatedPost.getIsManito())
+        .build();
+  }
+
+  // 전체 게시글 조회
+  public Page<PostResponseDto> getPosts(Pageable pageable) {
+    Page<Post> posts = postRepository.findAll(pageable);
+
+    if (posts.isEmpty()) {
+      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_FIND_ANY_POST.getMessage());
+    }
+
+    return posts.map(post -> new PostResponseDto(
+        post.getPostId(),
+        post.getUser(),
+        post.getContent(),
+        post.getIsManito()
+    ));
+  }
+
+  // 게시글 상세 조회
+  // TODO: 이미지 조회
+  public PostResponseDto getPostDetail(Long postId) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return new PostResponseDto(
+        post.getPostId(),
+        post.getUser(),
+        post.getContent(),
+        post.getIsManito()
+    );
+  }
 
   // 게시글 삭제
   public void deletePost(Long postId) {
@@ -147,7 +210,7 @@ public class PostService {
     postRepository.save(post);
   }
 
-  // 게시글 좋아요 (미완성)
+  // 게시글 좋아요
   public void likePost(Long postId, User user) {
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
@@ -161,12 +224,27 @@ public class PostService {
   }
 
   // 게시글 신고
-//  public ReportResponseDto reportPost(Long postId, User user) {
-//    Post post = postRepository.findByPostId(postId)
-//        .orElseThrow(() -> new IllegalArgumentException(
-//            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
-//        ));
-//  }
+  public ReportResponseDto reportPost(Long postId, AddReportRequestDto request, User user) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    Report report = reportRepository.save(Report.builder()
+        .reportType(request.getReportType())
+        .userId(user.getUserId())
+        .type(ReportObjectType.POST)
+        .reportObjectId(post.getPostId())
+        .build());
+
+    return ReportResponseDto.builder()
+        .reportId(report.getReportId())
+        .userId(report.getUserId())
+        .reportObjectId(report.getReportObjectId())
+        .reportType(report.getReportType())
+        .type(report.getType())
+        .build();
+  }
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
     // TODO: 내 게시글인지는 어떻게 판별할까요?

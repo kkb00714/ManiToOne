@@ -4,6 +4,7 @@ import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.dto.UserLoginRequestDto;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
+import com.finalproject.manitoone.service.CustomOAuth2UserService;
 import com.finalproject.manitoone.service.UserAuthService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserAuthController {
 
   private final UserAuthService userAuthService;
+  private final CustomOAuth2UserService customOAuth2UserService;
 
   @PostMapping("/signup")
   public ResponseEntity<String> signUp(
@@ -57,6 +59,16 @@ public class UserAuthController {
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest()
           .body(new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
+    }
+  }
+
+  @PostMapping("/oauth-login")
+  public ResponseEntity<Object> oauthLogin() {
+    try {
+      UserLoginResponseDto userInfo = customOAuth2UserService.getUserInfoFromSession();
+      return ResponseEntity.ok(userInfo);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(401).body(e.getMessage());
     }
   }
 

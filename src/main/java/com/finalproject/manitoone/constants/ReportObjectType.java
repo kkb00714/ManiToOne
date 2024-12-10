@@ -1,8 +1,5 @@
 package com.finalproject.manitoone.constants;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,9 +12,4 @@ public enum ReportObjectType {
   MANITO("마니또");
 
   private final String type;
-
-  public static Map<String, String> toMap() {
-    return Arrays.stream(ReportObjectType.values())
-        .collect(Collectors.toMap(Enum::name, ReportObjectType::getType));
-  }
 }

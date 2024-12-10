@@ -1,8 +1,5 @@
 package com.finalproject.manitoone.constants;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -20,9 +17,4 @@ public enum ReportType {
   MISINFO("거짓 정보");
 
   private final String type;
-
-  public static Map<String, String> toMap() {
-    return Arrays.stream(ReportType.values())
-        .collect(Collectors.toMap(Enum::name, ReportType::getType));
-  }
 }

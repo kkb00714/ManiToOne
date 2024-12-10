@@ -12,5 +12,5 @@ public class ReportSearchRequestDto {
   private String content;
   private ReportObjectType type;
   private ReportType reportType;
-
+  private Long reportObjectId;
 }

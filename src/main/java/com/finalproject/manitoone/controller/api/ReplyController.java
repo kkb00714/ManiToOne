@@ -90,9 +90,10 @@ public class ReplyController {
   }
 
   // 답글의 답글 조회
-  @GetMapping("/rereplies/{postId}")
-  public ResponseEntity<List<ReplyResponseDto>> getReReplies(@PathVariable("postId") Long postId) {
-    List<ReplyResponseDto> rereplies = replyService.getReReplies(postId);
+  @GetMapping("/rereplies/{replyId}")
+  public ResponseEntity<Page<ReplyResponseDto>> getReReplies(@PathVariable("replyId") Long replyId,
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    Page<ReplyResponseDto> rereplies = replyService.getReReplies(replyId, pageable);
     return ResponseEntity.ok(rereplies);
   }
 }

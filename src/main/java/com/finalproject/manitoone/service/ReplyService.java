@@ -136,22 +136,20 @@ public class ReplyService {
   }
 
   // 답글의 답글 조회
-  public ReplyResponseDto getReReply(Long replyId) {
-  }
+  public Page<ReplyResponseDto> getReReplies(Long replyId, Pageable pageable) {
+    Page<ReplyPost> rereplies = replyPostRepository.findAllByReplyPostIdAndParentIdIsNotNull(
+            replyId, pageable)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
 
-//  public List<ReplyResponseDto> getReReplies(Long postId) {
-//    List<ReplyPost> rereplies = replyPostRepository.findAllByPostPostIdAndParentIdIsNotNull(postId)
-//        .orElseThrow(() -> new IllegalArgumentException(
-//            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
-//        ));
-//
-//    return rereplies.stream().map(rereply -> new ReplyResponseDto(
-//        rereply.getPost(),
-//        rereply.getUser(),
-//        rereply.getParentId(),
-//        rereply.getContent(),
-//        rereply.getCreatedAt(),
-//        rereply.getIsBlind()
-//    )).toList();
-//  }
+    return rereplies.map(rereply -> new ReplyResponseDto(
+        rereply.getPost(),
+        rereply.getUser(),
+        rereply.getParentId(),
+        rereply.getContent(),
+        rereply.getCreatedAt(),
+        rereply.getIsBlind()
+    ));
+  }
 }

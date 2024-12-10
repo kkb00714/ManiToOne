@@ -299,4 +299,11 @@ public class AdminService {
     post.updateBlind();
     return toPostSearchResponseDto(postRepository.save(post));
   }
+
+  public void deletePost(Long postId) {
+    Post post = postRepository.findByPostId(postId).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    postRepository.delete(post);
+  }
 }

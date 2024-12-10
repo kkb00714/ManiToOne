@@ -46,8 +46,8 @@ public class ReplyService {
   }
 
   // 답글의 답글 생성
-  public ReplyResponseDto createReReply(Long replyPostId, AddReplyRequestDto request, User user) {
-    ReplyPost parentReply = replyPostRepository.findByReplyPostId(replyPostId)
+  public ReplyResponseDto createReReply(Long replyId, AddReplyRequestDto request, User user) {
+    ReplyPost parentReply = replyPostRepository.findByReplyPostId(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));
@@ -56,7 +56,7 @@ public class ReplyService {
         .post(parentReply.getPost())
         .user(user)
         .content(request.getContent())
-        .parentId(parentReply.getParentId())
+        .parentId(parentReply.getReplyPostId())
         .build());
 
     return new ReplyResponseDto(childReply.getPost(), childReply.getUser(),
@@ -136,19 +136,22 @@ public class ReplyService {
   }
 
   // 답글의 답글 조회
-  public List<ReplyResponseDto> getReReplies(Long postId) {
-    List<ReplyPost> rereplies = replyPostRepository.findAllByPostPostIdAndParentIdIsNotNull(postId)
-        .orElseThrow(() -> new IllegalArgumentException(
-            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
-        ));
-
-    return rereplies.stream().map(rereply -> new ReplyResponseDto(
-        rereply.getPost(),
-        rereply.getUser(),
-        rereply.getParentId(),
-        rereply.getContent(),
-        rereply.getCreatedAt(),
-        rereply.getIsBlind()
-    )).toList();
+  public ReplyResponseDto getReReply(Long replyId) {
   }
+
+//  public List<ReplyResponseDto> getReReplies(Long postId) {
+//    List<ReplyPost> rereplies = replyPostRepository.findAllByPostPostIdAndParentIdIsNotNull(postId)
+//        .orElseThrow(() -> new IllegalArgumentException(
+//            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+//        ));
+//
+//    return rereplies.stream().map(rereply -> new ReplyResponseDto(
+//        rereply.getPost(),
+//        rereply.getUser(),
+//        rereply.getParentId(),
+//        rereply.getContent(),
+//        rereply.getCreatedAt(),
+//        rereply.getIsBlind()
+//    )).toList();
+//  }
 }

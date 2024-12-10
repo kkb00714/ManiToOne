@@ -43,13 +43,12 @@ public class ReplyController {
   }
 
   // 답글의 답글 생성
-  @PostMapping("/rereply/{replyPostId}")
-  public ResponseEntity<ReplyResponseDto> createReReply(
-      @PathVariable("replyPostId") Long replyPostId,
+  @PostMapping("/rereply/{replyId}")
+  public ResponseEntity<ReplyResponseDto> createReReply(@PathVariable("replyId") Long replyId,
       @RequestBody AddReplyRequestDto request,
       HttpSession session) {
     User user = (User) session.getAttribute("user");
-    ReplyResponseDto rereply = replyService.createReReply(replyPostId, request, user);
+    ReplyResponseDto rereply = replyService.createReReply(replyId, request, user);
     return ResponseEntity.status(HttpStatus.CREATED).body(rereply);
   }
 

@@ -17,7 +17,6 @@ public class WebTestController {
   @GetMapping("/fragments/content/{page}")
   public String getContentFragment(@PathVariable String page) {
     return switch (page) {
-      case "timeline" -> "fragments/content/timeline :: timeline";
       case "notification" -> "fragments/content/notification :: notification";
       case "manito" -> "fragments/content/manito :: manito";
       case "mypage" -> "fragments/content/mypage :: mypage";

@@ -16,7 +16,7 @@ public enum ManitoErrorMessages {
   NOT_MANITO_POST("마니또 게시물이 아닙니다."),
   NOT_SELECTED_POST("유저가 마니또 게시물로 지정하지 않은 게시물입니다."),
   OWN_POST_LETTER("자신의 게시물에는 마니또 편지를 작성할 수 없습니다."),
-  ALREADY_REPLIED("이미 편지를 작성하였습니다."),
+  ALREADY_REPLIED("이미 편지를 작성하셨습니다."),
   ALREADY_ANSWERED("이미 편지에 대한 답장을 작성하셨습니다."),
   ALREADY_REPORTED("이미 신고된 편지입니다."),
   ALREADY_REPORTED_ANSWER("이미 신고된 답장입니다."),

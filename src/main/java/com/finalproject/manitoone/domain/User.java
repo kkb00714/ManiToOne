@@ -78,8 +78,9 @@ public class User implements OAuth2User {
   @Column(name = "login_id", nullable = true, columnDefinition = "oauth id")
   private String loginId;
 
-  @Column(name = "provider", nullable = false, columnDefinition = "google, kakao, ..., ")
-  private String provider;
+  @Column(name = "provider", nullable = false, columnDefinition = "google, local, ..., ")
+  @Builder.Default
+  private String provider = "Local";
 
   @Transient
   private Map<String, Object> attributes;

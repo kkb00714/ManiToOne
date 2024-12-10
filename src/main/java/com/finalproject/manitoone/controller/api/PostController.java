@@ -7,6 +7,7 @@ import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.service.PostService;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
@@ -32,10 +33,11 @@ public class PostController {
 
   // 게시글 생성 (미완성)
   @PostMapping
-  public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
+  public CompletableFuture<ResponseEntity<PostResponseDto>> createPost(@RequestBody AddPostRequestDto request,
       @AuthenticationPrincipal User user) {
     PostResponseDto post = postService.createPost(request, user);
-    return ResponseEntity.status(HttpStatus.CREATED).body(post);
+    return CompletableFuture.supplyAsync(
+        () -> ResponseEntity.status(HttpStatus.CREATED).body(post));
   }
 
   // 게시글 삭제

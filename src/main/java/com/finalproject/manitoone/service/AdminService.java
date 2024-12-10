@@ -229,6 +229,31 @@ public class AdminService {
 
     BooleanBuilder builder = new BooleanBuilder();
 
+    // nickname 조건 (User 기반 검색)
+    if (postSearchRequestDto.getNickname() != null && !postSearchRequestDto.getNickname().isEmpty()) {
+      builder.and(post.user.nickname.containsIgnoreCase(postSearchRequestDto.getNickname()));
+    }
+
+    // name 조건 (User 기반 검색)
+    if (postSearchRequestDto.getName() != null && !postSearchRequestDto.getName().isEmpty()) {
+      builder.and(post.user.name.containsIgnoreCase(postSearchRequestDto.getName()));
+    }
+
+    // email 조건 (User 기반 검색)
+    if (postSearchRequestDto.getEmail() != null && !postSearchRequestDto.getEmail().isEmpty()) {
+      builder.and(post.user.email.containsIgnoreCase(postSearchRequestDto.getEmail()));
+    }
+
+    // content 조건 (Post 기반 검색)
+    if (postSearchRequestDto.getContent() != null && !postSearchRequestDto.getContent().isEmpty()) {
+      builder.and(post.content.containsIgnoreCase(postSearchRequestDto.getContent()));
+    }
+
+    // isBlind 조건 (Post 기반 검색)
+    if (postSearchRequestDto.getIsBlind() != null) {
+      builder.and(post.isBlind.eq(postSearchRequestDto.getIsBlind()));
+    }
+
     // QueryDSL로 페이징 처리
     List<Post> posts = queryFactory
         .selectFrom(post)

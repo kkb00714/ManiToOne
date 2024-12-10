@@ -25,4 +25,9 @@ public class AdminViewController {
         .toList());
     return "pages/admin/adminUser";
   }
+
+  @GetMapping("/posts")
+  public String adminPosts() {
+    return "pages/admin/adminPost";
+  }
 }

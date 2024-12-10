@@ -205,31 +205,29 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  document.querySelectorAll('.change-status').forEach(link => {
-    link.addEventListener('click', async function (event) {
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("change-status")) {
       event.preventDefault();
 
-      const postId = this.dataset.id; // 클릭된 링크의 postId 가져오기
-      const currentRow = this.closest('tr'); // 현재 행(tr) 요소
+      const postId = event.target.dataset.id; // 클릭된 링크의 postId 가져오기
+      const currentRow = event.target.closest('tr'); // 현재 행(tr) 요소
       const blindStatusCell = currentRow.querySelector('.blind-status'); // XO 상태 표시하는 셀
 
-      try {
-        // 서버로 블라인드 상태 변경 요청
-        const response = await fetch(`/admin/blind/post/${postId}`, {
-          method: 'PUT',
-        });
-
+      fetch(`/admin/blind/post/${postId}`, {
+        method: "PUT",
+      })
+      .then((response) => {
         if (!response.ok) {
-          throw new Error('블라인드 상태 변경에 실패했습니다.');
+          throw new Error("Failed to fetch data");
         }
-
-        // 서버에서 변경된 상태를 받아 업데이트
-        const updatedPost = await response.json();
-        blindStatusCell.textContent = updatedPost.isBlind ? 'O' : 'X'; // XO 상태 업데이트
-      } catch (error) {
-        console.error(error.message);
-        alert('블라인드 상태 변경 중 오류가 발생했습니다.');
-      }
-    });
+        return response.json();
+      })
+      .then((data) => {
+        blindStatusCell.textContent = data.isBlind ? 'O' : 'X'; // XO 상태 업데이트
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    }
   });
 });

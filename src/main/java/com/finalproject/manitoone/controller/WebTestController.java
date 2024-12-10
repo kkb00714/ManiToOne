@@ -8,11 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class WebTestController {
 
-  @GetMapping("/")
-  public String indexPage() {
-    return "index";
-  }
-
   //헤더 네비게이션 메뉴 매핑
   @GetMapping("/fragments/content/{page}")
   public String getContentFragment(@PathVariable String page) {

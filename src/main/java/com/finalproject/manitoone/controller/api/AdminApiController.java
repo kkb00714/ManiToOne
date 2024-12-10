@@ -70,6 +70,6 @@ public class AdminApiController {
   public ResponseEntity<Object> getReports (
       @PageableDefault(size = 2, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
       @RequestBody ReportSearchRequestDto reportSearchRequestDto) {
-    return ResponseEntity.ok(null);
+    return ResponseEntity.ok(adminService.searchReports(reportSearchRequestDto, pageable));
   }
 }

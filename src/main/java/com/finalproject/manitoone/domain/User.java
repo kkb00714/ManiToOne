@@ -100,7 +100,8 @@ public class User implements OAuth2User {
 
   public void updateProfileImage(String profileImage) {
     this.profileImage = profileImage;
-    
+  }
+  
   public void setStatus(Integer status) {
     this.status = status;
   }

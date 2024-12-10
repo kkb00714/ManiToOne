@@ -18,13 +18,19 @@
 }
 
 .blind-status a:hover {
-  text-decoration: underline; /* 마우스 오버 시 강조 */
+  text-decoration: underline;
 }
 
 .change-status {
+  position: relative;
   z-index: 2;
 }
 
+.change-status:hover {
+  text-decoration: underline;
+}
+
 .post-table-body tr {
+  position: relative;
   z-index: 1;
 }

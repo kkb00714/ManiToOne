@@ -2,22 +2,31 @@ package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.Post;
+import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.QPost;
 import com.finalproject.manitoone.domain.QUser;
+import com.finalproject.manitoone.domain.ReplyPost;
 import com.finalproject.manitoone.domain.User;
+import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.PostSearchResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchResponseDto;
+import com.finalproject.manitoone.repository.AiPostLogRepository;
+import com.finalproject.manitoone.repository.ManitoLetterRepository;
+import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
+import com.finalproject.manitoone.repository.ReplyPostRepository;
+import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.FileUtil;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +47,11 @@ public class AdminService {
 
   private final UserRepository userRepository;
   private final PostRepository postRepository;
+  private final PostImageRepository postImageRepository;
+  private final AiPostLogRepository aiPostLogRepository;
+  private final UserPostLikeRepository userPostLikeRepository;
+  private final ReplyPostRepository replyPostRepository;
+  private final ManitoLetterRepository manitoLetterRepository;
 
   private final FileUtil fileUtil;
 
@@ -303,6 +317,35 @@ public class AdminService {
   public void deletePost(Long postId) {
     Post post = postRepository.findByPostId(postId).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    // 게시글 이미지 삭제
+    List<PostImage> postImages = postImageRepository.findAllByPostPostId(postId).orElse(new ArrayList<>());
+    if (!postImages.isEmpty()) {
+      // 이미지 실제 삭제
+      for (PostImage postImage : postImages) {
+        fileUtil.cleanUp(Paths.get(postImage.getFileName()));
+      }
+      postImageRepository.deleteAll(postImages);
+    }
+
+    // 게시글 댓글 삭제
+    List<ReplyPost> replyPosts = replyPostRepository.findAllByPostPostId(postId).orElse(new ArrayList<>());
+    if (!replyPosts.isEmpty()) {
+      replyPostRepository.deleteAll(replyPosts);
+    }
+
+    // 게시글 AI 피드백 삭제
+    aiPostLogRepository.findByPostPostId(postId).ifPresent(aiPostLogRepository::delete);
+
+    // 좋아요 삭제
+    List<UserPostLike> userPostLikes = userPostLikeRepository.findAllByPostPostId(postId).orElse(new ArrayList<>());
+    if (!userPostLikes.isEmpty()) {
+      userPostLikeRepository.deleteAll(userPostLikes);
+    }
+
+    // 마니또 연결 삭제
+    // fixme : 컬럼이 많이 바뀌어서 추후에 주석 해제
+//    manitoLetterRepository.findByPostId(post).ifPresent(manitoLetterRepository::delete);
 
     postRepository.delete(post);
   }

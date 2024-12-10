@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -56,5 +57,10 @@ public class AdminApiController {
   @PutMapping("/blind/post/{postId}")
   public ResponseEntity<Object> blindPost(@PathVariable Long postId) {
     return ResponseEntity.ok(adminService.updateBlind(postId));
+  }
+
+  @DeleteMapping("/post/{postId}")
+  public ResponseEntity<Object> deletePost(@PathVariable Long postId) {
+    return null;
   }
 }

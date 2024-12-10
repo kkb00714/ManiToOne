@@ -364,6 +364,19 @@ h1 {
   padding: 0.5rem;
 }
 
+#new-post-content {
+  all : unset;
+  font-weight: normal;
+  width: 100%;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  resize: none;
+  min-height: 4rem;
+}
+
+
 .new-post-text-container {
   display: flex;
   flex-direction: column;

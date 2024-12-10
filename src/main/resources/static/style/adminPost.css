@@ -20,3 +20,11 @@
 .blind-status a:hover {
   text-decoration: underline; /* 마우스 오버 시 강조 */
 }
+
+.change-status {
+  z-index: 2;
+}
+
+.post-table-body tr {
+  z-index: 1;
+}

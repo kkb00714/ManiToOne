@@ -102,7 +102,7 @@
     if (savedEmail) {
       const emailInput = document.getElementById('user-email');
       emailInput.value = savedEmail;
-      emailInput.setAttribute('readonly', true); // 수정 불가능하게 설정
+      emailInput.setAttribute('readonly', true);
       localStorage.removeItem('verifiedEmail');
     }
   });

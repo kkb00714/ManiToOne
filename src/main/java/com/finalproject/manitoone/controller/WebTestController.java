@@ -23,9 +23,4 @@ public class WebTestController {
       default -> "fragments/content/timeline :: timeline";
     };
   }
-
-  @GetMapping("/sign-in")
-  public String getSignInPage() {
-    return "/pages/auth/sign-in";
-  }
 }

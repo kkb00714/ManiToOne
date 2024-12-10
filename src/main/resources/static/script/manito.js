@@ -113,7 +113,6 @@ const ManitoPage = {
 
       this.setupEventListeners();
       await this.loadInitialLetters();
-      this.setupStyles();
     },
 
     setupEventListeners() {
@@ -271,81 +270,6 @@ const ManitoPage = {
         return '';
       }
     },
-
-    setupStyles() {
-      if (!document.getElementById('manito-letter-box-styles')) {
-        const style = document.createElement('style');
-        style.id = 'manito-letter-box-styles';
-        style.textContent = `
-          .manito-letter-box-switch {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid rgba(171, 171, 171, 0.25);
-          }
-          
-          .manito-letter-box-switch::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            height: 3px;
-            width: 50%;
-            background-color: #3f624c;
-            transition: transform 0.3s ease;
-          }
-
-          .manito-letter-box-switch.received-active::after {
-            transform: translateX(0);
-            left: 0;
-          }
-          
-          .manito-letter-box-switch.sent-active::after {
-            transform: translateX(100%);
-            left: 0;
-          }
-          
-          .received-letter-box,
-          .sent-letter-box {
-            flex: 1;
-            text-align: center;
-            padding: 1rem 0;
-            cursor: pointer;
-            transition: color 0.3s ease;
-          }
-          
-          .received-letter-box.active,
-          .sent-letter-box.active {
-            color: #3f624c;
-            font-weight: bold;
-          }
-          
-          .empty-letter-message {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 200px;
-            text-align: center;
-            color: #8f8f8f;
-            background-color: #f3f3f3;
-            border-radius: 0 0 20px 20px;
-            font-size: 0.95rem;
-          }
-
-          .empty-letter-message p {
-            margin: 0;
-            padding: 2rem;
-          }
-          
-          .letter-loader {
-            text-align: center;
-            padding: 1rem;
-            color: #3f624c;
-          }
-        `;
-        document.head.appendChild(style);
-      }
-    }
   },
 
   // 모달 관련 기능

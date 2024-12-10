@@ -52,4 +52,9 @@ public class AdminApiController {
       @RequestBody PostSearchRequestDto postSearchRequestDto) {
     return ResponseEntity.ok(adminService.searchPosts(postSearchRequestDto, pageable));
   }
+
+  @PutMapping("/blind/post/{postId}")
+  public ResponseEntity<Object> blindPost(@PathVariable Long postId) {
+    return ResponseEntity.ok().build();
+  }
 }

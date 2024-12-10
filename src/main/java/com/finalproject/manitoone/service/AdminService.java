@@ -1,8 +1,12 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.domain.Post;
+import com.finalproject.manitoone.domain.QPost;
 import com.finalproject.manitoone.domain.QUser;
 import com.finalproject.manitoone.domain.User;
+import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
+import com.finalproject.manitoone.domain.dto.admin.PostSearchResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
@@ -217,5 +221,46 @@ public class AdminService {
       user.updateProfileImage(finalFilePath);
     }
     return toUserProfileResponseDto(userRepository.save(user));
+  }
+
+  public Page<PostSearchResponseDto> searchPosts(PostSearchRequestDto postSearchRequestDto,
+      Pageable pageable) {
+    QPost post = QPost.post;
+
+    BooleanBuilder builder = new BooleanBuilder();
+
+    // QueryDSL로 페이징 처리
+    List<Post> posts = queryFactory
+        .selectFrom(post)
+        .where(builder)
+        .offset(pageable.getOffset())
+        .limit(pageable.getPageSize())
+        .orderBy(post.postId.asc())
+        .fetch();
+
+    long total = queryFactory
+        .selectFrom(post)
+        .where(builder)
+        .fetchCount();
+
+    List<PostSearchResponseDto> dtoList = posts.stream()
+        .map(this::toPostSearchResponseDto)
+        .toList();
+
+    return new PageImpl<>(dtoList, pageable, total);
+  }
+
+  private PostSearchResponseDto toPostSearchResponseDto(Post post) {
+    return PostSearchResponseDto.builder()
+        .postId(post.getPostId())
+        .user(toUserSearchResponseDto(post.getUser()))
+        .content(post.getContent())
+        .createdAt(post.getCreatedAt())
+        .updatedAt(post.getUpdatedAt())
+        .isManito(post.getIsManito())
+        .isSelected(post.getIsSelected())
+        .isHidden(post.getIsHidden())
+        .isBlind(post.getIsBlind())
+        .build();
   }
 }

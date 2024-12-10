@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class PostSearchResponseDto {
 
   private Long postId;
-  private UserSearchRequestDto user;
+  private UserSearchResponseDto user;
   private String content;
   private LocalDateTime createdAt = LocalDateTime.now();
   private LocalDateTime updatedAt;

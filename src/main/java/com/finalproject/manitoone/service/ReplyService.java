@@ -46,8 +46,8 @@ public class ReplyService {
   }
 
   // 답글의 답글 생성
-  public ReplyResponseDto createReReply(Long replyId, AddReplyRequestDto request, User user) {
-    ReplyPost parentReply = replyPostRepository.findByReplyPostId(replyId)
+  public ReplyResponseDto createReReply(Long replyPostId, AddReplyRequestDto request, User user) {
+    ReplyPost parentReply = replyPostRepository.findByReplyPostId(replyPostId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));

@@ -1,8 +1,7 @@
 package com.finalproject.manitoone.domain.dto.admin;
 
-import com.finalproject.manitoone.constants.ReportObjectType;
-import com.finalproject.manitoone.constants.ReportType;
 import java.time.LocalDateTime;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,14 +14,14 @@ import lombok.NoArgsConstructor;
 public class ReportSearchResponseDto {
 
   private Long reportId;
-  private ReportObjectType type;
+  private Map<String, String> type;
+  private Map<String, String> reportType;
   private String content;
-  private ReportType reportType;
   private UserSearchResponseDto reportedByUser;
   private Long reportObjectId;
   private LocalDateTime createdAt;
 
   // 신고 당한 유저는 해당 Dto에서 찾기
   private PostSearchResponseDto post;
-  private ReplySearchResponseDto replyPost;
+  private ReplyPostSearchResponseDto replyPost;
 }

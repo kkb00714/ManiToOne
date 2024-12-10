@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReplySearchResponseDto {
+public class ReplyPostSearchResponseDto {
 
   private Long replyPostId;
   private PostSearchResponseDto post;

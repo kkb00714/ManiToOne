@@ -14,7 +14,7 @@ public class FileUtil {
     try {
       Files.delete(path);
     } catch (IOException e) {
-      throw new IllegalArgumentException("기존 프로필 이미지를 삭제할 수 없습니다: " + e);
+      throw new IllegalArgumentException("이미지를 삭제할 수 없습니다: " + e);
     }
   }
 
@@ -22,7 +22,7 @@ public class FileUtil {
     try {
       Files.createDirectories(path);
     } catch (IOException e) {
-      throw new IllegalArgumentException("프로필 이미지를 저장할 디렉토리를 생성할 수 없습니다: " + e);
+      throw new IllegalArgumentException("저장할 디렉토리를 생성할 수 없습니다: " + e);
     }
   }
 
@@ -31,7 +31,7 @@ public class FileUtil {
       Files.copy(file.getInputStream(), path,
           StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
-      throw new IllegalArgumentException("프로필 이미지를 저장하는 중 오류가 발생했습니다.", e);
+      throw new IllegalArgumentException("저장하는 중 오류가 발생했습니다.", e);
     }
   }
 }

@@ -14,13 +14,13 @@ public class UserInformationResponseDto {
   private String nickname;
   private String introduce;
   private String profileImage;
-  private List<UserInformationResponseDto> followers;
   private List<UserInformationResponseDto> followings;
+  private List<UserInformationResponseDto> followers;
 
-  public void setFollow(List<UserInformationResponseDto> followers,
-      List<UserInformationResponseDto> followings) {
-    this.followers = followers;
+  public void setFollow(List<UserInformationResponseDto> followings,
+      List<UserInformationResponseDto> followers) {
     this.followings = followings;
+    this.followers = followers;
   }
 
   public UserInformationResponseDto(String name, String nickname, String introduce,

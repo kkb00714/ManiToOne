@@ -326,6 +326,14 @@ public class AdminService {
     return toPostSearchResponseDto(postRepository.save(post));
   }
 
+  public ReplyPostSearchResponseDto updateBlindReply(Long replyPostId) {
+    ReplyPost replyPost = replyPostRepository.findByReplyPostId(replyPostId).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_REPLY_WITH_GIVEN_ID.getMessage()));
+
+    replyPost.updateBlind();
+    return toReplySearchResponseDto(replyPostRepository.save(replyPost));
+  }
+
   public void deletePost(Long postId) {
     Post post = postRepository.findByPostId(postId).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
@@ -361,6 +369,12 @@ public class AdminService {
     // 마니또 연결 삭제
     // fixme : 컬럼이 많이 바뀌어서 추후에 주석 해제
 //    manitoLetterRepository.findByPostId(post).ifPresent(manitoLetterRepository::delete);
+
+    // 게시글 신고 목록 삭제
+    List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(ReportObjectType.POST, postId).orElse(new ArrayList<>());
+    if (!reports.isEmpty()) {
+      reportRepository.deleteAll(reports);
+    }
 
     postRepository.delete(post);
   }
@@ -460,14 +474,6 @@ public class AdminService {
       }
     }
 
-    String sql = queryFactory
-        .selectFrom(report)
-        .where(builder)
-        .offset(pageable.getOffset())
-        .limit(pageable.getPageSize())
-        .orderBy(report.createdAt.desc())
-        .toString();
-
     List<Report> reports = null;
 
     reports = queryFactory
@@ -521,7 +527,6 @@ public class AdminService {
   }
 
   private ReplyPostSearchResponseDto toReplySearchResponseDto(ReplyPost replyPost) {
-    User user = replyPost.getUser();
     return ReplyPostSearchResponseDto.builder()
         .replyPostId(replyPost.getReplyPostId())
         .post(toPostSearchResponseDto(replyPost.getPost()))

@@ -61,6 +61,11 @@ public class AdminApiController {
     return ResponseEntity.ok(adminService.updateBlind(postId));
   }
 
+  @PutMapping("/blind/reply/{replyPostId}")
+  public ResponseEntity<Object> blindReply(@PathVariable Long replyPostId) {
+    return ResponseEntity.ok(adminService.updateBlindReply(replyPostId));
+  }
+
   @DeleteMapping("/post/{postId}")
   public ResponseEntity<Object> deletePost(@PathVariable Long postId) {
     adminService.deletePost(postId);

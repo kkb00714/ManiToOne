@@ -107,6 +107,13 @@ public class PostController {
     return ResponseEntity.ok().build();
   }
 
+  // 게시글 좋아요 개수 조회
+  @GetMapping("/like/number/{postId}")
+  public ResponseEntity<Integer> getPostLikesNum(@PathVariable("postId") Long postId) {
+    Integer num = postService.getPostLikesNum(postId);
+    return ResponseEntity.ok(num);
+  }
+
   // 게시글 신고
   @PutMapping("/report/{postId}")
   public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId,

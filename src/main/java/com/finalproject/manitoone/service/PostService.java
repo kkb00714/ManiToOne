@@ -252,6 +252,16 @@ public class PostService {
         .build();
   }
 
+  // 게시글 좋아요 개수 조회
+  public Integer getPostLikesNum(Long postId) {
+    List<UserPostLike> likeList = userPostLikeRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return likeList.size();
+  }
+
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
     // TODO: 내 게시글인지는 어떻게 판별할까요?
     // → 세션 기반 로그인 완성 시 세션에서 받아올 예정

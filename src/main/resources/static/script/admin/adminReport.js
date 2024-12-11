@@ -70,10 +70,17 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.json();
     })
     .then((data) => {
-      tableBody.innerHTML = data.content
-      .map((report) => {
-        if (!report.post && !report.replyPost) {
-          return `
+      if (!data.content || data.content.length === 0) {
+        tableBody.innerHTML = `
+    <tr>
+      <td colspan="11" class="text-center">데이터가 없습니다</td>
+    </tr>
+  `;
+      } else {
+        tableBody.innerHTML = data.content
+        .map((report) => {
+          if (!report.post && !report.replyPost) {
+            return `
                 <tr data-user='${JSON.stringify(report)}'>
                     <td>${report.reportId}</td>
                     <td colspan="9" class="text-center">
@@ -82,42 +89,42 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td><a href="#" class="delete-report" data-id="${report.reportId}">삭제</a></td>
                 </tr>
             `;
-        } else {
-          // 기존 처리
-          return `
+          } else {
+            return `
                 <tr data-user='${JSON.stringify(report)}'>
                     <td>${report.reportId}</td>
                     <td data-value="${report.type.data}">${report.type.label}</td> 
                     <td data-value="${report.reportType.data}">${report.reportType.label
-          > 5 ? report.reportType.label.substring(0, 5) + '...'
-              : report.reportType.label}</td>
+            > 5 ? report.reportType.label.substring(0, 5) + '...'
+                : report.reportType.label}</td>
                     <td>${report.content.length > 6 ? report.content.substring(
-              0, 6) + '...' : report.content}</td>
+                0, 6) + '...' : report.content}</td>
                     <td>${report.reportedByUser.nickname}</td> 
                     <td>
                         ${report.post ? report.post.user.nickname : ''}
                         ${report.replyPost ? report.replyPost.user.nickname
-              : ''}
+                : ''}
                     </td>
                     <td>${formatDatetimeSecond(report.createdAt)}</td>
                     <td class="blind-status">
                         ${report.post ? (report.post.isBlind ? 'O' : 'X') : ''}
                         ${report.replyPost ? (report.replyPost.isBlind ? 'O'
-              : 'X') : ''}
+                : 'X') : ''}
                     </td>
                     <td><a href="#" class="change-status" data-id="${report.post
-              ? report.post.postId : report.replyPost.replyPostId}"
+                ? report.post.postId : report.replyPost.replyPostId}"
                     data-value="${report.type.data}">변경</a></td>
                     <td><a href="#" class="delete-post" data-id="${report.post
-              ? report.post.postId : report.replyPost.replyPostId}"
+                ? report.post.postId : report.replyPost.replyPostId}"
                     data-value="${report.type.data}">삭제</a></td>
                     <td><a href="#" class="delete-report" data-id="${report.reportId}">삭제</a></td>
                 </tr>
             `;
-        }
-      })
-      .join("");
-      renderPagination(page, data.totalPages);
+          }
+        })
+        .join("");
+        renderPagination(page, data.totalPages);
+      }
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -215,7 +222,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const postOrReplyId = event.target.dataset.id;
       const postOrReply = event.target.dataset.value;
 
-        console.log(postOrReply);
       if (confirm("정말로 이 게시글/댓글을 삭제하시겠습니까?")) {
         if (postOrReply === "POST") {
           fetch(`/admin/report/post/${postOrReplyId}`, {
@@ -280,13 +286,14 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.text();
     })
     .then(() => {
-      loadPage(currentPage); // 현재 페이지 새로 로드
+      loadPage(currentPage);
     })
     .catch((error) => {
       console.error("Error:", error);
       alert("게시글 삭제 중 오류가 발생했습니다.");
     });
   }
+
   function deleteReply(replyId) {
     fetch(`/admin/reply/${replyId}`, {
       method: "DELETE",
@@ -298,7 +305,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.text();
     })
     .then(() => {
-      loadPage(currentPage); // 현재 페이지 새로 로드
+      loadPage(currentPage);
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -306,7 +313,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // 게시글 블라인드 처리
+  // 게시글/댓글 블라인드 처리
   document.addEventListener("click", function (event) {
     if (event.target.classList.contains("change-status")) {
       event.preventDefault();
@@ -351,4 +358,67 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   });
-});
+
+  // 신고 목록 삭제
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("delete-report")) {
+      if (confirm("정말로 신고를 삭제하시겠습니까? (관련된 신고목록 전부 삭제)")) {
+        event.preventDefault();
+
+        const reportId = event.target.dataset.id;
+
+        fetch(`/admin/report/${reportId}`, {
+          method: "DELETE",
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to delete post");
+          }
+          return response.text();
+        })
+        .then((data) => {
+          loadPage(currentPage);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      }
+    }
+  });
+
+  // 전체 게시글 답글 필터
+  let typeLinkItems = document.querySelectorAll('.type-filter');
+
+  typeLinkItems.forEach((link) => {
+    link.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      document.querySelectorAll(".type-filter").forEach(
+          (link) => link.classList.remove("active"));
+      this.classList.add("active");
+      const currentStatus = this.dataset.status;
+      if (currentStatus !== "") {
+        requestBody.type = this.dataset.status;
+      } else {
+        requestBody.type = null;
+      }
+      loadPage(1);
+    });
+  });
+
+  // 신고 사유 필터
+  const reportTypeSelect = document.querySelector("#reportTypeSelect");
+
+  reportTypeSelect.addEventListener("change", function () {
+    const selectedValue = this.value;
+
+    if (selectedValue === "") {
+      requestBody.reportType = null;
+    } else {
+      requestBody.reportType = selectedValue;
+    }
+
+    loadPage(1);
+  });
+})
+;

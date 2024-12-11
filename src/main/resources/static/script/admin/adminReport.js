@@ -322,40 +322,40 @@ document.addEventListener("DOMContentLoaded", function () {
       const currentRow = event.target.closest('tr');
       const blindStatusCell = currentRow.querySelector('.blind-status');
       const postOrReply = event.target.dataset.value;
-
+      let url = "";
       if (postOrReply === "POST") {
-        fetch(`/admin/blind/post/${postOrReplyId}`, {
-          method: "PUT",
-        })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to fetch data");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          blindStatusCell.textContent = data.isBlind ? 'O' : 'X';
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+        url = `/admin/blind/post/${postOrReplyId}`;
       } else {
-        fetch(`/admin/blind/reply/${postOrReplyId}`, {
-          method: "PUT",
-        })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to fetch data");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          blindStatusCell.textContent = data.isBlind ? 'O' : 'X';
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+        url = `/admin/blind/reply/${postOrReplyId}`;
       }
+      fetch(url, {
+        method: "PUT",
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        blindStatusCell.textContent = data.isBlind ? 'O' : 'X';
+
+        // 동일한 게시글 신고 항목 블라인드 상태 업데이트
+        document.querySelectorAll("tr").forEach((row) => {
+          const rowType = row.querySelector("[data-value]")?.dataset.value;
+          const rowId = row.querySelector(".change-status")?.dataset.id;
+
+          if (rowType === postOrReply && rowId === postOrReplyId) {
+            const blindCell = row.querySelector(".blind-status");
+            if (blindCell) {
+              blindCell.textContent = data.isBlind ? "O" : "X";
+            }
+          }
+        });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
     }
   });
 

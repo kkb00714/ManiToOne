@@ -82,6 +82,15 @@ public class ReplyController {
     return ResponseEntity.status(HttpStatus.ACCEPTED).body(report);
   }
 
+  // 답글 좋아요
+  @PostMapping("/reply/like/{replyId}")
+  public ResponseEntity<Void> likeReply(@PathVariable("replyId") Long replyId,
+      HttpSession session) {
+    User user = (User) session.getAttribute("user");
+    replyService.likeReply(replyId, user);
+    return ResponseEntity.ok().build();
+  }
+
   // 답글 조회
   @GetMapping("/replies/{postId}")
   public ResponseEntity<Page<ReplyResponseDto>> getReplies(@PathVariable("postId") Long postId,

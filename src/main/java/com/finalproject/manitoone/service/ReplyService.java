@@ -6,6 +6,7 @@ import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.ReplyPost;
 import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
+import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.AddReplyRequestDto;
 import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.ReplyResponseDto;
@@ -14,6 +15,7 @@ import com.finalproject.manitoone.domain.dto.UpdateReplyRequestDto;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
+import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,7 @@ public class ReplyService {
   private final PostRepository postRepository;
   private final ReplyPostRepository replyPostRepository;
   private final ReportRepository reportRepository;
+  private final UserPostLikeRepository userPostLikeRepository;
 
   // 답글 생성
   public ReplyResponseDto createReply(Long postId, AddReplyRequestDto request, User user) {
@@ -115,6 +118,19 @@ public class ReplyService {
 
     return new ReportResponseDto(report.getReportId(), report.getUserId(),
         report.getReportObjectId(), report.getReportType(), report.getType());
+  }
+
+  // 답글 좋아요
+  public void likeReply(Long replyId, User user) {
+    ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    userPostLikeRepository.save(UserPostLike.builder()
+        .user(user)
+        .replyPost(reply)
+        .build());
   }
 
   // 답글 조회

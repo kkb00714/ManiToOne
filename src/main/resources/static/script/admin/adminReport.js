@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
     searchButton.addEventListener("click", handleSearchClick);
     syncSearchFields();
 
-    tableBody.innerHTML = '<tr><td colspan="10">Loading...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="11">Loading...</td></tr>';
 
     fetch(`/admin/reports?page=${page - 1}`, {
       method: "POST",
@@ -76,10 +76,10 @@ document.addEventListener("DOMContentLoaded", function () {
           return `
                 <tr data-user='${JSON.stringify(report)}'>
                     <td>${report.reportId}</td>
-                    <td colspan="8" class="text-center">삭제된 게시글 또는 댓글</td>
-                    <td><a href="#" class="delete-post" data-id="${report.post
-              ? report.post.postId : report.replyPost.replyPostId}">삭제</a></td>
-                </tr>
+                    <td colspan="9" class="text-center">
+                      삭제된 ${report.type ? report.type.label : ''}
+                    </td>
+                    <td><a href="#" class="delete-report" data-id="${report.reportId}">삭제</a></td>
                 </tr>
             `;
         } else {
@@ -88,22 +88,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 <tr data-user='${JSON.stringify(report)}'>
                     <td>${report.reportId}</td>
                     <td data-value="${report.type.data}">${report.type.label}</td> 
-                    <td data-value="${report.reportType.data}">${report.reportType.label}</td>
-                    <td>${report.content.length > 15 ? report.content.substring(0, 15) + '...' : report.content}</td>
+                    <td data-value="${report.reportType.data}">${report.reportType.label
+          > 5 ? report.reportType.label.substring(0, 5) + '...'
+              : report.reportType.label}</td>
+                    <td>${report.content.length > 6 ? report.content.substring(
+              0, 6) + '...' : report.content}</td>
                     <td>${report.reportedByUser.nickname}</td> 
                     <td>
                         ${report.post ? report.post.user.nickname : ''}
-                        ${report.replyPost ? report.replyPost.user.nickname : ''}
+                        ${report.replyPost ? report.replyPost.user.nickname
+              : ''}
                     </td>
                     <td>${formatDatetimeSecond(report.createdAt)}</td>
                     <td class="blind-status">
                         ${report.post ? (report.post.isBlind ? 'O' : 'X') : ''}
-                        ${report.replyPost ? (report.replyPost.isBlind ? 'O' : 'X') : ''}
+                        ${report.replyPost ? (report.replyPost.isBlind ? 'O'
+              : 'X') : ''}
                     </td>
                     <td><a href="#" class="change-status" data-id="${report.post
-              ? report.post.postId : report.replyPost.replyPostId}">변경</a></td>
+              ? report.post.postId : report.replyPost.replyPostId}"
+                    data-value="${report.type.data}">변경</a></td>
                     <td><a href="#" class="delete-post" data-id="${report.post
-              ? report.post.postId : report.replyPost.replyPostId}">삭제</a></td>
+              ? report.post.postId : report.replyPost.replyPostId}"
+                    data-value="${report.type.data}">삭제</a></td>
+                    <td><a href="#" class="delete-report" data-id="${report.reportId}">삭제</a></td>
                 </tr>
             `;
         }
@@ -198,4 +206,149 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         });
   }
+
+  // 게시글/댓글 삭제 처리
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("delete-post")) {
+      event.preventDefault();
+
+      const postOrReplyId = event.target.dataset.id;
+      const postOrReply = event.target.dataset.value;
+
+        console.log(postOrReply);
+      if (confirm("정말로 이 게시글/댓글을 삭제하시겠습니까?")) {
+        if (postOrReply === "POST") {
+          fetch(`/admin/report/post/${postOrReplyId}`, {
+            method: "GET",
+          })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to delete post");
+            }
+            return response.json();
+          })
+          .then((isReportedPost) => {
+            if (isReportedPost) {
+              if (confirm("해당 게시글/댓글은 신고된 게시글입니다. 정말 삭제하시겠습니까? (신고 목록도 삭제)")) {
+                deletePost(postOrReplyId);
+              }
+            } else {
+              deletePost(postOrReplyId);
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("게시글 삭제 중 오류가 발생했습니다.");
+          });
+        } else {
+          fetch(`/admin/report/reply/${postOrReplyId}`, {
+            method: "GET",
+          })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to delete post");
+            }
+            return response.json();
+          })
+          .then((isReportedPost) => {
+            if (isReportedPost) {
+              if (confirm("해당 게시글/댓글은 신고된 게시글입니다. 정말 삭제하시겠습니까? (신고 목록도 삭제)")) {
+                deletePost(postOrReplyId);
+              }
+            } else {
+              deletePost(postOrReplyId);
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("게시글 삭제 중 오류가 발생했습니다.");
+          });
+        }
+
+      }
+    }
+  });
+
+  function deletePost(postId) {
+    fetch(`/admin/post/${postId}`, {
+      method: "DELETE",
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to delete post");
+      }
+      return response.text();
+    })
+    .then(() => {
+      loadPage(currentPage); // 현재 페이지 새로 로드
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("게시글 삭제 중 오류가 발생했습니다.");
+    });
+  }
+  function deleteReply(replyId) {
+    fetch(`/admin/reply/${replyId}`, {
+      method: "DELETE",
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to delete post");
+      }
+      return response.text();
+    })
+    .then(() => {
+      loadPage(currentPage); // 현재 페이지 새로 로드
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("게시글 삭제 중 오류가 발생했습니다.");
+    });
+  }
+
+  // 게시글 블라인드 처리
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("change-status")) {
+      event.preventDefault();
+
+      const postOrReplyId = event.target.dataset.id;
+      const currentRow = event.target.closest('tr');
+      const blindStatusCell = currentRow.querySelector('.blind-status');
+      const postOrReply = event.target.dataset.value;
+
+      if (postOrReply === "POST") {
+        fetch(`/admin/blind/post/${postOrReplyId}`, {
+          method: "PUT",
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          blindStatusCell.textContent = data.isBlind ? 'O' : 'X';
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      } else {
+        fetch(`/admin/blind/reply/${postOrReplyId}`, {
+          method: "PUT",
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          blindStatusCell.textContent = data.isBlind ? 'O' : 'X';
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      }
+    }
+  });
 });

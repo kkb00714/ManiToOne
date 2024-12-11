@@ -136,7 +136,7 @@ public class ReplyService {
   }
 
   // 답글 개수 조회
-  public Integer getPostRepliesNum(Long postId) {
+  public Integer getRepliesNum(Long postId) {
     List<ReplyPost> replies = replyPostRepository.findAllByPostPostIdAndParentIdIsNull(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()

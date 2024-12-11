@@ -468,11 +468,8 @@ public class AdminService {
         .orderBy(report.createdAt.desc())
         .toString();
 
-    System.out.println("Generated SQL: " + sql);
-
     List<Report> reports = null;
-    try {
-    // QueryDSL 실행
+
     reports = queryFactory
         .selectFrom(report)
         .where(builder)
@@ -480,9 +477,6 @@ public class AdminService {
         .limit(pageable.getPageSize())
         .orderBy(report.createdAt.desc())
         .fetch();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
 
     long total = queryFactory
         .selectFrom(report)
@@ -513,21 +507,21 @@ public class AdminService {
                 userRepository.findById(report.getUserId()).orElse(null)))) // 신고한 유저
         .reportObjectId(report.getReportObjectId())
         .createdAt(report.getCreatedAt())
-        .post(report.getType() == ReportObjectType.POST ?
-            toPostSearchResponseDto(Objects.requireNonNull(
-                postRepository.findByPostId(report.getReportObjectId()).orElse(null)))
+        .post(report.getType() == ReportObjectType.POST
+            ? postRepository.findByPostId(report.getReportObjectId())
+            .map(this::toPostSearchResponseDto)
+            .orElse(null)
             : null)
-        .replyPost(report.getType() == ReportObjectType.REPLY ?
-            toReplySearchResponseDto(
-                Objects.requireNonNull(
-                    replyPostRepository.findByReplyPostId(report.getReportObjectId()).orElse(null)))
+        .replyPost(report.getType() == ReportObjectType.REPLY
+            ? replyPostRepository.findByReplyPostId(report.getReportObjectId())
+            .map(this::toReplySearchResponseDto)
+            .orElse(null)
             : null)
         .build();
   }
 
   private ReplyPostSearchResponseDto toReplySearchResponseDto(ReplyPost replyPost) {
     User user = replyPost.getUser();
-    System.out.println(replyPost.getUser());
     return ReplyPostSearchResponseDto.builder()
         .replyPostId(replyPost.getReplyPostId())
         .post(toPostSearchResponseDto(replyPost.getPost()))

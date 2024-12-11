@@ -71,36 +71,44 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .then((data) => {
       tableBody.innerHTML = data.content
-      .map((report) =>
-          `<tr data-user='${JSON.stringify(report)}'>
-            <td>${report.reportId}</td> <!-- No -->
-            <td data-value="${report.type.data}">${report.type.label}</td> <!-- 신고 유형 -->
-            <td data-value="${report.reportType.data}">${report.reportType.label}</td> <!-- 신고 사유 -->
-            <td>${report.content.length > 15 ? report.content.substring(0, 15) + '...'
-                    : report.content}</td>
-            <td>${report.reportedByUser.nickname}</td> <!-- 신고한 닉네임 -->
-          <!-- 신고 당한 닉네임 -->
-            <td>
-              ${report.post ? report.post.user.nickname : ''}
-              ${report.replyPost ? report.replyPost.user.nickname : ''}
-            </td>
-            <td>${formatDatetimeSecond(report.createdAt)}</td>
-          <!-- 블라인드 여부 -->
-            <td class="blind-status">
-              ${report.post ? (report.post.isBlind ? 'O' : 'X') : ''}
-              ${report.replyPost ? (report.replyPost.isBlind ? 'O' : 'X') : ''}
-            </td>
-          <!-- 상태 변경 -->
-            <td><a href="#" class="change-status" data-id="${report.post
-                    ? report.post.postId : report.replyPost.replyPostId}">변경</a></td>
-          <!-- 삭제 -->
-            <td><a href="#" class="delete-post" data-id="${report.post
-                    ? report.post.postId : report.replyPost.replyPostId}">삭제</a></td>
-          </tr>
-                      `
-      )
+      .map((report) => {
+        if (!report.post && !report.replyPost) {
+          return `
+                <tr data-user='${JSON.stringify(report)}'>
+                    <td>${report.reportId}</td>
+                    <td colspan="8" class="text-center">삭제된 게시글 또는 댓글</td>
+                    <td><a href="#" class="delete-post" data-id="${report.post
+              ? report.post.postId : report.replyPost.replyPostId}">삭제</a></td>
+                </tr>
+                </tr>
+            `;
+        } else {
+          // 기존 처리
+          return `
+                <tr data-user='${JSON.stringify(report)}'>
+                    <td>${report.reportId}</td>
+                    <td data-value="${report.type.data}">${report.type.label}</td> 
+                    <td data-value="${report.reportType.data}">${report.reportType.label}</td>
+                    <td>${report.content.length > 15 ? report.content.substring(0, 15) + '...' : report.content}</td>
+                    <td>${report.reportedByUser.nickname}</td> 
+                    <td>
+                        ${report.post ? report.post.user.nickname : ''}
+                        ${report.replyPost ? report.replyPost.user.nickname : ''}
+                    </td>
+                    <td>${formatDatetimeSecond(report.createdAt)}</td>
+                    <td class="blind-status">
+                        ${report.post ? (report.post.isBlind ? 'O' : 'X') : ''}
+                        ${report.replyPost ? (report.replyPost.isBlind ? 'O' : 'X') : ''}
+                    </td>
+                    <td><a href="#" class="change-status" data-id="${report.post
+              ? report.post.postId : report.replyPost.replyPostId}">변경</a></td>
+                    <td><a href="#" class="delete-post" data-id="${report.post
+              ? report.post.postId : report.replyPost.replyPostId}">삭제</a></td>
+                </tr>
+            `;
+        }
+      })
       .join("");
-
       renderPagination(page, data.totalPages);
     })
     .catch((error) => {

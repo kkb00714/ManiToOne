@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
+import com.finalproject.manitoone.domain.dto.admin.ReportSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -49,7 +51,7 @@ public class AdminApiController {
 
   @PostMapping("/posts")
   public ResponseEntity<Object> getAllPosts(
-      @PageableDefault(size = 2, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
+      @PageableDefault(size = 2, sort = "postId", direction = Sort.Direction.ASC) Pageable pageable,
       @RequestBody PostSearchRequestDto postSearchRequestDto) {
     return ResponseEntity.ok(adminService.searchPosts(postSearchRequestDto, pageable));
   }
@@ -59,9 +61,43 @@ public class AdminApiController {
     return ResponseEntity.ok(adminService.updateBlind(postId));
   }
 
+  @PutMapping("/blind/reply/{replyPostId}")
+  public ResponseEntity<Object> blindReply(@PathVariable Long replyPostId) {
+    return ResponseEntity.ok(adminService.updateBlindReply(replyPostId));
+  }
+
   @DeleteMapping("/post/{postId}")
   public ResponseEntity<Object> deletePost(@PathVariable Long postId) {
     adminService.deletePost(postId);
+    return ResponseEntity.ok().build();
+  }
+
+  @DeleteMapping("/reply/{replyPostId}")
+  public ResponseEntity<Object> deleteReply(@PathVariable Long replyPostId) {
+    adminService.deleteReply(replyPostId);
+    return ResponseEntity.ok().build();
+  }
+
+  @PostMapping("/reports")
+  public ResponseEntity<Object> getReports (
+      @PageableDefault(size = 2, sort = "reportId", direction = Sort.Direction.ASC) Pageable pageable,
+      @RequestBody ReportSearchRequestDto reportSearchRequestDto) {
+    return ResponseEntity.ok(adminService.searchReports(reportSearchRequestDto, pageable));
+  }
+
+  @GetMapping("/report/post/{postId}")
+  public ResponseEntity<Object> isReportPost(@PathVariable Long postId) {
+    return ResponseEntity.ok(adminService.isReportPost(postId));
+  }
+
+  @GetMapping("/report/reply/{replyPostId}")
+  public ResponseEntity<Object> isReportReply(@PathVariable Long replyPostId) {
+    return ResponseEntity.ok(adminService.isReportReply(replyPostId));
+  }
+
+  @DeleteMapping("/report/{reportId}")
+  public ResponseEntity<Object> deleteReport(@PathVariable Long reportId) {
+    adminService.deleteReport(reportId);
     return ResponseEntity.ok().build();
   }
 }

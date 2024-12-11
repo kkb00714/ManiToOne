@@ -1,7 +1,10 @@
 package com.finalproject.manitoone.controller.view;
 
+import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.constants.Role;
 import java.util.Arrays;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,5 +32,23 @@ public class AdminViewController {
   @GetMapping("/posts")
   public String adminPosts() {
     return "pages/admin/adminPost";
+  }
+
+  @GetMapping("/reports")
+  public String adminReports(Model model) {
+    model.addAttribute("types", Arrays.stream(ReportObjectType.values())
+        .filter(type -> type == ReportObjectType.POST || type == ReportObjectType.REPLY)
+        .map(type -> Map.of(
+            "value", type.name(),
+            "label", type.getType()
+        ))
+        .toList());
+    model.addAttribute("reportTypes", Arrays.stream(ReportType.values())
+        .map(type -> Map.of(
+            "value", type.name(),
+            "label", type.getType()
+        ))
+        .toList());
+    return "pages/admin/adminReport";
   }
 }

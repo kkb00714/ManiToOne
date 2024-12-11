@@ -94,4 +94,10 @@ public class AdminApiController {
   public ResponseEntity<Object> isReportReply(@PathVariable Long replyPostId) {
     return ResponseEntity.ok(adminService.isReportReply(replyPostId));
   }
+
+  @DeleteMapping("/report/{reportId}")
+  public ResponseEntity<Object> deleteReport(@PathVariable Long reportId) {
+    adminService.deleteReport(reportId);
+    return ResponseEntity.ok().build();
+  }
 }

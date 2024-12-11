@@ -9,6 +9,7 @@ public enum IllegalActionMessages {
   CANNOT_FIND_USER_WITH_GIVEN_ID("해당하는 유저 ID를 찾을 수 없습니다."),
   CANNOT_FIND_POST_WITH_GIVEN_ID("해당하는 게시글 ID를 찾을 수 없습니다."),
   CANNOT_FIND_REPLY_WITH_GIVEN_ID("해당하는 답글 ID를 찾을 수 없습니다."),
+  CANNOT_FIND_REPORT_WITH_GIVEN_ID("해당하는 신고 ID를 찾을 수 없습니다."),
   CANNOT_FIND_POST_IMAGE_WITH_GIVEN_ID("해당 게시물은 이미지를 포함하고 있지 않습니다."),
   CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID("해당 게시물은 답글이 없습니다."),
   CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID("해당 게시물을 좋아하는 사람이 없습니다."),

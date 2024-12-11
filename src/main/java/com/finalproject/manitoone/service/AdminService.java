@@ -327,8 +327,9 @@ public class AdminService {
   }
 
   public ReplyPostSearchResponseDto updateBlindReply(Long replyPostId) {
-    ReplyPost replyPost = replyPostRepository.findByReplyPostId(replyPostId).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_REPLY_WITH_GIVEN_ID.getMessage()));
+    ReplyPost replyPost = replyPostRepository.findByReplyPostId(replyPostId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_WITH_GIVEN_ID.getMessage()));
 
     replyPost.updateBlind();
     return toReplySearchResponseDto(replyPostRepository.save(replyPost));
@@ -371,7 +372,8 @@ public class AdminService {
 //    manitoLetterRepository.findByPostId(post).ifPresent(manitoLetterRepository::delete);
 
     // 게시글 신고 목록 삭제
-    List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(ReportObjectType.POST, postId).orElse(new ArrayList<>());
+    List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(ReportObjectType.POST,
+        postId).orElse(new ArrayList<>());
     if (!reports.isEmpty()) {
       reportRepository.deleteAll(reports);
     }
@@ -381,17 +383,20 @@ public class AdminService {
 
   // fixme : 부모 댓글이 없다면 최상위 댓글 자식 댓글 다 삭제 해야하나??
   public void deleteReply(Long replyPostId) {
-    ReplyPost replyPost = replyPostRepository.findByReplyPostId(replyPostId).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_REPLY_WITH_GIVEN_ID.getMessage()));
+    ReplyPost replyPost = replyPostRepository.findByReplyPostId(replyPostId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_WITH_GIVEN_ID.getMessage()));
 
     // 최상위 댓글이라면 자식 댓글 삭제
-    List<ReplyPost> replyPosts = replyPostRepository.findAllByParentId(replyPostId).orElse(new ArrayList<>());
+    List<ReplyPost> replyPosts = replyPostRepository.findAllByParentId(replyPostId)
+        .orElse(new ArrayList<>());
     if (!replyPosts.isEmpty()) {
       replyPostRepository.deleteAll(replyPosts);
     }
 
     // 댓글 신고 목록 삭제
-    List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(ReportObjectType.REPLY, replyPostId).orElse(new ArrayList<>());
+    List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(ReportObjectType.REPLY,
+        replyPostId).orElse(new ArrayList<>());
     if (!reports.isEmpty()) {
       reportRepository.deleteAll(reports);
     }
@@ -576,5 +581,18 @@ public class AdminService {
 
   public boolean isReportReply(Long replyPostId) {
     return reportRepository.existsByTypeAndReportObjectId(ReportObjectType.REPLY, replyPostId);
+  }
+
+  public void deleteReport(Long reportId) {
+    Report report = reportRepository.findById(reportId).orElseThrow(
+        () -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPORT_WITH_GIVEN_ID.getMessage()));
+
+    List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(report.getType(),
+        report.getReportObjectId()).orElse(new ArrayList<>());
+
+    if (!reports.isEmpty()) {
+      reportRepository.deleteAll(reports);
+    }
   }
 }

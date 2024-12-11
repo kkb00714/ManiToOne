@@ -172,4 +172,10 @@ public class ManitoService {
 
     return buildLetterResponseDto(letter, letter.getPostId().getUser().getNickname());
   }
+
+  public ManitoLetterResponseDto getLetterByPostIdAndNickname(Long postId, String nickname) {
+    return manitoLetterRepository.findByPostIdPostIdAndUserNickname(postId, nickname)
+        .map(letter -> buildLetterResponseDto(letter, nickname))
+        .orElse(null);
+  }
 }

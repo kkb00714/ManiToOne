@@ -1,79 +1,167 @@
+// manito.js
+
 class ManitoLetterModal extends BaseModal {
   constructor(modalId, backgroundId, openBtnId, closeBtnId) {
     super(modalId, backgroundId, openBtnId, closeBtnId);
     this.initializeSendConfirmation();
+    this.postId = document.querySelector('meta[name="post-id"]')?.content;
   }
 
   isValidYoutubeUrl(url) {
-    if (!url) {
+    if (!url || url.trim() === '') {
       return true;
     }
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
-    return youtubeRegex.test(url);
+    const youtubePattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}$/;
+    return youtubePattern.test(url.trim());
   }
 
   validateForm() {
-    const letterText = this.modal.querySelector('textarea');
+    const letterText = this.modal.querySelector('#manito-letter-text-input');
+    const musicUrl = this.modal.querySelector('#music-link-input');
+    const musicComment = this.modal.querySelector(
+        '#manito-music-comment-input');
+
     if (!letterText.value.trim()) {
-      const message = this.modal.id === 'manitoLetterReplyModalContainer'
-          ? '답장 내용을 작성해주세요.'
-          : '편지 내용을 작성해주세요.';
-      this.showWarning(message);
+      this.showWarning('편지 내용을 작성해주세요.');
       letterText.focus();
       return false;
     }
 
-    if (this.modal.id === 'manitoLetterModalContainer') {
-      const musicUrl = this.modal.querySelector('#music-link-input');
-      if (musicUrl && musicUrl.value.trim() && !this.isValidYoutubeUrl(
-          musicUrl.value.trim())) {
-        this.showWarning('Youtube url을 입력해주세요.');
-        musicUrl.focus();
-        return false;
-      }
+    if (letterText.value.length > 500) {
+      this.showWarning('편지는 500자를 초과할 수 없습니다.');
+      letterText.focus();
+      return false;
+    }
+
+    if (musicUrl.value.trim() && !this.isValidYoutubeUrl(musicUrl.value)) {
+      this.showWarning('올바른 YouTube URL 형식이 아닙니다.');
+      musicUrl.focus();
+      return false;
+    }
+
+    if (musicUrl.value.length > 200) {
+      this.showWarning('음악 URL은 200자를 초과할 수 없습니다.');
+      musicUrl.focus();
+      return false;
+    }
+
+    if (musicComment.value.length > 100) {
+      this.showWarning('음악 추천 이유는 100자를 초과할 수 없습니다.');
+      musicComment.focus();
+      return false;
     }
 
     return true;
   }
 
+  async updateLetterButton() {
+    try {
+      const sendButton = document.getElementById('openManitoLetterModalBtn');
+      if (!sendButton) {
+        return;
+      }
+
+      const existingButton = document.createElement('button');
+      existingButton.className = 'reply-button';
+      existingButton.style.cssText = 'display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto 2rem;';
+      existingButton.textContent = '이미 편지를 작성하셨습니다';
+      existingButton.disabled = true;
+
+      sendButton.parentNode.replaceChild(existingButton, sendButton);
+    } catch (error) {
+      console.error('Error updating button state:', error);
+    }
+  }
+
+  async sendLetter() {
+    const letterText = this.modal.querySelector(
+        '#manito-letter-text-input').value;
+    const musicUrl = this.modal.querySelector('#music-link-input').value;
+    const musicComment = this.modal.querySelector(
+        '#manito-music-comment-input').value;
+
+    try {
+      const response = await fetch(`/api/manito/letter/${this.postId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          letterContent: letterText.trim(),
+          musicUrl: musicUrl.trim(),
+          musicComment: musicComment.trim()
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || '편지 전송에 실패했습니다.');
+      }
+
+      if (window.ManitoPage && window.ManitoPage.letterBox) {
+        const letterBox = window.ManitoPage.letterBox;
+
+        letterBox.activeTab = 'sent';
+
+        const receivedTab = document.querySelector('.received-letter-box');
+        const sentTab = document.querySelector('.sent-letter-box');
+        const switchElement = document.querySelector(
+            '.manito-letter-box-switch');
+
+        if (receivedTab && sentTab && switchElement) {
+          receivedTab.classList.remove('active');
+          sentTab.classList.add('active');
+          switchElement.classList.remove('received-active');
+          switchElement.classList.add('sent-active');
+        }
+
+        letterBox.currentPage = 0;
+        letterBox.hasMore = true;
+        letterBox.container.innerHTML = '';
+        await letterBox.loadMoreLetters();
+      }
+
+      await this.updateLetterButton();
+
+      return true;
+    } catch (error) {
+      console.error('Error sending letter:', error);
+      this.showWarning(error.message || '편지 전송 중 오류가 발생했습니다.');
+      return false;
+    }
+  }
+
   initializeSendConfirmation() {
-    const sendButton = this.modal.querySelector(
-        '.send-letter-button, .send-letter-reply-button');
+    const sendButton = this.modal.querySelector('.send-letter-button');
     if (!sendButton) {
       return;
     }
 
-    // 편지 모달인지 답장 모달인지 구분
-    const isLetterModal = this.modal.id === 'manitoLetterModalContainer';
     const confirmationPopup = document.getElementById(
-        isLetterModal ? 'letterConfirmationPopup' : 'sendConfirmationPopup');
-    const successPopup = document.getElementById(
-        isLetterModal ? 'letterSuccessPopup' : 'sendSuccessPopup');
-    const confirmBtn = document.getElementById(
-        isLetterModal ? 'letterConfirmSendBtn' : 'confirmSendBtn');
-    const cancelBtn = document.getElementById(
-        isLetterModal ? 'letterCancelSendBtn' : 'cancelSendBtn');
+        'letterConfirmationPopup');
+    const successPopup = document.getElementById('letterSuccessPopup');
+    const confirmBtn = document.getElementById('letterConfirmSendBtn');
+    const cancelBtn = document.getElementById('letterCancelSendBtn');
     const successConfirmBtn = document.getElementById(
-        isLetterModal ? 'letterSuccessConfirmBtn' : 'successConfirmBtn');
+        'letterSuccessConfirmBtn');
 
     if (confirmationPopup && successPopup && confirmBtn && cancelBtn
         && successConfirmBtn) {
-      sendButton.replaceWith(sendButton.cloneNode(true));
-      const newSendButton = this.modal.querySelector(
-          '.send-letter-button, .send-letter-reply-button');
-
-      newSendButton.addEventListener('click', (e) => {
+      sendButton.addEventListener('click', async (e) => {
         e.preventDefault();
         if (this.validateForm()) {
           confirmationPopup.style.display = 'block';
         }
       });
 
-      confirmBtn.onclick = (e) => {
+      confirmBtn.onclick = async (e) => {
         e.preventDefault();
         confirmationPopup.style.display = 'none';
-        successPopup.style.display = 'block';
-        // TODO: API 호출 추가
+
+        const success = await this.sendLetter();
+        if (success) {
+          successPopup.style.display = 'block';
+        }
       };
 
       cancelBtn.onclick = (e) => {
@@ -91,14 +179,17 @@ class ManitoLetterModal extends BaseModal {
   }
 }
 
-// 마니또 페이지 관련 기능을 관리하는 객체
+// 마니또 페이지 관련 기능을 관리
 const ManitoPage = {
-  // 편지함 관련 상태와 메서드
   letterBox: {
     currentPage: 0,
     isLoading: false,
     hasMore: true,
     activeTab: 'received',
+    container: null,
+    scrollContainer: null,
+    receivedTab: null,
+    sentTab: null,
 
     async init() {
       this.container = document.querySelector('.manito-letter-box-content');
@@ -113,7 +204,32 @@ const ManitoPage = {
 
       this.setupEventListeners();
       await this.loadInitialLetters();
-      this.setupStyles();
+    },
+
+    async refreshLetterBox() {
+      const currentTab = this.activeTab;
+
+      this.currentPage = 0;
+      this.hasMore = true;
+      this.container.innerHTML = '';
+
+      if (currentTab === 'received') {
+        this.receivedTab.classList.add('active');
+        this.sentTab.classList.remove('active');
+        document.querySelector('.manito-letter-box-switch').classList.remove(
+            'sent-active');
+        document.querySelector('.manito-letter-box-switch').classList.add(
+            'received-active');
+      } else {
+        this.sentTab.classList.add('active');
+        this.receivedTab.classList.remove('active');
+        document.querySelector('.manito-letter-box-switch').classList.remove(
+            'received-active');
+        document.querySelector('.manito-letter-box-switch').classList.add(
+            'sent-active');
+      }
+
+      await this.loadMoreLetters();
     },
 
     setupEventListeners() {
@@ -144,7 +260,6 @@ const ManitoPage = {
         }
       });
 
-      // 초기 상태 설정
       this.receivedTab.classList.add('active');
       document.querySelector('.manito-letter-box-switch').classList.add(
           'received-active');
@@ -245,7 +360,11 @@ const ManitoPage = {
       if (!document.querySelector('.letter-loader')) {
         const loader = document.createElement('div');
         loader.className = 'letter-loader';
-        loader.innerHTML = '로딩 중...';
+        loader.innerHTML = `
+      <div class="loader-content">
+        <span class="loader-text">로딩 중...</span>
+      </div>
+    `;
         this.container.appendChild(loader);
       }
     },
@@ -257,141 +376,365 @@ const ManitoPage = {
       }
     },
 
-    async createLetterHTML(letter) {
-      try {
-        const response = await fetch(
-            `/view/fragments/manito-letter?letterId=${letter.manitoLetterId}`);
-        if (!response.ok) {
-          console.error(`Failed to fetch letter fragment: ${response.status}`);
-          return '';
-        }
-        return await response.text();
-      } catch (error) {
-        console.error('Network error while fetching letter fragment:', error);
-        return '';
-      }
-    },
-
-    setupStyles() {
-      if (!document.getElementById('manito-letter-box-styles')) {
-        const style = document.createElement('style');
-        style.id = 'manito-letter-box-styles';
-        style.textContent = `
-          .manito-letter-box-switch {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid rgba(171, 171, 171, 0.25);
-          }
-          
-          .manito-letter-box-switch::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            height: 3px;
-            width: 50%;
-            background-color: #3f624c;
-            transition: transform 0.3s ease;
-          }
-
-          .manito-letter-box-switch.received-active::after {
-            transform: translateX(0);
-            left: 0;
-          }
-          
-          .manito-letter-box-switch.sent-active::after {
-            transform: translateX(100%);
-            left: 0;
-          }
-          
-          .received-letter-box,
-          .sent-letter-box {
-            flex: 1;
-            text-align: center;
-            padding: 1rem 0;
-            cursor: pointer;
-            transition: color 0.3s ease;
-          }
-          
-          .received-letter-box.active,
-          .sent-letter-box.active {
-            color: #3f624c;
-            font-weight: bold;
-          }
-          
-          .empty-letter-message {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 200px;
-            text-align: center;
-            color: #8f8f8f;
-            background-color: #f3f3f3;
-            border-radius: 0 0 20px 20px;
-            font-size: 0.95rem;
-          }
-
-          .empty-letter-message p {
-            margin: 0;
-            padding: 2rem;
-          }
-          
-          .letter-loader {
-            text-align: center;
-            padding: 1rem;
-            color: #3f624c;
-          }
-        `;
-        document.head.appendChild(style);
-      }
+    createLetterHTML(letter) {
+      return ManitoLetterRenderer.generateLetterHTML(letter,
+          this.activeTab === 'received');
     }
   },
 
   // 모달 관련 기능
   modals: {
+    letterModal: null,
+    replyModal: null,
+
     init() {
-      if (document.getElementById("manitoLetterModalContainer")) {
-        new ManitoLetterModal(
+      const letterModalContainer = document.getElementById(
+          "manitoLetterModalContainer");
+      if (letterModalContainer) {
+        this.letterModal = new ManitoLetterModal(
             "manitoLetterModalContainer",
             "manitoLetterModalBackground",
             "openManitoLetterModalBtn",
             "closeManitoLetterModalBtn"
         );
       }
-      if (document.getElementById("manitoLetterReplyModalContainer")) {
-        new ManitoLetterModal(
+
+      const replyModalContainer = document.getElementById(
+          "manitoLetterReplyModalContainer");
+      if (replyModalContainer) {
+        this.replyModal = new ManitoLetterReplyModal(
             "manitoLetterReplyModalContainer",
             "manitoLetterReplyModalBackground",
-            "openManitoLetterReplyModalBtn",
+            null,
             "closeManitoLetterReplyModalBtn"
         );
+      }
+
+      this.initializeReplySentModal();
+    },
+
+    initializeReplySentModal() {
+      const modalBackground = document.getElementById(
+          'manitoLetterReplySentModalBackground');
+      const modalContainer = document.getElementById(
+          'manitoLetterReplySentModalContainer');
+      const closeButton = document.getElementById(
+          'closeManitoLetterReplySentModalBtn');
+
+      if (closeButton && modalContainer && modalBackground) {
+        const closeModal = () => {
+          modalBackground.style.display = 'none';
+          modalContainer.style.display = 'none';
+          document.body.style.overflow = '';
+          document.body.style.paddingRight = '';
+        };
+
+        closeButton.onclick = closeModal;
+        modalBackground.onclick = (e) => {
+          if (e.target === modalBackground) {
+            closeModal();
+          }
+        };
+      }
+    },
+
+    async openReplyModal(letterId) {
+      if (!this.replyModal) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/manito/letter/${letterId}`);
+        const letter = await response.json();
+
+        if (letter.answerLetter) {
+          this.showWarningMessage('이미 답장을 보낸 편지입니다.');
+          return;
+        }
+
+        this.replyModal.letterId = letterId;
+        this.replyModal.resetForm();
+        this.replyModal.open();
+
+      } catch (error) {
+        console.error('Error checking letter:', error);
+        this.showWarningMessage('편지 정보를 확인하는데 실패했습니다.');
+      }
+    },
+
+    async openSentReplyModal(letterId, isMyReply = true) {
+      try {
+        const response = await fetch(`/api/manito/letter/${letterId}`);
+
+        if (!response.ok) {
+          throw new Error('답장을 불러오는데 실패했습니다.');
+        }
+
+        const letterData = await response.json();
+
+        const modalContainer = document.getElementById(
+            'manitoLetterReplySentModalContainer');
+        const modalBackground = document.getElementById(
+            'manitoLetterReplySentModalBackground');
+        const modalTitle = modalContainer.querySelector(
+            '.send-letter-reply-title p');
+        const replyTextElement = modalContainer.querySelector(
+            '.manito-letter-reply-text');
+
+        if (!modalContainer || !modalBackground || !replyTextElement
+            || !modalTitle) {
+          throw new Error('모달 요소를 찾을 수 없습니다.');
+        }
+
+        modalTitle.textContent = isMyReply ? '내가 보낸 답장' : '마니또의 답장';
+
+        replyTextElement.innerHTML = letterData.answerLetter?.replace(/\n/g,
+            '<br>') || '';
+
+        const scrollbarWidth = window.innerWidth
+            - document.documentElement.clientWidth;
+        document.body.style.overflow = 'hidden';
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+
+        modalContainer.style.display = 'block';
+        modalBackground.style.display = 'block';
+
+      } catch (error) {
+        console.error('Error displaying reply:', error);
+        this.showWarningMessage(error.message);
+      }
+    },
+
+    showWarningMessage(message) {
+      const warningPopup = document.getElementById('warningPopup');
+      const warningMessage = document.getElementById('warningMessage');
+
+      if (warningPopup && warningMessage) {
+        warningMessage.textContent = message;
+        warningPopup.style.display = 'block';
+
+        setTimeout(() => {
+          warningPopup.style.display = 'none';
+        }, 3000);
       }
     }
   },
 
-  // 마니또 관련 토글 기능
-  toggleManito(element, type) {
-    const img = element.querySelector('img');
-    const isChecked = img.src.includes('icon-check.png');
+  async toggleLetterVisibility(letterId, toggleButton) {
+    try {
+      const response = await fetch(`/api/manito/hide/letter/${letterId}`, {
+        method: 'PUT'
+      });
 
-    if (isChecked) {
-      img.src = img.getAttribute('data-unchecked-src').replace('@{',
-          '').replace('}', '');
-      element.style.opacity = '0.3';
-    } else {
-      img.src = img.getAttribute('data-checked-src').replace('@{', '').replace(
-          '}', '');
-      element.style.opacity = '1';
+      if (!response.ok) {
+        throw new Error('편지 공개 설정 변경에 실패했습니다.');
+      }
+
+      const img = toggleButton.querySelector('img');
+      const isChecked = img.src.includes('icon-check.png');
+
+      if (isChecked) {
+        img.src = img.getAttribute('data-unchecked-src');
+        toggleButton.style.opacity = '0.3';
+      } else {
+        img.src = img.getAttribute('data-checked-src');
+        toggleButton.style.opacity = '1';
+      }
+    } catch (error) {
+      console.error('Error toggling letter visibility:', error);
+      this.modals.showWarningMessage(error.message);
     }
   },
 
-  // 전체 페이지 초기화
   init() {
     this.letterBox.init();
     this.modals.init();
-    window.toggleManito = this.toggleManito;
   }
 };
 
+class ManitoLetterRenderer {
+  static generateLetterHTML(letter, isReceived = true) {
+    const ownerClass = isReceived ? 'received' : 'sent';
+    const buttonStyle = !isReceived ? 'style="margin-left: auto;"' : '';
+
+    return `
+      <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}">
+      <div class="manito-reply-container">
+        <img class="manito-user-photo" src="/images/icons/icon-clover2.png" alt="anonymous user icon" />
+        <div class="post-content">
+          <div class="user-info">
+            <span class="manito-user-name">익명의 마니또</span>
+            <span class="passed-time">${letter.timeDiff}</span>
+          </div>
+          <p class="manito-content-text">${letter.letterContent}</p>
+          <div class="manito-recommend-music">
+            <div class="recommend-music">
+              <img class="tiny-icons-linkless" src="/images/icons/icon-music.png" alt="music icon" />
+              <span>추천하는 음악</span>
+            </div>
+            ${letter.musicUrl ? `
+              <p class="music-link">
+                <a href="${letter.musicUrl}" target="_blank">${letter.musicUrl}</a>
+              </p>
+            ` : ''}
+          </div>
+          ${letter.musicComment ? `
+            <p class="manito-music-comment">${letter.musicComment}</p>
+          ` : ''}
+        </div>
+        <div class="option-icons">
+          <img class="tiny-icons" src="/images/icons/UI-more2.png" alt="more options" />
+        </div>
+      </div>
+      <div class="manito-reaction-container">
+        ${isReceived ? `
+          <button class="manito-reply-toggle" onclick="ManitoPage.toggleLetterVisibility(${letter.manitoLetterId}, this)">
+            <img class="tiny-icons" 
+                src="/images/icons/icon-check-${letter.isPublic ? '' : 'empty'}.png" 
+                alt="check icon"
+                data-checked-src="/images/icons/icon-check.png"
+                data-unchecked-src="/images/icons/icon-check-empty.png" />
+            <span>이 마니또의 편지를 모두가 볼 수 있도록 공개합니다.</span>
+          </button>
+          ${!letter.answerLetter ? `
+            <button class="reply-button" ${buttonStyle} onclick="ManitoPage.modals.openReplyModal(${letter.manitoLetterId})">
+              답장하기
+            </button>
+          ` : `
+            <button class="reply-button" ${buttonStyle} onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, true)">
+              내가 보낸 답장 보기
+            </button>
+          `}
+        ` : `
+          ${letter.answerLetter ? `
+            <button class="reply-button" ${buttonStyle} onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, false)">
+              답장 확인하기
+            </button>
+          ` : ''}
+        `}
+      </div>
+      </div>
+    `;
+  }
+}
+
+class ManitoLetterReplyModal extends BaseModal {
+  constructor(modalId, backgroundId, openBtnId, closeBtnId) {
+    super(modalId, backgroundId, openBtnId, closeBtnId);
+    this.letterId = null;
+    this.initializeSendConfirmation();
+  }
+
+  validateForm() {
+    const replyText = this.modal.querySelector('#manito-letter-reply-input');
+
+    if (!replyText) {
+      console.error('Reply text input element not found');
+      this.showWarning('답장 입력 필드를 찾을 수 없습니다.');
+      return false;
+    }
+
+    if (!replyText.value.trim()) {
+      this.showWarning('답장 내용을 작성해주세요.');
+      replyText.focus();
+      return false;
+    }
+
+    if (replyText.value.length > 500) {
+      this.showWarning('답장은 500자를 초과할 수 없습니다.');
+      replyText.focus();
+      return false;
+    }
+
+    return true;
+  }
+
+  initializeSendConfirmation() {
+    const sendButton = this.modal.querySelector('.send-letter-reply-button');
+    if (!sendButton) {
+      return;
+    }
+
+    const confirmationPopup = document.getElementById('sendConfirmationPopup');
+    const successPopup = document.getElementById('sendSuccessPopup');
+    const confirmBtn = document.getElementById('confirmSendBtn');
+    const cancelBtn = document.getElementById('cancelSendBtn');
+    const successConfirmBtn = document.getElementById('successConfirmBtn');
+
+    if (confirmationPopup && successPopup && confirmBtn && cancelBtn
+        && successConfirmBtn) {
+      sendButton.onclick = (e) => {
+        e.preventDefault();
+        if (this.validateForm()) {
+          confirmationPopup.style.display = 'block';
+        }
+      };
+
+      confirmBtn.onclick = async (e) => {
+        e.preventDefault();
+        confirmationPopup.style.display = 'none';
+        const success = await this.sendReply();
+        if (success) {
+          successPopup.style.display = 'block';
+        }
+      };
+
+      cancelBtn.onclick = (e) => {
+        e.preventDefault();
+        confirmationPopup.style.display = 'none';
+      };
+
+      successConfirmBtn.onclick = (e) => {
+        e.preventDefault();
+        successPopup.style.display = 'none';
+        this.resetForm();
+        this.close();
+      };
+    }
+  }
+
+  async sendReply() {
+    if (!this.letterId) {
+      this.showWarning('답장을 보낼 편지를 찾을 수 없습니다.');
+      return false;
+    }
+
+    const replyText = this.modal.querySelector('#manito-letter-reply-input');
+    if (!replyText) {
+      return false;
+    }
+
+    try {
+      const response = await fetch(`/api/manito/answer/${this.letterId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          answerComment: replyText.value.trim()
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || '이미 답장을 보냈거나 답장 전송에 실패했습니다.');
+      }
+
+      if (window.ManitoPage?.letterBox) {
+        await window.ManitoPage.letterBox.refreshLetterBox();
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      this.showWarning(error.message);
+      return false;
+    }
+  }
+}
+
 window.ManitoPage = ManitoPage;
+document.addEventListener('DOMContentLoaded', () => {
+  ManitoPage.init();
+});

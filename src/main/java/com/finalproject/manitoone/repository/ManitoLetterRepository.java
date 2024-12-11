@@ -21,5 +21,8 @@ public interface ManitoLetterRepository extends JpaRepository<ManitoLetter, Long
 
   Optional<List<ManitoLetter>> findAllByPostIdPostId(Long postId);
 
+  Optional<ManitoLetter> findByPostIdPostIdAndUserNickname(Long postId, String nickname);
+
   Optional<ManitoLetter> findByPostId(Post post);
+
 }

@@ -1,4 +1,5 @@
-<div class="manito-reply-outer-container" th:fragment="manito-letter(letter)">
+<div class="manito-reply-outer-container" th:fragment="manito-letter(letter)"
+     th:data-letter-id="${letter.manitoLetterId}">
   <div class="manito-reply-container">
     <img
         class="manito-user-photo"
@@ -22,13 +23,11 @@
           <span>추천하는 음악</span>
         </div>
         <p class="music-link">
-          <a
-              th:href="${letter.musicUrl}" th:text="${letter.musicUrl}"
-          ></a
-          >
+          <a th:href="${letter.musicUrl}" th:text="${letter.musicUrl}" target="_blank"></a>
         </p>
       </div>
-      <p class="manito-music-comment" th:if="${letter.musicComment != null}" th:text="${letter.musicComment}">
+      <p class="manito-music-comment" th:if="${letter.musicComment != null}"
+         th:text="${letter.musicComment}">
         저도 이 음악에 위로 많이 받아서 추천드립니다!
       </p>
       <p class="post-time">2024년 11월 27일 오후 4시 20분</p>
@@ -42,23 +41,43 @@
     </div>
   </div>
   <div class="manito-reaction-container">
-    <button class="manito-reply-toggle" onclick="toggleManito(this, 'reply')">
-      <img
-          class="tiny-icons"
-          th:src="@{/images/icons/icon-check-empty.png}"
-          alt="check icon"
-          data-checked-src="@{/images/icons/icon-check.png}"
-          data-unchecked-src="@{/images/icons/icon-check-empty.png}"
-      />
-      <span
-      >이 마니또의 답장을 모두가 볼 수 있도록 공개합니다.</span
+    <!-- 받은 편지함에서만 표시되는 부분 -->
+    <th:block th:if="${!letter.isOwner}">
+      <button class="manito-reply-toggle" onclick="toggleManito(this, 'reply')">
+        <img
+            class="tiny-icons"
+            th:src="@{/images/icons/icon-check-empty.png}"
+            alt="check icon"
+            data-checked-src="@{/images/icons/icon-check.png}"
+            data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+        />
+        <span>이 마니또의 편지를 모두가 볼 수 있도록 공개합니다.</span>
+      </button>
+      <!-- 답장이 없는 경우 답장하기 버튼 표시 -->티
+      <button th:if="${letter.answerLetter == null}"
+              class="reply-button"
+              th:onclick="'ManitoPage.modals.openReplyModal(' + ${letter.manitoLetterId} + ')'"
       >
-    </button>
-    <button
-        class="reply-button"
-        id="openManitoLetterReplyModalBtn"
-    >
-      답장하기
-    </button>
+        답장하기
+      </button>
+      <!-- 답장이 있는 경우 답장 보기 버튼 표시 -->
+      <button th:if="${letter.answerLetter != null}"
+              class="reply-button"
+              th:onclick="'ManitoPage.modals.openSentReplyModal(' + ${letter.manitoLetterId} + ')'"
+      >
+        내가 보낸 답장 보기
+      </button>
+    </th:block>
+    <!-- 받은 편지함에서만 표시되는 부분 끝 -->
+    <!-- 보낸 편지함에서만 표시되는 부분 -->
+    <th:block th:if="${letter.isOwner}">
+      <!-- 답장이 있는 경우에만 답장 확인 버튼 표시 -->
+      <button th:if="${letter.answerLetter != null}"
+              class="reply-button"
+              th:onclick="'ManitoPage.modals.openSentReplyModal(' + ${letter.manitoLetterId} + ')'"
+      >
+        답장 확인하기
+      </button>
+    </th:block>
   </div>
 </div>

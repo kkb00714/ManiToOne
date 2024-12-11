@@ -1,3 +1,5 @@
+//common.js
+
 class BaseModal {
   constructor(modalId, backgroundId, openBtnId, closeBtnId) {
     this.modal = document.getElementById(modalId);
@@ -105,6 +107,16 @@ class BaseModal {
       Array.from(inputs).forEach(input => {
         input.value = '';
       });
+
+      const toggleElements = this.modal.querySelectorAll('[data-checked-src]');
+      Array.from(toggleElements).forEach(element => {
+        const img = element.querySelector('img');
+        if (img) {
+          img.src = img.getAttribute('data-unchecked-src').replace('@{',
+              '').replace('}', '');
+          element.style.opacity = '0.3';
+        }
+      });
     }
   }
 }
@@ -131,7 +143,6 @@ class ProfileUpdateModal extends BaseModal {
   }
 }
 
-// 공통 기능
 const CommonUtils = {
   initializeAllTextareas() {
     const allTextareas = document.getElementsByTagName('textarea');
@@ -143,57 +154,6 @@ const CommonUtils = {
 
       adjustHeight();
       textarea.addEventListener('input', adjustHeight);
-    });
-  },
-
-  loadContent(page) {
-    const middleSection = document.getElementById('middleSection');
-    if (!middleSection) {
-      return;
-    }
-
-    middleSection.innerHTML = '<div class="loading">불러오는 중...</div>';
-
-    if (page === 'notification') {
-      return;
-    }
-
-    const url = '/fragments/content/' + page;
-
-    fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.text();
-    })
-    .then(html => {
-      middleSection.innerHTML = html;
-      history.pushState({page: page}, '', `/${page}`);
-
-      if (page === 'manito') {
-        if (!document.querySelector('script[src="/script/manito.js"]')) {
-          const scriptElement = document.createElement('script');
-          scriptElement.src = '/script/manito.js';
-          scriptElement.onload = () => {
-            if (typeof ManitoPage !== 'undefined') {
-              ManitoPage.init();
-            }
-          };
-          document.body.appendChild(scriptElement);
-        } else {
-          if (typeof ManitoPage !== 'undefined') {
-            ManitoPage.init();
-          }
-        }
-      }
-
-      this.initializePageModals();
-      this.initializeAllTextareas();
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      middleSection.innerHTML = '<div class="error">Failed to load content</div>';
     });
   },
 
@@ -210,45 +170,31 @@ const CommonUtils = {
     }
   },
 
-  initializeNavigation() {
-    const navButtons = document.querySelectorAll('.UI-icon-list button');
-    navButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const buttonType = button.querySelector('img')?.alt;
-        if (!buttonType) {
-          return;
-        }
+  toggleElement(element, type) {
+    const img = element.querySelector('img');
+    if (!img) {
+      return;
+    }
 
-        switch (buttonType) {
-          case 'home':
-            this.loadContent('timeline');
-            break;
-          case 'notification':
-            this.loadContent('notification');
-            break;
-          case 'manito':
-            this.loadContent('manito');
-            break;
-          case 'user-profile':
-            this.loadContent('mypage');
-            break;
-        }
-      });
-    });
+    const isChecked = img.src.includes('icon-check.png');
 
-    const logoLink = document.querySelector('.home-link');
-    if (logoLink) {
-      logoLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.loadContent('timeline');
-      });
+    if (isChecked) {
+      img.src = img.getAttribute('data-unchecked-src').replace('@{',
+          '').replace('}', '');
+      element.style.opacity = '0.3';
+    } else {
+      img.src = img.getAttribute('data-checked-src').replace('@{', '').replace(
+          '}', '');
+      element.style.opacity = '1';
     }
   }
 };
 
-// 페이지 로드시 초기화
 document.addEventListener('DOMContentLoaded', () => {
-  CommonUtils.initializeNavigation();
   CommonUtils.initializePageModals();
   CommonUtils.initializeAllTextareas();
+
+  window.toggleManito = function (element, type) {
+    CommonUtils.toggleElement(element, type);
+  };
 });

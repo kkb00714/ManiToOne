@@ -14,4 +14,6 @@ public interface UserPostLikeRepository extends JpaRepository<UserPostLike, Long
   Optional<Integer> countAllByPost_PostId(Long postId);
 
   Optional<List<UserPostLike>> findAllByPostPostId(Long postId);
+
+  Optional<List<UserPostLike>> findAllByReplyPostReplyPostId(Long replyId);
 }

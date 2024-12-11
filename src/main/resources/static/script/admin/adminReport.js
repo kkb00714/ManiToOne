@@ -253,10 +253,10 @@ document.addEventListener("DOMContentLoaded", function () {
           .then((isReportedPost) => {
             if (isReportedPost) {
               if (confirm("해당 게시글/댓글은 신고된 게시글입니다. 정말 삭제하시겠습니까? (신고 목록도 삭제)")) {
-                deletePost(postOrReplyId);
+                deleteReply(postOrReplyId);
               }
             } else {
-              deletePost(postOrReplyId);
+              deleteReply(postOrReplyId);
             }
           })
           .catch((error) => {

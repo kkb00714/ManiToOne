@@ -162,4 +162,15 @@ public class ReplyService {
         rereply.getIsBlind()
     ));
   }
+
+  // 답글의 답글 개수 조회
+  public Integer getReRepliesNum(Long replyId) {
+    List<ReplyPost> rereplies = replyPostRepository.findAllByReplyPostIdAndParentIdIsNotNull(
+            replyId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return rereplies.size();
+  }
 }

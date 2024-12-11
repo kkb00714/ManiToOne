@@ -7,6 +7,7 @@ import com.finalproject.manitoone.domain.dto.ReplyResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdateReplyRequestDto;
 import com.finalproject.manitoone.service.ReplyService;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -102,5 +103,12 @@ public class ReplyController {
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
     Page<ReplyResponseDto> rereplies = replyService.getReReplies(replyId, pageable);
     return ResponseEntity.ok(rereplies);
+  }
+
+  // 답글의 답글 개수 조회
+  @GetMapping("/rereplies/number/{replyId}")
+  public ResponseEntity<Integer> getReRepliesNum(@PathVariable("replyId") Long replyId) {
+    Integer num = replyService.getReRepliesNum(replyId);
+    return ResponseEntity.ok(num);
   }
 }

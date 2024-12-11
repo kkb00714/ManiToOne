@@ -21,5 +21,5 @@ public class ReplyResponseDto {
   private LocalDateTime createdAt;
   private Boolean isBlind;
   private Integer rerepliesNumber;
-  private Integer likesNumber;
+//  private Integer likesNumber;
 }

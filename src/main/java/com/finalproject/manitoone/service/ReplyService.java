@@ -44,8 +44,14 @@ public class ReplyService {
         .parentId(post.getPostId())
         .build());
 
-    return new ReplyResponseDto(reply.getPost(), reply.getUser(), reply.getParentId(),
-        reply.getContent(), reply.getCreatedAt(), reply.getIsBlind());
+    return ReplyResponseDto.builder()
+        .post(reply.getPost())
+        .user(reply.getUser())
+        .parentId(reply.getParentId())
+        .content(reply.getContent())
+        .createdAt(reply.getCreatedAt())
+        .isBlind(reply.getIsBlind())
+        .build();
   }
 
   // 답글의 답글 생성
@@ -62,9 +68,14 @@ public class ReplyService {
         .parentId(parentReply.getReplyPostId())
         .build());
 
-    return new ReplyResponseDto(childReply.getPost(), childReply.getUser(),
-        childReply.getParentId(), childReply.getContent(), childReply.getCreatedAt(),
-        childReply.getIsBlind());
+    return ReplyResponseDto.builder()
+        .post(childReply.getPost())
+        .user(childReply.getUser())
+        .parentId(childReply.getParentId())
+        .content(childReply.getContent())
+        .createdAt(childReply.getCreatedAt())
+        .isBlind(childReply.getIsBlind())
+        .build();
   }
 
   // 답글 수정
@@ -82,9 +93,14 @@ public class ReplyService {
 
     ReplyPost updatedReply = replyPostRepository.save(reply);
 
-    return new ReplyResponseDto(updatedReply.getPost(), updatedReply.getUser(),
-        updatedReply.getParentId(), updatedReply.getContent(), updatedReply.getCreatedAt(),
-        updatedReply.getIsBlind());
+    return ReplyResponseDto.builder()
+        .post(updatedReply.getPost())
+        .user(updatedReply.getUser())
+        .parentId(updatedReply.getParentId())
+        .content(updatedReply.getContent())
+        .createdAt(updatedReply.getCreatedAt())
+        .isBlind(updatedReply.getIsBlind())
+        .build();
   }
 
   // 답글 삭제
@@ -116,22 +132,27 @@ public class ReplyService {
         .reportObjectId(reply.getReplyPostId())
         .build());
 
-    return new ReportResponseDto(report.getReportId(), report.getUserId(),
-        report.getReportObjectId(), report.getReportType(), report.getType());
+    return ReportResponseDto.builder()
+        .reportId(report.getReportId())
+        .userId(report.getUserId())
+        .reportObjectId(report.getReportObjectId())
+        .reportType(report.getReportType())
+        .type(report.getType())
+        .build();
   }
 
   // 답글 좋아요
-  public void likeReply(Long replyId, User user) {
-    ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
-        .orElseThrow(() -> new IllegalArgumentException(
-            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
-        ));
-
-    userPostLikeRepository.save(UserPostLike.builder()
-        .user(user)
-        .replyPost(reply)
-        .build());
-  }
+//  public void likeReply(Long replyId, User user) {
+//    ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
+//        .orElseThrow(() -> new IllegalArgumentException(
+//            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+//        ));
+//
+//    userPostLikeRepository.save(UserPostLike.builder()
+//        .user(user)
+//        .replyPost(reply)
+//        .build());
+//  }
 
   // 답글 조회
   public Page<ReplyResponseDto> getReplies(Long postId, Pageable pageable) {
@@ -147,7 +168,9 @@ public class ReplyService {
         reply.getParentId(),
         reply.getContent(),
         reply.getCreatedAt(),
-        reply.getIsBlind()
+        reply.getIsBlind(),
+        getReRepliesNum(reply.getReplyPostId())
+//        getReplyLikesNum(reply.getReplyPostId())
     ));
   }
 
@@ -175,7 +198,9 @@ public class ReplyService {
         rereply.getParentId(),
         rereply.getContent(),
         rereply.getCreatedAt(),
-        rereply.getIsBlind()
+        rereply.getIsBlind(),
+        getReRepliesNum(rereply.getReplyPostId())
+//        getReplyLikesNum(rereply.getReplyPostId())
     ));
   }
 
@@ -191,12 +216,12 @@ public class ReplyService {
   }
 
   // 답글 좋아요 개수 조회
-  public Integer getReplyLikesNUm(Long replyId) {
-    List<UserPostLike> likes = userPostLikeRepository.findAllByReplyPostReplyPostId(replyId)
-        .orElseThrow(() -> new IllegalArgumentException(
-            IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
-        ));
-
-    return likes.size();
-  }
+//  public Integer getReplyLikesNum(Long replyId) {
+//    List<UserPostLike> likes = userPostLikeRepository.findAllByReplyPostReplyPostId(replyId)
+//        .orElseThrow(() -> new IllegalArgumentException(
+//            IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
+//        ));
+//
+//    return likes.size();
+//  }
 }

@@ -30,8 +30,8 @@ public class UserPostLike {
   @JoinColumn(name = "post_id", nullable = false)
   private Post post;
 
-  @Id
-  @ManyToOne
-  @JoinColumn(name = "reply_post_id", nullable = false)
-  private ReplyPost replyPost;
+//  @Id
+//  @ManyToOne
+//  @JoinColumn(name = "reply_post_id", nullable = false)
+//  private ReplyPost replyPost;
 }

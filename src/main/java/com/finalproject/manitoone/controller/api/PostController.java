@@ -13,14 +13,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -77,8 +75,9 @@ public class PostController {
     PostResponseDto post = postService.getPostDetail(postId);
     return ResponseEntity.ok(post);
   }
-  
-  public CompletableFuture<ResponseEntity<PostResponseDto>> createPost(@RequestBody AddPostRequestDto request,
+
+  public CompletableFuture<ResponseEntity<PostResponseDto>> createPost(
+      @RequestBody AddPostRequestDto request,
       @AuthenticationPrincipal User user) {
     PostResponseDto post = postService.createPost(request, user);
     return CompletableFuture.supplyAsync(

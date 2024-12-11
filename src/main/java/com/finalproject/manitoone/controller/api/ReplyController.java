@@ -83,13 +83,13 @@ public class ReplyController {
   }
 
   // 답글 좋아요
-  @PostMapping("/reply/like/{replyId}")
-  public ResponseEntity<Void> likeReply(@PathVariable("replyId") Long replyId,
-      HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    replyService.likeReply(replyId, user);
-    return ResponseEntity.ok().build();
-  }
+//  @PostMapping("/reply/like/{replyId}")
+//  public ResponseEntity<Void> likeReply(@PathVariable("replyId") Long replyId,
+//      HttpSession session) {
+//    User user = (User) session.getAttribute("user");
+//    replyService.likeReply(replyId, user);
+//    return ResponseEntity.ok().build();
+//  }
 
   // 답글 조회
   @GetMapping("/replies/{postId}")
@@ -122,9 +122,9 @@ public class ReplyController {
   }
 
   // 답글 좋아요 개수 조회
-  @GetMapping("/reply/like/number/{replyId}")
-  public ResponseEntity<Integer> getReplyLikesNum(@PathVariable("replyId") Long replyId) {
-    Integer num = replyService.getReplyLikesNUm(replyId);
-    return ResponseEntity.ok(num);
-  }
+//  @GetMapping("/reply/like/number/{replyId}")
+//  public ResponseEntity<Integer> getReplyLikesNum(@PathVariable("replyId") Long replyId) {
+//    Integer num = replyService.getReplyLikesNum(replyId);
+//    return ResponseEntity.ok(num);
+//  }
 }

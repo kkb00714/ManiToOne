@@ -52,4 +52,8 @@ public class ReplyPost {
   public void updateReply(String content) {
     this.content = content;
   }
+
+  public void updateBlind() {
+    this.isBlind = !this.isBlind;
+  }
 }

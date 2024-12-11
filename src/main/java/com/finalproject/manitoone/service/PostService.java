@@ -242,8 +242,6 @@ public class PostService {
   }
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
-    // TODO: 내 게시글인지는 어떻게 판별할까요?
-    // → 세션 기반 로그인 완성 시 세션에서 받아올 예정
     List<Post> posts = postRepository.findAllByIsBlindFalseAndIsHiddenFalseAndUser_Nickname(
             nickName,
             pageable)

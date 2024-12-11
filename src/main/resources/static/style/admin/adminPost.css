@@ -1,0 +1,49 @@
+.caption-header {
+  margin-right: 580px !important;
+}
+
+.admin-post-image {
+  opacity: 100% !important;
+}
+
+.blind-status {
+  font-size: 12px;
+}
+
+.blind-status a {
+  color: #A5A5A5;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.blind-status a.active {
+  color: black;
+  pointer-events: none;
+}
+
+.blind-status a:hover {
+  text-decoration: underline;
+}
+
+.change-status {
+  position: relative;
+  z-index: 2;
+}
+
+.change-status:hover {
+  text-decoration: underline;
+}
+
+.delete-post {
+  position: relative;
+  z-index: 2;
+}
+
+.delete-post:hover {
+  text-decoration: underline;
+}
+
+.post-table-body tr {
+  position: relative;
+  z-index: 1;
+}

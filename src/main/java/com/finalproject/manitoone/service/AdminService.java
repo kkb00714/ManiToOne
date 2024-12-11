@@ -26,6 +26,7 @@ import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
+import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.FileUtil;
@@ -62,6 +63,7 @@ public class AdminService {
   private final UserPostLikeRepository userPostLikeRepository;
   private final ReplyPostRepository replyPostRepository;
   private final ManitoLetterRepository manitoLetterRepository;
+  private final ReportRepository reportRepository;
 
   private final FileUtil fileUtil;
 
@@ -547,5 +549,9 @@ public class AdminService {
       return replyPost != null ? replyPost.getContent() : null;
     }
     return null;
+  }
+
+  public boolean isReportPost(Long postId) {
+    return reportRepository.existsByTypeAndReportObjectId(ReportObjectType.POST, postId);
   }
 }

@@ -8,7 +8,9 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentPage = 1;
 
   function formatDatetimeSecond(input) {
-    if (!input) return "없음";
+    if (!input) {
+      return "없음";
+    }
 
     const [date, time] = input.split("T");
     return `${date} ${time}`;
@@ -76,7 +78,8 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${post.user.name}</td>
           <td>${post.user.nickname}</td>
           <td>${post.user.email}</td>
-          <td>${post.content.length > 15 ? post.content.substring(0, 15) + '...' : post.content}</td>
+          <td>${post.content.length > 15 ? post.content.substring(0, 15) + '...'
+              : post.content}</td>
           <td>${formatDatetimeSecond(post.createdAt)}</td>
           <td class="blind-status">${post.isBlind ? 'O' : 'X'}</td>
           <td><a href="#" class="change-status" data-id="${post.postId}">변경</a></td>
@@ -182,7 +185,8 @@ document.addEventListener("DOMContentLoaded", function () {
     link.addEventListener("click", function (event) {
       event.preventDefault();
 
-      document.querySelectorAll(".status-filter").forEach((link) => link.classList.remove("active"));
+      document.querySelectorAll(".status-filter").forEach(
+          (link) => link.classList.remove("active"));
       this.classList.add("active");
 
       const currentStatus = this.dataset.status;
@@ -234,18 +238,23 @@ document.addEventListener("DOMContentLoaded", function () {
       const postId = event.target.dataset.id;
 
       if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
-        console.log(postId);
-        fetch(`/admin/post/${postId}`, {
-          method: "DELETE",
+        fetch(`/admin/report/post/${postId}`, {
+          method: "GET",
         })
         .then((response) => {
           if (!response.ok) {
             throw new Error("Failed to delete post");
           }
-          return response.text();
+          return response.json();
         })
-        .then((data) => {
-          loadPage(currentPage);
+        .then((isReportedPost) => {
+          if (isReportedPost) {
+            if (confirm("해당 게시글은 신고된 게시글입니다. 정말 삭제하시겠습니까? (신고 목록도 삭제)")) {
+              deletePost(postId);
+            }
+          } else {
+            deletePost(postId);
+          }
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -254,4 +263,23 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   });
+
+  function deletePost(postId) {
+    fetch(`/admin/post/${postId}`, {
+      method: "DELETE",
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to delete post");
+      }
+      return response.text();
+    })
+    .then(() => {
+      loadPage(currentPage); // 현재 페이지 새로 로드
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("게시글 삭제 중 오류가 발생했습니다.");
+    });
+  }
 });

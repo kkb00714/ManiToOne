@@ -72,6 +72,12 @@ public class AdminApiController {
     return ResponseEntity.ok().build();
   }
 
+  @DeleteMapping("/reply/{replyPostId}")
+  public ResponseEntity<Object> deleteReply(@PathVariable Long replyPostId) {
+    adminService.deleteReply(replyPostId);
+    return ResponseEntity.ok().build();
+  }
+
   @PostMapping("/reports")
   public ResponseEntity<Object> getReports (
       @PageableDefault(size = 2, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,

@@ -379,6 +379,26 @@ public class AdminService {
     postRepository.delete(post);
   }
 
+  // fixme : 부모 댓글이 없다면 최상위 댓글 자식 댓글 다 삭제 해야하나??
+  public void deleteReply(Long replyPostId) {
+    ReplyPost replyPost = replyPostRepository.findByReplyPostId(replyPostId).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_REPLY_WITH_GIVEN_ID.getMessage()));
+
+    // 최상위 댓글이라면 자식 댓글 삭제
+    List<ReplyPost> replyPosts = replyPostRepository.findAllByParentId(replyPostId).orElse(new ArrayList<>());
+    if (!replyPosts.isEmpty()) {
+      replyPostRepository.deleteAll(replyPosts);
+    }
+
+    // 댓글 신고 목록 삭제
+    List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(ReportObjectType.REPLY, replyPostId).orElse(new ArrayList<>());
+    if (!reports.isEmpty()) {
+      reportRepository.deleteAll(reports);
+    }
+
+    replyPostRepository.delete(replyPost);
+  }
+
   public Page<ReportSearchResponseDto> searchReports(ReportSearchRequestDto reportSearchRequestDto,
       Pageable pageable) {
     QReport report = QReport.report;

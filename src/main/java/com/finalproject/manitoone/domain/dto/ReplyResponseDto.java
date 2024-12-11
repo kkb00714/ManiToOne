@@ -20,4 +20,6 @@ public class ReplyResponseDto {
   private String content;
   private LocalDateTime createdAt;
   private Boolean isBlind;
+  private Integer likesNumber;
+  private Integer rerepliesNumber;
 }

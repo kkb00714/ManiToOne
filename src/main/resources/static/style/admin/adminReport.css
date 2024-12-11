@@ -38,3 +38,30 @@
   font-size: 12px;
   height: 30px;
 }
+
+.caption-header {
+  margin-right: 540px !important;
+}
+
+.change-status {
+  position: relative;
+  z-index: 2;
+}
+
+.change-status:hover {
+  text-decoration: underline;
+}
+
+.delete-post {
+  position: relative;
+  z-index: 2;
+}
+
+.delete-post:hover {
+  text-decoration: underline;
+}
+
+.post-table-body tr {
+  position: relative;
+  z-index: 1;
+}

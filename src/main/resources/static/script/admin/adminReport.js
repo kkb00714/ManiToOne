@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const tableBody = document.querySelector("#post-table-body");
+  const tableBody = document.querySelector("#report-table-body");
   const pagination = document.querySelector(".pagination");
   const searchButton = document.querySelector("#searchButton");
   const searchQuery = document.querySelector("#searchQuery");

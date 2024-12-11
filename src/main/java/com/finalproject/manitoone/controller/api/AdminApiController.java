@@ -83,4 +83,9 @@ public class AdminApiController {
   public ResponseEntity<Object> isReportPost(@PathVariable Long postId) {
     return ResponseEntity.ok(adminService.isReportPost(postId));
   }
+
+  @GetMapping("/report/reply/{replyPostId}")
+  public ResponseEntity<Object> isReportReply(@PathVariable Long replyPostId) {
+    return ResponseEntity.ok(adminService.isReportReply(replyPostId));
+  }
 }

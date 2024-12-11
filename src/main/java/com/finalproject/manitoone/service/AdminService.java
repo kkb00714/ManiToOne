@@ -553,4 +553,8 @@ public class AdminService {
   public boolean isReportPost(Long postId) {
     return reportRepository.existsByTypeAndReportObjectId(ReportObjectType.POST, postId);
   }
+
+  public boolean isReportReply(Long replyPostId) {
+    return reportRepository.existsByTypeAndReportObjectId(ReportObjectType.REPLY, replyPostId);
+  }
 }

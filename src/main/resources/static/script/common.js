@@ -1,3 +1,5 @@
+//common.js
+
 class BaseModal {
   constructor(modalId, backgroundId, openBtnId, closeBtnId) {
     this.modal = document.getElementById(modalId);
@@ -110,7 +112,8 @@ class BaseModal {
       Array.from(toggleElements).forEach(element => {
         const img = element.querySelector('img');
         if (img) {
-          img.src = img.getAttribute('data-unchecked-src').replace('@{', '').replace('}', '');
+          img.src = img.getAttribute('data-unchecked-src').replace('@{',
+              '').replace('}', '');
           element.style.opacity = '0.3';
         }
       });
@@ -140,7 +143,6 @@ class ProfileUpdateModal extends BaseModal {
   }
 }
 
-// 공통 기능
 const CommonUtils = {
   initializeAllTextareas() {
     const allTextareas = document.getElementsByTagName('textarea');
@@ -168,30 +170,31 @@ const CommonUtils = {
     }
   },
 
-  // 토글 기능
   toggleElement(element, type) {
     const img = element.querySelector('img');
-    if (!img) return;
+    if (!img) {
+      return;
+    }
 
     const isChecked = img.src.includes('icon-check.png');
 
     if (isChecked) {
-      img.src = img.getAttribute('data-unchecked-src').replace('@{', '').replace('}', '');
+      img.src = img.getAttribute('data-unchecked-src').replace('@{',
+          '').replace('}', '');
       element.style.opacity = '0.3';
     } else {
-      img.src = img.getAttribute('data-checked-src').replace('@{', '').replace('}', '');
+      img.src = img.getAttribute('data-checked-src').replace('@{', '').replace(
+          '}', '');
       element.style.opacity = '1';
     }
   }
 };
 
-// 페이지 로드시 초기화
 document.addEventListener('DOMContentLoaded', () => {
   CommonUtils.initializePageModals();
   CommonUtils.initializeAllTextareas();
 
-  // 전역 토글 함수 설정
-  window.toggleManito = function(element, type) {
+  window.toggleManito = function (element, type) {
     CommonUtils.toggleElement(element, type);
   };
 });

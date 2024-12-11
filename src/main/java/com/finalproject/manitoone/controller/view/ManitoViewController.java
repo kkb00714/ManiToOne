@@ -5,6 +5,7 @@ import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.service.ManitoService;
 import com.finalproject.manitoone.service.PostService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,10 +29,21 @@ public class ManitoViewController {
     return "fragments/common/manito-letter :: manito-letter(letter=${letter})";
   }
 
+  // 마니또 게시글 배당 로직 설정 전 임시
   @GetMapping
-  public String getManitoPage(Model model) {
-    PostViewResponseDto todaysPost = postService.getPost(107L); // post_id 107인 게시글 조회
+  public String getManitoPage(HttpSession session, Model model) {
+    String nickname = (String) session.getAttribute("nickname");
+    if (nickname == null) {
+      return "redirect:/login";
+    }
+
+    PostViewResponseDto todaysPost = postService.getPost(108L);
+    ManitoLetterResponseDto existingLetter = manitoService.getLetterByPostIdAndNickname(108L,
+        nickname);
+
+    model.addAttribute("userNickname", nickname);
     model.addAttribute("todaysPost", todaysPost);
+    model.addAttribute("existingLetter", existingLetter);
     return "pages/manito";
   }
 }

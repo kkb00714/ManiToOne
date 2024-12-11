@@ -58,7 +58,8 @@ public class ManitoLetter {
   private String answerLetter;
 
   @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
-  private LocalDateTime createdAt;
+  @Builder.Default
+  private LocalDateTime createdAt = LocalDateTime.now();
 
   @Column(name = "is_answer_report", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. 신고 안됨\\n1. 신고됨'")
   @Builder.Default

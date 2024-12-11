@@ -6,6 +6,7 @@ import com.finalproject.manitoone.dto.manito.ManitoLetterRequestDto;
 import com.finalproject.manitoone.dto.manito.ManitoLetterResponseDto;
 import com.finalproject.manitoone.dto.manito.ManitoPageResponseDto;
 import com.finalproject.manitoone.service.ManitoService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -14,8 +15,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,10 +35,14 @@ public class ManitoController {
   public ResponseEntity<ManitoLetterResponseDto> createManitoLetter(
       @PathVariable Long manitoPostId,
       @Valid @RequestBody ManitoLetterRequestDto request,
-      @AuthenticationPrincipal UserDetails userDetails
+      HttpSession session
   ) {
+    String nickname = (String) session.getAttribute("nickname");
+    if (nickname == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(manitoService.createLetter(manitoPostId, request, userDetails.getUsername()));
+        .body(manitoService.createLetter(manitoPostId, request, nickname));
   }
 
   // 편지에 대한 답장
@@ -47,21 +50,28 @@ public class ManitoController {
   public ResponseEntity<ManitoLetterResponseDto> answerManitoLetter(
       @PathVariable Long manitoPostId,
       @Valid @RequestBody ManitoAnswerRequestDto request,
-      @AuthenticationPrincipal UserDetails userDetails
+      HttpSession session
   ) {
+    String nickname = (String) session.getAttribute("nickname");
+    if (nickname == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
     return ResponseEntity.ok(
-        manitoService.answerManitoLetter(manitoPostId, request.getAnswerComment(),
-            userDetails.getUsername())
+        manitoService.answerManitoLetter(manitoPostId, request.getAnswerComment(), nickname)
     );
   }
 
   // 편지 신고
-  @PutMapping("/manito/report/{manitoPostId}")
-  public ResponseEntity<Void> reportManitoLetter(
+  @PutMapping("/manito/report/answer/{manitoPostId}")
+  public ResponseEntity<Void> reportManitoAnswer(
       @PathVariable Long manitoPostId,
-      @AuthenticationPrincipal UserDetails userDetails
+      HttpSession session
   ) {
-    manitoService.reportManitoLetter(manitoPostId, userDetails.getUsername());
+    String nickname = (String) session.getAttribute("nickname");
+    if (nickname == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    manitoService.reportManitoAnswer(manitoPostId, nickname);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -69,9 +79,13 @@ public class ManitoController {
   @PutMapping("/manito/hide/letter/{manitoPostId}")
   public ResponseEntity<Void> toggleManitoLetterVisibility(
       @PathVariable Long manitoPostId,
-      @AuthenticationPrincipal UserDetails userDetails
+      HttpSession session
   ) {
-    manitoService.toggleManitoLetterVisibility(manitoPostId, userDetails.getUsername());
+    String nickname = (String) session.getAttribute("nickname");
+    if (nickname == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    manitoService.toggleManitoLetterVisibility(manitoPostId, nickname);
     return ResponseEntity.ok().build();
   }
 
@@ -79,10 +93,14 @@ public class ManitoController {
   @GetMapping("/receivemanito/{nickname}")
   public ResponseEntity<ManitoPageResponseDto> getReceiveManito(
       @PathVariable String nickname,
-      @AuthenticationPrincipal UserDetails userDetails,
+      HttpSession session,
       @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
   ) {
-    if (!userDetails.getUsername().equals(nickname)) {
+    String sessionNickname = (String) session.getAttribute("nickname");
+    if (sessionNickname == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    if (!nickname.equals(sessionNickname)) {
       throw new AccessDeniedException(ManitoErrorMessages.NO_PERMISSION_MAILBOX.getMessage());
     }
     return ResponseEntity.ok(manitoService.getReceiveManito(nickname, pageable));
@@ -92,25 +110,44 @@ public class ManitoController {
   @GetMapping("/sendmanito/{nickname}")
   public ResponseEntity<ManitoPageResponseDto> getSendManito(
       @PathVariable String nickname,
-      @AuthenticationPrincipal UserDetails userDetails,
+      HttpSession session,
       @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
   ) {
-    if (!userDetails.getUsername().equals(nickname)) {
+    String sessionNickname = (String) session.getAttribute("nickname");
+    if (sessionNickname == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    if (!nickname.equals(sessionNickname)) {
       throw new AccessDeniedException(ManitoErrorMessages.NO_PERMISSION_MAILBOX.getMessage());
     }
-
     return ResponseEntity.ok(manitoService.getSendManito(nickname, pageable));
   }
 
   // 답장 신고
-  @PutMapping("/manito/report/answer/{manitoPostId}")
-  public ResponseEntity<Void> reportManitoAnswer(
+  @PutMapping("/manito/report/{manitoPostId}")
+  public ResponseEntity<Void> reportManitoLetter(
       @PathVariable Long manitoPostId,
-      @AuthenticationPrincipal UserDetails userDetails
+      HttpSession session
   ) {
-    manitoService.reportManitoAnswer(manitoPostId, userDetails.getUsername());
+    String nickname = (String) session.getAttribute("nickname");
+    if (nickname == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    manitoService.reportManitoLetter(manitoPostId, nickname);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-
+  // 단일 편지 조회
+  @GetMapping("/manito/letter/{letterId}")
+  public ResponseEntity<ManitoLetterResponseDto> getManitoLetter(
+      @PathVariable Long letterId,
+      HttpSession session
+  ) {
+    String nickname = (String) session.getAttribute("nickname");
+    if (nickname == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    return ResponseEntity.ok(manitoService.getLetter(letterId));
+  }
 }
+

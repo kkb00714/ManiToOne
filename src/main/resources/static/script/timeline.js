@@ -1,3 +1,5 @@
+//timeline.js
+
 const Timeline = {
   page: 0,
   loading: false,
@@ -6,7 +8,9 @@ const Timeline = {
 
   init() {
     this.container = document.querySelector('.timeline-posts');
-    if (!this.container) return;
+    if (!this.container) {
+      return;
+    }
 
     this.setupInfiniteScroll();
     this.loadInitialPosts();
@@ -15,7 +19,9 @@ const Timeline = {
   // 무한스크롤
   setupInfiniteScroll() {
     window.addEventListener('scroll', () => {
-      if (this.loading || !this.hasMore) return;
+      if (this.loading || !this.hasMore) {
+        return;
+      }
 
       const {scrollTop, scrollHeight, clientHeight} = document.documentElement;
 
@@ -37,7 +43,9 @@ const Timeline = {
       this.showLoader();
 
       const response = await fetch(`/api/timeline?page=${this.page}&size=20`);
-      if (!response.ok) throw new Error('게시글을 불러오는데 실패했습니다.');
+      if (!response.ok) {
+        throw new Error('게시글을 불러오는데 실패했습니다.');
+      }
 
       const data = await response.json();
 
@@ -116,7 +124,9 @@ const Timeline = {
   },
 
   createImagesHTML(images) {
-    if (!images || images.length === 0) return '';
+    if (!images || images.length === 0) {
+      return '';
+    }
 
     return `
         <img 
@@ -142,7 +152,9 @@ const Timeline = {
 
   hideLoader() {
     const loader = document.querySelector('.timeline-loader');
-    if (loader) loader.remove();
+    if (loader) {
+      loader.remove();
+    }
   },
 
   showEmptyState() {

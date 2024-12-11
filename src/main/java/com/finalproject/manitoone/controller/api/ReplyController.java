@@ -120,4 +120,11 @@ public class ReplyController {
     Integer num = replyService.getReRepliesNum(replyId);
     return ResponseEntity.ok(num);
   }
+
+  // 답글 좋아요 개수 조회
+  @GetMapping("/reply/like/number/{replyId}")
+  public ResponseEntity<Integer> getReplyLikesNum(@PathVariable("replyId") Long replyId) {
+    Integer num = replyService.getReplyLikesNUm(replyId);
+    return ResponseEntity.ok(num);
+  }
 }

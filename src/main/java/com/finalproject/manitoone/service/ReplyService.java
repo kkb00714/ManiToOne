@@ -189,4 +189,14 @@ public class ReplyService {
 
     return rereplies.size();
   }
+
+  // 답글 좋아요 개수 조회
+  public Integer getReplyLikesNUm(Long replyId) {
+    List<UserPostLike> likes = userPostLikeRepository.findAllByReplyPostReplyPostId(replyId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return likes.size();
+  }
 }

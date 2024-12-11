@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.controller;
 
 import com.finalproject.manitoone.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +17,8 @@ public class ProfileViewController {
   private final UserService userService;
 
   @GetMapping("/{nickname}")
-  public String myPage(@PathVariable String nickname, Model model) {
+  public String myPage(@PathVariable String nickname, Model model, HttpSession session) {
+    model.addAttribute("nickname", session.getAttribute("nickname"));
     model.addAttribute("user", userService.getUserByNickname(nickname));
     return "profile";
   }

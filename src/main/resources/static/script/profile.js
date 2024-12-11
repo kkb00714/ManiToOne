@@ -9,7 +9,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.querySelector('.my-post-menu-switch').addEventListener('click', () => switchCategory(1));
   document.querySelector('.like-it-menu-switch').addEventListener('click', () => switchCategory(2));
-  document.querySelector('.hidden-post-menu-switch').addEventListener('click', () => switchCategory(3));
+  if (document.querySelector('.hidden-post-menu-switch'))
+  {
+    document.querySelector('.hidden-post-menu-switch').addEventListener('click', () => switchCategory(3));
+  }
 
   loadPosts(pageNum);
 
@@ -89,12 +92,12 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
           <div class="option-icons">
             <img class="tiny-icons" src="/images/icons/UI-more2.png" alt="more options" />
-            ${userNickName !== post.nickName
+            ${myNickName !== post.nickName
         ? `<img class="tiny-icons" src="/images/icons/icon-add-friend.png" alt="add friend" data-target-id="${post.nickName}"/>`
         : ''}
             <div class="more-options-menu hidden">
               <ul>
-                ${userNickName === post.nickName
+                ${myNickName === post.nickName
         ? `<li><a href="#" class="hide-post" data-post-id="${post.postId}">숨기기</a></li>`
         : `<li><a href="#" class="report-post" data-post-id="${post.postId}">신고하기</a></li>`}
               </ul>
@@ -137,10 +140,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function handleAddFriendClick() {
-    const myId = userNickName; // 내 아이디
     const targetId = this.dataset.targetId;
 
-    fetch(`/api/follow/${myId}/${targetId}`)
+    fetch(`/api/follow/${targetId}`)
     .then(response => handleFollowResponse(response, this))
     .catch(error => console.error("API 호출 중 오류 발생:", error));
   }
@@ -225,21 +227,21 @@ function addHidePostEventListener() {
           },
           body: JSON.stringify({ postId: postId }),
         })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
+        .then(response => {
+          if (response.ok) {
             alert('게시글이 숨김 처리 되었습니다.');
           } else {
-            alert('게시글 숨김 처리를 실패했습니다.');
+            alert('게시글 숨김 처리에 실패했습니다.');
           }
         })
         .catch(error => {
           console.error('Error:', error);
-          alert('요청에 실패했습니다.');
+          alert(error.message || '요청에 실패했습니다.');
         });
       } else {
         alert('게시글 ID를 찾을 수 없습니다.');
       }
+
     });
   });
 }
@@ -276,3 +278,69 @@ function addReportPostEventListener() {
     });
   });
 }
+
+function openModal(followers) {
+  const followerList = document.getElementById("followerList");
+
+  followerList.innerHTML = "";
+
+  followers.forEach(follower => {
+    const listItem = document.createElement("li");
+    listItem.classList.add("list-group-item");
+
+    listItem.innerHTML = `
+      <a href="/profile/${follower.nickname}" class="d-flex align-items-center">
+        <img src="${follower.profileImage}" alt="Profile" class="rounded-circle" width="30" height="30">
+        ${follower.name} (@${follower.nickname})
+      </a>
+    `;
+
+    followerList.appendChild(listItem);
+  });
+
+  const myModal = new bootstrap.Modal(document.getElementById('followerModal'));
+  myModal.show();
+}
+
+function getFollowers() {
+  const followerApiUrl = `/api/user/${userNickName}`;
+  fetch(followerApiUrl)
+  .then(response => response.json())
+  .then(data => {
+    const followers = data.followers || [];
+    openModal(followers);
+  })
+  .catch(error => {
+    console.error("팔로워 목록을 가져오는 데 실패했습니다.", error);
+  });
+}
+
+function getFollowings() {
+  const followerApiUrl = `/api/user/${userNickName}`;
+  fetch(followerApiUrl)
+  .then(response => response.json())
+  .then(data => {
+    const followers = data.followings || [];
+    openModal(followers);
+  })
+  .catch(error => {
+    console.error("팔로잉 목록이 Even하게 익지 않았습니다.", error);
+  });
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const followerLink = document.getElementById("followerLink");
+  const followingLink = document.getElementById("followingLink");
+  followerLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    const nickname = `${userNickName}`;
+
+    getFollowers(nickname);
+  });
+  followingLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    const nickname = `${userNickName}`;
+
+    getFollowings(nickname);
+  })
+});

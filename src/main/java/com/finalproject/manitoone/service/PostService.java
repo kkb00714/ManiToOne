@@ -254,12 +254,12 @@ public class PostService {
 
   // 게시글 좋아요 개수 조회
   public Integer getPostLikesNum(Long postId) {
-    List<UserPostLike> likeList = userPostLikeRepository.findAllByPostPostId(postId)
+    List<UserPostLike> likes = userPostLikeRepository.findAllByPostPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
         ));
 
-    return likeList.size();
+    return likes.size();
   }
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {

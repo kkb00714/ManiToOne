@@ -89,6 +89,13 @@ public class ReplyController {
     return ResponseEntity.ok(replies);
   }
 
+  // 답글 개수 조회
+  @GetMapping("/replies/number/{postId}")
+  public ResponseEntity<Integer> getPostRepliesNum(@PathVariable("postId") Long postId) {
+    Integer num = replyService.getPostRepliesNum(postId);
+    return ResponseEntity.ok(num);
+  }
+
   // 답글의 답글 조회
   @GetMapping("/rereplies/{replyId}")
   public ResponseEntity<Page<ReplyResponseDto>> getReReplies(@PathVariable("replyId") Long replyId,

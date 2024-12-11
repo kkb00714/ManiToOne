@@ -51,7 +51,7 @@ public class AdminApiController {
 
   @PostMapping("/posts")
   public ResponseEntity<Object> getAllPosts(
-      @PageableDefault(size = 2, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
+      @PageableDefault(size = 2, sort = "postId", direction = Sort.Direction.ASC) Pageable pageable,
       @RequestBody PostSearchRequestDto postSearchRequestDto) {
     return ResponseEntity.ok(adminService.searchPosts(postSearchRequestDto, pageable));
   }
@@ -80,7 +80,7 @@ public class AdminApiController {
 
   @PostMapping("/reports")
   public ResponseEntity<Object> getReports (
-      @PageableDefault(size = 2, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
+      @PageableDefault(size = 2, sort = "reportId", direction = Sort.Direction.ASC) Pageable pageable,
       @RequestBody ReportSearchRequestDto reportSearchRequestDto) {
     return ResponseEntity.ok(adminService.searchReports(reportSearchRequestDto, pageable));
   }

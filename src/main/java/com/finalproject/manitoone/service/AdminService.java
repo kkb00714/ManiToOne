@@ -506,7 +506,7 @@ public class AdminService {
         .where(builder)
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
-        .orderBy(report.createdAt.desc())
+        .orderBy(report.reportId.asc())
         .fetch();
 
     long total = queryFactory

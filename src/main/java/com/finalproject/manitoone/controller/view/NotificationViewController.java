@@ -17,6 +17,9 @@ public class NotificationViewController {
 
   @GetMapping
   public String getNotifications(Model model, HttpServletRequest request) {
+    if (request.getSession() == null || request.getSession().getAttribute("email") == null) {
+      return "redirect:/login";
+    }
     model.addAttribute("notifications", notificationService.getAllUnReadNotifications(request.getSession()));
     return "/pages/notifications";
   }

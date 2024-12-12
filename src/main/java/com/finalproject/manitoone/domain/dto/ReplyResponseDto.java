@@ -17,6 +17,7 @@ public class ReplyResponseDto {
   private Post post;
   private User user;
   private Long parentId;
+  private Long replyPostId;
   private String content;
   private LocalDateTime createdAt;
   private Boolean isBlind;

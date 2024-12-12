@@ -566,7 +566,7 @@ class ManitoLetterRenderer {
             <span class="manito-user-name">익명의 마니또</span>
             <span class="passed-time">${letter.timeDiff}</span>
           </div>
-          <p class="manito-content-text">${letter.letterContent}</p>
+          <p class="manito-content-text">${letter.letterContent?.replace(/\n/g, '<br>') || ''}</p>
           <div class="manito-recommend-music">
             <div class="recommend-music">
               <img class="tiny-icons-linkless" src="/images/icons/icon-music.png" alt="music icon" />

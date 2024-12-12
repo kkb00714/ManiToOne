@@ -105,7 +105,11 @@
                     th:text="${#temporals.format(reply.createdAt, 'mm분')}"
                   ></span>
                 </div>
-                <p class="content-text" th:text="${reply.content}"></p>
+                <p
+                  class="content-text"
+                  th:text="${reply.content}"
+                  th:onclick="'directToReply(' + ${reply.replyPostId} + ')'"
+                ></p>
                 <div class="reaction-icons">
                   <img
                     class="tiny-icons"

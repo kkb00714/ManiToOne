@@ -19,3 +19,8 @@ async function likePost(postId) {
     alert("좋아요 요청 중 오류가 발생했습니다.");
   }
 }
+
+// 답글 상세 페이지 이동
+function directToReply(replyId) {
+  window.location.href = `/reply/${replyId}`;
+}

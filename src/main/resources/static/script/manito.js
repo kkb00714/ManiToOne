@@ -579,7 +579,7 @@ class ManitoLetterRenderer {
             ` : ''}
           </div>
           ${letter.musicComment ? `
-            <p class="manito-music-comment">${letter.musicComment}</p>
+            <p class="manito-music-comment">${letter.musicComment?.replace(/\n/g, '<br>') || ''}</p>
           ` : ''}
         </div>
         <div class="option-icons">

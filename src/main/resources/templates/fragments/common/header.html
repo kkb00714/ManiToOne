@@ -14,8 +14,7 @@
           /></button>
         </a>
       </li>
-      <li class="UI-icon-list" th:if="${session.user != null}">
-        <!-- 세션에 유저가 있을 때 -->
+      <li class="UI-icon-list" th:if="${session.email != null}">
         <!-- 세션에 유저가 있을 때 -->
         <a th:href="@{/noti}">
           <button>
@@ -25,7 +24,7 @@
           </button>
         </a>
       </li>
-      <li class="UI-icon-list" th:if="${session.user == null}">
+      <li class="UI-icon-list" th:if="${session.email == null}">
         <!-- 세션에 유저가 없을 때 -->
         <a th:href="@{/login}">
           <button>

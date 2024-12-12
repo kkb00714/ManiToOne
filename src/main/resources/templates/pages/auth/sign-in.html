@@ -20,7 +20,7 @@
     <img th:src="@{/images/logo/long-logo.png}" alt="ManiToOne logo"/>
   </div>
   <div class="sign-in-container">
-    <form action="">
+    <form>
       <div class="sign-in-input-container">
         <input
             class="sign-in-input"
@@ -80,7 +80,7 @@
 
     // 입력값 검증
     if (!userId || !password) {
-      alert("아이디와 비밀번호를 입력해주세요.");
+      alert("아이디와 비밀번호를 확인해주세요.");
       return;
     }
 
@@ -95,18 +95,20 @@
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(loginData),
+      credentials: "include",
     })
     .then(response => {
       if (response.ok) {
-        return response.json();
+        return response.text();
       } else {
         return response.text().then(errorText => {
-          throw new Error(errorText);
+          throw new Error(errorText.message);
         });
       }
     })
     .then(userInfo => {
-      alert("로그인 성공! 환영합니다.");
+      const parsedUserInfo = JSON.parse(userInfo);
+      alert(`로그인 성공! 환영합니다, ${parsedUserInfo.nickname} 님.`);
       window.location.href = "/";
     })
     .catch(error => {

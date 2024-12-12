@@ -41,13 +41,11 @@ public class ReplyService {
         .post(post)
         .user(user)
         .content(request.getContent())
-        .parentId(post.getPostId())
         .build());
 
     return ReplyResponseDto.builder()
         .post(reply.getPost())
         .user(reply.getUser())
-        .parentId(reply.getParentId())
         .replyPostId(reply.getReplyPostId())
         .content(reply.getContent())
         .createdAt(reply.getCreatedAt())
@@ -209,8 +207,7 @@ public class ReplyService {
 
   // 답글의 답글 조회
   public Page<ReplyResponseDto> getReReplies(Long replyId, Pageable pageable) {
-    Page<ReplyPost> rereplies = replyPostRepository.findAllByReplyPostIdAndParentIdIsNotNull(
-            replyId, pageable)
+    Page<ReplyPost> rereplies = replyPostRepository.findAllByParentId(replyId, pageable)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));
@@ -230,8 +227,7 @@ public class ReplyService {
 
   // 답글의 답글 개수 조회
   public Integer getReRepliesNum(Long replyId) {
-    List<ReplyPost> rereplies = replyPostRepository.findAllByReplyPostIdAndParentIdIsNotNull(
-            replyId)
+    List<ReplyPost> rereplies = replyPostRepository.findAllByParentId(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));

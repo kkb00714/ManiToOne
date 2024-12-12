@@ -61,10 +61,21 @@ public class NotificationService {
         .toList();
   }
 
-  public void readAllNotifications(User user) {
+  // 알림 읽음 모두 처리
+  public void readAllNotifications(HttpSession session) {
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
+    }
     List<Notification> notifications = notificationRepository.findByUserAndIsReadFalse(user);
-    notifications.forEach(Notification::markAsRead);
-    notificationRepository.saveAll(notifications);
+    if (!notifications.isEmpty()) {
+      notifications.forEach(notification -> {
+        if (user.getNickname().equals(notification.getUser().getNickname())) {
+          notification.markAsRead();
+        }
+      });
+      notificationRepository.saveAll(notifications);
+    }
   }
 
   // 알림 읽음 단일 처리
@@ -81,9 +92,6 @@ public class NotificationService {
     notification.markAsRead();
     notificationRepository.save(notification);
   }
-
-  // 알림 읽음 모두 처리
-
 
   public boolean hasUnreadNotifications(String email) {
     return notificationRepository.existsByUserEmailAndIsRead(email, false);

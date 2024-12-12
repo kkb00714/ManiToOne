@@ -63,10 +63,12 @@ public class NotificationService {
 
   // 알림 읽음 모두 처리
   public void readAllNotifications(HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
+    String email = (String) session.getAttribute("email");
+    if (email == null) {
       throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
     }
+    User user = userRepository.findByEmail(email).orElseThrow(
+        () -> new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
     List<Notification> notifications = notificationRepository.findByUserAndIsReadFalse(user);
     if (!notifications.isEmpty()) {
       notifications.forEach(notification -> {
@@ -80,10 +82,12 @@ public class NotificationService {
 
   // 알림 읽음 단일 처리
   public void readNotification(Long notiId, HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
+    String email = (String) session.getAttribute("email");
+    if (email == null) {
       throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
     }
+    User user = userRepository.findByEmail(email).orElseThrow(
+        () -> new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
     Notification notification = notificationRepository.findById(notiId)
         .orElseThrow(() -> new IllegalArgumentException("알림이 존재하지 않습니다."));
     if (!user.getNickname().equals(notification.getUser().getNickname())) {

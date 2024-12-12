@@ -58,6 +58,7 @@
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-clover2.png}"
                     alt="I like this"
+                    th:onclick="'likePost(' + ${post.postId} + ')'"
                   />
                   <span class="like-count" th:text="${postLikesNum}"></span>
                   <img

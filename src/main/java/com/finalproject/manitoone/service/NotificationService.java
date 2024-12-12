@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.service;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.NotificationResponseDto;
@@ -21,7 +22,13 @@ public class NotificationService {
   private final DataUtil dataUtil;
 
   public List<NotificationResponseDto> getAllUnReadNotifications(HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email;
+    if (session.getAttribute("email") == null) {
+      throw new IllegalArgumentException("권한이 없습니다.");
+    }
+    email = (String) session.getAttribute("email");
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.USER_NOT_FOUND.getMessage()));
     if (user == null) {
       throw new IllegalArgumentException("권한이 없습니다.");
     }

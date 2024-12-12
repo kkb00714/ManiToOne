@@ -668,6 +668,12 @@ const ManitoPage = {
 
   async toggleLetterVisibility(letterId, toggleButton) {
     try {
+      const checkResponse = await fetch(`/api/manito/letter/${letterId}`);
+      if (!checkResponse.ok) {
+        throw new Error('편지 정보를 불러오는데 실패했습니다.');
+      }
+      const letterData = await checkResponse.json();
+
       const response = await fetch(`/api/manito/hide/letter/${letterId}`, {
         method: 'PUT'
       });
@@ -677,15 +683,16 @@ const ManitoPage = {
       }
 
       const img = toggleButton.querySelector('img');
-      const isChecked = img.src.includes('icon-check.png');
+      const isCurrentlyPublic = letterData.public;
 
-      if (isChecked) {
+      if (isCurrentlyPublic) {
         img.src = img.getAttribute('data-unchecked-src');
         toggleButton.style.opacity = '0.3';
       } else {
         img.src = img.getAttribute('data-checked-src');
         toggleButton.style.opacity = '1';
       }
+
     } catch (error) {
       console.error('Error toggling letter visibility:', error);
       this.modals.showWarningMessage(error.message);
@@ -703,8 +710,12 @@ class ManitoLetterRenderer {
     const ownerClass = isReceived ? 'received' : 'sent';
     const buttonStyle = !isReceived ? 'style="margin-left: auto;"' : '';
 
+    const isChecked = Boolean(letter.public);
+    const checkIconSrc = isChecked ? '/images/icons/icon-check.png' : '/images/icons/icon-check-empty.png';
+    const buttonOpacity = isChecked ? '1' : '0.3';
+
     return `
-      <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}" data-report-type="${isReceived
+     <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}" data-report-type="${isReceived
         ? 'MANITO_LETTER' : 'MANITO_ANSWER'}">
       <div class="manito-reply-container">
         <img class="manito-user-photo" src="/images/icons/icon-clover2.png" alt="anonymous user icon" />
@@ -734,15 +745,15 @@ class ManitoLetterRenderer {
         <div class="option-icons" style="position: relative;">
           <img class="tiny-icons" src="/images/icons/UI-more2.png" alt="more options" />
           <div class="manito-report-menu">
-        <button class="open-report-modal-btn"">신고하기</button>
-      </div>
+            <button class="open-report-modal-btn">신고하기</button>
+          </div>
         </div>
       </div>
       <div class="manito-reaction-container">
         ${isReceived ? `
-          <button class="manito-reply-toggle" onclick="ManitoPage.toggleLetterVisibility(${letter.manitoLetterId}, this)">
+          <button class="manito-reply-toggle" onclick="ManitoPage.toggleLetterVisibility(${letter.manitoLetterId}, this)" style="opacity: ${buttonOpacity}">
             <img class="tiny-icons" 
-                src="/images/icons/icon-check-${letter.isPublic ? '' : 'empty'}.png" 
+                src="${checkIconSrc}" 
                 alt="check icon"
                 data-checked-src="/images/icons/icon-check.png"
                 data-unchecked-src="/images/icons/icon-check-empty.png" />

@@ -737,9 +737,11 @@ class ManitoLetterRenderer {
               </p>
             ` : ''}
           </div>
-          ${letter.musicComment ? `
-            <p class="manito-music-comment">${letter.musicComment?.replace(
-        /\n/g, '<br>') || ''}</p>
+          <p class="manito-music-comment" ${!letter.musicComment ? 'style="color: #8f8f8f; opacity: 0.7; font-style: italic;"' : ''}>
+              ${letter.musicComment ? letter.musicComment.replace(/\n/g, '<br>') : '추천 음악이 없습니다'}
+            </p>
+          ${letter.formattedCreatedAt ? `
+          <p class="post-time">${letter.formattedCreatedAt}</p>
           ` : ''}
         </div>
         <div class="option-icons" style="position: relative;">

@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.dto.manito;
 
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,4 +18,6 @@ public class ManitoLetterResponseDto {
   private String answerLetter;
   private String timeDiff;
   private boolean isOwner;
+  private LocalDateTime createdAt;
+  private String formattedCreatedAt;
 }

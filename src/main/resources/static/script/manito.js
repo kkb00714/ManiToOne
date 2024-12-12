@@ -708,7 +708,6 @@ const ManitoPage = {
 class ManitoLetterRenderer {
   static generateLetterHTML(letter, isReceived = true) {
     const ownerClass = isReceived ? 'received' : 'sent';
-    const buttonStyle = !isReceived ? 'style="margin-left: auto;"' : '';
 
     const isChecked = Boolean(letter.public);
     const checkIconSrc = isChecked ? '/images/icons/icon-check.png' : '/images/icons/icon-check-empty.png';
@@ -762,11 +761,11 @@ class ManitoLetterRenderer {
             <span>이 마니또의 편지를 모두가 볼 수 있도록 공개합니다.</span>
           </button>
           ${!letter.answerLetter ? `
-            <button class="reply-button" ${buttonStyle} onclick="ManitoPage.modals.openReplyModal(${letter.manitoLetterId})">
+            <button class="reply-button" onclick="ManitoPage.modals.openReplyModal(${letter.manitoLetterId})">
               답장하기
             </button>
           ` : `
-            <button class="reply-button" ${buttonStyle} onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, true)">
+            <button class="reply-button" onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, true)">
               내가 보낸 답장 보기
             </button>
           `}
@@ -776,7 +775,7 @@ class ManitoLetterRenderer {
             <span style="color: #3f624c; font-weight: bold;">${isChecked ? '수신자가 이 편지를 모두에게 공개했습니다.' : '이 편지는 공개되어 있지 않습니다.'}</span>
           </div>
           ${letter.answerLetter ? `
-            <button class="reply-button" ${buttonStyle} onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, false)">
+            <button class="reply-button" onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, false)">
               답장 확인하기
             </button>
           ` : ''}

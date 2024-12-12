@@ -855,10 +855,6 @@ h1 {
   }
 }
 
-.manito-reply-outer-container.sent .reply-button {
-  margin-left: auto;
-}
-
 /* 마니또 편지 보내기 모달 */
 
 .manito-letter-modal {
@@ -1808,15 +1804,7 @@ textarea::placeholder, #music-link-input::placeholder {
   }
 }
 
-@media screen and (max-width: 1024px) {
-  .manito-reaction-container {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
-  }
-}
-
-@media screen and (max-width: 830px) {
+@media screen and (max-width: 1070px) {
   .article-container {
     display: none;
   }
@@ -1830,4 +1818,18 @@ textarea::placeholder, #music-link-input::placeholder {
     margin-left: 0;
     min-width: 0;
   }
+}
+
+@media screen and (max-width: 830px) {
+
+  .manito-reaction-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .reply-button {
+    margin-left: auto;
+  }
+
+
 }

@@ -18,7 +18,6 @@ public class NotificationViewController {
   @GetMapping
   public String getNotifications(Model model, HttpServletRequest request) {
     model.addAttribute("notifications", notificationService.getAllUnReadNotifications(request.getSession()));
-    request.getSession().setAttribute("isRead", true);
     return "/pages/notifications";
   }
 }

@@ -48,6 +48,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 알림 섹션의 맨 위에 새로운 알림 추가
         notificationSection.prepend(newNotification);
+
+        // **새로운 알림에 클릭 이벤트 리스너 추가**
+        newNotification.addEventListener('click', () => {
+          const type = newNotification.getAttribute('data-type');
+          const relatedObjectId = newNotification.getAttribute('data-id');
+          const nickname = newNotification.getAttribute('data-nickname');
+
+          handleNotificationClick(type, relatedObjectId, nickname);
+        });
       }
     };
 

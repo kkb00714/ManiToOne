@@ -21,6 +21,12 @@ public class NotificationApiController {
     return ResponseEntity.ok().build();
   }
 
+  @PutMapping("/notification")
+  public ResponseEntity<Object> readAllNotification(HttpServletRequest request) {
+    notificationService.readAllNotifications(request.getSession());
+    return ResponseEntity.ok().build();
+  }
+
   @GetMapping("/notifications/status")
   public ResponseEntity<Object> checkUnreadNotifications(HttpServletRequest request) {
     return ResponseEntity.ok(notificationService.hasUnreadNotifications(

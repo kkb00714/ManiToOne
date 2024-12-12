@@ -714,9 +714,10 @@ class ManitoLetterRenderer {
     const checkIconSrc = isChecked ? '/images/icons/icon-check.png' : '/images/icons/icon-check-empty.png';
     const buttonOpacity = isChecked ? '1' : '0.3';
 
+    const statusStyle = isChecked ? '' : 'opacity: 0.3;';
+
     return `
-     <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}" data-report-type="${isReceived
-        ? 'MANITO_LETTER' : 'MANITO_ANSWER'}">
+     <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}" data-report-type="${isReceived ? 'MANITO_LETTER' : 'MANITO_ANSWER'}">
       <div class="manito-reply-container">
         <img class="manito-user-photo" src="/images/icons/icon-clover2.png" alt="anonymous user icon" />
         <div class="post-content">
@@ -724,8 +725,7 @@ class ManitoLetterRenderer {
             <span class="manito-user-name">익명의 마니또</span>
             <span class="passed-time">${letter.timeDiff}</span>
           </div>
-          <p class="manito-content-text">${letter.letterContent?.replace(/\n/g,
-        '<br>') || ''}</p>
+          <p class="manito-content-text">${letter.letterContent?.replace(/\n/g, '<br>') || ''}</p>
           <div class="manito-recommend-music">
             <div class="recommend-music">
               <img class="tiny-icons-linkless" src="/images/icons/icon-music.png" alt="music icon" />
@@ -739,7 +739,7 @@ class ManitoLetterRenderer {
           </div>
           <p class="manito-music-comment" ${!letter.musicComment ? 'style="color: #8f8f8f; opacity: 0.7; font-style: italic;"' : ''}>
               ${letter.musicComment ? letter.musicComment.replace(/\n/g, '<br>') : '추천 음악이 없습니다'}
-            </p>
+          </p>
           ${letter.formattedCreatedAt ? `
           <p class="post-time">${letter.formattedCreatedAt}</p>
           ` : ''}
@@ -771,6 +771,10 @@ class ManitoLetterRenderer {
             </button>
           `}
         ` : `
+          <div class="manito-visibility-status" style="display: flex; align-items: center; gap: 8px; ${statusStyle}">
+            <img class="tiny-icons" src="${checkIconSrc}" alt="check icon" style="pointer-events: none;" />
+            <span style="color: #3f624c; font-weight: bold;">${isChecked ? '수신자가 이 편지를 모두에게 공개했습니다.' : '이 편지는 공개되어 있지 않습니다.'}</span>
+          </div>
           ${letter.answerLetter ? `
             <button class="reply-button" ${buttonStyle} onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, false)">
               답장 확인하기

@@ -179,7 +179,6 @@ class ManitoLetterModal extends BaseModal {
   }
 }
 
-// 마니또 페이지 관련 기능을 관리
 const ManitoPage = {
   letterBox: {
     currentPage: 0,
@@ -202,8 +201,45 @@ const ManitoPage = {
         return;
       }
 
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialTab = urlParams.get('tab');
+      const initialLetterId = urlParams.get('letterId');
+
       this.setupEventListeners();
+
+      if (initialTab === 'sent') {
+        this.activeTab = 'sent';
+        this.sentTab.classList.add('active');
+        this.receivedTab.classList.remove('active');
+        document.querySelector('.manito-letter-box-switch').classList.remove(
+            'received-active');
+        document.querySelector('.manito-letter-box-switch').classList.add(
+            'sent-active');
+      } else {
+        this.activeTab = 'received';
+        this.receivedTab.classList.add('active');
+        this.sentTab.classList.remove('active');
+        document.querySelector('.manito-letter-box-switch').classList.add(
+            'received-active');
+        document.querySelector('.manito-letter-box-switch').classList.remove(
+            'sent-active');
+      }
+
       await this.loadInitialLetters();
+
+      if (initialLetterId) {
+        setTimeout(() => {
+          const letterElement = document.querySelector(
+              `[data-letter-id="${initialLetterId}"]`);
+          if (letterElement) {
+            letterElement.scrollIntoView({behavior: 'smooth', block: 'center'});
+            letterElement.style.backgroundColor = '#F1F1E3';
+            setTimeout(() => {
+              letterElement.style.backgroundColor = '';
+            }, 1000);
+          }
+        }, 500);
+      }
     },
 
     async refreshLetterBox() {
@@ -294,7 +330,6 @@ const ManitoPage = {
         const userNickname = document.querySelector(
             'meta[name="user-nickname"]')?.content;
 
-        //개발 도중
         if (!userNickname) {
           this.container.innerHTML = `
                 <div class="empty-letter-message">
@@ -382,7 +417,6 @@ const ManitoPage = {
     }
   },
 
-  // 모달 관련 기능
   modals: {
     letterModal: null,
     replyModal: null,
@@ -448,15 +482,15 @@ const ManitoPage = {
 
     async handleReport(letterId, reportType) {
       try {
-        // 신고 상태 확인
-        const statusResponse = await fetch(`/api/manito/report/status/${letterId}?type=${reportType}`);
+        const statusResponse = await fetch(
+            `/api/manito/report/status/${letterId}?type=${reportType}`);
         if (!statusResponse.ok) {
           throw new Error('신고 상태를 확인하는데 실패했습니다.');
         }
 
         const statusData = await statusResponse.json();
 
-        if (statusData.reported) {  // 변경된 부분
+        if (statusData.reported) {
           const message = reportType === 'MANITO_LETTER'
               ? '이미 신고된 편지입니다.'
               : '이미 신고된 답장입니다.';
@@ -464,7 +498,6 @@ const ManitoPage = {
           return;
         }
 
-        // 편지 정보 확인 (답장 존재 여부 확인을 위해)
         if (reportType === 'MANITO_ANSWER') {
           const letterResponse = await fetch(`/api/manito/letter/${letterId}`);
           if (!letterResponse.ok) {
@@ -478,12 +511,11 @@ const ManitoPage = {
           }
         }
 
-        // 신고 모달 열기
         if (window.ManitoPage?.modals.reportModal) {
-          await window.ManitoPage.modals.reportModal.openWithTarget(letterId, reportType);
+          await window.ManitoPage.modals.reportModal.openWithTarget(letterId,
+              reportType);
         }
 
-        // 신고 메뉴 닫기
         document.querySelectorAll('.manito-report-menu').forEach(menu => {
           menu.style.display = 'none';
         });
@@ -498,7 +530,6 @@ const ManitoPage = {
         return;
       }
 
-      // more options 버튼 이벤트 리스너
       document.addEventListener('click', (e) => {
         const moreOptionsBtn = e.target.closest(
             '.tiny-icons[src*="UI-more2.png"]');
@@ -515,7 +546,6 @@ const ManitoPage = {
         }
       });
 
-      // 신고하기 버튼 클릭 이벤트
       document.addEventListener('click', async (e) => {
         const reportBtn = e.target.closest('.open-report-modal-btn');
         if (!reportBtn) {
@@ -534,7 +564,6 @@ const ManitoPage = {
         await this.handleReport(letterId, reportType);
       });
 
-      // 다른 곳 클릭시 신고 메뉴 닫기
       document.addEventListener('click', (e) => {
         if (!e.target.closest('.manito-report-menu') &&
             !e.target.closest('.tiny-icons[src*="UI-more2.png"]')) {
@@ -571,41 +600,47 @@ const ManitoPage = {
 
     async openSentReplyModal(letterId, isMyReply = true) {
       try {
-        // 1. 먼저 편지 정보 조회
         const response = await fetch(`/api/manito/letter/${letterId}`);
         if (!response.ok) {
           throw new Error('답장을 불러오는데 실패했습니다.');
         }
         const letterData = await response.json();
 
-        // 2. 모달 요소 준비 및 검증
-        const modalContainer = document.getElementById('manitoLetterReplySentModalContainer');
-        const modalBackground = document.getElementById('manitoLetterReplySentModalBackground');
-        const modalTitle = modalContainer.querySelector('.send-letter-reply-title p');
-        const replyTextElement = modalContainer.querySelector('.manito-letter-reply-text');
-        const reportButton = modalContainer.querySelector('.manito-letter-reply-report-container');
+        const modalContainer = document.getElementById(
+            'manitoLetterReplySentModalContainer');
+        const modalBackground = document.getElementById(
+            'manitoLetterReplySentModalBackground');
+        const modalTitle = modalContainer.querySelector(
+            '.send-letter-reply-title p');
+        const replyTextElement = modalContainer.querySelector(
+            '.manito-letter-reply-text');
+        const reportButton = modalContainer.querySelector(
+            '.manito-letter-reply-report-container');
 
-        if (!modalContainer || !modalBackground || !replyTextElement || !modalTitle) {
+        if (!modalContainer || !modalBackground || !replyTextElement
+            || !modalTitle) {
           throw new Error('모달 요소를 찾을 수 없습니다.');
         }
 
-        // 3. 모달 내용 설정
         modalTitle.textContent = isMyReply ? '내가 보낸 답장' : '마니또의 답장';
         reportButton.style.display = isMyReply ? 'none' : 'flex';
-        replyTextElement.innerHTML = letterData.answerLetter?.replace(/\n/g, '<br>') || '';
+        replyTextElement.innerHTML = letterData.answerLetter?.replace(/\n/g,
+            '<br>') || '';
 
-        // 4. 모달 표시
-        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+        const scrollbarWidth = window.innerWidth
+            - document.documentElement.clientWidth;
         document.body.style.overflow = 'hidden';
         document.body.style.paddingRight = `${scrollbarWidth}px`;
         modalContainer.style.display = 'block';
         modalBackground.style.display = 'block';
 
-        // 5. 신고 관련 설정 (내 답장이 아닐 경우에만)
         if (!isMyReply) {
-          const moreOptionsBtn = modalContainer.querySelector('.tiny-icons[src*="UI-more2.png"]');
-          const reportMenu = modalContainer.querySelector('.manito-report-menu');
-          const reportBtn = modalContainer.querySelector('.open-report-modal-btn');
+          const moreOptionsBtn = modalContainer.querySelector(
+              '.tiny-icons[src*="UI-more2.png"]');
+          const reportMenu = modalContainer.querySelector(
+              '.manito-report-menu');
+          const reportBtn = modalContainer.querySelector(
+              '.open-report-modal-btn');
 
           if (moreOptionsBtn) {
             moreOptionsBtn.onclick = (e) => {
@@ -615,13 +650,14 @@ const ManitoPage = {
           }
 
           if (reportBtn) {
-            // 기존 이벤트 리스너 제거를 위해 복제 후 교체
             reportBtn.replaceWith(reportBtn.cloneNode(true));
-            const newReportBtn = modalContainer.querySelector('.open-report-modal-btn');
+            const newReportBtn = modalContainer.querySelector(
+                '.open-report-modal-btn');
 
             newReportBtn.addEventListener('click', async (e) => {
               e.preventDefault();
-              const statusResponse = await fetch(`/api/manito/report/status/${letterId}?type=MANITO_ANSWER`);
+              const statusResponse = await fetch(
+                  `/api/manito/report/status/${letterId}?type=MANITO_ANSWER`);
               if (!statusResponse.ok) {
                 throw new Error('신고 상태를 확인하는데 실패했습니다.');
               }
@@ -648,17 +684,16 @@ const ManitoPage = {
     showWarningMessage(message) {
       const warningPopup = document.getElementById('warningPopup');
       const warningMessage = document.getElementById('warningMessage');
-      const warningConfirmBtn  = document.getElementById('warningConfirmBtn');
+      const warningConfirmBtn = document.getElementById('warningConfirmBtn');
 
-      if (warningPopup && warningMessage && warningConfirmBtn) {  // 변수명 수정
+      if (warningPopup && warningMessage && warningConfirmBtn) {
         warningMessage.textContent = message;
         warningPopup.style.display = 'block';
 
-        // 기존 이벤트 리스너 제거를 위한 복제
-        const newConfirmButton = warningConfirmBtn.cloneNode(true);  // 변수명 수정
-        warningConfirmBtn.parentNode.replaceChild(newConfirmButton, warningConfirmBtn);  // 변수명 수정
+        const newConfirmButton = warningConfirmBtn.cloneNode(true);
+        warningConfirmBtn.parentNode.replaceChild(newConfirmButton,
+            warningConfirmBtn);
 
-        // 새로운 이벤트 리스너 추가
         newConfirmButton.addEventListener('click', () => {
           warningPopup.style.display = 'none';
         });
@@ -710,13 +745,15 @@ class ManitoLetterRenderer {
     const ownerClass = isReceived ? 'received' : 'sent';
 
     const isChecked = Boolean(letter.public);
-    const checkIconSrc = isChecked ? '/images/icons/icon-check.png' : '/images/icons/icon-check-empty.png';
+    const checkIconSrc = isChecked ? '/images/icons/icon-check.png'
+        : '/images/icons/icon-check-empty.png';
     const buttonOpacity = isChecked ? '1' : '0.3';
 
     const statusStyle = isChecked ? '' : 'opacity: 0.3;';
 
     return `
-     <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}" data-report-type="${isReceived ? 'MANITO_LETTER' : 'MANITO_ANSWER'}">
+     <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}" data-report-type="${isReceived
+        ? 'MANITO_LETTER' : 'MANITO_ANSWER'}">
       <div class="manito-reply-container">
         <img class="manito-user-photo" src="/images/icons/icon-clover2.png" alt="anonymous user icon" />
         <div class="post-content">
@@ -724,7 +761,8 @@ class ManitoLetterRenderer {
             <span class="manito-user-name">익명의 마니또</span>
             <span class="passed-time">${letter.timeDiff}</span>
           </div>
-          <p class="manito-content-text">${letter.letterContent?.replace(/\n/g, '<br>') || ''}</p>
+          <p class="manito-content-text">${letter.letterContent?.replace(/\n/g,
+        '<br>') || ''}</p>
           <div class="manito-recommend-music">
             <div class="recommend-music">
               <img class="tiny-icons-linkless" src="/images/icons/icon-music.png" alt="music icon" />
@@ -736,8 +774,10 @@ class ManitoLetterRenderer {
               </p>
             ` : ''}
           </div>
-          <p class="manito-music-comment" ${!letter.musicComment ? 'style="color: #8f8f8f; opacity: 0.7; font-style: italic;"' : ''}>
-              ${letter.musicComment ? letter.musicComment.replace(/\n/g, '<br>') : '추천 음악이 없습니다'}
+          <p class="manito-music-comment" ${!letter.musicComment
+        ? 'style="color: #8f8f8f; opacity: 0.7; font-style: italic;"' : ''}>
+              ${letter.musicComment ? letter.musicComment.replace(/\n/g, '<br>')
+        : '추천 음악이 없습니다'}
           </p>
           ${letter.formattedCreatedAt ? `
           <p class="post-time">${letter.formattedCreatedAt}</p>
@@ -772,7 +812,8 @@ class ManitoLetterRenderer {
         ` : `
           <div class="manito-visibility-status" style="display: flex; align-items: center; gap: 8px; ${statusStyle}">
             <img class="tiny-icons" src="${checkIconSrc}" alt="check icon" style="pointer-events: none;" />
-            <span style="color: #3f624c; font-weight: bold;">${isChecked ? '수신자가 이 편지를 모두에게 공개했습니다.' : '이 편지는 공개되어 있지 않습니다.'}</span>
+            <span style="color: #3f624c; font-weight: bold;">${isChecked
+        ? '수신자가 이 편지를 모두에게 공개했습니다.' : '이 편지는 공개되어 있지 않습니다.'}</span>
           </div>
           ${letter.answerLetter ? `
             <button class="reply-button" onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, false)">
@@ -919,14 +960,12 @@ class ReportModal extends BaseModal {
   initializeEventListeners() {
     super.initializeEventListeners();
 
-    // 모달 바깥 클릭시 닫기
     this.background.addEventListener('click', (e) => {
       if (e.target === this.background) {
         this.close();
       }
     });
 
-    // 신고 전송 버튼 이벤트
     const reportSendBtn = document.getElementById('reportSendBtn');
     if (reportSendBtn) {
       reportSendBtn.onclick = (e) => {
@@ -935,7 +974,6 @@ class ReportModal extends BaseModal {
       };
     }
 
-    // 신고 타입 선택 이벤트
     const reportTypeSelect = document.getElementById('report-type-select');
     if (reportTypeSelect) {
       reportTypeSelect.onchange = (e) => {
@@ -991,7 +1029,6 @@ class ReportModal extends BaseModal {
 
   async openWithTarget(targetId, reportObjectType = 'MANITO_LETTER') {
     try {
-      // 먼저 편지 정보를 조회하여 신고 상태 확인
       const response = await fetch(`/api/manito/letter/${targetId}`);
       if (!response.ok) {
         throw new Error('편지 정보를 불러오는데 실패했습니다.');
@@ -999,7 +1036,6 @@ class ReportModal extends BaseModal {
 
       const letter = await response.json();
 
-      // 신고 상태 확인
       if (reportObjectType === 'MANITO_LETTER' && letter.report) {
         this.showWarning('이미 신고된 편지입니다.');
         return;
@@ -1010,7 +1046,6 @@ class ReportModal extends BaseModal {
         return;
       }
 
-      // 신고되지 않은 경우에만 모달 열기
       this.targetId = targetId;
       this.reportObjectType = reportObjectType;
       this.open();

@@ -34,6 +34,11 @@ public class NotificationService {
     if (user == null) {
       throw new IllegalArgumentException("권한이 없습니다.");
     }
+
+    // 모든 알림 읽음 처리
+    // fixme: 테스트를 위해 잠시 주석
+//    readAllNotifications(user);
+
     LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
 
     return notificationRepository.findByUserAndCreatedAtAfterOrderByCreatedAtDesc(user,
@@ -56,6 +61,13 @@ public class NotificationService {
         .toList();
   }
 
+  // 알림 읽음 단일 처리
+  public void readAllNotifications(User user) {
+    List<Notification> notifications = notificationRepository.findByUserAndIsReadFalse(user);
+    notifications.forEach(Notification::markAsRead);
+    notificationRepository.saveAll(notifications);
+  }
+
   public void readNotification(Long notiId, HttpSession session) {
     User user = (User) session.getAttribute("user");
     if (user == null) {
@@ -69,6 +81,9 @@ public class NotificationService {
     notification.markAsRead();
     notificationRepository.save(notification);
   }
+
+  // 알림 읽음 모두 처리
+
 
   public boolean hasUnreadNotifications(Long userId) {
     return notificationRepository.existsByUserUserIdAndIsRead(userId, false);

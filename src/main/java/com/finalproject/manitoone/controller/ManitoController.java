@@ -1,7 +1,9 @@
 package com.finalproject.manitoone.controller;
 
 import com.finalproject.manitoone.constants.ManitoErrorMessages;
+import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.domain.dto.ReportRequestDto;
+import com.finalproject.manitoone.domain.dto.admin.ReportStatusResponseDto;
 import com.finalproject.manitoone.dto.manito.ManitoAnswerRequestDto;
 import com.finalproject.manitoone.dto.manito.ManitoLetterRequestDto;
 import com.finalproject.manitoone.dto.manito.ManitoLetterResponseDto;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -134,14 +137,29 @@ public class ManitoController {
   }
 
   // 단일 편지 조회
-  // TODO : 권한 인증 로직
   @GetMapping("/manito/letter/{letterId}")
   public ResponseEntity<ManitoLetterResponseDto> getManitoLetter(
       @PathVariable Long letterId,
       HttpSession session
   ) {
     String nickname = validateSession(session);
-    return ResponseEntity.ok(manitoService.getLetter(letterId));
+
+    ManitoLetterResponseDto letter = manitoService.getLetterWithPermissionCheck(letterId, nickname);
+    return ResponseEntity.ok(letter);
+  }
+
+
+  // 신고 상태 조회
+  @GetMapping("/manito/report/status/{letterId}")
+  public ResponseEntity<ReportStatusResponseDto> checkReportStatus(
+      @PathVariable Long letterId,
+      @RequestParam ReportObjectType type,
+      HttpSession session
+  ) {
+    validateSession(session);
+
+    ReportStatusResponseDto status = reportService.checkReportStatus(type, letterId);
+    return ResponseEntity.ok(status);
   }
 }
 

@@ -27,7 +27,8 @@ public enum ManitoErrorMessages {
   NO_PERMISSION_REPLY("답장을 작성할 권한이 없습니다."),
   NO_PERMISSION_REPORT("신고할 권한이 없습니다."),
   NO_PERMISSION_VISIBILITY("공개 설정을 변경할 권한이 없습니다."),
-  NO_PERMISSION_MAILBOX("자신의 편지함만 볼 수 있습니다.");
+  NO_PERMISSION_MAILBOX("자신의 편지함만 볼 수 있습니다."),
+  NO_PERMISSION_LETTER("해당 편지에 대한 접근 권한이 없습니다.");
 
   private final String message;
 

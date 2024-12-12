@@ -16,6 +16,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -155,5 +156,26 @@ public class ManitoService {
     return manitoLetterRepository.findByPostIdPostIdAndUserNickname(postId, nickname)
         .map(letter -> buildLetterResponseDto(letter, nickname))
         .orElse(null);
+  }
+
+  @Transactional
+  public ManitoLetterResponseDto getLetterWithPermissionCheck(Long letterId, String nickname) {
+    ManitoLetter letter = manitoLetterRepository.findById(letterId)
+        .orElseThrow(() -> new EntityNotFoundException(
+            ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
+
+    User currentUser = userRepository.findUserByNickname(nickname)
+        .orElseThrow(() -> new EntityNotFoundException(
+            ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
+
+    boolean hasPermission = letter.getPostId().getUser().equals(currentUser) ||
+        letter.getUser().equals(currentUser) ||
+        letter.isPublic();
+
+    if (!hasPermission) {
+      throw new AccessDeniedException(ManitoErrorMessages.NO_PERMISSION_LETTER.getMessage());
+    }
+
+    return buildLetterResponseDto(letter, nickname);
   }
 }

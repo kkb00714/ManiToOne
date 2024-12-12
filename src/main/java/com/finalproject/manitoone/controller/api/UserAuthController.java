@@ -1,20 +1,24 @@
 package com.finalproject.manitoone.controller.api;
 
-import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.dto.UserLoginRequestDto;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
 import com.finalproject.manitoone.service.CustomOAuth2UserService;
 import com.finalproject.manitoone.service.UserAuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -39,36 +43,29 @@ public class UserAuthController {
   }
 
   @PostMapping("/local-login")
-  public ResponseEntity<Object> signIn(
+  public ResponseEntity<Object> localLogin(
       @RequestBody UserLoginRequestDto userLoginRequestDto,
-      HttpSession session
+      HttpSession session,
+      HttpServletRequest request
   ) {
     try {
-      UserLoginResponseDto responseDto = userAuthService.localLogin(
+      UserLoginResponseDto userResponse = userAuthService.localLogin(
           userLoginRequestDto.getEmail(),
           userLoginRequestDto.getPassword()
       );
 
-      session.setAttribute("email", responseDto.getEmail());
-      session.setAttribute("name", responseDto.getName());
-      session.setAttribute("nickname", responseDto.getNickname());
-      session.setAttribute("profileImage", responseDto.getProfileImage());
-      session.setAttribute("introduce", responseDto.getIntroduce());
+      session = request.getSession(true);
 
-      return ResponseEntity.ok(responseDto);
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest()
-          .body(new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
-    }
-  }
+      session.setAttribute("email", userResponse.getEmail());
+      session.setAttribute("name", userResponse.getName());
+      session.setAttribute("nickname", userResponse.getNickname());
+      session.setAttribute("profileImage", userResponse.getProfileImage());
+      session.setAttribute("introduce", userResponse.getIntroduce());
 
-  @PostMapping("/oauth-login")
-  public ResponseEntity<Object> oauthLogin() {
-    try {
-      UserLoginResponseDto userInfo = customOAuth2UserService.getUserInfoFromSession();
-      return ResponseEntity.ok(userInfo);
+      return ResponseEntity.ok(userResponse);
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(401).body(e.getMessage());
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(Map.of("error", e.getMessage()));
     }
   }
 

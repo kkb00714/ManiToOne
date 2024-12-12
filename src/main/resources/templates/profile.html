@@ -66,6 +66,8 @@
         <button class="profile-update-button" id="openProfileUpdateBtn" th:if="${user.getNickname().equals(nickname)}">
           프로필 수정
         </button>
+        <button class="profile-update-button" id="followOnProfileBtn" th:if="${!user.getNickname().equals(nickname)}" th:text="${isFollowed ? '언팔로우' : '팔로우'}">
+        </button>
       </div>
       <div class="mypage-menu-switch">
         <button class="my-post-menu-switch" th:text="${user.getNickname().equals(nickname) ? '내 피드' : '피드'}">내 피드</button>
@@ -80,9 +82,10 @@
         />
         <p id="openPostFormModalBtn">함께 나누고픈 감정이 있나요?</p>
       </div>
-      
-      <div th:replace="~{fragments/modals/profile-update-modal :: profile-update-modal}"></div>
-      <div th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"></div>
+
+      <div th:replace="fragments/modals/follow-list-modal :: follow-list-modal"></div>
+      <div th:replace="fragments/modals/profile-update-modal :: profile-update-modal"></div>
+      <div th:replace="fragments/modals/new-post-modal :: new-post-modal"></div>
       <div th:replace="~{fragments/modals/manito-confirm-message-modal :: manito-confirm-message-modal}"></div>
 
       <!--작성 시간, 답글 보이지 않는 가장 기본 게시글 덩어리-->

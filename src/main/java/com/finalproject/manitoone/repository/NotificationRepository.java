@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
   List<Notification> findByIsReadAndUserOrderByNotiIdDesc(Boolean isRead, User user);
+  boolean existsByUserUserIdAndIsRead(Long userId, Boolean isRead);
 }

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
 @Service
 @RequiredArgsConstructor
 public class UserAuthService {
@@ -28,8 +29,7 @@ public class UserAuthService {
       );
     }
 
-    boolean existUserByNickname = userRepository.existsByNickname(
-        userSignUpDTO.getNickname());
+    boolean existUserByNickname = userRepository.existsByNickname(userSignUpDTO.getNickname());
     if (existUserByNickname) {
       throw new IllegalArgumentException(
           IllegalActionMessages.NICKNAME_ALREADY_IN_USE.getMessage()
@@ -45,6 +45,10 @@ public class UserAuthService {
 
   @Transactional
   public User validateUserCredentials(String email, String password) {
+    if (email == null || email.isEmpty() || password == null || password.isEmpty()) {
+      throw new IllegalArgumentException("이메일과 비밀번호는 필수 항목입니다.");
+    }
+
     User user = userRepository.findByEmail(email)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.INVALID_EMAIL_OR_PASSWORD.getMessage()));
@@ -53,18 +57,15 @@ public class UserAuthService {
       throw new IllegalArgumentException(
           IllegalActionMessages.INVALID_EMAIL_OR_PASSWORD.getMessage());
     }
-
-    if (user.getStatus() != 1) {
-      throw new IllegalArgumentException("로그인할 수 없는 상태입니다.");
-    }
-
     return user;
   }
-
 
   @Transactional
   public UserLoginResponseDto localLogin(String email, String password) {
     User user = validateUserCredentials(email, password);
+    if (user.getStatus() != 1) {
+      throw new IllegalArgumentException("로그인할 수 없는 상태입니다.");
+    }
     return new UserLoginResponseDto(user);
   }
 
@@ -72,6 +73,18 @@ public class UserAuthService {
   public void deleteUser(String email, String password) {
     User user = validateUserCredentials(email, password);
     user.setStatus(3);
+  }
+
+  public boolean isValueExist(String type, String value) {
+    if (type == null || value == null || value.isBlank()) {
+      throw new IllegalArgumentException("유효하지 않은 입력입니다.");
+    }
+
+    return switch (type.toLowerCase()) {
+      case "email" -> userRepository.existsByEmail(value);
+      case "nickname" -> userRepository.existsByNickname(value);
+      default -> throw new IllegalArgumentException("지원하지 않는 타입입니다: " + type);
+    };
   }
 
 }

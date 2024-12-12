@@ -31,7 +31,9 @@ public enum IllegalActionMessages {
   EMAIL_VERIFICATION_CODE_MISMATCH("이메일 인증번호가 일치하지 않습니다."),
   INVALID_EMAIL_OR_PASSWORD("이메일 및 비밀번호가 일치하지 않습니다."),
   FAILED_LOGIN("로그인에 실패했습니다."),
-  FAILED_LOGOUT("로그아웃에 실패했습니다.");
+  FAILED_LOGOUT("로그아웃에 실패했습니다."),
+
+  UNAUTORIZED("권한이 없습니다.");
 
   private final String message;
 }

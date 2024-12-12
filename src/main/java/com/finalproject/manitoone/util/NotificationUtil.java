@@ -43,8 +43,7 @@ public class NotificationUtil {
         .type(type)
         .relatedObjectId(relatedObjectId)
         .build().toEntity());
-
-    alarmHandler.sendNotification(receiveUser.getEmail(), type.getMessage(sendUser.getNickname()));
+    alarmHandler.sendNotification(notification);
     return notification;
   }
 }

@@ -85,7 +85,7 @@ public class NotificationService {
   // 알림 읽음 모두 처리
 
 
-  public boolean hasUnreadNotifications(Long userId) {
-    return notificationRepository.existsByUserUserIdAndIsRead(userId, false);
+  public boolean hasUnreadNotifications(String email) {
+    return notificationRepository.existsByUserEmailAndIsRead(email, false);
   }
 }

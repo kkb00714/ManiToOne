@@ -86,6 +86,7 @@ class BaseModal {
     const warningConfirmBtn = document.getElementById('warningConfirmBtn');
 
     if (warningPopup && warningMessage && warningConfirmBtn) {
+      warningPopup.style.zIndex = '9999'; // 최상위로 설정
       warningMessage.textContent = message;
       warningPopup.style.display = 'block';
 

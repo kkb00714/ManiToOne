@@ -127,6 +127,94 @@ h1 {
   cursor: pointer;
 }
 
+/* 신고 모달 */
+.report-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1001;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.report-modal-container {
+  background-color: #f3f3f3;
+  border-radius: 20px;
+  box-shadow: 0 0 2px 2px rgba(171, 171, 171, 0.25);
+  display: none;
+  z-index: 1002;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 40rem;
+  min-width: 25rem;
+  width: 90%;
+  height: auto;
+}
+
+.report-modal-container > div {
+  padding: 0.7rem 1.5rem;
+  box-sizing: border-box;
+  border-bottom: 3px solid rgba(171, 171, 171, 0.25);
+}
+
+.report-modal-container > div:last-child {
+  border-bottom: none;
+}
+
+.report-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.report-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.report-container label {
+  font-size: 0.9rem;
+  color: #303030;
+}
+
+.report-type-select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid rgba(171, 171, 171, 0.5);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background-color: white;
+  color: #303030;
+  outline: none;
+}
+
+.report-type-select:focus {
+  border-color: #3f624c;
+}
+
+.report-send-button-container {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.7rem 1.5rem;
+}
+
+.report-send-button {
+  background-color: #3f624c;
+  color: #f3f3f3;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  max-width: fit-content;
+}
+
 /* 메인 섹션 */
 /* 헤더를 제외한 모든 섹션 */
 
@@ -1026,6 +1114,53 @@ textarea::placeholder, #music-link-input::placeholder {
   font-size: 0.9rem;
   font-weight: bold;
   max-width: fit-content;
+}
+
+.manito-letter-reply-report-container {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0.5rem 1.5rem;
+}
+
+/*마니또 공통 신고 메뉴*/
+
+.manito-report-menu {
+  display: none;
+  position: absolute;
+  z-index: 1000;
+  background-color: white;
+  padding: 8px;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  left: 100%;
+  margin-left: 5px;
+  top: 0;
+  min-width: 120px;
+}
+
+.manito-report-menu button {
+  all: unset;
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #303030;
+  transition: background-color 0.2s;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.manito-report-menu button:hover {
+  background-color: #f0f0f0;
+  color: #3f624c;
+}
+
+.manito-letter-reply-report-container .tiny-icons {
+  cursor: pointer;
 }
 
 /* 모달 제출 확인 팝업 */

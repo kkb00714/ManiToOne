@@ -130,19 +130,6 @@ public class ManitoService {
     manitoLetter.toggleVisibility(userNickname);
   }
 
-  // 편지 신고
-  public void reportManitoLetter(Long manitoLetterId, String userNickname) {
-    ManitoLetter manitoLetter = manitoLetterRepository.findById(manitoLetterId)
-        .orElseThrow(() -> new EntityNotFoundException(
-            ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
-
-    if (!manitoLetter.getPostId().getUser().getNickname().equals(userNickname)) {
-      throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_REPORT.getMessage());
-    }
-
-    manitoLetter.reportLetter();
-  }
-
   // 편지에 답장
   public ManitoLetterResponseDto answerManitoLetter(Long manitoLetterId, String answerLetter,
       String userNickname) {
@@ -153,15 +140,6 @@ public class ManitoService {
     manitoLetter.addAnswer(answerLetter, userNickname);
 
     return buildLetterResponseDto(manitoLetter, userNickname);
-  }
-
-  // 답장 신고
-  public void reportManitoAnswer(Long manitoLetterId, String userNickname) {
-    ManitoLetter manitoLetter = manitoLetterRepository.findById(manitoLetterId)
-        .orElseThrow(() -> new EntityNotFoundException(
-            ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
-
-    manitoLetter.reportAnswer(userNickname);
   }
 
   // 단일 편지 조회

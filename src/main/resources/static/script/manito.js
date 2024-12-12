@@ -386,6 +386,7 @@ const ManitoPage = {
   modals: {
     letterModal: null,
     replyModal: null,
+    reportModal: null,
 
     init() {
       const letterModalContainer = document.getElementById(
@@ -399,6 +400,7 @@ const ManitoPage = {
         );
       }
 
+
       const replyModalContainer = document.getElementById(
           "manitoLetterReplyModalContainer");
       if (replyModalContainer) {
@@ -410,7 +412,13 @@ const ManitoPage = {
         );
       }
 
+      const reportModalContainer = document.getElementById("reportModalContainer");
+      if (reportModalContainer) {
+        this.reportModal = new ReportModal();
+      }
+
       this.initializeReplySentModal();
+      this.initializeReportSystem();
     },
 
     initializeReplySentModal() {
@@ -436,6 +444,78 @@ const ManitoPage = {
           }
         };
       }
+    },
+
+    async handleReport(letterId, reportType) {
+      try {
+        const response = await fetch(`/api/manito/letter/${letterId}`);
+        if (!response.ok) {
+          throw new Error('편지 정보를 불러오는데 실패했습니다.');
+        }
+
+        const letter = await response.json();
+
+        if (reportType === 'MANITO_LETTER' && letter.report) {
+          this.showWarningMessage('이미 신고된 편지입니다.');
+          return;
+        }
+
+        if (window.ManitoPage && window.ManitoPage.modals.reportModal) {
+          window.ManitoPage.modals.reportModal.openWithTarget(letterId, reportType);
+        }
+
+        document.querySelectorAll('.manito-report-menu').forEach(menu => {
+          menu.style.display = 'none';
+        });
+      } catch (error) {
+        console.error("Error checking report status:", error);
+        this.showWarningMessage(error.message);
+      }
+    },
+
+    initializeReportSystem() {
+      if (!this.reportModal) {
+        return;
+      }
+
+      // more options 버튼 이벤트 리스너
+      document.addEventListener('click', (e) => {
+        const moreOptionsBtn = e.target.closest('.tiny-icons[src*="UI-more2.png"]');
+        if (moreOptionsBtn) {
+          e.stopPropagation();
+          document.querySelectorAll('.manito-report-menu').forEach(menu => {
+            menu.style.display = 'none';
+          });
+          const reportMenu = moreOptionsBtn.parentElement.querySelector('.manito-report-menu');
+          if (reportMenu) {
+            reportMenu.style.display = 'block';
+          }
+        }
+      });
+
+      // 신고하기 버튼 클릭 이벤트
+      document.addEventListener('click', async (e) => {
+        const reportBtn = e.target.closest('.open-report-modal-btn');
+        if (!reportBtn) return;
+
+        const letterContainer = reportBtn.closest('.manito-reply-outer-container');
+        if (!letterContainer) return;
+
+        const letterId = letterContainer.dataset.letterId;
+        const reportType = letterContainer.dataset.reportType;
+
+        await this.handleReport(letterId, reportType);
+      });
+
+      // 다른 곳 클릭시 신고 메뉴 닫기
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.manito-report-menu') &&
+            !e.target.closest('.tiny-icons[src*="UI-more2.png"]')) {
+          document.querySelectorAll('.manito-report-menu').forEach(menu => {
+            menu.style.display = 'none';
+          });
+        }
+      });
     },
 
     async openReplyModal(letterId) {
@@ -465,40 +545,61 @@ const ManitoPage = {
     async openSentReplyModal(letterId, isMyReply = true) {
       try {
         const response = await fetch(`/api/manito/letter/${letterId}`);
-
         if (!response.ok) {
           throw new Error('답장을 불러오는데 실패했습니다.');
         }
 
         const letterData = await response.json();
 
-        const modalContainer = document.getElementById(
-            'manitoLetterReplySentModalContainer');
-        const modalBackground = document.getElementById(
-            'manitoLetterReplySentModalBackground');
-        const modalTitle = modalContainer.querySelector(
-            '.send-letter-reply-title p');
-        const replyTextElement = modalContainer.querySelector(
-            '.manito-letter-reply-text');
+        if (!isMyReply && letterData.answerReport) {
+          this.showWarningMessage('이미 신고된 답장입니다.');
+          return;
+        }
 
-        if (!modalContainer || !modalBackground || !replyTextElement
-            || !modalTitle) {
+        const modalContainer = document.getElementById('manitoLetterReplySentModalContainer');
+        const modalBackground = document.getElementById('manitoLetterReplySentModalBackground');
+        const modalTitle = modalContainer.querySelector('.send-letter-reply-title p');
+        const replyTextElement = modalContainer.querySelector('.manito-letter-reply-text');
+        const reportButton = modalContainer.querySelector('.manito-letter-reply-report-container');
+
+        if (!modalContainer || !modalBackground || !replyTextElement || !modalTitle) {
           throw new Error('모달 요소를 찾을 수 없습니다.');
         }
 
         modalTitle.textContent = isMyReply ? '내가 보낸 답장' : '마니또의 답장';
+        reportButton.style.display = isMyReply ? 'none' : 'flex';
+        replyTextElement.innerHTML = letterData.answerLetter?.replace(/\n/g, '<br>') || '';
 
-        replyTextElement.innerHTML = letterData.answerLetter?.replace(/\n/g,
-            '<br>') || '';
-
-        const scrollbarWidth = window.innerWidth
-            - document.documentElement.clientWidth;
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
         document.body.style.overflow = 'hidden';
         document.body.style.paddingRight = `${scrollbarWidth}px`;
 
         modalContainer.style.display = 'block';
         modalBackground.style.display = 'block';
 
+        const moreOptionsBtn = modalContainer.querySelector('.tiny-icons[src*="UI-more2.png"]');
+        if (moreOptionsBtn) {
+          moreOptionsBtn.onclick = (e) => {
+            e.stopPropagation();
+            const reportMenu = moreOptionsBtn.parentElement.querySelector('.manito-report-menu');
+            if (reportMenu) {
+              reportMenu.style.display = 'block';
+            }
+          };
+        }
+
+        const reportBtn = modalContainer.querySelector('.open-report-modal-btn');
+        if (reportBtn) {
+          reportBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await this.handleReport(letterId, 'MANITO_ANSWER');
+
+            const reportMenu = reportBtn.closest('.manito-report-menu');
+            if (reportMenu) {
+              reportMenu.style.display = 'none';
+            }
+          });
+        }
       } catch (error) {
         console.error('Error displaying reply:', error);
         this.showWarningMessage(error.message);
@@ -515,7 +616,7 @@ const ManitoPage = {
 
         setTimeout(() => {
           warningPopup.style.display = 'none';
-        }, 3000);
+        }, 1500);
       }
     }
   },
@@ -558,7 +659,7 @@ class ManitoLetterRenderer {
     const buttonStyle = !isReceived ? 'style="margin-left: auto;"' : '';
 
     return `
-      <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}">
+      <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}" data-report-type="${isReceived ? 'MANITO_LETTER' : 'MANITO_ANSWER'}">
       <div class="manito-reply-container">
         <img class="manito-user-photo" src="/images/icons/icon-clover2.png" alt="anonymous user icon" />
         <div class="post-content">
@@ -582,8 +683,11 @@ class ManitoLetterRenderer {
             <p class="manito-music-comment">${letter.musicComment?.replace(/\n/g, '<br>') || ''}</p>
           ` : ''}
         </div>
-        <div class="option-icons">
+        <div class="option-icons" style="position: relative;">
           <img class="tiny-icons" src="/images/icons/UI-more2.png" alt="more options" />
+          <div class="manito-report-menu">
+        <button class="open-report-modal-btn"">신고하기</button>
+      </div>
         </div>
       </div>
       <div class="manito-reaction-container">
@@ -730,6 +834,126 @@ class ManitoLetterReplyModal extends BaseModal {
       console.error('Error sending reply:', error);
       this.showWarning(error.message);
       return false;
+    }
+  }
+}
+
+class ReportModal extends BaseModal {
+  constructor() {
+    super(
+        "reportModalContainer",
+        "reportModal",
+        null,
+        "closeReportModalBtn"
+    );
+    this.targetId = null;
+    this.reportType = null;
+    this.reportObjectType = null;
+    this.initializeEventListeners();
+  }
+
+  initializeEventListeners() {
+    super.initializeEventListeners();
+
+    // 모달 바깥 클릭시 닫기
+    this.background.addEventListener('click', (e) => {
+      if (e.target === this.background) {
+        this.close();
+      }
+    });
+
+    // 신고 전송 버튼 이벤트
+    const reportSendBtn = document.getElementById('reportSendBtn');
+    if (reportSendBtn) {
+      reportSendBtn.onclick = (e) => {
+        e.preventDefault();
+        this.handleReport();
+      };
+    }
+
+    // 신고 타입 선택 이벤트
+    const reportTypeSelect = document.getElementById('report-type-select');
+    if (reportTypeSelect) {
+      reportTypeSelect.onchange = (e) => {
+        this.reportType = e.target.value;
+      };
+    }
+  }
+
+  async handleReport() {
+    if (!this.targetId || !this.reportType) {
+      this.showWarning('신고 사유를 선택해주세요.');
+      return;
+    }
+
+    try {
+      const endpoint = this.reportObjectType === 'MANITO_ANSWER'
+          ? `/api/manito/report/answer/${this.targetId}`
+          : `/api/manito/report/${this.targetId}`;
+
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          reportType: this.reportType
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || '신고 처리 중 오류가 발생했습니다.');
+      }
+
+      this.showWarning('신고가 접수되었습니다.');
+      this.resetForm();
+      this.close();
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      this.showWarning(error.message);
+    }
+  }
+
+  resetForm() {
+    const reportTypeSelect = document.getElementById('report-type-select');
+    if (reportTypeSelect) {
+      reportTypeSelect.value = '';
+    }
+    this.targetId = null;
+    this.reportType = null;
+    this.reportObjectType = null;
+  }
+
+  async openWithTarget(targetId, reportObjectType = 'MANITO_LETTER') {
+    try {
+      // 먼저 편지 정보를 조회하여 신고 상태 확인
+      const response = await fetch(`/api/manito/letter/${targetId}`);
+      if (!response.ok) {
+        throw new Error('편지 정보를 불러오는데 실패했습니다.');
+      }
+
+      const letter = await response.json();
+
+      // 신고 상태 확인
+      if (reportObjectType === 'MANITO_LETTER' && letter.report) {
+        this.showWarning('이미 신고된 편지입니다.');
+        return;
+      }
+
+      if (reportObjectType === 'MANITO_ANSWER' && letter.answerReport) {
+        this.showWarning('이미 신고된 답장입니다.');
+        return;
+      }
+
+      // 신고되지 않은 경우에만 모달 열기
+      this.targetId = targetId;
+      this.reportObjectType = reportObjectType;
+      this.open();
+
+    } catch (error) {
+      console.error('Error checking report status:', error);
+      this.showWarning(error.message);
     }
   }
 }

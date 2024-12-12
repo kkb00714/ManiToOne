@@ -23,6 +23,7 @@ public class AddNotificationRequestDto {
     return Notification.builder()
         .user(this.receiveUser)
         .type(this.type)
+        .senderUser(sendUser)
         .relatedObjectId(this.relatedObjectId)
         .build();
   }

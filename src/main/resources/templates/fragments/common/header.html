@@ -16,9 +16,11 @@
       </li>
       <li class="UI-icon-list" th:if="${session.user != null}">
         <!-- 세션에 유저가 있을 때 -->
+        <!-- 세션에 유저가 있을 때 -->
         <a th:href="@{/noti}">
           <button>
-            <img th:src="@{/images/icons/UI-notification2.png}" alt="notification" />
+            <!-- isRead 값에 따라 다른 이미지를 표시 -->
+            <img th:src="${session.isRead} ? @{/images/icons/UI-notification2-on.png} : @{/images/icons/UI-notification2.png}" alt="notification" />
           </button>
         </a>
       </li>

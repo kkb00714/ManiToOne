@@ -585,6 +585,10 @@ h1 {
   background-color: #f1f1e3;
 }
 
+.manito-reply-outer-container.sent .option-icons {
+  display: none;
+}
+
 .manito-reply-container {
   display: flex;
   justify-content: space-between;

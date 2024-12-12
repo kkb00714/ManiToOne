@@ -36,16 +36,4 @@ public class TimelineController {
     Page<PostViewResponseDto> posts = postService.getTimelinePosts(nickname, pageRequest);
     return ResponseEntity.ok(posts);
   }
-
-//  @GetMapping("/timeline")
-//  public ResponseEntity<Page<PostViewResponseDto>> getTimelinePosts(
-//      @RequestParam(defaultValue = "0") int page,
-//      @RequestParam(defaultValue = "20") int size,
-//      @AuthenticationPrincipal UserDetails userDetails) {
-//
-//    PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Direction.DESC, "createdAt"));
-//    Page<PostViewResponseDto> posts = postService.getTimelinePosts(userDetails.getUsername(), pageRequest);
-//    return ResponseEntity.ok(posts);
-//  }
-
 }

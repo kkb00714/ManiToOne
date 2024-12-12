@@ -31,4 +31,22 @@ public class TimeFormatter {
     }
   }
 
+  public static String formatDateTime(LocalDateTime dateTime) {
+    if (dateTime == null) {
+      return "";
+    }
+
+    String ampm = dateTime.getHour() < 12 ? "오전" : "오후";
+    int hour = dateTime.getHour() % 12;
+    if (hour == 0) hour = 12;
+
+    return String.format("%d년 %d월 %d일 %s %d시 %d분",
+        dateTime.getYear(),
+        dateTime.getMonthValue(),
+        dateTime.getDayOfMonth(),
+        ampm,
+        hour,
+        dateTime.getMinute()
+    );
+  }
 }

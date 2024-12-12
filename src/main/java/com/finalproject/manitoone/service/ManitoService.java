@@ -84,6 +84,8 @@ public class ManitoService {
         .answerLetter(letter.getAnswerLetter())
         .timeDiff(TimeFormatter.formatTimeDiff(letter.getCreatedAt()))
         .isOwner(letter.isOwnedBy(currentUser))
+        .createdAt(letter.getCreatedAt())
+        .formattedCreatedAt(TimeFormatter.formatDateTime(letter.getCreatedAt()))
         .build();
   }
 

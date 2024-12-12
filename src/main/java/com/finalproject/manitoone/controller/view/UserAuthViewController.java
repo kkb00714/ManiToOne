@@ -20,4 +20,9 @@ public class UserAuthViewController {
   public String getSignInPage() {
     return "/pages/auth/sign-in";
   }
+
+  @GetMapping("/login-fail")
+  public String getFailPage() {
+    return "/pages/auth/oauth-login-failure";
+  }
 }

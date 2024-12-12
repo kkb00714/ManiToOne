@@ -58,7 +58,7 @@ public class UserAuthController {
       session.setAttribute("introduce", responseDto.getIntroduce());
 
       // 알림
-      responseDto.setIsRead(notificationService.hasUnreadNotifications(
+      responseDto.setRead(notificationService.hasUnreadNotifications(
           responseDto.getEmail()));
 
       return ResponseEntity.ok(responseDto);

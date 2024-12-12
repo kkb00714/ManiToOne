@@ -260,9 +260,7 @@ const CommonUtils = {
 
     letters.forEach(letter => {
       const content = letter.letterContent || '';
-      const truncatedContent = content.length > 20
-          ? content.substring(0, 20) + '...'
-          : content;
+      const truncatedContent = content.substring(0, 20);
 
       const li = document.createElement('li');
       li.textContent = truncatedContent;

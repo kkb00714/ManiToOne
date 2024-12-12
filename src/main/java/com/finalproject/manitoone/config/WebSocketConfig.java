@@ -1,28 +1,24 @@
 package com.finalproject.manitoone.config;
 
+import com.finalproject.manitoone.aop.AlarmHandler;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 @Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {
 
-  @Override
-  public void configureMessageBroker(MessageBrokerRegistry config) {
-    // 클라이언트에서 구독할 prefix 설정
-    config.enableSimpleBroker("/topic"); // 브로커 경로
-    // 클라이언트에서 메시지 보낼 때의 prefix
-    config.setApplicationDestinationPrefixes("/app");
+  private final AlarmHandler alarmHandler;
+
+  public WebSocketConfig(AlarmHandler alarmHandler) {
+    this.alarmHandler = alarmHandler;
   }
 
   @Override
-  public void registerStompEndpoints(StompEndpointRegistry registry) {
-    // WebSocket 연결을 위한 엔드포인트 설정
-    registry.addEndpoint("/ws") // 엔드포인트 URL
-        .setAllowedOriginPatterns("http://localhost:8080")
-        .withSockJS(); // SockJS 사용
+  public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+    registry.addHandler(alarmHandler, "/ws-alarm")
+        .setAllowedOrigins("*"); // 필요한 경우 허용된 Origin 설정
   }
 }

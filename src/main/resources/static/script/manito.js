@@ -11,7 +11,7 @@ class ManitoLetterModal extends BaseModal {
     if (!url || url.trim() === '') {
       return true;
     }
-    const youtubePattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}$/;
+    const youtubePattern = /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|v\/|embed\/)|youtu\.be\/)([\w-]{11})(?:[?&].*)?$/;
     return youtubePattern.test(url.trim());
   }
 

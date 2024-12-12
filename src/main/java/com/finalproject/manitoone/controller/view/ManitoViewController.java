@@ -41,8 +41,8 @@ public class ManitoViewController {
     }
 
     // 마니또 게시글 배당 로직 설정 전 임시
-    PostViewResponseDto todaysPost = postService.getPost(108L);
-    ManitoLetterResponseDto existingLetter = manitoService.getLetterByPostIdAndNickname(108L, nickname);
+    PostViewResponseDto todaysPost = postService.getPost(111L);
+    ManitoLetterResponseDto existingLetter = manitoService.getLetterByPostIdAndNickname(111L, nickname);
 
     model.addAttribute("userNickname", nickname);
     model.addAttribute("todaysPost", todaysPost);

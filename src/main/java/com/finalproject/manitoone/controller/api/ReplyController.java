@@ -91,12 +91,19 @@ public class ReplyController {
 //    return ResponseEntity.ok().build();
 //  }
 
-  // 답글 조회
+  // 게시글 답글 조회
   @GetMapping("/replies/{postId}")
   public ResponseEntity<Page<ReplyResponseDto>> getReplies(@PathVariable("postId") Long postId,
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
     Page<ReplyResponseDto> replies = replyService.getReplies(postId, pageable);
     return ResponseEntity.ok(replies);
+  }
+
+  // 답글 단건 조회
+  @GetMapping("/reply/{replyId}")
+  public ResponseEntity<ReplyResponseDto> getReply(@PathVariable("replyId") Long replyId) {
+    ReplyResponseDto reply = replyService.getReply(replyId);
+    return ResponseEntity.ok(reply);
   }
 
   // 답글 개수 조회

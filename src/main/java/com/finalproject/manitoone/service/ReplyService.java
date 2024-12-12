@@ -154,7 +154,7 @@ public class ReplyService {
 //        .build());
 //  }
 
-  // 답글 조회
+  // 게시글 답글 조회
   public Page<ReplyResponseDto> getReplies(Long postId, Pageable pageable) {
     Page<ReplyPost> replies = replyPostRepository.findAllByPostPostIdAndParentIdIsNull(postId,
             pageable)
@@ -182,6 +182,24 @@ public class ReplyService {
         ));
 
     return replies.size();
+  }
+
+  // 답글 단건 조회
+  public ReplyResponseDto getReply(Long replyId) {
+    ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return ReplyResponseDto.builder()
+        .post(reply.getPost())
+        .user(reply.getUser())
+        .parentId(reply.getParentId())
+        .content(reply.getContent())
+        .createdAt(reply.getCreatedAt())
+        .isBlind(reply.getIsBlind())
+        .rerepliesNumber(getReRepliesNum(reply.getReplyPostId()))
+        .build();
   }
 
   // 답글의 답글 조회

@@ -2,10 +2,10 @@
   <div th:each="notification : ${notifications}" class="notification-container"
        th:data-type="${notification.type}"
        th:data-id="${notification.relatedObjectId}"
-       th:data-nickname="${notification.nickname}">
+       th:data-nickname="${notification.senderUser.nickname}">
     <img class="user-photo"
-         th:if="${notification.user != null and notification.user.profileImage != null}"
-         th:src="${notification.user.profileImage}"
+         th:if="${notification.senderUser != null and notification.senderUser.profileImage != null}"
+         th:src="${notification.senderUser.profileImage}"
          alt="user icon"/>
     <div class="notification-content">
               <span class="notification-description"

@@ -13,6 +13,7 @@ public class ManitoLetterResponseDto {
   private String musicComment;
   private boolean isPublic;
   private boolean isReport;
+  private boolean isAnswerReport;
   private String answerLetter;
   private String timeDiff;
   private boolean isOwner;

@@ -61,13 +61,13 @@ public class NotificationService {
         .toList();
   }
 
-  // 알림 읽음 단일 처리
   public void readAllNotifications(User user) {
     List<Notification> notifications = notificationRepository.findByUserAndIsReadFalse(user);
     notifications.forEach(Notification::markAsRead);
     notificationRepository.saveAll(notifications);
   }
 
+  // 알림 읽음 단일 처리
   public void readNotification(Long notiId, HttpSession session) {
     User user = (User) session.getAttribute("user");
     if (user == null) {

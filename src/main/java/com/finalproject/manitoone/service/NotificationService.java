@@ -26,13 +26,13 @@ public class NotificationService {
   public List<NotificationResponseDto> getAllUnReadNotifications(HttpSession session) {
     String email;
     if (session.getAttribute("email") == null) {
-      throw new IllegalArgumentException("권한이 없습니다.");
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
     }
     email = (String) session.getAttribute("email");
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.USER_NOT_FOUND.getMessage()));
     if (user == null) {
-      throw new IllegalArgumentException("권한이 없습니다.");
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
     }
 
     // 모든 알림 읽음 처리
@@ -71,12 +71,12 @@ public class NotificationService {
   public void readNotification(Long notiId, HttpSession session) {
     User user = (User) session.getAttribute("user");
     if (user == null) {
-      throw new IllegalArgumentException("권한이 없습니다.");
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
     }
     Notification notification = notificationRepository.findById(notiId)
         .orElseThrow(() -> new IllegalArgumentException("알림이 존재하지 않습니다."));
     if (!user.getNickname().equals(notification.getUser().getNickname())) {
-      throw new IllegalArgumentException("권한이 없습니다.");
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
     }
     notification.markAsRead();
     notificationRepository.save(notification);

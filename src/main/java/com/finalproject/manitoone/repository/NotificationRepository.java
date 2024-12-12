@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
   List<Notification> findByUserAndCreatedAtAfterOrderByCreatedAtDesc(User user, LocalDateTime thirtyDaysAgo);
-  boolean existsByUserUserIdAndIsRead(Long userId, Boolean isRead);
+  boolean existsByUserEmailAndIsRead(String email, Boolean isRead);
   List<Notification> findByUserAndIsReadFalse(User user);
 }

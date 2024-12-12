@@ -15,4 +15,7 @@
             th:text="${notification.timeDifference}"></span>
     </div>
   </div>
+  <div th:if="${notifications == null or notifications.isEmpty()}" class="no-notifications">
+    <p class="no-notification-message">알림이 없습니다.</p>
+  </div>
 </section>

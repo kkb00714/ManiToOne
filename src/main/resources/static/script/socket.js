@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const notiImage = document.querySelector(".noti-image");
 
       if (notiImage) {
-        localStorage.setItem("isRead", true);
+        localStorage.setItem("isRead", 'true');
         notiImage.src = "/images/icons/UI-notification2-on.png";
       }
     };

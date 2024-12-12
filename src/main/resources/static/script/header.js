@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         notiImage.src = "/images/icons/UI-notification2.png";
       }
     } else {
-      if (isRead) {
+      if (isRead === 'true') {
         notiImage.src = "/images/icons/UI-notification2-on.png";
       } else {
         notiImage.src = "/images/icons/UI-notification2.png";

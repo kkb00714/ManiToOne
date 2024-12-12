@@ -48,6 +48,7 @@ public class ReplyService {
         .post(reply.getPost())
         .user(reply.getUser())
         .parentId(reply.getParentId())
+        .replyPostId(reply.getReplyPostId())
         .content(reply.getContent())
         .createdAt(reply.getCreatedAt())
         .isBlind(reply.getIsBlind())
@@ -72,6 +73,7 @@ public class ReplyService {
         .post(childReply.getPost())
         .user(childReply.getUser())
         .parentId(childReply.getParentId())
+        .replyPostId(childReply.getReplyPostId())
         .content(childReply.getContent())
         .createdAt(childReply.getCreatedAt())
         .isBlind(childReply.getIsBlind())
@@ -97,6 +99,7 @@ public class ReplyService {
         .post(updatedReply.getPost())
         .user(updatedReply.getUser())
         .parentId(updatedReply.getParentId())
+        .replyPostId(updatedReply.getReplyPostId())
         .content(updatedReply.getContent())
         .createdAt(updatedReply.getCreatedAt())
         .isBlind(updatedReply.getIsBlind())
@@ -166,6 +169,7 @@ public class ReplyService {
         reply.getPost(),
         reply.getUser(),
         reply.getParentId(),
+        reply.getReplyPostId(),
         reply.getContent(),
         reply.getCreatedAt(),
         reply.getIsBlind(),
@@ -195,6 +199,7 @@ public class ReplyService {
         .post(reply.getPost())
         .user(reply.getUser())
         .parentId(reply.getParentId())
+        .replyPostId(reply.getReplyPostId())
         .content(reply.getContent())
         .createdAt(reply.getCreatedAt())
         .isBlind(reply.getIsBlind())
@@ -214,6 +219,7 @@ public class ReplyService {
         rereply.getPost(),
         rereply.getUser(),
         rereply.getParentId(),
+        rereply.getReplyPostId(),
         rereply.getContent(),
         rereply.getCreatedAt(),
         rereply.getIsBlind(),

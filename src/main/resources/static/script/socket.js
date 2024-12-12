@@ -13,10 +13,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
     webSocket.onmessage = (e) => {
       const notiImage = document.querySelector(".noti-image");
+      const notificationSection = document.querySelector(".notification-section");
 
       if (notiImage) {
         localStorage.setItem("isRead", 'true');
         notiImage.src = "/images/icons/UI-notification2-on.png";
+      }
+
+      // 알림 페이지라면 새로운 알림 추가
+      if (notificationSection) {
+        const notificationData = JSON.parse(e.data); // 메시지가 JSON 형식이라 가정
+
+        // 새로운 알림 항목 생성
+        const newNotification = document.createElement("div");
+        newNotification.classList.add("notification-container");
+        newNotification.setAttribute("data-type", notificationData.type);
+        newNotification.setAttribute("data-id", notificationData.relatedObjectId);
+        newNotification.setAttribute("data-nickname", notificationData.senderUser.nickname || "");
+
+        // 알림 내용 구성
+        newNotification.innerHTML = `
+          <img class="user-photo" 
+               src="${notificationData.senderUser.profileImage}" 
+               alt="user icon"/>
+          <div class="notification-content">
+              <span class="notification-description">
+                  ${notificationData.content}
+              </span>
+              <span class="passed-time">
+                  ${notificationData.timeDifference}
+              </span>
+          </div>
+        `;
+
+        // 알림 섹션의 맨 위에 새로운 알림 추가
+        notificationSection.prepend(newNotification);
       }
     };
 

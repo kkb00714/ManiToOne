@@ -57,9 +57,9 @@ public class UserAuthController {
       session.setAttribute("profileImage", responseDto.getProfileImage());
       session.setAttribute("introduce", responseDto.getIntroduce());
 
-      // 읽지 않은 알림이 있는지 가져오기
-      session.setAttribute("isRead", notificationService.hasUnreadNotifications(
-          responseDto.getUserId()));
+      // 알림
+      responseDto.setIsRead(notificationService.hasUnreadNotifications(
+          responseDto.getEmail()));
 
       return ResponseEntity.ok(responseDto);
     } catch (IllegalArgumentException e) {

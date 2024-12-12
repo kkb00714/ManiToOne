@@ -64,4 +64,8 @@ public class NotificationService {
     notification.markAsRead();
     notificationRepository.save(notification);
   }
+
+  public boolean hasUnreadNotifications(Long userId) {
+    notificationRepository.existsByUserUserIdAndIsRead(userId, false);
+  }
 }

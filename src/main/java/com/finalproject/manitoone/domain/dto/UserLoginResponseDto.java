@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserLoginResponseDto {
 
+  private Long userId;
   private String email;
   private String name;
   private String nickname;
@@ -19,6 +20,7 @@ public class UserLoginResponseDto {
   private String introduce;
 
   public UserLoginResponseDto(User user) {
+    this.userId = user.getUserId();
     this.email = user.getEmail();
     this.name = user.getName();
     this.nickname = user.getNickname();

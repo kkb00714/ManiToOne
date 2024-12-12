@@ -74,4 +74,15 @@ public class UserAuthController {
     userAuthService.deleteUser(userLoginRequestDto.getEmail(), userLoginRequestDto.getPassword());
     return ResponseEntity.ok("회원 탈퇴 처리되었습니다.");
   }
+
+  @GetMapping("/exist-email-and-nick")
+  public ResponseEntity<Map<String, Boolean>> checkValue(
+      @RequestParam String type,
+      @RequestParam String value
+  ) {
+    boolean isTaken = userAuthService.isValueExist(type, value);
+    Map<String, Boolean> response = Map.of("isTaken", isTaken);
+    return ResponseEntity.ok(response);
+  }
+
 }

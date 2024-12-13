@@ -11,7 +11,7 @@ class ManitoLetterModal extends BaseModal {
     if (!url || url.trim() === '') {
       return true;
     }
-    const youtubePattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}$/;
+    const youtubePattern = /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|v\/|embed\/)|youtu\.be\/)([\w-]{11})(?:[?&].*)?$/;
     return youtubePattern.test(url.trim());
   }
 
@@ -100,7 +100,6 @@ class ManitoLetterModal extends BaseModal {
 
       if (window.ManitoPage && window.ManitoPage.letterBox) {
         const letterBox = window.ManitoPage.letterBox;
-
         letterBox.activeTab = 'sent';
 
         const receivedTab = document.querySelector('.received-letter-box');
@@ -121,9 +120,23 @@ class ManitoLetterModal extends BaseModal {
         await letterBox.loadMoreLetters();
       }
 
-      await this.updateLetterButton();
+      const elements = {
+        receivedList: document.querySelector(
+            '.manito-letter-section .received-letter ul'),
+        sentList: document.querySelector(
+            '.manito-letter-section .sent-letter ul'),
+        receivedLink: document.querySelector(
+            '.manito-letter-section .received-letter h3 a'),
+        sentLink: document.querySelector(
+            '.manito-letter-section .sent-letter h3 a')
+      };
+      if (elements.receivedList && elements.sentList) {
+        await CommonUtils.loadRecentLetters(elements);
+      }
 
+      await this.updateLetterButton();
       return true;
+
     } catch (error) {
       console.error('Error sending letter:', error);
       this.showWarning(error.message || '편지 전송 중 오류가 발생했습니다.');
@@ -179,7 +192,6 @@ class ManitoLetterModal extends BaseModal {
   }
 }
 
-// 마니또 페이지 관련 기능을 관리
 const ManitoPage = {
   letterBox: {
     currentPage: 0,
@@ -202,8 +214,45 @@ const ManitoPage = {
         return;
       }
 
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialTab = urlParams.get('tab');
+      const initialLetterId = urlParams.get('letterId');
+
       this.setupEventListeners();
+
+      if (initialTab === 'sent') {
+        this.activeTab = 'sent';
+        this.sentTab.classList.add('active');
+        this.receivedTab.classList.remove('active');
+        document.querySelector('.manito-letter-box-switch').classList.remove(
+            'received-active');
+        document.querySelector('.manito-letter-box-switch').classList.add(
+            'sent-active');
+      } else {
+        this.activeTab = 'received';
+        this.receivedTab.classList.add('active');
+        this.sentTab.classList.remove('active');
+        document.querySelector('.manito-letter-box-switch').classList.add(
+            'received-active');
+        document.querySelector('.manito-letter-box-switch').classList.remove(
+            'sent-active');
+      }
+
       await this.loadInitialLetters();
+
+      if (initialLetterId) {
+        setTimeout(() => {
+          const letterElement = document.querySelector(
+              `[data-letter-id="${initialLetterId}"]`);
+          if (letterElement) {
+            letterElement.scrollIntoView({behavior: 'smooth', block: 'center'});
+            letterElement.style.backgroundColor = '#F1F1E3';
+            setTimeout(() => {
+              letterElement.style.backgroundColor = '';
+            }, 1000);
+          }
+        }, 500);
+      }
     },
 
     async refreshLetterBox() {
@@ -294,7 +343,6 @@ const ManitoPage = {
         const userNickname = document.querySelector(
             'meta[name="user-nickname"]')?.content;
 
-        //개발 도중
         if (!userNickname) {
           this.container.innerHTML = `
                 <div class="empty-letter-message">
@@ -334,7 +382,7 @@ const ManitoPage = {
         }
 
         for (const letter of data.content) {
-          const letterHTML = await this.createLetterHTML(letter);
+          const letterHTML = this.createLetterHTML(letter);
           this.container.insertAdjacentHTML('beforeend', letterHTML);
         }
 
@@ -382,10 +430,10 @@ const ManitoPage = {
     }
   },
 
-  // 모달 관련 기능
   modals: {
     letterModal: null,
     replyModal: null,
+    reportModal: null,
 
     init() {
       const letterModalContainer = document.getElementById(
@@ -410,7 +458,14 @@ const ManitoPage = {
         );
       }
 
+      const reportModalContainer = document.getElementById(
+          "reportModalContainer");
+      if (reportModalContainer) {
+        this.reportModal = new ReportModal();
+      }
+
       this.initializeReplySentModal();
+      this.initializeReportSystem();
     },
 
     initializeReplySentModal() {
@@ -436,6 +491,100 @@ const ManitoPage = {
           }
         };
       }
+    },
+
+    async handleReport(letterId, reportType) {
+      try {
+        const statusResponse = await fetch(
+            `/api/manito/report/status/${letterId}?type=${reportType}`);
+        if (!statusResponse.ok) {
+          throw new Error('신고 상태를 확인하는데 실패했습니다.');
+        }
+
+        const statusData = await statusResponse.json();
+
+        if (statusData.reported) {
+          const message = reportType === 'MANITO_LETTER'
+              ? '이미 신고된 편지입니다.'
+              : '이미 신고된 답장입니다.';
+          this.showWarningMessage(message);
+          return;
+        }
+
+        if (reportType === 'MANITO_ANSWER') {
+          const letterResponse = await fetch(`/api/manito/letter/${letterId}`);
+          if (!letterResponse.ok) {
+            throw new Error('편지 정보를 불러오는데 실패했습니다.');
+          }
+          const letter = await letterResponse.json();
+
+          if (!letter.answerLetter) {
+            this.showWarningMessage('답장이 존재하지 않습니다.');
+            return;
+          }
+        }
+
+        if (window.ManitoPage?.modals.reportModal) {
+          await window.ManitoPage.modals.reportModal.openWithTarget(letterId,
+              reportType);
+        }
+
+        document.querySelectorAll('.manito-report-menu').forEach(menu => {
+          menu.style.display = 'none';
+        });
+      } catch (error) {
+        console.error("Error handling report:", error);
+        this.showWarningMessage(error.message);
+      }
+    },
+
+    initializeReportSystem() {
+      if (!this.reportModal) {
+        return;
+      }
+
+      document.addEventListener('click', (e) => {
+        const moreOptionsBtn = e.target.closest(
+            '.tiny-icons[src*="UI-more2.png"]');
+        if (moreOptionsBtn) {
+          e.stopPropagation();
+          document.querySelectorAll('.manito-report-menu').forEach(menu => {
+            menu.style.display = 'none';
+          });
+          const reportMenu = moreOptionsBtn.parentElement.querySelector(
+              '.manito-report-menu');
+          if (reportMenu) {
+            reportMenu.style.display = 'block';
+          }
+        }
+      });
+
+      document.addEventListener('click', async (e) => {
+        const reportBtn = e.target.closest('.open-report-modal-btn');
+        if (!reportBtn) {
+          return;
+        }
+
+        const letterContainer = reportBtn.closest(
+            '.manito-reply-outer-container');
+        if (!letterContainer) {
+          return;
+        }
+
+        const letterId = letterContainer.dataset.letterId;
+        const reportType = letterContainer.dataset.reportType;
+
+        await this.handleReport(letterId, reportType);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.manito-report-menu') &&
+            !e.target.closest('.tiny-icons[src*="UI-more2.png"]')) {
+          document.querySelectorAll('.manito-report-menu').forEach(menu => {
+            menu.style.display = 'none';
+          });
+        }
+      });
     },
 
     async openReplyModal(letterId) {
@@ -465,11 +614,9 @@ const ManitoPage = {
     async openSentReplyModal(letterId, isMyReply = true) {
       try {
         const response = await fetch(`/api/manito/letter/${letterId}`);
-
         if (!response.ok) {
           throw new Error('답장을 불러오는데 실패했습니다.');
         }
-
         const letterData = await response.json();
 
         const modalContainer = document.getElementById(
@@ -480,6 +627,8 @@ const ManitoPage = {
             '.send-letter-reply-title p');
         const replyTextElement = modalContainer.querySelector(
             '.manito-letter-reply-text');
+        const reportButton = modalContainer.querySelector(
+            '.manito-letter-reply-report-container');
 
         if (!modalContainer || !modalBackground || !replyTextElement
             || !modalTitle) {
@@ -487,7 +636,7 @@ const ManitoPage = {
         }
 
         modalTitle.textContent = isMyReply ? '내가 보낸 답장' : '마니또의 답장';
-
+        reportButton.style.display = isMyReply ? 'none' : 'flex';
         replyTextElement.innerHTML = letterData.answerLetter?.replace(/\n/g,
             '<br>') || '';
 
@@ -495,9 +644,49 @@ const ManitoPage = {
             - document.documentElement.clientWidth;
         document.body.style.overflow = 'hidden';
         document.body.style.paddingRight = `${scrollbarWidth}px`;
-
         modalContainer.style.display = 'block';
         modalBackground.style.display = 'block';
+
+        if (!isMyReply) {
+          const moreOptionsBtn = modalContainer.querySelector(
+              '.tiny-icons[src*="UI-more2.png"]');
+          const reportMenu = modalContainer.querySelector(
+              '.manito-report-menu');
+          const reportBtn = modalContainer.querySelector(
+              '.open-report-modal-btn');
+
+          if (moreOptionsBtn) {
+            moreOptionsBtn.onclick = (e) => {
+              e.stopPropagation();
+              reportMenu.style.display = 'block';
+            };
+          }
+
+          if (reportBtn) {
+            reportBtn.replaceWith(reportBtn.cloneNode(true));
+            const newReportBtn = modalContainer.querySelector(
+                '.open-report-modal-btn');
+
+            newReportBtn.addEventListener('click', async (e) => {
+              e.preventDefault();
+              const statusResponse = await fetch(
+                  `/api/manito/report/status/${letterId}?type=MANITO_ANSWER`);
+              if (!statusResponse.ok) {
+                throw new Error('신고 상태를 확인하는데 실패했습니다.');
+              }
+              const statusData = await statusResponse.json();
+
+              if (statusData.reported) {
+                this.showWarningMessage('이미 신고된 답장입니다.');
+                reportMenu.style.display = 'none';
+                return;
+              }
+
+              await this.handleReport(letterId, 'MANITO_ANSWER');
+              reportMenu.style.display = 'none';
+            });
+          }
+        }
 
       } catch (error) {
         console.error('Error displaying reply:', error);
@@ -508,20 +697,31 @@ const ManitoPage = {
     showWarningMessage(message) {
       const warningPopup = document.getElementById('warningPopup');
       const warningMessage = document.getElementById('warningMessage');
+      const warningConfirmBtn = document.getElementById('warningConfirmBtn');
 
-      if (warningPopup && warningMessage) {
+      if (warningPopup && warningMessage && warningConfirmBtn) {
         warningMessage.textContent = message;
         warningPopup.style.display = 'block';
 
-        setTimeout(() => {
+        const newConfirmButton = warningConfirmBtn.cloneNode(true);
+        warningConfirmBtn.parentNode.replaceChild(newConfirmButton,
+            warningConfirmBtn);
+
+        newConfirmButton.addEventListener('click', () => {
           warningPopup.style.display = 'none';
-        }, 3000);
+        });
       }
     }
   },
 
   async toggleLetterVisibility(letterId, toggleButton) {
     try {
+      const checkResponse = await fetch(`/api/manito/letter/${letterId}`);
+      if (!checkResponse.ok) {
+        throw new Error('편지 정보를 불러오는데 실패했습니다.');
+      }
+      const letterData = await checkResponse.json();
+
       const response = await fetch(`/api/manito/hide/letter/${letterId}`, {
         method: 'PUT'
       });
@@ -531,15 +731,16 @@ const ManitoPage = {
       }
 
       const img = toggleButton.querySelector('img');
-      const isChecked = img.src.includes('icon-check.png');
+      const isCurrentlyPublic = letterData.public;
 
-      if (isChecked) {
+      if (isCurrentlyPublic) {
         img.src = img.getAttribute('data-unchecked-src');
         toggleButton.style.opacity = '0.3';
       } else {
         img.src = img.getAttribute('data-checked-src');
         toggleButton.style.opacity = '1';
       }
+
     } catch (error) {
       console.error('Error toggling letter visibility:', error);
       this.modals.showWarningMessage(error.message);
@@ -555,10 +756,17 @@ const ManitoPage = {
 class ManitoLetterRenderer {
   static generateLetterHTML(letter, isReceived = true) {
     const ownerClass = isReceived ? 'received' : 'sent';
-    const buttonStyle = !isReceived ? 'style="margin-left: auto;"' : '';
+
+    const isChecked = Boolean(letter.public);
+    const checkIconSrc = isChecked ? '/images/icons/icon-check.png'
+        : '/images/icons/icon-check-empty.png';
+    const buttonOpacity = isChecked ? '1' : '0.3';
+
+    const statusStyle = isChecked ? '' : 'opacity: 0.3;';
 
     return `
-      <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}">
+     <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}" data-report-type="${isReceived
+        ? 'MANITO_LETTER' : 'MANITO_ANSWER'}">
       <div class="manito-reply-container">
         <img class="manito-user-photo" src="/images/icons/icon-clover2.png" alt="anonymous user icon" />
         <div class="post-content">
@@ -566,7 +774,8 @@ class ManitoLetterRenderer {
             <span class="manito-user-name">익명의 마니또</span>
             <span class="passed-time">${letter.timeDiff}</span>
           </div>
-          <p class="manito-content-text">${letter.letterContent}</p>
+          <p class="manito-content-text">${letter.letterContent?.replace(/\n/g,
+        '<br>') || ''}</p>
           <div class="manito-recommend-music">
             <div class="recommend-music">
               <img class="tiny-icons-linkless" src="/images/icons/icon-music.png" alt="music icon" />
@@ -578,36 +787,49 @@ class ManitoLetterRenderer {
               </p>
             ` : ''}
           </div>
-          ${letter.musicComment ? `
-            <p class="manito-music-comment">${letter.musicComment}</p>
+          <p class="manito-music-comment" ${!letter.musicComment
+        ? 'style="color: #8f8f8f; opacity: 0.7; font-style: italic;"' : ''}>
+              ${letter.musicComment ? letter.musicComment.replace(/\n/g, '<br>')
+        : '추천 음악이 없습니다'}
+          </p>
+          ${letter.formattedCreatedAt ? `
+          <p class="post-time">${letter.formattedCreatedAt}</p>
           ` : ''}
         </div>
-        <div class="option-icons">
+        <div class="option-icons" style="position: relative;">
           <img class="tiny-icons" src="/images/icons/UI-more2.png" alt="more options" />
+          <div class="manito-report-menu">
+            <button class="open-report-modal-btn">신고하기</button>
+          </div>
         </div>
       </div>
       <div class="manito-reaction-container">
         ${isReceived ? `
-          <button class="manito-reply-toggle" onclick="ManitoPage.toggleLetterVisibility(${letter.manitoLetterId}, this)">
+          <button class="manito-reply-toggle" onclick="ManitoPage.toggleLetterVisibility(${letter.manitoLetterId}, this)" style="opacity: ${buttonOpacity}">
             <img class="tiny-icons" 
-                src="/images/icons/icon-check-${letter.isPublic ? '' : 'empty'}.png" 
+                src="${checkIconSrc}" 
                 alt="check icon"
                 data-checked-src="/images/icons/icon-check.png"
                 data-unchecked-src="/images/icons/icon-check-empty.png" />
             <span>이 마니또의 편지를 모두가 볼 수 있도록 공개합니다.</span>
           </button>
           ${!letter.answerLetter ? `
-            <button class="reply-button" ${buttonStyle} onclick="ManitoPage.modals.openReplyModal(${letter.manitoLetterId})">
+            <button class="reply-button" onclick="ManitoPage.modals.openReplyModal(${letter.manitoLetterId})">
               답장하기
             </button>
           ` : `
-            <button class="reply-button" ${buttonStyle} onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, true)">
+            <button class="reply-button" onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, true)">
               내가 보낸 답장 보기
             </button>
           `}
         ` : `
+          <div class="manito-visibility-status" style="display: flex; align-items: center; gap: 8px; ${statusStyle}">
+            <img class="tiny-icons" src="${checkIconSrc}" alt="check icon" style="pointer-events: none;" />
+            <span style="color: #3f624c; font-weight: bold;">${isChecked
+        ? '수신자가 이 편지를 모두에게 공개했습니다.' : '이 편지는 공개되어 있지 않습니다.'}</span>
+          </div>
           ${letter.answerLetter ? `
-            <button class="reply-button" ${buttonStyle} onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, false)">
+            <button class="reply-button" onclick="ManitoPage.modals.openSentReplyModal(${letter.manitoLetterId}, false)">
               답장 확인하기
             </button>
           ` : ''}
@@ -730,6 +952,120 @@ class ManitoLetterReplyModal extends BaseModal {
       console.error('Error sending reply:', error);
       this.showWarning(error.message);
       return false;
+    }
+  }
+}
+
+class ReportModal extends BaseModal {
+  constructor() {
+    super(
+        "reportModalContainer",
+        "reportModal",
+        null,
+        "closeReportModalBtn"
+    );
+    this.targetId = null;
+    this.reportType = null;
+    this.reportObjectType = null;
+    this.initializeEventListeners();
+  }
+
+  initializeEventListeners() {
+    super.initializeEventListeners();
+
+    this.background.addEventListener('click', (e) => {
+      if (e.target === this.background) {
+        this.close();
+      }
+    });
+
+    const reportSendBtn = document.getElementById('reportSendBtn');
+    if (reportSendBtn) {
+      reportSendBtn.onclick = (e) => {
+        e.preventDefault();
+        this.submitReport();
+      };
+    }
+
+    const reportTypeSelect = document.getElementById('report-type-select');
+    if (reportTypeSelect) {
+      reportTypeSelect.onchange = (e) => {
+        this.reportType = e.target.value;
+      };
+    }
+  }
+
+  async submitReport() {
+    if (!this.targetId || !this.reportType) {
+      this.showWarning('신고 사유를 선택해주세요.');
+      return;
+    }
+
+    try {
+      const endpoint = this.reportObjectType === 'MANITO_ANSWER'
+          ? `/api/manito/report/answer/${this.targetId}`
+          : `/api/manito/report/${this.targetId}`;
+
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          reportType: this.reportType
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || '신고 처리 중 오류가 발생했습니다.');
+      }
+
+      this.showWarning('신고가 접수되었습니다.');
+      this.resetForm();
+      this.close();
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      this.showWarning(error.message);
+    }
+  }
+
+  resetForm() {
+    const reportTypeSelect = document.getElementById('report-type-select');
+    if (reportTypeSelect) {
+      reportTypeSelect.value = '';
+    }
+    this.targetId = null;
+    this.reportType = null;
+    this.reportObjectType = null;
+  }
+
+  async openWithTarget(targetId, reportObjectType = 'MANITO_LETTER') {
+    try {
+      const response = await fetch(`/api/manito/letter/${targetId}`);
+      if (!response.ok) {
+        throw new Error('편지 정보를 불러오는데 실패했습니다.');
+      }
+
+      const letter = await response.json();
+
+      if (reportObjectType === 'MANITO_LETTER' && letter.report) {
+        this.showWarning('이미 신고된 편지입니다.');
+        return;
+      }
+
+      if (reportObjectType === 'MANITO_ANSWER' && letter.answerReport) {
+        this.showWarning('이미 신고된 답장입니다.');
+        return;
+      }
+
+      this.targetId = targetId;
+      this.reportObjectType = reportObjectType;
+      this.open();
+
+    } catch (error) {
+      console.error('Error checking report status:', error);
+      this.showWarning(error.message);
     }
   }
 }

@@ -1,17 +1,9 @@
-<!--헤더, 우측 메뉴는 고정으로 페이지 자체가 넘어가는 것이 아니면 그 외의 화면 요소만 fragment로 로드합니다.-->
-<!--fragments/common -> 자잘히 쪼개진 공통 요소들-->
-<!--fragments/content -> 유사 페이지. 헤더, 우측 메뉴를 제외한 중앙 섹션 컨텐츠-->
-<!--fragments/modals -> 모달창 요소-->
-<!--pages/auth -> 로그인, 회원가입 페이지-->
-<!--페이지 자체가 따로 필요한 경우 pages에 추가해주시고-->
-<!--피그마 기반으로 기본 틀만 구성한 거라 없는 부분도 많고 기능은 다 빠져 있으니 자유롭게 추가/수정하십쇼-->
-<!--미구현 : 답글 모달, 관리자 페이지, 탭메뉴 이동, 더보기 메뉴, 게시물 상세로 이동하는 기능 등-->
-
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="user-nickname" th:content="${nickname}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 

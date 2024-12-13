@@ -89,9 +89,13 @@ class BaseModal {
       warningMessage.textContent = message;
       warningPopup.style.display = 'block';
 
-      warningConfirmBtn.onclick = () => {
+      const newConfirmButton = warningConfirmBtn.cloneNode(true);
+      warningConfirmBtn.parentNode.replaceChild(newConfirmButton,
+          warningConfirmBtn);
+
+      newConfirmButton.addEventListener('click', () => {
         warningPopup.style.display = 'none';
-      };
+      });
     }
   }
 
@@ -170,7 +174,7 @@ const CommonUtils = {
     }
   },
 
-  toggleElement(element, type) {
+  toggleElement(element) {
     const img = element.querySelector('img');
     if (!img) {
       return;
@@ -187,12 +191,127 @@ const CommonUtils = {
           '}', '');
       element.style.opacity = '1';
     }
-  }
+  },
+
+  initializeRightSectionManito() {
+    const elements = {
+      receivedList: document.querySelector(
+          '.manito-letter-section .received-letter ul'),
+      sentList: document.querySelector(
+          '.manito-letter-section .sent-letter ul'),
+      receivedLink: document.querySelector(
+          '.manito-letter-section .received-letter h3 a'),
+      sentLink: document.querySelector(
+          '.manito-letter-section .sent-letter h3 a')
+    };
+
+    if (!elements.receivedList || !elements.sentList) {
+      return;
+    }
+
+    this.loadRecentLetters(elements);
+    this.initializeLetterEventListeners(elements);
+  },
+
+  async loadRecentLetters(elements) {
+    try {
+      const userNickname = document.querySelector(
+          'meta[name="user-nickname"]')?.content;
+      if (!userNickname) {
+        return;
+      }
+
+      this.showLoadingState(elements.receivedList);
+      this.showLoadingState(elements.sentList);
+
+      const receivedResponse = await fetch(
+          `/api/receivemanito/${userNickname}?page=0&size=3`);
+      const receivedData = await receivedResponse.json();
+
+      const sentResponse = await fetch(
+          `/api/sendmanito/${userNickname}?page=0&size=3`);
+      const sentData = await sentResponse.json();
+
+      this.updateLetterList(elements.receivedList, receivedData.content, true);
+      this.updateLetterList(elements.sentList, sentData.content, false);
+
+    } catch (error) {
+      console.error('Error loading recent letters:', error);
+      this.updateLetterList(elements.receivedList, [], true);
+      this.updateLetterList(elements.sentList, [], false);
+    }
+  },
+
+  updateLetterList(container, letters) {
+    container.innerHTML = '';
+
+    if (!letters || letters.length === 0) {
+      const emptyMessage = document.createElement('li');
+      emptyMessage.className = 'empty-message';
+      emptyMessage.textContent = '편지함이 비어 있습니다';
+      emptyMessage.style.color = '#888';
+      emptyMessage.style.textAlign = 'center';
+      emptyMessage.style.padding = '10px 0';
+      container.appendChild(emptyMessage);
+      return;
+    }
+
+    letters.forEach(letter => {
+      const content = letter.letterContent || '';
+      const truncatedContent = content.substring(0, 20);
+
+      const li = document.createElement('li');
+      li.textContent = truncatedContent;
+      li.dataset.letterId = letter.manitoLetterId;
+      li.style.cursor = 'pointer';
+      container.appendChild(li);
+    });
+  },
+
+  showLoadingState(container) {
+    container.innerHTML = '';
+    const loadingMessage = document.createElement('li');
+    loadingMessage.className = 'loading-message';
+    loadingMessage.textContent = '편지 로딩 중...';
+    loadingMessage.style.color = '#888';
+    loadingMessage.style.textAlign = 'center';
+    loadingMessage.style.padding = '10px 0';
+    container.appendChild(loadingMessage);
+  },
+
+  initializeLetterEventListeners(elements) {
+
+    elements.receivedList?.addEventListener('click', (e) => {
+      const letterId = e.target.dataset.letterId;
+      if (letterId) {
+        e.preventDefault();
+        window.location.href = `/manito?tab=received&letterId=${letterId}`;
+      }
+    });
+
+    elements.sentList?.addEventListener('click', (e) => {
+      const letterId = e.target.dataset.letterId;
+      if (letterId) {
+        e.preventDefault();
+        window.location.href = `/manito?tab=sent&letterId=${letterId}`;
+      }
+    });
+
+    elements.receivedLink?.addEventListener('click', () => {
+      window.location.href = '/manito?tab=received';
+    });
+
+    elements.sentLink?.addEventListener('click', () => {
+      window.location.href = '/manito?tab=sent';
+    });
+  },
+
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   CommonUtils.initializePageModals();
   CommonUtils.initializeAllTextareas();
+  CommonUtils.initializeRightSectionManito();
 
   window.toggleManito = function (element, type) {
     CommonUtils.toggleElement(element, type);

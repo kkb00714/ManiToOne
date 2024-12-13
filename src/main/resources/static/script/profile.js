@@ -55,6 +55,8 @@ document.addEventListener("DOMContentLoaded", function () {
       addHidePostEventListener();
       addReportPostEventListener();
       addDocumentClickEventListener();
+      addPostLikeEventListener();
+      addPostDeleteEventHandler();
     })
     .catch(error => {
       console.error('Error loading posts:', error);
@@ -89,12 +91,15 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
             <p class="content-text">${post.content}</p>
             <div class="reaction-icons">
-              <img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="I like this" />
+            ${myNickName !== post.nickName
+        ? `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="I like this" data-post-id="${post.postId}"/>`
+        : `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="my post"/>`}
               <span class="like-count">${post.likeCount}</span>
               <img class="tiny-icons" src="/images/icons/icon-comment2.png" alt="add reply" />
               <span class="reply-count">${post.replies.length}</span>
             </div>
           </div>
+          ${currentCategory !== 3 ? `
           <div class="option-icons">
             <img class="tiny-icons" src="/images/icons/UI-more2.png" alt="more options" />
             ${myNickName !== post.nickName
@@ -103,11 +108,16 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="more-options-menu hidden">
               <ul>
                 ${myNickName === post.nickName
-        ? `<li><a href="#" class="hide-post" data-post-id="${post.postId}">숨기기</a></li>`
+        ? `
+                    <li><a href="#" class="hide-post" data-post-id="${post.postId}">숨기기</a></li>
+                    <hr>
+                    <li><a href="#" class="delete-post" data-post-id="${post.postId}">삭제하기</a></li>
+                  `
         : `<li><a href="#" class="report-post" data-post-id="${post.postId}">신고하기</a></li>`}
               </ul>
             </div>
           </div>
+        ` : ''}
         `;
     return postElement;
   }
@@ -252,6 +262,63 @@ function addHidePostEventListener() {
         alert('게시글 ID를 찾을 수 없습니다.');
       }
 
+    });
+  });
+}
+
+function addPostLikeEventListener() {
+  const likePostButtons = document.querySelectorAll('img[alt="I like this"]');
+
+  likePostButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      if (button.classList.contains('liked')) {
+        return;
+      }
+      const postId = this.dataset.postId;
+
+      if (postId) {
+        fetch('/api/post/like/' + postId, {
+          method: 'POST'
+        })
+        .then(response => {
+          if (response.status === 200) {
+            const likeCountElement = button.closest('div').querySelector(
+                '.like-count');
+
+            if (likeCountElement) {
+              const currentLikes = parseInt(likeCountElement.textContent, 10);
+              likeCountElement.textContent = currentLikes + 1;
+              button.classList.add('liked');
+            }
+          }
+        });
+      }
+    });
+  });
+}
+
+function addPostDeleteEventHandler() {
+  const deletePostButtons = document.querySelectorAll('.delete-post');
+
+  deletePostButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
+        return;
+      }
+      const postId = this.dataset.postId;
+
+      if (postId) {
+        fetch('/api/post/' + postId, {
+          method: 'DELETE'
+        })
+        .then(response => {
+          if (response.status === 200) {
+            alert('게시글이 삭제되었습니다.');
+            const postContainer = button.closest('.post-container');
+            postContainer.remove();
+          }
+        });
+      }
     });
   });
 }

@@ -7,17 +7,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
   window.addEventListener('scroll', handleScroll);
 
-  document.querySelector('.my-post-menu-switch').addEventListener('click', () => switchCategory(1));
-  document.querySelector('.like-it-menu-switch').addEventListener('click', () => switchCategory(2));
-  if (document.querySelector('.hidden-post-menu-switch'))
-  {
-    document.querySelector('.hidden-post-menu-switch').addEventListener('click', () => switchCategory(3));
+  document.querySelector('.my-post-menu-switch').addEventListener('click',
+      () => switchCategory(1));
+  document.querySelector('.like-it-menu-switch').addEventListener('click',
+      () => switchCategory(2));
+  if (document.querySelector('.hidden-post-menu-switch')) {
+    document.querySelector('.hidden-post-menu-switch').addEventListener('click',
+        () => switchCategory(3));
   }
 
   loadPosts(pageNum);
 
   function handleScroll() {
-    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 100) {
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight
+        - 100) {
       if (!isLoading && hasMorePosts) {
         isLoading = true;
         pageNum++;
@@ -73,10 +76,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const postElement = document.createElement("div");
     postElement.classList.add("post-container");
 
-    const timeText = post.updatedAt ? `(수정됨) ${timeForToday(post.updatedAt)}` : timeForToday(post.createdAt);
+    const timeText = post.updatedAt ? `(수정됨) ${timeForToday(post.updatedAt)}`
+        : timeForToday(post.createdAt);
 
     postElement.innerHTML = `
-          <img class="user-photo" src="${post.profileImage || '/images/icons/UI-user2.png'}" alt="user icon" />
+          <img class="user-photo" src="${post.profileImage
+    || '/images/icons/UI-user2.png'}" alt="user icon" />
           <div class="post-content">
             <div class="user-info">
               <a href="/profile/${post.nickName}" class="user-name">${post.nickName}</a>
@@ -110,7 +115,8 @@ document.addEventListener("DOMContentLoaded", function () {
   function timeForToday(value) {
     const today = new Date();
     const timeValue = new Date(value);
-    const betweenTime = Math.floor((today.getTime() - timeValue.getTime()) / 1000 / 60);
+    const betweenTime = Math.floor(
+        (today.getTime() - timeValue.getTime()) / 1000 / 60);
 
     if (betweenTime < 1) {
       return '방금전';
@@ -136,7 +142,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function addFriendButtonsEventListener() {
     const addFriendButtons = document.querySelectorAll('img[alt="add friend"]');
-    addFriendButtons.forEach(button => button.addEventListener("click", handleAddFriendClick));
+    addFriendButtons.forEach(
+        button => button.addEventListener("click", handleAddFriendClick));
   }
 
   function handleAddFriendClick() {
@@ -157,7 +164,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   postsContainer.addEventListener('click', function (event) {
-    const moreOptionsButton = event.target.closest('.tiny-icons[alt="more options"]');
+    const moreOptionsButton = event.target.closest(
+        '.tiny-icons[alt="more options"]');
 
     if (moreOptionsButton) {
       handleMoreOptionsClick(event, moreOptionsButton);
@@ -168,7 +176,8 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function handleMoreOptionsClick(event, moreOptionsButton) {
-  const optionsMenu = moreOptionsButton.closest('.option-icons').querySelector('.more-options-menu');
+  const optionsMenu = moreOptionsButton.closest('.option-icons').querySelector(
+      '.more-options-menu');
 
   if (!optionsMenu) {
     return;
@@ -202,7 +211,8 @@ function handleMoreOptionsClick(event, moreOptionsButton) {
 function addDocumentClickEventListener() {
   document.addEventListener('click', function (event) {
     const isClickInsideMenu = event.target.closest('.more-options-menu');
-    const isClickInsideButton = event.target.closest('.tiny-icons[alt="more options"]');
+    const isClickInsideButton = event.target.closest(
+        '.tiny-icons[alt="more options"]');
 
     if (!isClickInsideMenu && !isClickInsideButton) {
       document.querySelectorAll('.more-options-menu').forEach(menu => {
@@ -225,7 +235,7 @@ function addHidePostEventListener() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ postId: postId }),
+          body: JSON.stringify({postId: postId}),
         })
         .then(response => {
           if (response.ok) {
@@ -258,7 +268,7 @@ function addReportPostEventListener() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ postId: postId }),
+          body: JSON.stringify({postId: postId}),
         })
         .then(response => response.json())
         .then(data => {
@@ -331,6 +341,7 @@ function getFollowings() {
 window.addEventListener("DOMContentLoaded", () => {
   const followerLink = document.getElementById("followerLink");
   const followingLink = document.getElementById("followingLink");
+  const followBtn = document.getElementById("followOnProfileBtn");
   followerLink.addEventListener("click", (event) => {
     event.preventDefault();
     const nickname = `${userNickName}`;
@@ -342,5 +353,10 @@ window.addEventListener("DOMContentLoaded", () => {
     const nickname = `${userNickName}`;
 
     getFollowings(nickname);
+  })
+  followBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    fetch(`/api/follow/${userNickName}`).then(() => location.reload());
   })
 });

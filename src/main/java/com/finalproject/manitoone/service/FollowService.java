@@ -5,6 +5,7 @@ import com.finalproject.manitoone.domain.Follow;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.repository.FollowRepository;
 import com.finalproject.manitoone.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,7 @@ public class FollowService {
   private final FollowRepository followRepository;
   private final UserRepository userRepository;
 
-  public Boolean toggleFollow(String myNickName, String targetNickName) {
-
-    if (myNickName.equals(targetNickName)) {
-      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_FOLLOW_YOURSELF.getMessage());
-    }
-
+  public Boolean isFollowed(String myNickName, String targetNickName) {
     User my = userRepository.findUserByNickname(myNickName).orElseThrow(
         () -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
@@ -29,16 +25,36 @@ public class FollowService {
         () -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
 
-    Optional<Follow> follow = followRepository.findByFollower_UserIdAndFollowing_UserId(my.getUserId(),
-        target.getUserId());
+    return followRepository.existsByFollower_UserIdAndFollowing_UserId(my.getUserId(), target.getUserId());
+  }
 
-    if (follow.isPresent()) {
-      followRepository.delete(follow.get());
+  @Transactional
+  public Boolean toggleFollow(String myNickName, String targetNickName) {
+    if (myNickName.equals(targetNickName)) {
+      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_FOLLOW_YOURSELF.getMessage());
+    }
+
+    User my = userRepository.findUserByNickname(myNickName)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
+
+    User target = userRepository.findUserByNickname(targetNickName)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
+
+    Optional<Follow> existingFollow = followRepository
+        .findByFollower_UserIdAndFollowing_UserId(my.getUserId(), target.getUserId());
+
+    if (existingFollow.isPresent()) {
+      followRepository.delete(existingFollow.get());
       return Boolean.FALSE;
     } else {
-      Follow newFollow = new Follow(null, my, target);
-      followRepository.save(newFollow);
-      return Boolean.TRUE;
+      if (Boolean.FALSE.equals(followRepository.existsByFollower_UserIdAndFollowing_UserId(my.getUserId(), target.getUserId()))) {
+        Follow newFollow = new Follow(null, my, target);
+        followRepository.save(newFollow);
+        return Boolean.TRUE;
+      }
+      return Boolean.FALSE;
     }
   }
 }

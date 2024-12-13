@@ -32,5 +32,10 @@ public class UserPostLike {
   private Post post;
 
   @Column(name = "is_reply", nullable = false, columnDefinition = "tinyint DEFAULT 0")
+  @Builder.Default
   private Boolean isReply = false;
+
+  public void updateIsReply() {
+    this.isReply = true;
+  }
 }

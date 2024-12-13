@@ -109,7 +109,7 @@
     })
     .then(user => {
       if (user && user.nickname) {
-        localStorage.setItem("isRead", userInfo.read);
+        localStorage.setItem("isRead", user.read);
         alert(`로그인 성공! 환영합니다, ${user.nickname} 님.`);
         window.location.href = "/";
       } else {

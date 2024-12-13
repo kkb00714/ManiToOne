@@ -9,32 +9,36 @@
     <ul>
       <li class="UI-icon-list">
         <a th:href="@{/}">
-        <button
-        ><img th:src="@{/images/icons/UI-home2.png}" alt="home"
-        /></button>
+          <button
+          ><img th:src="@{/images/icons/UI-home2.png}" alt="home"
+          /></button>
         </a>
       </li>
-      <li class="UI-icon-list" th:if="${session.user != null}">
+      <li class="UI-icon-list" th:if="${session.email != null}">
         <!-- 세션에 유저가 있을 때 -->
         <a th:href="@{/noti}">
           <button>
-            <img th:src="@{/images/icons/UI-notification2.png}" alt="notification" />
+            <img class="noti-image"
+                th:src="@{/images/icons/UI-notification2.png}"
+                alt="notification"/>
           </button>
         </a>
       </li>
-      <li class="UI-icon-list" th:if="${session.user == null}">
+      <li class="UI-icon-list" th:if="${session.email == null}">
         <!-- 세션에 유저가 없을 때 -->
         <a th:href="@{/login}">
           <button>
-            <img th:src="@{/images/icons/UI-notification2.png}" alt="notification" />
+            <img
+                class="noti-image"
+                th:src="@{/images/icons/UI-notification2.png}" alt="notification"/>
           </button>
         </a>
       </li>
       <li class="UI-icon-list">
         <a th:href="@{/manito}">
-        <button
-        ><img th:src="@{/images/icons/icon-clover2.png}" alt="manito"
-        /></button>
+          <button
+          ><img th:src="@{/images/icons/icon-clover2.png}" alt="manito"
+          /></button>
         </a>
       </li>
       <li class="UI-icon-list">
@@ -47,4 +51,10 @@
   <div class="UI-icon-more">
     <img th:src="@{/images/icons/UI-more2.png}" alt="Show-more-options"/>
   </div>
+  <!-- 로그인된 유저의 이메일을 meta 태그로 전달 -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <meta name="email" th:content="${session.email != null ? session.email : ''}">
+  <script th:src="@{/script/socket.js}"></script>
+  <script th:src="@{/script/header.js}"></script>
 </header>

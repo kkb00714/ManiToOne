@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class SessionController {
+public class SessionApiController {
 
   @GetMapping("/session-info")
   public ResponseEntity<Map<String, String>> getSessionInfo(HttpSession session) {

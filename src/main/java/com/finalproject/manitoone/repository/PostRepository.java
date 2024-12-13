@@ -24,11 +24,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   Optional<List<Post>> findAllByUserUserId(Long userId);
 
   // 타임라인 조회를 위한 쿼리
-  @Query("SELECT DISTINCT p FROM Post p " +
+  @Query("SELECT p FROM Post p " +
       "JOIN Follow f ON f.following.userId = p.user.userId " +
       "WHERE f.follower.userId = :userId " +
       "AND p.isBlind = false AND p.isHidden = false " +
-      "AND NOT EXISTS (SELECT r FROM ReplyPost r WHERE r.post = p AND r.parentId IS NOT NULL) " +
       "ORDER BY p.createdAt DESC")
   Page<Post> findTimelinePostsByUserId(@Param("userId") Long userId, Pageable pageable);
 }

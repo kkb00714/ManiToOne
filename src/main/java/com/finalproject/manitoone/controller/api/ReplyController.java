@@ -102,7 +102,7 @@ public class ReplyController {
     ));
 
     ReportResponseDto report = replyService.reportReply(replyId, request, user);
-    return ResponseEntity.status(HttpStatus.ACCEPTED).body(report);
+    return ResponseEntity.status(HttpStatus.CREATED).body(report);
   }
 
   // 답글 좋아요
@@ -113,7 +113,7 @@ public class ReplyController {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
-    
+
     replyService.likeReply(replyId, user);
     return ResponseEntity.ok().build();
   }

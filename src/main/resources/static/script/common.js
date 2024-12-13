@@ -174,7 +174,7 @@ const CommonUtils = {
     }
   },
 
-  toggleElement(element, type) {
+  toggleElement(element) {
     const img = element.querySelector('img');
     if (!img) {
       return;
@@ -242,7 +242,7 @@ const CommonUtils = {
     }
   },
 
-  updateLetterList(container, letters, isReceived) {
+  updateLetterList(container, letters) {
     container.innerHTML = '';
 
     if (!letters || letters.length === 0) {
@@ -297,11 +297,11 @@ const CommonUtils = {
       }
     });
 
-    elements.receivedLink?.addEventListener('click', (e) => {
+    elements.receivedLink?.addEventListener('click', () => {
       window.location.href = '/manito?tab=received';
     });
 
-    elements.sentLink?.addEventListener('click', (e) => {
+    elements.sentLink?.addEventListener('click', () => {
       window.location.href = '/manito?tab=sent';
     });
   },

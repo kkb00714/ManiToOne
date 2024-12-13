@@ -66,7 +66,7 @@ public class UserAuthController {
       userResponse.setRead(notificationService.hasUnreadNotifications(
           userResponse.getEmail()));
 
-      return ResponseEntity.ok(responseDto);
+      return ResponseEntity.ok(userResponse);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest()
           .body(new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));

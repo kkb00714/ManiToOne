@@ -24,9 +24,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   Optional<List<Post>> findAllByUserUserId(Long userId);
 
   // 타임라인 조회를 위한 쿼리
-  @Query("SELECT p FROM Post p " +
-      "JOIN Follow f ON f.following.userId = p.user.userId " +
-      "WHERE f.follower.userId = :userId " +
+  @Query("SELECT p FROM Post p WHERE (" +
+      "p.user.userId IN (SELECT f.following.userId FROM Follow f WHERE f.follower.userId = :userId) " +
+      "OR p.user.userId = :userId) " +
       "AND p.isBlind = false AND p.isHidden = false " +
       "ORDER BY p.createdAt DESC")
   Page<Post> findTimelinePostsByUserId(@Param("userId") Long userId, Pageable pageable);

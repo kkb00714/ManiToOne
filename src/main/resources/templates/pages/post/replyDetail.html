@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="user-nickname" th:content="${userNickname}" />
+    <meta name="user-nickname" th:content="${post.user.nickname}" />
     <link rel="stylesheet" th:href="@{/style/reset.css}" />
     <link rel="stylesheet" th:href="@{/style/common.css}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,9 +28,9 @@
             <!--게시글-->
             <div class="post-container">
               <img
-                class="user-photo"
-                th:src="@{/images/profileImage/{fileName}(fileName=${post.user.profileImage})}"
-                alt="user icon"
+                  class="user-photo"
+                  th:src="@{/images/profileImage/{fileName}(fileName=${post.user.profileImage})}"
+                  alt="user icon"
               />
               <div class="post-content">
                 <div class="user-info">
@@ -43,7 +43,11 @@
                     th:text="${post.updatedAt != null ? #strings.concat(#temporals.format(post.updatedAt, 'mm'), '분') : #strings.concat(#temporals.format(post.createdAt, 'mm'), '분')}"
                   ></span>
                 </div>
-                <p class="content-text" th:text="${post.content}"></p>
+                <p
+                  class="content-text"
+                  th:text="${post.content}"
+                  th:onclick="'directToPost(' + ${post.postId} + ')'"
+                ></p>
                 <img
                   class="post-image"
                   th:src="@{/images/image-beer.webp}"
@@ -58,6 +62,7 @@
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-clover2.png}"
                     alt="I like this"
+                    th:onclick="'likePost(' + ${post.postId} + ')'"
                   />
                   <span class="like-count" th:text="${postLikesNum}"></span>
                   <img
@@ -100,7 +105,11 @@
                     th:text="${#temporals.format(reply.createdAt, 'mm분')}"
                   ></span>
                 </div>
-                <p class="content-text" th:text="${reply.content}"></p>
+                <p
+                  class="content-text"
+                  th:text="${reply.content}"
+                  th:onclick="'directToReply(' + ${reply.replyPostId} + ')'"
+                ></p>
                 <div class="reaction-icons">
                   <img
                     class="tiny-icons"
@@ -155,7 +164,11 @@
                     th:text="${#temporals.format(rereply.createdAt, 'mm분')}"
                   ></span>
                 </div>
-                <p class="content-text" th:text="${rereply.content}"></p>
+                <p
+                  class="content-text"
+                  th:text="${rereply.content}"
+                  th:onclick="'directToReply(' + ${rereply.replyPostId} + ')'"
+                ></p>
                 <div class="reaction-icons">
                   <img
                     class="tiny-icons"

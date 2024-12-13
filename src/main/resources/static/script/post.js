@@ -24,3 +24,8 @@ async function likePost(postId) {
 function directToReply(replyId) {
   window.location.href = `/reply/${replyId}`;
 }
+
+// 게시글 상세 페이지 이동
+function directToPost(postId) {
+  window.location.href = `/post/${postId}`;
+}

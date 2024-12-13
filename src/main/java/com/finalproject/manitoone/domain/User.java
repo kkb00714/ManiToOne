@@ -90,6 +90,14 @@ public class User implements OAuth2User {
     this.password = password;
   }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setNickname(String nickname) {
+    this.nickname = nickname;
+  }
+
   public void updateDefaultImage() {
     this.profileImage = "/img/defaultProfile.png";
   }

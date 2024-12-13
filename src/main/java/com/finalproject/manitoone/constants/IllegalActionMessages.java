@@ -25,6 +25,7 @@ public enum IllegalActionMessages {
 
   // Auth
   USER_NOT_FOUND("해당하는 유저를 찾을 수 없습니다."),
+  USER_ALREADY_IN_USE("이미 존재하는 유저입니다."),
   EMAIL_ALREADY_IN_USE("이미 사용 중인 이메일입니다"),
   NICKNAME_ALREADY_IN_USE("이미 사용 중인 닉네임입니다"),
   EMAIL_VERIFICATION_FAILED("이메일 인증에 실패했습니다."),

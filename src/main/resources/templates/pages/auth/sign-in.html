@@ -20,7 +20,7 @@
     <img th:src="@{/images/logo/long-logo.png}" alt="ManiToOne logo"/>
   </div>
   <div class="sign-in-container">
-    <form action="">
+    <form>
       <div class="sign-in-input-container">
         <input
             class="sign-in-input"
@@ -53,12 +53,12 @@
     <hr class="sign-in-devider-line"/>
   </div>
   <div class="external-login-container">
-<!--    <button class="kakao-login">-->
-<!--      <img-->
-<!--          th:src="@{/images/logo/external-login-logo/google-login.png}"-->
-<!--          alt=""-->
-<!--      />-->
-<!--    </button>-->
+    <!--    <button class="kakao-login">-->
+    <!--      <img-->
+    <!--          th:src="@{/images/logo/external-login-logo/google-login.png}"-->
+    <!--          alt=""-->
+    <!--      />-->
+    <!--    </button>-->
     <button class="google-login">
       <a th:href="@{/oauth2/authorization/google}" class="google-login">
         <img th:src="@{/images/logo/external-login-logo/google-login.png}" alt="Google 로그인"/>
@@ -80,7 +80,7 @@
 
     // 입력값 검증
     if (!userId || !password) {
-      alert("아이디와 비밀번호를 입력해주세요.");
+      alert("아이디와 비밀번호를 확인해주세요.");
       return;
     }
 
@@ -95,25 +95,52 @@
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(loginData),
+      credentials: "include",
     })
     .then(response => {
       if (response.ok) {
-        return response.json();
+        return response.json();  // 정상적인 응답은 JSON으로 처리
       } else {
-        return response.text().then(errorText => {
-          throw new Error(errorText);
+        return response.json().then(errorResponse => {
+          // 오류가 JSON 형태로 반환되면 여기에 처리
+          throw new Error(errorResponse.error || "알 수 없는 오류");
         });
       }
     })
-    .then(userInfo => {
-      localStorage.setItem("isRead", userInfo.read);
-      alert("로그인 성공! 환영합니다.");
-      window.location.href = "/";
+    .then(user => {
+      if (user && user.nickname) {
+        localStorage.setItem("isRead", userInfo.read);
+        alert(`로그인 성공! 환영합니다, ${user.nickname} 님.`);
+        window.location.href = "/";
+      } else {
+        throw new Error("user를 찾을 수 없습니다.");
+      }
     })
     .catch(error => {
       alert("로그인 실패: " + error.message);
     });
   });
+  document.querySelector(".google-login").addEventListener("click", function () {
+    fetch('/api/oauth-login', {
+      method: "GET",
+      credentials: "include",
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error("OAuth2 인증 실패");
+      }
+    })
+    .then(user => {
+      alert(`OAuth 로그인 성공! 환영합니다, ${user.nickname} 님.`);
+      window.location.href = "/";
+    })
+    .catch(error => {
+      alert("OAuth 로그인 실패: " + error.message);
+    });
+  });
+
 </script>
 </body>
 </html>

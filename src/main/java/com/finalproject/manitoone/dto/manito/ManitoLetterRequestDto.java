@@ -54,7 +54,7 @@ public class ManitoLetterRequestDto {
         .trim();
 
     if (!sanitizedUrl.isEmpty()) {
-      String youtubePattern = "^(https?://)?(www\\.)?(youtube\\.com/watch\\?v=|youtu\\.be/)[a-zA-Z0-9_-]{11}$";
+      String youtubePattern = "^(?:https?://)?(?:www\\.)?(?:youtube\\.com/(?:watch\\?v=|embed/)|youtu\\.be/)(\\w{11})$";
       if (!sanitizedUrl.matches(youtubePattern)) {
         throw new IllegalArgumentException("올바른 YouTube URL 형식이 아닙니다.");
       }

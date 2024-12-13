@@ -18,6 +18,7 @@ public class NotificationResponseDto {
 
   private Long notiId;
   private UserInformationResponseDto user;
+  private UserInformationResponseDto senderUser;
   private NotiType type;
   @Setter
   private String content;

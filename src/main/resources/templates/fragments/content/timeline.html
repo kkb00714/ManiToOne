@@ -1,17 +1,5 @@
-<!--홈 화면 타임라인 + 새 게시물 작성-->
-<section class="new-post-form-section" th:fragment="timeline">
-  <div class="new-post-form">
-    <img
-        class="user-photo"
-        th:src="@{/images/icons/UI-user2.png}"
-        alt="user icon"
-    />
-    <p id="openPostFormModalBtn">함께 나누고픈 감정이 있나요?</p>
-  </div>
-  <div th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"></div>
-</section>
+<!--홈 화면 타임라인-->
 <section class="timeline-section" th:fragment="timeline">
-  <div class="timeline">
-    <div th:replace="~{fragments/content/post :: post}"></div>
+  <div class="timeline-posts">
   </div>
 </section>

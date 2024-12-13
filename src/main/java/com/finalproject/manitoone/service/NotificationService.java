@@ -1,12 +1,15 @@
 package com.finalproject.manitoone.service;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.NotificationResponseDto;
+import com.finalproject.manitoone.dto.user.UserInformationResponseDto;
 import com.finalproject.manitoone.repository.NotificationRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.DataUtil;
 import jakarta.servlet.http.HttpSession;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,47 +24,80 @@ public class NotificationService {
   private final DataUtil dataUtil;
 
   public List<NotificationResponseDto> getAllUnReadNotifications(HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      throw new IllegalArgumentException("권한이 없습니다.");
+    String email;
+    if (session.getAttribute("email") == null) {
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
     }
-    return notificationRepository.findByIsReadAndUserOrderByNotiIdDesc(false,
-            userRepository.findUserByNickname(user.getNickname())
-                .orElseThrow(() -> new IllegalArgumentException("해당 닉네임을 가진 유저를 찾을 수 없습니다."))).stream()
-        .map(notification -> {
-          NotificationResponseDto notificationResponseDto = NotificationResponseDto.builder()
-              .notiId(notification.getNotiId())
-              .relatedObjectId(notification.getRelatedObjectId())
-              .isRead(notification.getIsRead())
-              .createdAt(notification.getCreatedAt())
-              .timeDifference(dataUtil.getTimeDifference(notification.getCreatedAt()))
-              .type(notification.getType())
-              .build();
-          // FIXME: setter를 사용하지 않는 방식으로 content 설정 로직 리팩토링 필요
-          if (notificationResponseDto.getType().requiresUserName()) {
-            User sendUser = userRepository.findById(notificationResponseDto.getRelatedObjectId())
-                .orElseThrow(() -> new IllegalArgumentException("알림을 보낸 유저를 찾을 수 없습니다."));
-            notificationResponseDto.setContent(
-                notificationResponseDto.getType().getMessage(sendUser.getNickname()));
-          } else {
-            notificationResponseDto.setContent(notificationResponseDto.getType().getMessage(null));
-          }
-          return notificationResponseDto;
-        })
+    email = (String) session.getAttribute("email");
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.USER_NOT_FOUND.getMessage()));
+    if (user == null) {
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
+    }
+
+    // 모든 알림 읽음 처리
+    // fixme: 테스트를 위해 잠시 주석
+//    readAllNotifications(user);
+
+    LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+
+    return notificationRepository.findByUserAndCreatedAtAfterOrderByCreatedAtDesc(user,
+            thirtyDaysAgo).stream()
+        .map(notification -> NotificationResponseDto.builder()
+            .notiId(notification.getNotiId())
+            .relatedObjectId(notification.getRelatedObjectId())
+            .isRead(notification.getIsRead())
+            .createdAt(notification.getCreatedAt())
+            .user(new UserInformationResponseDto(user.getName(), user.getNickname(),
+                user.getIntroduce(), user.getProfileImage()))
+            .senderUser(new UserInformationResponseDto(notification.getSenderUser().getName(),
+                notification.getSenderUser().getNickname(),
+                notification.getSenderUser().getIntroduce(),
+                notification.getSenderUser().getProfileImage()))
+            .timeDifference(dataUtil.getTimeDifference(notification.getCreatedAt()))
+            .type(notification.getType())
+            .content(notification.getType().getMessage(notification.getSenderUser().getNickname()))
+            .build())
         .toList();
   }
 
-  public void readNotification(Long notiId, HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      throw new IllegalArgumentException("권한이 없습니다.");
+  // 알림 읽음 모두 처리
+  public void readAllNotifications(HttpSession session) {
+    String email = (String) session.getAttribute("email");
+    if (email == null) {
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
     }
+    User user = userRepository.findByEmail(email).orElseThrow(
+        () -> new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
+    List<Notification> notifications = notificationRepository.findByUserAndIsReadFalse(user);
+    if (!notifications.isEmpty()) {
+      notifications.forEach(notification -> {
+        if (user.getNickname().equals(notification.getUser().getNickname())) {
+          notification.markAsRead();
+        }
+      });
+      notificationRepository.saveAll(notifications);
+    }
+  }
+
+  // 알림 읽음 단일 처리
+  public void readNotification(Long notiId, HttpSession session) {
+    String email = (String) session.getAttribute("email");
+    if (email == null) {
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
+    }
+    User user = userRepository.findByEmail(email).orElseThrow(
+        () -> new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
     Notification notification = notificationRepository.findById(notiId)
         .orElseThrow(() -> new IllegalArgumentException("알림이 존재하지 않습니다."));
     if (!user.getNickname().equals(notification.getUser().getNickname())) {
-      throw new IllegalArgumentException("권한이 없습니다.");
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
     }
     notification.markAsRead();
     notificationRepository.save(notification);
+  }
+
+  public boolean hasUnreadNotifications(String email) {
+    return notificationRepository.existsByUserEmailAndIsRead(email, false);
   }
 }

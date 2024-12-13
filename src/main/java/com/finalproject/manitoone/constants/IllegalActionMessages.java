@@ -8,6 +8,8 @@ import lombok.Getter;
 public enum IllegalActionMessages {
   CANNOT_FIND_USER_WITH_GIVEN_ID("해당하는 유저 ID를 찾을 수 없습니다."),
   CANNOT_FIND_POST_WITH_GIVEN_ID("해당하는 게시글 ID를 찾을 수 없습니다."),
+  CANNOT_FIND_REPLY_WITH_GIVEN_ID("해당하는 답글 ID를 찾을 수 없습니다."),
+  CANNOT_FIND_REPORT_WITH_GIVEN_ID("해당하는 신고 ID를 찾을 수 없습니다."),
   CANNOT_FIND_POST_IMAGE_WITH_GIVEN_ID("해당 게시물은 이미지를 포함하고 있지 않습니다."),
   CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID("해당 게시물은 답글이 없습니다."),
   CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID("해당 게시물을 좋아하는 사람이 없습니다."),
@@ -29,7 +31,9 @@ public enum IllegalActionMessages {
   EMAIL_VERIFICATION_CODE_MISMATCH("이메일 인증번호가 일치하지 않습니다."),
   INVALID_EMAIL_OR_PASSWORD("이메일 및 비밀번호가 일치하지 않습니다."),
   FAILED_LOGIN("로그인에 실패했습니다."),
-  FAILED_LOGOUT("로그아웃에 실패했습니다.");
+  FAILED_LOGOUT("로그아웃에 실패했습니다."),
+
+  UNAUTORIZED("권한이 없습니다.");
 
   private final String message;
 }

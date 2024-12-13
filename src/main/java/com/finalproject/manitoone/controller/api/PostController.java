@@ -135,7 +135,7 @@ public class PostController {
 
   @GetMapping("/hidden")
   public ResponseEntity<List<PostViewResponseDto>> getPostById(
-      @PageableDefault(sort = "postId", direction = Sort.Direction.DESC) Pageable pageable) {
-    return ResponseEntity.ok(postService.getMyHiddenPosts("테스트1", pageable));
+      @PageableDefault(sort = "postId", direction = Sort.Direction.DESC) Pageable pageable, HttpSession session) {
+    return ResponseEntity.ok(postService.getMyHiddenPosts((String)session.getAttribute("nickname"), pageable));
   }
 }

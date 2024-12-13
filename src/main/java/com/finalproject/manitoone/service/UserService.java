@@ -46,4 +46,11 @@ public class UserService {
 
     return userInformation;
   }
+
+  // 현재 로그인한 유저를 가져오기 위한 메서드
+  public User getCurrentUser(String nickname) {
+    return userRepository.findUserByNickname(nickname)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_BY_GIVEN_NICKNAME.getMessage()));
+  }
 }

@@ -16,6 +16,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -83,6 +84,8 @@ public class ManitoService {
         .answerLetter(letter.getAnswerLetter())
         .timeDiff(TimeFormatter.formatTimeDiff(letter.getCreatedAt()))
         .isOwner(letter.isOwnedBy(currentUser))
+        .createdAt(letter.getCreatedAt())
+        .formattedCreatedAt(TimeFormatter.formatDateTime(letter.getCreatedAt()))
         .build();
   }
 
@@ -130,19 +133,6 @@ public class ManitoService {
     manitoLetter.toggleVisibility(userNickname);
   }
 
-  // 편지 신고
-  public void reportManitoLetter(Long manitoLetterId, String userNickname) {
-    ManitoLetter manitoLetter = manitoLetterRepository.findById(manitoLetterId)
-        .orElseThrow(() -> new EntityNotFoundException(
-            ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
-
-    if (!manitoLetter.getPostId().getUser().getNickname().equals(userNickname)) {
-      throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_REPORT.getMessage());
-    }
-
-    manitoLetter.reportLetter();
-  }
-
   // 편지에 답장
   public ManitoLetterResponseDto answerManitoLetter(Long manitoLetterId, String answerLetter,
       String userNickname) {
@@ -155,15 +145,6 @@ public class ManitoService {
     return buildLetterResponseDto(manitoLetter, userNickname);
   }
 
-  // 답장 신고
-  public void reportManitoAnswer(Long manitoLetterId, String userNickname) {
-    ManitoLetter manitoLetter = manitoLetterRepository.findById(manitoLetterId)
-        .orElseThrow(() -> new EntityNotFoundException(
-            ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
-
-    manitoLetter.reportAnswer(userNickname);
-  }
-
   // 단일 편지 조회
   public ManitoLetterResponseDto getLetter(Long letterId) {
     ManitoLetter letter = manitoLetterRepository.findById(letterId)
@@ -171,5 +152,32 @@ public class ManitoService {
             ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
 
     return buildLetterResponseDto(letter, letter.getPostId().getUser().getNickname());
+  }
+
+  public ManitoLetterResponseDto getLetterByPostIdAndNickname(Long postId, String nickname) {
+    return manitoLetterRepository.findByPostIdPostIdAndUserNickname(postId, nickname)
+        .map(letter -> buildLetterResponseDto(letter, nickname))
+        .orElse(null);
+  }
+
+  @Transactional
+  public ManitoLetterResponseDto getLetterWithPermissionCheck(Long letterId, String nickname) {
+    ManitoLetter letter = manitoLetterRepository.findById(letterId)
+        .orElseThrow(() -> new EntityNotFoundException(
+            ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
+
+    User currentUser = userRepository.findUserByNickname(nickname)
+        .orElseThrow(() -> new EntityNotFoundException(
+            ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
+
+    boolean hasPermission = letter.getPostId().getUser().equals(currentUser) ||
+        letter.getUser().equals(currentUser) ||
+        letter.isPublic();
+
+    if (!hasPermission) {
+      throw new AccessDeniedException(ManitoErrorMessages.NO_PERMISSION_LETTER.getMessage());
+    }
+
+    return buildLetterResponseDto(letter, nickname);
   }
 }

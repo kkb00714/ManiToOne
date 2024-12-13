@@ -49,6 +49,10 @@ public class Notification {
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
 
+  @ManyToOne
+  @JoinColumn(name = "sender_user_id", nullable = false)
+  private User senderUser;
+
   public void markAsRead() {
     this.isRead = true;
   }

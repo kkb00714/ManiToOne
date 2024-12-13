@@ -21,12 +21,13 @@ public interface ReplyPostRepository extends JpaRepository<ReplyPost, Long> {
 
   Optional<List<ReplyPost>> findAllByPostPostIdAndParentIdIsNull(Long postId);
 
-  Optional<Page<ReplyPost>> findAllByReplyPostIdAndParentIdIsNotNull(Long replyId,
-      Pageable pageable);
+  Optional<Page<ReplyPost>> findAllByReplyPostIdAndParentIdIsNotNull(Long replyId, Pageable pageable);
 
   Optional<List<ReplyPost>> findAllByReplyPostIdAndParentIdIsNotNull(Long replyId);
 
   Optional<Page<ReplyPost>> findAllByParentId(Long parentId, Pageable pageable);
+
+  Optional<List<ReplyPost>> findAllByPostPostIdAndParentIdIsNotNull(Long postId);
 
   Optional<List<ReplyPost>> findAllByParentId(Long parentId);
 }

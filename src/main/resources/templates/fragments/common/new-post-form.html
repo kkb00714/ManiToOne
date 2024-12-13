@@ -1,0 +1,11 @@
+<section class="new-post-form-section" th:fragment="new-post-form">
+  <div class="new-post-form">
+    <img
+        class="user-photo"
+        th:src="@{/images/icons/UI-user2.png}"
+        alt="user icon"
+    />
+    <p id="openPostFormModalBtn">함께 나누고픈 감정이 있나요?</p>
+  </div>
+  <div th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"></div>
+</section>

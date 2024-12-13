@@ -68,4 +68,8 @@ public class Post {
   public void changeUpdatedDate(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
   }
+
+  public void updateBlind() {
+    this.isBlind = !this.isBlind;
+  }
 }

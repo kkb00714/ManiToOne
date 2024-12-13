@@ -30,7 +30,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     // 기본 OAuth2 사용자 정보 로드
     OAuth2User oAuth2User = super.loadUser(userRequest);
 
-    // 사용자 정보 매핑
+    // 사용자 정보 추출
     String provider = userRequest.getClientRegistration().getRegistrationId(); // google
     String loginId = oAuth2User.getAttribute("sub");
     String email = oAuth2User.getAttribute("email");
@@ -39,28 +39,24 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     // 이메일로 기존 사용자 조회
     User userEntity = userRepository.findOAuth2ByEmail(email);
-
-    if (userEntity != null) {
-      saveUserInfoToSession(userEntity);
+    if (userEntity == null) {
+      userEntity = createUser(email, password, name, provider, loginId);
     } else {
-      userEntity = User.builder()
-          .email(email)
-          .password(passwordEncoder.encode(password))
-          .name(name)
-          .nickname(name)
-          .birth(LocalDate.now())  // 생일은 현재 날짜로 설정
-          .provider(provider)
-          .loginId(loginId)
-          .build();
-
+      // 기존 사용자라면 로그인한 사용자 정보로 업데이트
+      userEntity.setName(name);
+      userEntity.setNickname(name);
+      userEntity.setProvider(provider);
+      userEntity.setLoginId(loginId);
       userRepository.save(userEntity);
-      saveUserInfoToSession(userEntity);
     }
+
+    // 세션에 사용자 정보 저장 (각각 따로 저장)
+    saveUserInfoToSession(userEntity);
 
     return new PrincipalDetails(userEntity, oAuth2User.getAttributes());
   }
 
-  // 세션에 정보 저장
+  // 세션에 정보 저장 (각각 따로 저장)
   private void saveUserInfoToSession(User user) {
     session.setAttribute("email", user.getEmail());
     session.setAttribute("name", user.getName());
@@ -69,13 +65,39 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     session.setAttribute("introduce", user.getIntroduce());
   }
 
+  private User createUser(String email, String password, String name, String provider,
+      String loginId) {
+    User newUser = User.builder()
+        .email(email)
+        .password(passwordEncoder.encode(password))
+        .name(name)
+        .nickname(name)
+        .birth(LocalDate.now())
+        .provider(provider)
+        .loginId(loginId)
+        .build();
+    userRepository.save(newUser);
+    return newUser;
+  }
+
   // 세션에서 사용자 정보를 가져옴
   public UserLoginResponseDto getUserInfoFromSession() {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      throw new IllegalArgumentException("유저를 찾을 수 없습니다.");
+    String email = (String) session.getAttribute("email");
+    String name = (String) session.getAttribute("name");
+    String nickname = (String) session.getAttribute("nickname");
+    String profileImage = (String) session.getAttribute("profileImage");
+    String introduce = (String) session.getAttribute("introduce");
+
+    if (email == null || name == null || nickname == null || profileImage == null || introduce == null) {
+      throw new IllegalArgumentException("유저 정보를 찾을 수 없습니다.");
     }
-    return new UserLoginResponseDto(user);
+
+    return UserLoginResponseDto.builder()
+        .email(email)
+        .name(name)
+        .nickname(nickname)
+        .profileImage(profileImage)
+        .introduce(introduce)
+        .build();
   }
 }
-

@@ -24,17 +24,28 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
       Authentication authentication) throws IOException, ServletException {
     String email = authentication.getName();
 
+    // 데이터베이스에서 사용자 조회
     User user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
+        .orElseThrow(
+            () -> new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
 
-    HttpSession session = request.getSession();
-    session.setAttribute("email", user.getEmail());
-    session.setAttribute("name", user.getName());
-    session.setAttribute("nickname", user.getNickname());
-    session.setAttribute("profileImage", user.getProfileImage());
-    session.setAttribute("introduce", user.getIntroduce());
+    // 기존 세션 무효화
+    HttpSession oldSession = request.getSession(false); // 기존 세션 가져오기
+    if (oldSession != null) {
+      oldSession.invalidate(); // 기존 세션 무효화
+    }
 
+    // 새로운 세션 생성
+    HttpSession newSession = request.getSession(true);
+
+    // 새로운 세션에 사용자 정보 저장
+    newSession.setAttribute("email", user.getEmail());
+    newSession.setAttribute("name", user.getName());
+    newSession.setAttribute("nickname", user.getNickname());
+    newSession.setAttribute("profileImage", user.getProfileImage());
+    newSession.setAttribute("introduce", user.getIntroduce());
+
+    // 로그인 성공 후 리다이렉트
     response.sendRedirect("/");
   }
-
 }

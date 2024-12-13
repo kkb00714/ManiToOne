@@ -1,7 +1,5 @@
 package com.finalproject.manitoone.controller.api;
 
-import com.finalproject.manitoone.constants.IllegalActionMessages;
-import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;

@@ -1,17 +1,13 @@
 package com.finalproject.manitoone.controller.api;
 
-import com.finalproject.manitoone.constants.IllegalActionMessages;
-import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddReplyRequestDto;
 import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.ReplyResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdateReplyRequestDto;
-import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.service.ReplyService;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.servlet.http.HttpSession;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReplyController {
 
   private final ReplyService replyService;
-  private final UserRepository userRepository;
 
   // 답글 생성
   @PostMapping("/reply/{postId}")
@@ -42,11 +37,8 @@ public class ReplyController {
       @RequestBody AddReplyRequestDto request,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
-    ));
 
-    ReplyResponseDto reply = replyService.createReply(postId, request, user);
+    ReplyResponseDto reply = replyService.createReply(postId, request, email);
     return ResponseEntity.status(HttpStatus.CREATED).body(reply);
   }
 
@@ -56,11 +48,8 @@ public class ReplyController {
       @RequestBody AddReplyRequestDto request,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
-    ));
 
-    ReplyResponseDto rereply = replyService.createReReply(replyId, request, user);
+    ReplyResponseDto rereply = replyService.createReReply(replyId, request, email);
     return ResponseEntity.status(HttpStatus.CREATED).body(rereply);
   }
 
@@ -70,11 +59,8 @@ public class ReplyController {
       @RequestBody UpdateReplyRequestDto request,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
-    ));
 
-    ReplyResponseDto updatedReply = replyService.updateReply(replyId, request, user);
+    ReplyResponseDto updatedReply = replyService.updateReply(replyId, request, email);
     return ResponseEntity.ok(updatedReply);
   }
 
@@ -83,11 +69,8 @@ public class ReplyController {
   public ResponseEntity<Void> deleteReply(@PathVariable("replyId") Long replyId,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
-    ));
 
-    replyService.deleteReply(replyId, user);
+    replyService.deleteReply(replyId, email);
     return ResponseEntity.ok().build();
   }
 
@@ -97,11 +80,8 @@ public class ReplyController {
       @RequestBody AddReportRequestDto request,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
-    ));
 
-    ReportResponseDto report = replyService.reportReply(replyId, request, user);
+    ReportResponseDto report = replyService.reportReply(replyId, request, email);
     return ResponseEntity.status(HttpStatus.CREATED).body(report);
   }
 
@@ -110,11 +90,8 @@ public class ReplyController {
   public ResponseEntity<Void> likeReply(@PathVariable("replyId") Long replyId,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
-    ));
 
-    replyService.likeReply(replyId, user);
+    replyService.likeReply(replyId, email);
     return ResponseEntity.ok().build();
   }
 
@@ -156,9 +133,9 @@ public class ReplyController {
   }
 
   // 답글 좋아요 개수 조회
-//  @GetMapping("/reply/like/number/{replyId}")
-//  public ResponseEntity<Integer> getReplyLikesNum(@PathVariable("replyId") Long replyId) {
-//    Integer num = replyService.getReplyLikesNum(replyId);
-//    return ResponseEntity.ok(num);
-//  }
+  @GetMapping("/reply/like/number/{replyId}")
+  public ResponseEntity<Integer> getReplyLikesNum(@PathVariable("replyId") Long replyId) {
+    Integer num = replyService.getReplyLikesNum(replyId);
+    return ResponseEntity.ok(num);
+  }
 }

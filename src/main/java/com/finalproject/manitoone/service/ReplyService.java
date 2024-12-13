@@ -16,6 +16,7 @@ import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
+import com.finalproject.manitoone.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,9 +31,14 @@ public class ReplyService {
   private final ReplyPostRepository replyPostRepository;
   private final ReportRepository reportRepository;
   private final UserPostLikeRepository userPostLikeRepository;
+  private final UserRepository userRepository;
 
   // 답글 생성
-  public ReplyResponseDto createReply(Long postId, AddReplyRequestDto request, User user) {
+  public ReplyResponseDto createReply(Long postId, AddReplyRequestDto request, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
@@ -54,7 +60,11 @@ public class ReplyService {
   }
 
   // 답글의 답글 생성
-  public ReplyResponseDto createReReply(Long replyId, AddReplyRequestDto request, User user) {
+  public ReplyResponseDto createReReply(Long replyId, AddReplyRequestDto request, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     ReplyPost parentReply = replyPostRepository.findByReplyPostId(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
@@ -79,7 +89,11 @@ public class ReplyService {
   }
 
   // 답글 수정
-  public ReplyResponseDto updateReply(Long replyId, UpdateReplyRequestDto request, User user) {
+  public ReplyResponseDto updateReply(Long replyId, UpdateReplyRequestDto request, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
@@ -105,7 +119,11 @@ public class ReplyService {
   }
 
   // 답글 삭제
-  public void deleteReply(Long replyId, User user) {
+  public void deleteReply(Long replyId, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
@@ -120,7 +138,11 @@ public class ReplyService {
   }
 
   // 답글 신고
-  public ReportResponseDto reportReply(Long replyId, AddReportRequestDto request, User user) {
+  public ReportResponseDto reportReply(Long replyId, AddReportRequestDto request, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
@@ -143,7 +165,11 @@ public class ReplyService {
   }
 
   // 답글 좋아요
-  public void likeReply(Long replyId, User user) {
+  public void likeReply(Long replyId, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+    
     ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()

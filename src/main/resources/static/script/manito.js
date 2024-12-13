@@ -98,7 +98,6 @@ class ManitoLetterModal extends BaseModal {
         throw new Error(errorData.message || '편지 전송에 실패했습니다.');
       }
 
-      // 마니또 페이지의 편지함 업데이트
       if (window.ManitoPage && window.ManitoPage.letterBox) {
         const letterBox = window.ManitoPage.letterBox;
         letterBox.activeTab = 'sent';
@@ -121,12 +120,15 @@ class ManitoLetterModal extends BaseModal {
         await letterBox.loadMoreLetters();
       }
 
-      // 우측 섹션의 편지함 업데이트 추가
       const elements = {
-        receivedList: document.querySelector('.manito-letter-section .received-letter ul'),
-        sentList: document.querySelector('.manito-letter-section .sent-letter ul'),
-        receivedLink: document.querySelector('.manito-letter-section .received-letter h3 a'),
-        sentLink: document.querySelector('.manito-letter-section .sent-letter h3 a')
+        receivedList: document.querySelector(
+            '.manito-letter-section .received-letter ul'),
+        sentList: document.querySelector(
+            '.manito-letter-section .sent-letter ul'),
+        receivedLink: document.querySelector(
+            '.manito-letter-section .received-letter h3 a'),
+        sentLink: document.querySelector(
+            '.manito-letter-section .sent-letter h3 a')
       };
       if (elements.receivedList && elements.sentList) {
         await CommonUtils.loadRecentLetters(elements);

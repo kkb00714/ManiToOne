@@ -83,18 +83,16 @@ class BaseModal {
   showWarning(message) {
     const warningPopup = document.getElementById('warningPopup');
     const warningMessage = document.getElementById('warningMessage');
-    const warningConfirmBtn = document.getElementById('warningConfirmBtn');  // 변수명 수정
+    const warningConfirmBtn = document.getElementById('warningConfirmBtn');
 
-    if (warningPopup && warningMessage && warningConfirmBtn) {  // 변수명 수정
+    if (warningPopup && warningMessage && warningConfirmBtn) {
       warningMessage.textContent = message;
       warningPopup.style.display = 'block';
 
-      // 기존 이벤트 리스너 제거를 위한 복제
       const newConfirmButton = warningConfirmBtn.cloneNode(true);
       warningConfirmBtn.parentNode.replaceChild(newConfirmButton,
           warningConfirmBtn);
 
-      // 새로운 이벤트 리스너 추가
       newConfirmButton.addEventListener('click', () => {
         warningPopup.style.display = 'none';
       });

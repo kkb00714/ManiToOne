@@ -215,8 +215,13 @@ const CommonUtils = {
 
   async loadRecentLetters(elements) {
     try {
-      const userNickname = document.querySelector(
-          'meta[name="user-nickname"]')?.content;
+      const sessionResponse = await fetch('/api/session-info');
+      if (!sessionResponse.ok) {
+        return;
+      }
+      const sessionData = await sessionResponse.json();
+      const userNickname = sessionData.nickname;
+
       if (!userNickname) {
         return;
       }
@@ -232,13 +237,13 @@ const CommonUtils = {
           `/api/sendmanito/${userNickname}?page=0&size=3`);
       const sentData = await sentResponse.json();
 
-      this.updateLetterList(elements.receivedList, receivedData.content, true);
-      this.updateLetterList(elements.sentList, sentData.content, false);
+      this.updateLetterList(elements.receivedList, receivedData.content);
+      this.updateLetterList(elements.sentList, sentData.content);
 
     } catch (error) {
       console.error('Error loading recent letters:', error);
-      this.updateLetterList(elements.receivedList, [], true);
-      this.updateLetterList(elements.sentList, [], false);
+      this.updateLetterList(elements.receivedList, []);
+      this.updateLetterList(elements.sentList, []);
     }
   },
 

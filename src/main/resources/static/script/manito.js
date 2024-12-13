@@ -340,15 +340,20 @@ const ManitoPage = {
       this.showLoader();
 
       try {
-        const userNickname = document.querySelector(
-            'meta[name="user-nickname"]')?.content;
+        // 세션 체크로 변경
+        const sessionResponse = await fetch('/api/session-info');
+        if (!sessionResponse.ok) {
+          throw new Error('Failed to get user session');
+        }
+        const sessionData = await sessionResponse.json();
+        const userNickname = sessionData.nickname;
 
         if (!userNickname) {
           this.container.innerHTML = `
-                <div class="empty-letter-message">
-                    <p>사용자 정보를 찾을 수 없습니다.</p>
-                </div>
-            `;
+        <div class="empty-letter-message">
+            <p>사용자 정보를 찾을 수 없습니다.</p>
+        </div>
+      `;
           return;
         }
 
@@ -370,10 +375,10 @@ const ManitoPage = {
               : '아직 보낸 편지가 없습니다.';
 
           this.container.innerHTML = `
-            <div class="empty-letter-message">
-              <p>${message}</p>
-            </div>
-          `;
+        <div class="empty-letter-message">
+          <p>${message}</p>
+        </div>
+      `;
           this.hasMore = false;
           return;
         } else if (data.content.length === 0) {
@@ -393,10 +398,10 @@ const ManitoPage = {
         console.error('Error loading letters:', error);
         if (this.currentPage === 0) {
           this.container.innerHTML = `
-            <div class="empty-letter-message">
-              <p>편지를 불러오는 중 오류가 발생했습니다.</p>
-            </div>
-          `;
+        <div class="empty-letter-message">
+          <p>편지를 불러오는 중 오류가 발생했습니다.</p>
+        </div>
+      `;
         }
       } finally {
         this.isLoading = false;

@@ -62,8 +62,7 @@ public class PostController {
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
-    return ResponseEntity.status(HttpStatus.ACCEPTED)
-        .body(postService.updatePost(postId, request, user));
+    return ResponseEntity.ok(postService.updatePost(postId, request, user));
   }
 
   // 모든 게시글 조회

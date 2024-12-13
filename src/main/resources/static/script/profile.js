@@ -371,23 +371,32 @@ function openModal(followers) {
 
   followerList.innerHTML = "";
 
-  followers.forEach(follower => {
+  if (followers.length === 0) {
     const listItem = document.createElement("li");
     listItem.classList.add("list-group-item");
-
-    listItem.innerHTML = `
-      <a href="/profile/${follower.nickname}" class="d-flex align-items-center">
-        <img src="${follower.profileImage}" alt="Profile" class="rounded-circle" width="30" height="30">
-        ${follower.name} (@${follower.nickname})
-      </a>
-    `;
-
+    listItem.textContent = "거기 아무도 없나요..? 😥";
     followerList.appendChild(listItem);
-  });
+  } else {
+    followers.forEach(follower => {
+      const listItem = document.createElement("li");
+      listItem.classList.add("list-group-item");
 
+      listItem.innerHTML = `
+        <a href="/profile/${follower.nickname}" class="d-flex align-items-center">
+          <img src="${follower.profileImage}" alt="Profile" class="rounded-circle" width="30" height="30">
+          ${follower.name} (@${follower.nickname})
+        </a>
+      `;
+
+      followerList.appendChild(listItem);
+    });
+  }
+
+  // 모달을 표시
   const myModal = new bootstrap.Modal(document.getElementById('followerModal'));
   myModal.show();
 }
+
 
 function getFollowers() {
   const followerApiUrl = `/api/user/${userNickName}`;
@@ -403,8 +412,8 @@ function getFollowers() {
 }
 
 function getFollowings() {
-  const followerApiUrl = `/api/user/${userNickName}`;
-  fetch(followerApiUrl)
+  const followingsApiUrl = `/api/user/${userNickName}`;
+  fetch(followingsApiUrl)
   .then(response => response.json())
   .then(data => {
     const followers = data.followings || [];

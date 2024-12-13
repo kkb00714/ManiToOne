@@ -4,7 +4,7 @@ body {
   background-color: #ebedeb;
   font-family: Inter, sans-serif;
   font-size: 1rem;
-  letter-spacing: -0.05rem;;
+  letter-spacing: -0.05rem;
   min-width: 35rem;
   color: #303030;
 }
@@ -928,7 +928,9 @@ h1 {
   width: 100%;
 }
 
-#manito-letter-text-input, #music-link-input, #manito-music-comment-input {
+#manito-letter-text-input,
+#music-link-input,
+#manito-music-comment-input {
   all: unset;
   font-weight: normal;
   width: 100%;
@@ -939,7 +941,8 @@ h1 {
   resize: none;
 }
 
-textarea::placeholder, #music-link-input::placeholder {
+textarea::placeholder,
+#music-link-input::placeholder {
   opacity: 50%;
   line-height: 1.2rem;
 }
@@ -1201,7 +1204,8 @@ textarea::placeholder, #music-link-input::placeholder {
   font-size: 0.9rem;
 }
 
-.confirm-btn, .cancel-btn {
+.confirm-btn,
+.cancel-btn {
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
   cursor: pointer;
@@ -1259,7 +1263,7 @@ textarea::placeholder, #music-link-input::placeholder {
 }
 
 .manito-letter-box-switch::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -3px;
   height: 3px;

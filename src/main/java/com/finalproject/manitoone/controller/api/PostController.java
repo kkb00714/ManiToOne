@@ -1,6 +1,5 @@
 package com.finalproject.manitoone.controller.api;
 
-import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
@@ -13,14 +12,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,8 +39,9 @@ public class PostController {
   @PostMapping
   public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
       HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, user));
+    String email = session.getAttribute("email") + "";
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, email));
   }
 
   // 게시글 수정
@@ -52,14 +50,9 @@ public class PostController {
   public ResponseEntity<PostResponseDto> updatePost(@PathVariable("postId") Long postId,
       @RequestBody UpdatePostRequestDto request,
       HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email = session.getAttribute("email") + "";
 
-    if (user != null) {
-      return ResponseEntity.status(HttpStatus.ACCEPTED)
-          .body(postService.updatePost(postId, request, user));
-    } else {
-      return ResponseEntity.badRequest().build();
-    }
+    return ResponseEntity.ok(postService.updatePost(postId, request, email));
   }
 
   // 모든 게시글 조회
@@ -77,13 +70,14 @@ public class PostController {
     PostResponseDto post = postService.getPostDetail(postId);
     return ResponseEntity.ok(post);
   }
-  
-  public CompletableFuture<ResponseEntity<PostResponseDto>> createPost(@RequestBody AddPostRequestDto request,
-      @AuthenticationPrincipal User user) {
-    PostResponseDto post = postService.createPost(request, user);
-    return CompletableFuture.supplyAsync(
-        () -> ResponseEntity.status(HttpStatus.CREATED).body(post));
-  }
+
+//  public CompletableFuture<ResponseEntity<PostResponseDto>> createPost(
+//      @RequestBody AddPostRequestDto request,
+//      @AuthenticationPrincipal User user) {
+//    PostResponseDto post = postService.createPost(request, user);
+//    return CompletableFuture.supplyAsync(
+//        () -> ResponseEntity.status(HttpStatus.CREATED).body(post));
+//  }
 
   // 게시글 삭제
   @DeleteMapping("/{postId}")
@@ -102,9 +96,17 @@ public class PostController {
   // 게시글 좋아요
   @PostMapping("/like/{postId}")
   public ResponseEntity<Void> likePost(@PathVariable("postId") Long postId, HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    postService.likePost(postId, user);
+    String email = session.getAttribute("email") + "";
+
+    postService.likePost(postId, email);
     return ResponseEntity.ok().build();
+  }
+
+  // 게시글 좋아요 개수 조회
+  @GetMapping("/like/number/{postId}")
+  public ResponseEntity<Integer> getPostLikesNum(@PathVariable("postId") Long postId) {
+    Integer num = postService.getPostLikesNum(postId);
+    return ResponseEntity.ok(num);
   }
 
   // 게시글 신고
@@ -112,9 +114,10 @@ public class PostController {
   public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId,
       @RequestBody AddReportRequestDto request,
       HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email = session.getAttribute("email") + "";
+
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(postService.reportPost(postId, request, user));
+        .body(postService.reportPost(postId, request, email));
   }
 
   @GetMapping("/by/{nickName}")

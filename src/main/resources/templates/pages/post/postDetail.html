@@ -30,7 +30,7 @@
     <header th:replace="~{fragments/common/header :: header}"></header>
     <main class="main-container">
       <section class="middle-section" id="middleSection">
-        <!--게시글-->
+        <!-- 게시글 -->
         <section class="timeline-section">
           <div class="timeline">
             <div class="post-container">
@@ -94,7 +94,7 @@
               <p id="reply-divider-text">답글</p>
             </div>
 
-            <!--답글-->
+            <!-- 답글 -->
             <div class="post-container" th:each="reply : ${replies}">
               <img
                 class="user-photo"
@@ -122,8 +122,12 @@
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-clover2.png}"
                     alt="I like this"
+                    th:onclick="'likeReply(' + ${reply.replyPostId} + ')'"
                   />
-                  <span class="like-count">0</span>
+                  <span
+                    class="like-count"
+                    th:text="${reply.likesNumber}"
+                  ></span>
                   <img
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-comment2.png}"

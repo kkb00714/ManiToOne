@@ -32,7 +32,7 @@
       <section class="middle-section" id="middleSection">
         <section class="timeline-section">
           <div class="timeline">
-            <!--게시글-->
+            <!-- 게시글 -->
             <div class="post-container">
               <img
                 class="user-photo"
@@ -94,7 +94,7 @@
               </div>
             </div>
 
-            <!--답글-->
+            <!-- 답글 -->
             <div class="post-container">
               <img
                 class="user-photo"
@@ -122,8 +122,12 @@
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-clover2.png}"
                     alt="I like this"
+                    th:onclick="'likeReply(' + ${reply.replyPostId} + ')'"
                   />
-                  <span class="like-count">0</span>
+                  <span
+                    class="like-count"
+                    th:text="${reply.likesNumber}"
+                  ></span>
                   <img
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-comment2.png}"
@@ -153,7 +157,7 @@
               <p id="reply-divider-text">답글</p>
             </div>
 
-            <!--답글의 답글-->
+            <!-- 답글의 답글 -->
             <div class="post-container" th:each="rereply : ${rereplies}">
               <img
                 class="user-photo"
@@ -181,8 +185,12 @@
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-clover2.png}"
                     alt="I like this"
+                    th:onclick="'likeReply(' + ${rereply.replyPostId} + ')'"
                   />
-                  <span class="like-count">0</span>
+                  <span
+                    class="like-count"
+                    th:text="${rereply.likesNumber}"
+                  ></span>
                   <img
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-comment2.png}"
@@ -208,6 +216,8 @@
               </div>
             </div>
           </div>
+
+          <!-- 드롭다운 메뉴 -->
         </section>
       </section>
       <article

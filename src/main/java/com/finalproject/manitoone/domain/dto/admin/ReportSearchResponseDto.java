@@ -20,6 +20,7 @@ public class ReportSearchResponseDto {
   private UserSearchResponseDto reportedByUser;
   private Long reportObjectId;
   private LocalDateTime createdAt;
+  private UserSearchResponseDto reportedToUser;
 
   // 신고 당한 유저는 해당 Dto에서 찾기
   private PostSearchResponseDto post;

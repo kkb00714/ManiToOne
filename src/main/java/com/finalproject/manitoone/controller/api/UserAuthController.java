@@ -63,8 +63,8 @@ public class UserAuthController {
       session.setAttribute("introduce", userResponse.getIntroduce());
 
       // 알림
-      responseDto.setRead(notificationService.hasUnreadNotifications(
-          responseDto.getEmail()));
+      userResponse.setRead(notificationService.hasUnreadNotifications(
+          userResponse.getEmail()));
 
       return ResponseEntity.ok(responseDto);
     } catch (IllegalArgumentException e) {

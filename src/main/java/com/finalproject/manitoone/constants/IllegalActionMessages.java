@@ -14,6 +14,7 @@ public enum IllegalActionMessages {
   CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID("해당 게시물은 답글이 없습니다."),
   CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID("해당 게시물을 좋아하는 사람이 없습니다."),
   CANNOT_FIND_MANITO_LETTER_WITH_GIVEN_ID("해당 게시물에 대한 마니또 편지가 없습니다."),
+  CANNOT_FIND_MANITO_WITH_GIVEN_ID("해당하는 마니또를 찾을 수 없습니다."),
   CANNOT_FIND_ANY_POST("작성된 게시물이 없습니다."),
   CANNOT_DELETE_POST_AND_REPLY("타인의 게시글을 삭제할 수 없습니다"),
   CANNOT_FIND_USER_BY_GIVEN_NICKNAME("해당하는 유저의 닉네임을 찾을 수 없습니다."),

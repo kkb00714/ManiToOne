@@ -143,17 +143,17 @@ public class ReplyService {
   }
 
   // 답글 좋아요
-//  public void likeReply(Long replyId, User user) {
-//    ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
-//        .orElseThrow(() -> new IllegalArgumentException(
-//            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
-//        ));
-//
-//    userPostLikeRepository.save(UserPostLike.builder()
-//        .user(user)
-//        .replyPost(reply)
-//        .build());
-//  }
+  public void likeReply(Long replyId, User user) {
+    ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    userPostLikeRepository.save(UserPostLike.builder()
+        .user(user)
+        .replyPostId(reply.getReplyPostId())
+        .build());
+  }
 
   // 게시글 답글 조회
   public Page<ReplyResponseDto> getReplies(Long postId, Pageable pageable) {
@@ -171,8 +171,8 @@ public class ReplyService {
         reply.getContent(),
         reply.getCreatedAt(),
         reply.getIsBlind(),
-        getReRepliesNum(reply.getReplyPostId())
-//        getReplyLikesNum(reply.getReplyPostId())
+        getReRepliesNum(reply.getReplyPostId()),
+        getReplyLikesNum(reply.getReplyPostId())
     ));
   }
 
@@ -202,6 +202,7 @@ public class ReplyService {
         .createdAt(reply.getCreatedAt())
         .isBlind(reply.getIsBlind())
         .rerepliesNumber(getReRepliesNum(reply.getReplyPostId()))
+        .likesNumber(getReplyLikesNum(reply.getReplyPostId()))
         .build();
   }
 
@@ -220,8 +221,8 @@ public class ReplyService {
         rereply.getContent(),
         rereply.getCreatedAt(),
         rereply.getIsBlind(),
-        getReRepliesNum(rereply.getReplyPostId())
-//        getReplyLikesNum(rereply.getReplyPostId())
+        getReRepliesNum(rereply.getReplyPostId()),
+        getReplyLikesNum(rereply.getReplyPostId())
     ));
   }
 
@@ -236,12 +237,12 @@ public class ReplyService {
   }
 
   // 답글 좋아요 개수 조회
-//  public Integer getReplyLikesNum(Long replyId) {
-//    List<UserPostLike> likes = userPostLikeRepository.findAllByReplyPostReplyPostId(replyId)
-//        .orElseThrow(() -> new IllegalArgumentException(
-//            IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
-//        ));
-//
-//    return likes.size();
-//  }
+  public Integer getReplyLikesNum(Long replyId) {
+    List<UserPostLike> likes = userPostLikeRepository.findAllByReplyPostId(replyId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return likes.size();
+  }
 }

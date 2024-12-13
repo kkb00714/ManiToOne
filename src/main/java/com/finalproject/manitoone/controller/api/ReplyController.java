@@ -106,13 +106,17 @@ public class ReplyController {
   }
 
   // 답글 좋아요
-//  @PostMapping("/reply/like/{replyId}")
-//  public ResponseEntity<Void> likeReply(@PathVariable("replyId") Long replyId,
-//      HttpSession session) {
-//    User user = (User) session.getAttribute("user");
-//    replyService.likeReply(replyId, user);
-//    return ResponseEntity.ok().build();
-//  }
+  @PostMapping("/reply/like/{replyId}")
+  public ResponseEntity<Void> likeReply(@PathVariable("replyId") Long replyId,
+      HttpSession session) {
+    String email = session.getAttribute("email") + "";
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+    
+    replyService.likeReply(replyId, user);
+    return ResponseEntity.ok().build();
+  }
 
   // 게시글 답글 조회
   @GetMapping("/replies/{postId}")

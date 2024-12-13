@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.domain;
 
 
+import com.finalproject.manitoone.constants.MatchStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "manito_matches")
@@ -48,11 +50,22 @@ public class ManitoMatches {
   @Builder.Default
   private MatchStatus status = MatchStatus.MATCHED;
 
-  public enum MatchStatus {
-    MATCHED,
-    EXPIRED,
-    REPORTED
+
+  // 편지가 신고되었을 때
+  public void markAsReported() {
+    this.status = MatchStatus.REPORTED;
+  }
+
+  // 24시간이 지나 만료되었을 때
+  public void markAsExpired() {
+    this.status = MatchStatus.EXPIRED;
+  }
+
+  // 유저가 PASS를 선택했을 때
+  public void markAsPassed() {
+    if (this.status != MatchStatus.MATCHED) {
+      throw new IllegalStateException("이미 처리된 매칭은 PASS할 수 없습니다.");
+    }
+    this.status = MatchStatus.PASSED;
   }
 }
-
-

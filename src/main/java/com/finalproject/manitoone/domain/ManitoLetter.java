@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.domain;
 
 import com.finalproject.manitoone.constants.ManitoErrorMessages;
+import com.finalproject.manitoone.constants.MatchStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,7 +32,7 @@ public class ManitoLetter {
 
   @OneToOne
   @JoinColumn(name = "manito_matches_id", nullable = false)
-  private ManitoMatches manitoMatchesId;
+  private ManitoMatches manitoMatches;
 
   @Column(name = "letter_content", nullable = false)
   private String letterContent;
@@ -62,34 +63,40 @@ public class ManitoLetter {
   private boolean isAnswerReport = false;
 
 
-  public User getUser() {
-    return this.manitoMatchesId.getMatchedUserId();
+  // 편지 쓴 사람
+  public User getLetterWriter() {
+    return this.manitoMatches.getMatchedUserId();
   }
 
-  public Post getPost() {
-    return this.manitoMatchesId.getMatchedPostId();
+  // 편지 받은 사람
+  public User getLetterReceiver() {
+    return this.manitoMatches.getMatchedPostId().getUser();
   }
 
-  // 답장
+  // 답장 쓰기
   public void addAnswer(String answerComment, String userNickname) {
-    validateOwnership(userNickname);
+    if (!getLetterReceiver().getNickname().equals(userNickname)) {
+      throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_REPLY.getMessage());
+    }
     if (this.answerLetter != null) {
       throw new IllegalStateException(ManitoErrorMessages.ALREADY_ANSWERED.getMessage());
     }
     this.answerLetter = answerComment;
   }
 
-  // 신고 로직
+  // 편지 신고
   public void reportLetter(String userNickname) {
     if (isReport) {
       throw new IllegalStateException(ManitoErrorMessages.ALREADY_REPORTED.getMessage());
     }
-    if (getUser().getNickname().equals(userNickname)) {
+    if (getLetterWriter().getNickname().equals(userNickname)) {
       throw new IllegalStateException(ManitoErrorMessages.OWN_LETTER_REPORT.getMessage());
     }
     this.isReport = true;
+    this.manitoMatches.markAsReported();
   }
 
+  // 답장 신고
   public void reportAnswer(String userNickname) {
     if (this.answerLetter == null) {
       throw new IllegalStateException(ManitoErrorMessages.ANSWER_NOT_FOUND.getMessage());
@@ -97,7 +104,7 @@ public class ManitoLetter {
     if (isAnswerReport) {
       throw new IllegalStateException(ManitoErrorMessages.ALREADY_REPORTED_ANSWER.getMessage());
     }
-    if (getPost().getUser().getNickname().equals(userNickname)) {
+    if (getLetterReceiver().getNickname().equals(userNickname)) {
       throw new IllegalStateException(ManitoErrorMessages.OWN_ANSWER_REPORT.getMessage());
     }
     this.isAnswerReport = true;
@@ -105,20 +112,16 @@ public class ManitoLetter {
 
   // 공개 토글
   public void toggleVisibility(String userNickname) {
-    validateOwnership(userNickname);
+    if (!getLetterReceiver().getNickname().equals(userNickname)) {
+      throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_VISIBILITY.getMessage());
+    }
     this.isPublic = !this.isPublic;
   }
 
-  // 검증 로직
+  // 편지 소유 확인
   public boolean isOwnedBy(User user) {
-    return getPost().getUser().equals(user);
+    return getLetterReceiver().equals(user);
   }
 
-  public void validateOwnership(String userNickname) {
-    if (!getPost().getUser().getNickname().equals(userNickname)) {
-      throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_REPLY.getMessage());
-    }
-
-  }
 }
 

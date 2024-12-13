@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   let pageNum = 0;
   const postsContainer = document.getElementById("postsContainer");
+  const newPostForm = document.querySelector(".new-post-form");
   let isLoading = false;
   let hasMorePosts = true;
   let currentCategory = 1; // 1: 내 피드, 2: 좋아요 누른 피드, 3: 숨긴 피드
@@ -8,12 +9,21 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener('scroll', handleScroll);
 
   document.querySelector('.my-post-menu-switch').addEventListener('click',
-      () => switchCategory(1));
+      () => {
+        switchCategory(1);
+        newPostForm.classList.remove('hidden');
+      });
   document.querySelector('.like-it-menu-switch').addEventListener('click',
-      () => switchCategory(2));
+      () => {
+        switchCategory(2);
+        newPostForm.classList.add('hidden');
+      });
   if (document.querySelector('.hidden-post-menu-switch')) {
     document.querySelector('.hidden-post-menu-switch').addEventListener('click',
-        () => switchCategory(3));
+        () => {
+          switchCategory(3);
+          newPostForm.classList.add('hidden');
+        });
   }
 
   loadPosts(pageNum);

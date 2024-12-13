@@ -51,4 +51,22 @@ public class AdminViewController {
         .toList());
     return "pages/admin/adminReport";
   }
+
+  @GetMapping("/manito/reports")
+  public String adminManitoReports(Model model) {
+    model.addAttribute("types", Arrays.stream(ReportObjectType.values())
+        .filter(type -> type == ReportObjectType.MANITO_LETTER || type == ReportObjectType.MANITO_ANSWER)
+        .map(type -> Map.of(
+            "value", type.name(),
+            "label", type.getType()
+        ))
+        .toList());
+    model.addAttribute("reportTypes", Arrays.stream(ReportType.values())
+        .map(type -> Map.of(
+            "value", type.name(),
+            "label", type.getType()
+        ))
+        .toList());
+    return "pages/admin/adminManitoReport";
+  }
 }

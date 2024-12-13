@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/admin/adminCommon.css}"/>
-  <link rel="stylesheet" th:href="@{/style/admin/adminReport.css}"/>
+  <link rel="stylesheet" th:href="@{/style/admin/adminManitoReport.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
       href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
       rel="stylesheet"
   />
-  <title>ManiToOne AdminPage Report</title>
+  <title>ManiToOne AdminPage Manito Report</title>
 </head>
 <body>
 <header th:replace="fragments/admin/adminHeader :: adminHeader"></header>
@@ -19,7 +19,7 @@
 <main class="main-container">
   <section class="middle-section" id="middleSection">
     <div class="table-box">
-      <div class="table-header"><span class="caption-header">신고 관리</span>
+      <div class="table-header"><span class="caption-header">마니또 신고 관리</span>
         <span class="type">
           <a href="#" class="type-filter active" data-status="">전체</a>
             <a th:each="filter : ${types}"
@@ -48,13 +48,10 @@
           <th>신고 닉네임</th>
           <th>피신고 닉네임</th>
           <th>날짜</th>
-          <th>블라인드</th>
-          <th>상태 변경</th>
-          <th>게시글/댓글 삭제</th>
-          <th>삭제</th>
+          <th>삭제 후 배정</th>
         </tr>
         </thead>
-        <tbody id="report-table-body">
+        <tbody id="manito-report-table-body">
         </tbody>
       </table>
 
@@ -79,6 +76,5 @@
     </div>
   </section>
 </main>
-  <script th:src="@{/script/admin/adminReport.js}"></script>
 </body>
 </html>

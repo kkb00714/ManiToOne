@@ -45,13 +45,11 @@ document.addEventListener("DOMContentLoaded", function () {
       loadPage(1);
     }
   }
-
+  searchButton.addEventListener("click", handleSearchClick);
   loadPage(1);
 
   function loadPage(page) {
     currentPage = page;
-    searchButton.removeEventListener("click", handleSearchClick);
-    searchButton.addEventListener("click", handleSearchClick);
     syncSearchFields();
 
     tableBody.innerHTML = '<tr><td colspan="11">Loading...</td></tr>';
@@ -196,13 +194,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     pagination.innerHTML = html;
 
-    searchQuery.addEventListener("keydown", function (event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        searchButton.click();
-      }
-    });
-
     document.querySelectorAll(".page-link, .page-link-number").forEach(
         (button) => {
           if (!button.classList.contains("disabled")) {
@@ -213,6 +204,13 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         });
   }
+
+  searchQuery.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      searchButton.click();
+    }
+  });
 
   // 게시글/댓글 삭제 처리
   document.addEventListener("click", function (event) {

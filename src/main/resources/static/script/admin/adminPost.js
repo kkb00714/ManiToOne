@@ -45,13 +45,12 @@ document.addEventListener("DOMContentLoaded", function () {
       loadPage(1);
     }
   }
+  searchButton.addEventListener("click", handleSearchClick);
 
   loadPage(1);
 
   function loadPage(page) {
     currentPage = page;
-    searchButton.removeEventListener("click", handleSearchClick);
-    searchButton.addEventListener("click", handleSearchClick);
     syncSearchFields();
 
     tableBody.innerHTML = '<tr><td colspan="9">Loading...</td></tr>';
@@ -161,13 +160,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     pagination.innerHTML = html;
 
-    searchQuery.addEventListener("keydown", function (event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        searchButton.click();
-      }
-    });
-
     document.querySelectorAll(".page-link, .page-link-number").forEach(
         (button) => {
           if (!button.classList.contains("disabled")) {
@@ -178,6 +170,14 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         });
   }
+
+  // 엔터 키를 눌렀을 때 검색 버튼 클릭
+  searchQuery.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault(); // 기본 동작 방지
+      searchButton.click();   // 검색 버튼 클릭 트리거
+    }
+  });
 
   let statusLinkItems = document.querySelectorAll('.status-filter');
 

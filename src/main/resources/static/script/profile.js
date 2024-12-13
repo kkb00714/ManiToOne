@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   let pageNum = 0;
   const postsContainer = document.getElementById("postsContainer");
+  const newPostForm = document.querySelector(".new-post-form");
   let isLoading = false;
   let hasMorePosts = true;
   let currentCategory = 1; // 1: 내 피드, 2: 좋아요 누른 피드, 3: 숨긴 피드
@@ -8,12 +9,21 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener('scroll', handleScroll);
 
   document.querySelector('.my-post-menu-switch').addEventListener('click',
-      () => switchCategory(1));
+      () => {
+        switchCategory(1);
+        newPostForm.classList.remove('hidden');
+      });
   document.querySelector('.like-it-menu-switch').addEventListener('click',
-      () => switchCategory(2));
+      () => {
+        switchCategory(2);
+        newPostForm.classList.add('hidden');
+      });
   if (document.querySelector('.hidden-post-menu-switch')) {
     document.querySelector('.hidden-post-menu-switch').addEventListener('click',
-        () => switchCategory(3));
+        () => {
+          switchCategory(3);
+          newPostForm.classList.add('hidden');
+        });
   }
 
   loadPosts(pageNum);
@@ -55,6 +65,8 @@ document.addEventListener("DOMContentLoaded", function () {
       addHidePostEventListener();
       addReportPostEventListener();
       addDocumentClickEventListener();
+      addPostLikeEventListener();
+      addPostDeleteEventHandler();
     })
     .catch(error => {
       console.error('Error loading posts:', error);
@@ -89,12 +101,15 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
             <p class="content-text">${post.content}</p>
             <div class="reaction-icons">
-              <img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="I like this" />
+            ${myNickName !== post.nickName
+        ? `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="I like this" data-post-id="${post.postId}"/>`
+        : `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="my post"/>`}
               <span class="like-count">${post.likeCount}</span>
               <img class="tiny-icons" src="/images/icons/icon-comment2.png" alt="add reply" />
               <span class="reply-count">${post.replies.length}</span>
             </div>
           </div>
+          ${currentCategory !== 3 ? `
           <div class="option-icons">
             <img class="tiny-icons" src="/images/icons/UI-more2.png" alt="more options" />
             ${myNickName !== post.nickName
@@ -103,11 +118,16 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="more-options-menu hidden">
               <ul>
                 ${myNickName === post.nickName
-        ? `<li><a href="#" class="hide-post" data-post-id="${post.postId}">숨기기</a></li>`
+        ? `
+                    <li><a href="#" class="hide-post" data-post-id="${post.postId}">숨기기</a></li>
+                    <hr>
+                    <li><a href="#" class="delete-post" data-post-id="${post.postId}">삭제하기</a></li>
+                  `
         : `<li><a href="#" class="report-post" data-post-id="${post.postId}">신고하기</a></li>`}
               </ul>
             </div>
           </div>
+        ` : ''}
         `;
     return postElement;
   }
@@ -256,6 +276,63 @@ function addHidePostEventListener() {
   });
 }
 
+function addPostLikeEventListener() {
+  const likePostButtons = document.querySelectorAll('img[alt="I like this"]');
+
+  likePostButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      if (button.classList.contains('liked')) {
+        return;
+      }
+      const postId = this.dataset.postId;
+
+      if (postId) {
+        fetch('/api/post/like/' + postId, {
+          method: 'POST'
+        })
+        .then(response => {
+          if (response.status === 200) {
+            const likeCountElement = button.closest('div').querySelector(
+                '.like-count');
+
+            if (likeCountElement) {
+              const currentLikes = parseInt(likeCountElement.textContent, 10);
+              likeCountElement.textContent = currentLikes + 1;
+              button.classList.add('liked');
+            }
+          }
+        });
+      }
+    });
+  });
+}
+
+function addPostDeleteEventHandler() {
+  const deletePostButtons = document.querySelectorAll('.delete-post');
+
+  deletePostButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
+        return;
+      }
+      const postId = this.dataset.postId;
+
+      if (postId) {
+        fetch('/api/post/' + postId, {
+          method: 'DELETE'
+        })
+        .then(response => {
+          if (response.status === 200) {
+            alert('게시글이 삭제되었습니다.');
+            const postContainer = button.closest('.post-container');
+            postContainer.remove();
+          }
+        });
+      }
+    });
+  });
+}
+
 function addReportPostEventListener() {
   const reportPostButtons = document.querySelectorAll('.report-post');
   reportPostButtons.forEach(button => {
@@ -294,23 +371,32 @@ function openModal(followers) {
 
   followerList.innerHTML = "";
 
-  followers.forEach(follower => {
+  if (followers.length === 0) {
     const listItem = document.createElement("li");
     listItem.classList.add("list-group-item");
-
-    listItem.innerHTML = `
-      <a href="/profile/${follower.nickname}" class="d-flex align-items-center">
-        <img src="${follower.profileImage}" alt="Profile" class="rounded-circle" width="30" height="30">
-        ${follower.name} (@${follower.nickname})
-      </a>
-    `;
-
+    listItem.textContent = "거기 아무도 없나요..? 😥";
     followerList.appendChild(listItem);
-  });
+  } else {
+    followers.forEach(follower => {
+      const listItem = document.createElement("li");
+      listItem.classList.add("list-group-item");
 
+      listItem.innerHTML = `
+        <a href="/profile/${follower.nickname}" class="d-flex align-items-center">
+          <img src="${follower.profileImage}" alt="Profile" class="rounded-circle" width="30" height="30">
+          ${follower.name} (@${follower.nickname})
+        </a>
+      `;
+
+      followerList.appendChild(listItem);
+    });
+  }
+
+  // 모달을 표시
   const myModal = new bootstrap.Modal(document.getElementById('followerModal'));
   myModal.show();
 }
+
 
 function getFollowers() {
   const followerApiUrl = `/api/user/${userNickName}`;
@@ -326,8 +412,8 @@ function getFollowers() {
 }
 
 function getFollowings() {
-  const followerApiUrl = `/api/user/${userNickName}`;
-  fetch(followerApiUrl)
+  const followingsApiUrl = `/api/user/${userNickName}`;
+  fetch(followingsApiUrl)
   .then(response => response.json())
   .then(data => {
     const followers = data.followings || [];

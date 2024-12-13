@@ -360,7 +360,6 @@ public class PostService {
 
   // 타임라인 조회를 위한 메서드
   public Page<PostViewResponseDto> getTimelinePosts(String nickname, Pageable pageable) {
-    //TODO : 현재 로그인한 사용자의 ID를 가져오는 로직
     User currentUser = userService.getCurrentUser(nickname);
 
     Page<Post> posts = postRepository.findTimelinePostsByUserId(currentUser.getUserId(), pageable);

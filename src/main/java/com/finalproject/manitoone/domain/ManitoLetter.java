@@ -30,12 +30,8 @@ public class ManitoLetter {
   private Long manitoLetterId;
 
   @OneToOne
-  @JoinColumn(name = "post_id", nullable = false)
-  private Post postId;
-
-  @OneToOne
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+  @JoinColumn(name = "manito_matches_id", nullable = false)
+  private ManitoMatches manitoMatchesId;
 
   @Column(name = "letter_content", nullable = false)
   private String letterContent;
@@ -65,6 +61,15 @@ public class ManitoLetter {
   @Builder.Default
   private boolean isAnswerReport = false;
 
+
+  public User getUser() {
+    return this.manitoMatchesId.getMatchedUserId();
+  }
+
+  public Post getPost() {
+    return this.manitoMatchesId.getMatchedPostId();
+  }
+
   // 답장
   public void addAnswer(String answerComment, String userNickname) {
     validateOwnership(userNickname);
@@ -79,7 +84,7 @@ public class ManitoLetter {
     if (isReport) {
       throw new IllegalStateException(ManitoErrorMessages.ALREADY_REPORTED.getMessage());
     }
-    if (this.user.getNickname().equals(userNickname)) {
+    if (getUser().getNickname().equals(userNickname)) {
       throw new IllegalStateException(ManitoErrorMessages.OWN_LETTER_REPORT.getMessage());
     }
     this.isReport = true;
@@ -92,7 +97,7 @@ public class ManitoLetter {
     if (isAnswerReport) {
       throw new IllegalStateException(ManitoErrorMessages.ALREADY_REPORTED_ANSWER.getMessage());
     }
-    if (this.postId.getUser().getNickname().equals(userNickname)) {
+    if (getPost().getUser().getNickname().equals(userNickname)) {
       throw new IllegalStateException(ManitoErrorMessages.OWN_ANSWER_REPORT.getMessage());
     }
     this.isAnswerReport = true;
@@ -106,15 +111,14 @@ public class ManitoLetter {
 
   // 검증 로직
   public boolean isOwnedBy(User user) {
-    return this.postId.getUser().equals(user);
+    return getPost().getUser().equals(user);
   }
 
   public void validateOwnership(String userNickname) {
-    if (!this.postId.getUser().getNickname().equals(userNickname)) {
+    if (!getPost().getUser().getNickname().equals(userNickname)) {
       throw new IllegalStateException(ManitoErrorMessages.NO_PERMISSION_REPLY.getMessage());
     }
+
   }
-
-
 }
 

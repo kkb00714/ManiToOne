@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -29,4 +30,7 @@ public class UserPostLike {
   @ManyToOne
   @JoinColumn(name = "post_id", nullable = false)
   private Post post;
+
+  @Column(name = "reply_post_id")
+  private Long replyPostId;
 }

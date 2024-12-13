@@ -9,3 +9,8 @@ input[readonly] {
   color: #a9a9a9;
   cursor: not-allowed;
 }
+
+input:focus {
+  border: 2px solid #007BFF; /* 입력 필드에 포커스 시 테두리 강조 */
+  outline: none;
+}

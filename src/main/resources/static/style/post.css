@@ -1,0 +1,11 @@
+/* 답글 구분선  */
+#reply-divider {
+  border-bottom: 3px solid rgba(171, 171, 171, 0.25);
+}
+
+#reply-divider-text {
+  margin-left: 1.3rem;
+  padding: 0.6rem 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}

@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.controller.api;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.dto.UserLoginRequestDto;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;

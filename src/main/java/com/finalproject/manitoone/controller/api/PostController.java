@@ -1,5 +1,6 @@
 package com.finalproject.manitoone.controller.api;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
@@ -7,6 +8,7 @@ import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
+import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.service.PostService;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
@@ -34,13 +36,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
   private final PostService postService;
+  private final UserRepository userRepository;
 
   // 게시글 생성
   // TODO: 이미지 업로드
   @PostMapping
   public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
       HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email = session.getAttribute("email") + "";
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, user));
   }
 
@@ -50,14 +57,13 @@ public class PostController {
   public ResponseEntity<PostResponseDto> updatePost(@PathVariable("postId") Long postId,
       @RequestBody UpdatePostRequestDto request,
       HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email = session.getAttribute("email") + "";
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
 
-    if (user != null) {
-      return ResponseEntity.status(HttpStatus.ACCEPTED)
-          .body(postService.updatePost(postId, request, user));
-    } else {
-      return ResponseEntity.badRequest().build();
-    }
+    return ResponseEntity.status(HttpStatus.ACCEPTED)
+        .body(postService.updatePost(postId, request, user));
   }
 
   // 모든 게시글 조회
@@ -101,7 +107,11 @@ public class PostController {
   // 게시글 좋아요
   @PostMapping("/like/{postId}")
   public ResponseEntity<Void> likePost(@PathVariable("postId") Long postId, HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email = session.getAttribute("email") + "";
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     postService.likePost(postId, user);
     return ResponseEntity.ok().build();
   }
@@ -118,7 +128,11 @@ public class PostController {
   public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId,
       @RequestBody AddReportRequestDto request,
       HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email = session.getAttribute("email") + "";
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(postService.reportPost(postId, request, user));
   }

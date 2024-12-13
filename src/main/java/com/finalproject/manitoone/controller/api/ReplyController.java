@@ -1,11 +1,13 @@
 package com.finalproject.manitoone.controller.api;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AddReplyRequestDto;
 import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.ReplyResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdateReplyRequestDto;
+import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.service.ReplyService;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.servlet.http.HttpSession;
@@ -32,13 +34,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReplyController {
 
   private final ReplyService replyService;
+  private final UserRepository userRepository;
 
   // 답글 생성
   @PostMapping("/reply/{postId}")
   public ResponseEntity<ReplyResponseDto> createReply(@PathVariable("postId") Long postId,
       @RequestBody AddReplyRequestDto request,
       HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email = session.getAttribute("email") + "";
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     ReplyResponseDto reply = replyService.createReply(postId, request, user);
     return ResponseEntity.status(HttpStatus.CREATED).body(reply);
   }
@@ -48,7 +55,11 @@ public class ReplyController {
   public ResponseEntity<ReplyResponseDto> createReReply(@PathVariable("replyId") Long replyId,
       @RequestBody AddReplyRequestDto request,
       HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email = session.getAttribute("email") + "";
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     ReplyResponseDto rereply = replyService.createReReply(replyId, request, user);
     return ResponseEntity.status(HttpStatus.CREATED).body(rereply);
   }
@@ -58,7 +69,11 @@ public class ReplyController {
   public ResponseEntity<ReplyResponseDto> updateReply(@PathVariable("replyId") Long replyId,
       @RequestBody UpdateReplyRequestDto request,
       HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email = session.getAttribute("email") + "";
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     ReplyResponseDto updatedReply = replyService.updateReply(replyId, request, user);
     return ResponseEntity.ok(updatedReply);
   }
@@ -67,7 +82,11 @@ public class ReplyController {
   @DeleteMapping("/reply/{replyId}")
   public ResponseEntity<Void> deleteReply(@PathVariable("replyId") Long replyId,
       HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email = session.getAttribute("email") + "";
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     replyService.deleteReply(replyId, user);
     return ResponseEntity.ok().build();
   }
@@ -77,7 +96,11 @@ public class ReplyController {
   public ResponseEntity<ReportResponseDto> reportReply(@PathVariable("replyId") Long replyId,
       @RequestBody AddReportRequestDto request,
       HttpSession session) {
-    User user = (User) session.getAttribute("user");
+    String email = session.getAttribute("email") + "";
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     ReportResponseDto report = replyService.reportReply(replyId, request, user);
     return ResponseEntity.status(HttpStatus.ACCEPTED).body(report);
   }

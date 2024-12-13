@@ -17,10 +17,11 @@ public class UserProfileRequestDto {
   private String name;
   private String nickname;
   private LocalDate birth;
-  private String introduce = "기본소개를 입력해주세요.";
-  private String profileImage = "/img/defaultProfile.png";
-  private Integer status = 1;
-  private String role = "ROLE_USER";
+  private String introduce;
+  private String profileImage;
+  private Integer status;
+  private String role;
   private LocalDateTime unbannedAt;
-  private LocalDateTime createdAt = LocalDateTime.now();
+  private LocalDateTime createdAt;
+  private Boolean clearUnbannedAt = false;
 }

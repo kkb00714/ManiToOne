@@ -4,6 +4,8 @@ import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.constants.ReportType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,12 +30,14 @@ public class Report {
   private Long reportId;
 
   @Column(name = "report_type", nullable = false, length = 100)
+  @Enumerated(EnumType.STRING)
   private ReportType reportType;
 
   @Column(name = "user_id", nullable = false)
   private Long userId;
 
   @Column(name = "type", nullable = false, length = 100, columnDefinition = "varchar(100) COMMENT '게시글 신고\\n댓글 신고\\n마니또 신고'")
+  @Enumerated(EnumType.STRING)
   private ReportObjectType type;
 
   @Column(name = "report_object_id", nullable = false, columnDefinition = "int COMMENT '게시글, 댓글, 마니또 ID'")

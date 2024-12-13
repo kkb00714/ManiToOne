@@ -4,6 +4,7 @@ import com.finalproject.manitoone.domain.dto.UserLoginRequestDto;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
 import com.finalproject.manitoone.service.CustomOAuth2UserService;
+import com.finalproject.manitoone.service.NotificationService;
 import com.finalproject.manitoone.service.UserAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -27,6 +28,7 @@ public class UserAuthController {
 
   private final UserAuthService userAuthService;
   private final CustomOAuth2UserService customOAuth2UserService;
+  private final NotificationService notificationService;
 
   @PostMapping("/signup")
   public ResponseEntity<String> signUp(
@@ -59,6 +61,17 @@ public class UserAuthController {
       session.setAttribute("name", userResponse.getName());
       session.setAttribute("profileImage", userResponse.getProfileImage());
       session.setAttribute("introduce", userResponse.getIntroduce());
+
+      // 알림
+      responseDto.setRead(notificationService.hasUnreadNotifications(
+          responseDto.getEmail()));
+
+      return ResponseEntity.ok(responseDto);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest()
+          .body(new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
+    }
+  }
 
       return ResponseEntity.ok(userResponse);
     } catch (IllegalArgumentException e) {

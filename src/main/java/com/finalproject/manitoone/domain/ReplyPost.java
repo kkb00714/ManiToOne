@@ -38,8 +38,8 @@ public class ReplyPost {
   @Column(name = "content", nullable = false, columnDefinition = "text")
   private String content;
 
-  @Column(name = "parrent_id")
-  private Long parrentId;
+  @Column(name = "parent_id")
+  private Long parentId;
 
   @Column(name = "is_blind", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. x\\n1. o\\n관리자가 숨길 수 있는 권한'")
   @Builder.Default
@@ -48,4 +48,12 @@ public class ReplyPost {
   @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
+
+  public void updateReply(String content) {
+    this.content = content;
+  }
+
+  public void updateBlind() {
+    this.isBlind = !this.isBlind;
+  }
 }

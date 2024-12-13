@@ -1,34 +1,38 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.domain.AiPostLog;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.ReplyPost;
+import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
+import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
+import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
 import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
+import com.finalproject.manitoone.repository.AiPostLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import com.finalproject.manitoone.util.AlanUtil;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -40,14 +44,21 @@ public class PostService {
   private final ReplyPostRepository replyPostRepository;
   private final ManitoLetterRepository manitoLetterRepository;
   private final ReportRepository reportRepository;
+  private final AiPostLogRepository aiPostLogRepository;
+  private final UserService userService;
 
   // 게시글 생성 (미완성)
+  // TODO: 이미지 업로드
+  @Async
   public PostResponseDto createPost(AddPostRequestDto request, User user) {
     Post post = postRepository.save(Post.builder()
         .content(request.getContent())
         .user(user)
         .isManito(request.getIsManito())
         .build());
+
+    AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
+    aiPostLogRepository.save(aiPost);
 
     return new PostResponseDto(post.getPostId(), post.getUser(), post.getContent(),
         post.getIsManito());
@@ -73,6 +84,62 @@ public class PostService {
 //        .post(post)
 //        .build());
 //  }
+
+  // 게시글 수정
+  // TODO: 이미지 수정 
+  public PostResponseDto updatePost(Long postId, UpdatePostRequestDto request, User user) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    if (!post.getUser().getUserId().equals(user.getUserId())) {
+      throw new IllegalArgumentException(IllegalActionMessages.DIFFERENT_USER.getMessage());
+    }
+
+    post.updatePost(request.getContent());
+    post.changeUpdatedDate(LocalDateTime.now());
+
+    Post updatedPost = postRepository.save(post);
+
+    return PostResponseDto.builder()
+        .postId(updatedPost.getPostId())
+        .user(updatedPost.getUser())
+        .content(updatedPost.getContent())
+        .isManito(updatedPost.getIsManito())
+        .build();
+  }
+
+  // 전체 게시글 조회
+  public Page<PostResponseDto> getPosts(Pageable pageable) {
+    Page<Post> posts = postRepository.findAll(pageable);
+
+    if (posts.isEmpty()) {
+      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_FIND_ANY_POST.getMessage());
+    }
+
+    return posts.map(post -> new PostResponseDto(
+        post.getPostId(),
+        post.getUser(),
+        post.getContent(),
+        post.getIsManito()
+    ));
+  }
+
+  // 게시글 상세 조회
+  // TODO: 이미지 조회
+  public PostResponseDto getPostDetail(Long postId) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return new PostResponseDto(
+        post.getPostId(),
+        post.getUser(),
+        post.getContent(),
+        post.getIsManito()
+    );
+  }
 
   // 게시글 삭제
   public void deletePost(Long postId) {
@@ -138,7 +205,7 @@ public class PostService {
     postRepository.save(post);
   }
 
-  // 게시글 좋아요 (미완성)
+  // 게시글 좋아요
   public void likePost(Long postId, User user) {
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
@@ -152,16 +219,29 @@ public class PostService {
   }
 
   // 게시글 신고
-//  public ReportResponseDto reportPost(Long postId, User user) {
-//    Post post = postRepository.findByPostId(postId)
-//        .orElseThrow(() -> new IllegalArgumentException(
-//            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
-//        ));
-//  }
+  public ReportResponseDto reportPost(Long postId, AddReportRequestDto request, User user) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    Report report = reportRepository.save(Report.builder()
+        .reportType(request.getReportType())
+        .userId(user.getUserId())
+        .type(ReportObjectType.POST)
+        .reportObjectId(post.getPostId())
+        .build());
+
+    return ReportResponseDto.builder()
+        .reportId(report.getReportId())
+        .userId(report.getUserId())
+        .reportObjectId(report.getReportObjectId())
+        .reportType(report.getReportType())
+        .type(report.getType())
+        .build();
+  }
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
-    // TODO: 내 게시글인지는 어떻게 판별할까요?
-    // → 세션 기반 로그인 완성 시 세션에서 받아올 예정
     List<Post> posts = postRepository.findAllByIsBlindFalseAndIsHiddenFalseAndUser_Nickname(
             nickName,
             pageable)
@@ -241,5 +321,43 @@ public class PostService {
     });
 
     return postResponses;
+  }
+
+  // 타임라인 조회를 위한 메서드
+  public Page<PostViewResponseDto> getTimelinePosts(String nickname, Pageable pageable) {
+    //TODO : 현재 로그인한 사용자의 ID를 가져오는 로직
+    User currentUser = userService.getCurrentUser(nickname);
+
+    Page<Post> posts = postRepository.findTimelinePostsByUserId(currentUser.getUserId(), pageable);
+    return posts.map(post -> {
+      PostViewResponseDto dto = new PostViewResponseDto(
+      post.getPostId(),
+      post.getUser().getProfileImage(),
+      post.getUser().getNickname(),
+      post.getContent(),
+      post.getCreatedAt(),
+      post.getUpdatedAt()
+          );
+      return addAdditionalDataToDto(List.of(dto)).get(0);
+    });
+  }
+
+  // 단순 postId로 PostViewResponseDto를 가져오는 메서드 (마니또에서 씁니다)
+  public PostViewResponseDto getPost(Long postId) {
+    Post post = postRepository.findByPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    PostViewResponseDto postResponse = new PostViewResponseDto(
+        post.getPostId(),
+        post.getUser().getProfileImage(),
+        post.getUser().getNickname(),
+        post.getContent(),
+        post.getCreatedAt(),
+        post.getUpdatedAt()
+    );
+
+    // addAdditionalDataToDto 메서드를 활용하여 추가 데이터(이미지, 좋아요 수, 답글) 설정
+    return addAdditionalDataToDto(List.of(postResponse)).get(0);
   }
 }

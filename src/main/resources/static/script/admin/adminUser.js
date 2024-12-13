@@ -17,6 +17,13 @@ document.addEventListener("DOMContentLoaded", function () {
     return `${date} ${hours}:${minutes}`;
   }
 
+  function formatDatetimeSecond(input) {
+    if (!input) return "없음";
+
+    const [date, time] = input.split("T");
+    return `${date} ${time}`;
+  }
+
   const handleSearchClick = () => {
     const filterSelect = document.querySelector("#filterSelect").value;
     const searchQuery = document.querySelector(
@@ -66,6 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${user.email}</td>
           <td>${user.birth}</td>
           <td>${user.role}</td>
+          <td>${formatDatetimeSecond(user.createdAt)}</td>
           <td>${formatDatetime(user.unbannedAt)}</td>
           <td>${getStatusText(user.status)}</td>
         </tr>
@@ -207,11 +215,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   let originalData = {}
+  let clickedRow = null;
 
   tableBody.addEventListener("click", function (event) {
     const row = event.target.closest("tr");
     if (row) {
       const userData = JSON.parse(row.dataset.user);
+      clickedRow = row;
       userData.status = parseInt(userData.status, 10);
       originalData = userData;
       openProfileModal(userData);
@@ -283,6 +293,12 @@ document.addEventListener("DOMContentLoaded", function () {
         currentValue = removeSecondsFromDatetime(currentValue);
         if (originalValue === currentValue) {
           continue;
+        } else {
+          if (currentValue === null) {
+            changedData["clearUnbannedAt"] = true;
+          } else {
+            changedData["clearUnbannedAt"] = false;
+          }
         }
       }
 
@@ -306,12 +322,130 @@ document.addEventListener("DOMContentLoaded", function () {
   saveButton.addEventListener("click", (e) => {
     e.preventDefault();
     const currentData = getFormData(form);
-    const changedData = getChangedData(originalData, currentData);
+    let changedData = getChangedData(originalData, currentData);
 
     if (Object.keys(changedData).length === 0) {
       alert("변경된 값이 없습니다.");
       return;
     }
 
+    changedData["userId"] = originalData["userId"];
+    console.log(changedData);
+
+    fetch("/admin/users", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(changedData),
+    })
+    .then((response) => {
+      if (!response.ok) {
+        return response.text().then((message) => {
+          throw new Error(message);
+        });
+      }
+      return response.json();
+    })
+    .then((updatedUser) => {
+      clickedRow.dataset.user = JSON.stringify(updatedUser);
+      clickedRow.innerHTML = `
+          <td>${updatedUser.userId}</td>
+          <td>${updatedUser.name}</td>
+          <td>${updatedUser.nickname}</td>
+          <td>${updatedUser.email}</td>
+          <td>${updatedUser.birth}</td>
+          <td>${updatedUser.role}</td>
+          <td>${formatDatetime(updatedUser.unbannedAt)}</td>
+          <td>${getStatusText(updatedUser.status)}</td>
+      `;
+
+      modalContainer.style.display = "none";
+      modalBackground.style.display = "none";
+    })
+    .catch((error) => {
+      alert(`${error.message}`);
+    });
+  });
+
+  const profileImage = document.querySelector("#user-photo");
+  const profileImageInput = document.querySelector("#profile-image-input");
+  const modal = document.querySelector("#image-action-modal");
+  const deletePhotoBtn = document.querySelector("#delete-photo-btn");
+  const uploadPhotoBtn = document.querySelector("#upload-photo-btn");
+  const closeModalBtn = document.querySelector("#close-modal-btn");
+  const modalOverlay = document.querySelector("#modal-overlay");
+
+  function updateProfileImage(file) {
+    const formData = new FormData();
+    formData.append("profileImageFile", file);
+
+    const userId = originalData.userId;
+
+    fetch(`/admin/users/${userId}`, {
+      method: "PUT",
+      body: formData,
+    })
+    .then((response) => {
+      if (!response.ok) {
+        return response.text().then((message) => {
+          throw new Error(message);
+        });
+      }
+      return response.json();
+    })
+    .then((updatedUser) => {
+      alert("프로필 이미지가 성공적으로 업데이트되었습니다.");
+      profileImage.src = updatedUser.profileImage;
+    })
+    .catch((error) => {
+      alert(`프로필 이미지 업데이트에 실패했습니다: ${error.message}`);
+    });
+  }
+
+  profileImage.addEventListener("click", () => {
+    modal.style.display = "block";
+    modalOverlay.style.display = "block";
+  });
+
+  const closeModal = () => {
+    modal.style.display = "none";
+    modalOverlay.style.display = "none";
+  };
+
+  closeModalBtn.addEventListener("click", closeModal);
+
+  modalOverlay.addEventListener("click", closeModal);
+
+  deletePhotoBtn.addEventListener("click", () => {
+    // profileImage.src = defaultImageSrc;
+    // profileImageInput.value = "";
+    updateProfileImage(null);
+    closeModal();
+  });
+
+  uploadPhotoBtn.addEventListener("click", () => {
+    profileImageInput.click();
+    closeModal();
+  });
+
+  profileImageInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        alert("이미지 파일만 선택할 수 있습니다.");
+        profileImageInput.value = "";
+        return;
+      }
+
+      // const reader = new FileReader();
+      //
+      // reader.onload = (e) => {
+      //   profileImage.src = e.target.result;
+      // };
+
+      // reader.readAsDataURL(file);
+      updateProfileImage(file);
+    }
   });
 });

@@ -37,8 +37,14 @@ public class ManitoLetter {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @Column(name = "letter", columnDefinition = "text")
-  private String letter;
+  @Column(name = "letter_content", nullable = false)
+  private String letterContent;
+
+  @Column(name = "music_url")
+  private String musicUrl;
+
+  @Column(name = "music_comment")
+  private String musicComment;
 
   @Column(name = "is_report", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. 신고 안됨\\n1. 신고됨'")
   @Builder.Default
@@ -55,8 +61,7 @@ public class ManitoLetter {
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
 
-  // 답장 신고 컬럼 추가
-  @Column(name = "is_answer_report", nullable = false , columnDefinition = "tinyint DEFAULT 0 COMMENT '0. 신고 안됨\\n1. 신고됨'")
+  @Column(name = "is_answer_report", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. 신고 안됨\\n1. 신고됨'")
   @Builder.Default
   private boolean isAnswerReport = false;
 
@@ -70,20 +75,25 @@ public class ManitoLetter {
   }
 
   // 신고 로직
-  public void reportLetter() {
+  public void reportLetter(String userNickname) {
     if (isReport) {
       throw new IllegalStateException(ManitoErrorMessages.ALREADY_REPORTED.getMessage());
+    }
+    if (this.user.getNickname().equals(userNickname)) {
+      throw new IllegalStateException(ManitoErrorMessages.OWN_LETTER_REPORT.getMessage());
     }
     this.isReport = true;
   }
 
   public void reportAnswer(String userNickname) {
-    validateOwnership(userNickname);
     if (this.answerLetter == null) {
       throw new IllegalStateException(ManitoErrorMessages.ANSWER_NOT_FOUND.getMessage());
     }
     if (isAnswerReport) {
       throw new IllegalStateException(ManitoErrorMessages.ALREADY_REPORTED_ANSWER.getMessage());
+    }
+    if (this.postId.getUser().getNickname().equals(userNickname)) {
+      throw new IllegalStateException(ManitoErrorMessages.OWN_ANSWER_REPORT.getMessage());
     }
     this.isAnswerReport = true;
   }

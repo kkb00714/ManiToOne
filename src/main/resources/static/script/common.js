@@ -1,3 +1,5 @@
+//common.js
+
 class BaseModal {
   constructor(modalId, backgroundId, openBtnId, closeBtnId) {
     this.modal = document.getElementById(modalId);
@@ -5,20 +7,121 @@ class BaseModal {
     this.openBtn = document.getElementById(openBtnId);
     this.closeBtn = document.getElementById(closeBtnId);
 
-    this.initializeEventListeners();
+    if (this.modal && this.background) {
+      this.initializeEventListeners();
+      this.initializeTextareas();
+    }
   }
 
   initializeEventListeners() {
-    this.openBtn.onclick = () => this.open();
-    this.closeBtn.onclick = () => this.close();
+    if (this.openBtn) {
+      this.openBtn.onclick = () => this.open();
+    }
+    if (this.closeBtn) {
+      this.closeBtn.onclick = () => this.close();
+    }
+  }
+
+  initializeTextareas() {
+    if (this.modal) {
+      const textareas = this.modal.getElementsByTagName('textarea');
+      Array.from(textareas).forEach(textarea => {
+        this.adjustTextareaHeight(textarea);
+        textarea.addEventListener('input', () => {
+          this.adjustTextareaHeight(textarea);
+        });
+      });
+    }
+  }
+
+  adjustTextareaHeight(element) {
+    element.style.height = 'auto';
+    element.style.height = (element.scrollHeight) + 'px';
+  }
+
+  lockScroll() {
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = this.getScrollbarWidth() + 'px';
+  }
+
+  unlockScroll() {
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+  }
+
+  getScrollbarWidth() {
+    const outer = document.createElement('div');
+    outer.style.visibility = 'hidden';
+    outer.style.overflow = 'scroll';
+    document.body.appendChild(outer);
+
+    const inner = document.createElement('div');
+    outer.appendChild(inner);
+
+    const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
+    outer.parentNode.removeChild(outer);
+
+    return scrollbarWidth;
   }
 
   open() {
-    [this.modal, this.background].forEach((el) => (el.style.display = "block"));
+    if (this.modal && this.background) {
+      [this.modal, this.background].forEach(
+          (el) => (el.style.display = "block"));
+      this.lockScroll();
+    }
   }
 
   close() {
-    [this.modal, this.background].forEach((el) => (el.style.display = "none"));
+    if (this.modal && this.background) {
+      [this.modal, this.background].forEach(
+          (el) => (el.style.display = "none"));
+      this.unlockScroll();
+    }
+  }
+
+  showWarning(message) {
+    const warningPopup = document.getElementById('warningPopup');
+    const warningMessage = document.getElementById('warningMessage');
+    const warningConfirmBtn = document.getElementById('warningConfirmBtn');
+
+    if (warningPopup && warningMessage && warningConfirmBtn) {
+      warningMessage.textContent = message;
+      warningPopup.style.display = 'block';
+
+      const newConfirmButton = warningConfirmBtn.cloneNode(true);
+      warningConfirmBtn.parentNode.replaceChild(newConfirmButton,
+          warningConfirmBtn);
+
+      newConfirmButton.addEventListener('click', () => {
+        warningPopup.style.display = 'none';
+      });
+    }
+  }
+
+  resetForm() {
+    if (this.modal) {
+      const textareas = this.modal.getElementsByTagName('textarea');
+      Array.from(textareas).forEach(textarea => {
+        textarea.value = '';
+        this.adjustTextareaHeight(textarea);
+      });
+
+      const inputs = this.modal.getElementsByTagName('input');
+      Array.from(inputs).forEach(input => {
+        input.value = '';
+      });
+
+      const toggleElements = this.modal.querySelectorAll('[data-checked-src]');
+      Array.from(toggleElements).forEach(element => {
+        const img = element.querySelector('img');
+        if (img) {
+          img.src = img.getAttribute('data-unchecked-src').replace('@{',
+              '').replace('}', '');
+          element.style.opacity = '0.3';
+        }
+      });
+    }
   }
 }
 
@@ -29,28 +132,6 @@ class PostFormModal extends BaseModal {
         "newPostFormModalBackground",
         "openPostFormModalBtn",
         "closePostFormModalBtn"
-    );
-  }
-}
-
-class SendManitoLetterModal extends BaseModal {
-  constructor() {
-    super(
-        "manitoLetterModalContainer",
-        "manitoLetterModalBackground",
-        "openManitoLetterModalBtn",
-        "closeManitoLetterModalBtn"
-    );
-  }
-}
-
-class SendManitoLetterReplyModal extends BaseModal {
-  constructor() {
-    super(
-        "manitoLetterReplyModalContainer",
-        "manitoLetterReplyModalBackground",
-        "openManitoLetterReplyModalBtn",
-        "closeManitoLetterReplyModalBtn"
     );
   }
 }
@@ -66,102 +147,173 @@ class ProfileUpdateModal extends BaseModal {
   }
 }
 
-function initializeModals() {
-  try {
-    if (document.getElementById("newPostFormModalContainer")) {
-      new PostFormModal();
+const CommonUtils = {
+  initializeAllTextareas() {
+    const allTextareas = document.getElementsByTagName('textarea');
+    Array.from(allTextareas).forEach(textarea => {
+      const adjustHeight = () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = (textarea.scrollHeight) + 'px';
+      };
+
+      adjustHeight();
+      textarea.addEventListener('input', adjustHeight);
+    });
+  },
+
+  initializePageModals() {
+    try {
+      if (document.getElementById("newPostFormModalContainer")) {
+        new PostFormModal();
+      }
+      if (document.getElementById("profileUpdateModalContainer")) {
+        new ProfileUpdateModal();
+      }
+    } catch (error) {
+      console.error('모달 초기화 중 오류 발생:', error);
     }
-    if (document.getElementById("manitoLetterModalContainer")) {
-      new SendManitoLetterModal();
+  },
+
+  toggleElement(element) {
+    const img = element.querySelector('img');
+    if (!img) {
+      return;
     }
-    if (document.getElementById("manitoLetterReplyModalContainer")) {
-      new SendManitoLetterReplyModal();
+
+    const isChecked = img.src.includes('icon-check.png');
+
+    if (isChecked) {
+      img.src = img.getAttribute('data-unchecked-src').replace('@{',
+          '').replace('}', '');
+      element.style.opacity = '0.3';
+    } else {
+      img.src = img.getAttribute('data-checked-src').replace('@{', '').replace(
+          '}', '');
+      element.style.opacity = '1';
     }
-    if (document.getElementById("profileUpdateModalContainer")) {
-      new ProfileUpdateModal();
+  },
+
+  initializeRightSectionManito() {
+    const elements = {
+      receivedList: document.querySelector(
+          '.manito-letter-section .received-letter ul'),
+      sentList: document.querySelector(
+          '.manito-letter-section .sent-letter ul'),
+      receivedLink: document.querySelector(
+          '.manito-letter-section .received-letter h3 a'),
+      sentLink: document.querySelector(
+          '.manito-letter-section .sent-letter h3 a')
+    };
+
+    if (!elements.receivedList || !elements.sentList) {
+      return;
     }
-  } catch (error) {
-    console.error('모달 초기화 중 오류 발생:', error);
-  }
-}
 
-function loadContent(page) {
-  const middleSection = document.getElementById('middleSection');
-  middleSection.innerHTML = '<div class="loading">Loading...</div>';
+    this.loadRecentLetters(elements);
+    this.initializeLetterEventListeners(elements);
+  },
 
-  let url = '';
-  if (page === 'notification') {
-    return;
-  } else {
-    url = '/fragments/content/' + page;
-  }
+  async loadRecentLetters(elements) {
+    try {
+      const userNickname = document.querySelector(
+          'meta[name="user-nickname"]')?.content;
+      if (!userNickname) {
+        return;
+      }
 
-  fetch(url)
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+      this.showLoadingState(elements.receivedList);
+      this.showLoadingState(elements.sentList);
+
+      const receivedResponse = await fetch(
+          `/api/receivemanito/${userNickname}?page=0&size=3`);
+      const receivedData = await receivedResponse.json();
+
+      const sentResponse = await fetch(
+          `/api/sendmanito/${userNickname}?page=0&size=3`);
+      const sentData = await sentResponse.json();
+
+      this.updateLetterList(elements.receivedList, receivedData.content, true);
+      this.updateLetterList(elements.sentList, sentData.content, false);
+
+    } catch (error) {
+      console.error('Error loading recent letters:', error);
+      this.updateLetterList(elements.receivedList, [], true);
+      this.updateLetterList(elements.sentList, [], false);
     }
-    return response.text();
-  })
-  .then(html => {
-    middleSection.innerHTML = html;
-    history.pushState({page: page}, '', `/${page}`);
-    initializeModals();
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    middleSection.innerHTML = '<div class="error">Failed to load content</div>';
-  });
-}
+  },
 
-document.addEventListener('DOMContentLoaded', function () {
-  const navButtons = document.querySelectorAll('.UI-icon-list button');
+  updateLetterList(container, letters) {
+    container.innerHTML = '';
 
-  navButtons.forEach(button => {
-    button.addEventListener('click', function () {
-      const buttonType = this.querySelector('img').alt;
+    if (!letters || letters.length === 0) {
+      const emptyMessage = document.createElement('li');
+      emptyMessage.className = 'empty-message';
+      emptyMessage.textContent = '편지함이 비어 있습니다';
+      emptyMessage.style.color = '#888';
+      emptyMessage.style.textAlign = 'center';
+      emptyMessage.style.padding = '10px 0';
+      container.appendChild(emptyMessage);
+      return;
+    }
 
-      switch (buttonType) {
-        case 'home':
-          loadContent('timeline');
-          break;
-        case 'notification':
-          loadContent('notification');
-          break;
-        case 'manito':
-          loadContent('manito');
-          break;
-        case 'user-profile':
-          loadContent('mypage');
-          break;
+    letters.forEach(letter => {
+      const content = letter.letterContent || '';
+      const truncatedContent = content.substring(0, 20);
+
+      const li = document.createElement('li');
+      li.textContent = truncatedContent;
+      li.dataset.letterId = letter.manitoLetterId;
+      li.style.cursor = 'pointer';
+      container.appendChild(li);
+    });
+  },
+
+  showLoadingState(container) {
+    container.innerHTML = '';
+    const loadingMessage = document.createElement('li');
+    loadingMessage.className = 'loading-message';
+    loadingMessage.textContent = '편지 로딩 중...';
+    loadingMessage.style.color = '#888';
+    loadingMessage.style.textAlign = 'center';
+    loadingMessage.style.padding = '10px 0';
+    container.appendChild(loadingMessage);
+  },
+
+  initializeLetterEventListeners(elements) {
+
+    elements.receivedList?.addEventListener('click', (e) => {
+      const letterId = e.target.dataset.letterId;
+      if (letterId) {
+        e.preventDefault();
+        window.location.href = `/manito?tab=received&letterId=${letterId}`;
       }
     });
-  });
 
-  const logoLink = document.querySelector('.home-link');
-  if (logoLink) {
-    logoLink.addEventListener('click', function (e) {
-      e.preventDefault();
-      loadContent('timeline');
+    elements.sentList?.addEventListener('click', (e) => {
+      const letterId = e.target.dataset.letterId;
+      if (letterId) {
+        e.preventDefault();
+        window.location.href = `/manito?tab=sent&letterId=${letterId}`;
+      }
     });
-  }
 
-  initializeModals();
+    elements.receivedLink?.addEventListener('click', () => {
+      window.location.href = '/manito?tab=received';
+    });
+
+    elements.sentLink?.addEventListener('click', () => {
+      window.location.href = '/manito?tab=sent';
+    });
+  },
+
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  CommonUtils.initializePageModals();
+  CommonUtils.initializeAllTextareas();
+  CommonUtils.initializeRightSectionManito();
+
+  window.toggleManito = function (element, type) {
+    CommonUtils.toggleElement(element, type);
+  };
 });
-
-
-function toggleManito(element, type) {
-  const img = element.querySelector('img');
-  const isChecked = img.src.includes('icon-check.png');
-
-  if (isChecked) {
-    img.src = img.getAttribute('data-unchecked-src').replace('@{', '').replace('}', '');
-    element.style.opacity = '0.3';
-  } else {
-    img.src = img.getAttribute('data-checked-src').replace('@{', '').replace('}', '');
-    element.style.opacity = '1';
-  }
-
-  // 추후 백엔드 연동 시 활용할 수 있는 type 파라미터 ('response' 또는 'reply')
-  // console.log(`${type} toggled to ${!isChecked}`);
-}

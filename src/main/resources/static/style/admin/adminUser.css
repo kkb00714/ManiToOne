@@ -70,6 +70,8 @@
   height: 4rem;
   display: block;
   margin-left: 1rem;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .user-name-container {
@@ -193,4 +195,31 @@
 .unbanned-box {
   display: flex;
   gap: 10px;
+}
+
+.admin-user-image {
+  opacity: 100% !important;
+}
+
+.user-state {
+  font-size: 12px;
+}
+
+.user-state a {
+  color: #A5A5A5;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.user-state a.active {
+  color: black;
+  pointer-events: none;
+}
+
+.user-state a:hover {
+  text-decoration: underline; /* 마우스 오버 시 강조 */
+}
+
+.caption-header {
+  margin-right: 630px !important;
 }

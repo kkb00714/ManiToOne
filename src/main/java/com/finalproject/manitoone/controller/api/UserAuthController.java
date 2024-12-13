@@ -73,13 +73,6 @@ public class UserAuthController {
     }
   }
 
-      return ResponseEntity.ok(userResponse);
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body(Map.of("error", e.getMessage()));
-    }
-  }
-
   @DeleteMapping("/cancel-account")
   public ResponseEntity<String> deleteUser(@RequestBody UserLoginRequestDto userLoginRequestDto) {
     userAuthService.deleteUser(userLoginRequestDto.getEmail(), userLoginRequestDto.getPassword());

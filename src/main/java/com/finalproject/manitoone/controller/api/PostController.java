@@ -8,7 +8,6 @@ import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
-import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.service.PostService;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
@@ -36,7 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
   private final PostService postService;
-  private final UserRepository userRepository;
 
   // 게시글 생성
   // TODO: 이미지 업로드
@@ -44,11 +42,8 @@ public class PostController {
   public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
-    ));
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, user));
+    return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, email));
   }
 
   // 게시글 수정
@@ -58,11 +53,8 @@ public class PostController {
       @RequestBody UpdatePostRequestDto request,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
-    ));
 
-    return ResponseEntity.ok(postService.updatePost(postId, request, user));
+    return ResponseEntity.ok(postService.updatePost(postId, request, email));
   }
 
   // 모든 게시글 조회
@@ -81,13 +73,13 @@ public class PostController {
     return ResponseEntity.ok(post);
   }
 
-  public CompletableFuture<ResponseEntity<PostResponseDto>> createPost(
-      @RequestBody AddPostRequestDto request,
-      @AuthenticationPrincipal User user) {
-    PostResponseDto post = postService.createPost(request, user);
-    return CompletableFuture.supplyAsync(
-        () -> ResponseEntity.status(HttpStatus.CREATED).body(post));
-  }
+//  public CompletableFuture<ResponseEntity<PostResponseDto>> createPost(
+//      @RequestBody AddPostRequestDto request,
+//      @AuthenticationPrincipal User user) {
+//    PostResponseDto post = postService.createPost(request, user);
+//    return CompletableFuture.supplyAsync(
+//        () -> ResponseEntity.status(HttpStatus.CREATED).body(post));
+//  }
 
   // 게시글 삭제
   @DeleteMapping("/{postId}")
@@ -107,11 +99,8 @@ public class PostController {
   @PostMapping("/like/{postId}")
   public ResponseEntity<Void> likePost(@PathVariable("postId") Long postId, HttpSession session) {
     String email = session.getAttribute("email") + "";
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
-    ));
 
-    postService.likePost(postId, user);
+    postService.likePost(postId, email);
     return ResponseEntity.ok().build();
   }
 
@@ -128,12 +117,9 @@ public class PostController {
       @RequestBody AddReportRequestDto request,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
-        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
-    ));
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(postService.reportPost(postId, request, user));
+        .body(postService.reportPost(postId, request, email));
   }
 
   @GetMapping("/by/{nickName}")

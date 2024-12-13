@@ -25,6 +25,7 @@ import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
+import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -51,11 +52,16 @@ public class PostService {
   private final ManitoLetterRepository manitoLetterRepository;
   private final ReportRepository reportRepository;
   private final AiPostLogRepository aiPostLogRepository;
+  private final UserRepository userRepository;
 
   // 게시글 생성 (미완성)
   // TODO: 이미지 업로드
   @Async
-  public PostResponseDto createPost(AddPostRequestDto request, User user) {
+  public PostResponseDto createPost(AddPostRequestDto request, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.save(Post.builder()
         .content(request.getContent())
         .user(user)
@@ -92,7 +98,11 @@ public class PostService {
 
   // 게시글 수정
   // TODO: 이미지 수정 
-  public PostResponseDto updatePost(Long postId, UpdatePostRequestDto request, User user) {
+  public PostResponseDto updatePost(Long postId, UpdatePostRequestDto request, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
@@ -217,7 +227,11 @@ public class PostService {
   }
 
   // 게시글 좋아요
-  public void likePost(Long postId, User user) {
+  public void likePost(Long postId, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
@@ -230,7 +244,11 @@ public class PostService {
   }
 
   // 게시글 신고
-  public ReportResponseDto reportPost(Long postId, AddReportRequestDto request, User user) {
+  public ReportResponseDto reportPost(Long postId, AddReportRequestDto request, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()

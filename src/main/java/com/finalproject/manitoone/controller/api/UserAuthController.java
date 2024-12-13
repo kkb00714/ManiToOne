@@ -8,7 +8,6 @@ import com.finalproject.manitoone.service.UserAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -45,7 +44,6 @@ public class UserAuthController {
   @PostMapping("/local-login")
   public ResponseEntity<Object> localLogin(
       @RequestBody UserLoginRequestDto userLoginRequestDto,
-      HttpSession session,
       HttpServletRequest request
   ) {
     try {
@@ -54,11 +52,11 @@ public class UserAuthController {
           userLoginRequestDto.getPassword()
       );
 
-      session = request.getSession(true);
+      HttpSession session = request.getSession(true);
 
       session.setAttribute("email", userResponse.getEmail());
-      session.setAttribute("name", userResponse.getName());
       session.setAttribute("nickname", userResponse.getNickname());
+      session.setAttribute("name", userResponse.getName());
       session.setAttribute("profileImage", userResponse.getProfileImage());
       session.setAttribute("introduce", userResponse.getIntroduce());
 

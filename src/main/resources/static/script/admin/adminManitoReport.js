@@ -186,4 +186,39 @@ document.addEventListener("DOMContentLoaded", function () {
       searchButton.click();
     }
   });
+
+  // 마니또 답변 , 감사인사 필터
+  let typeLinkItems = document.querySelectorAll('.type-filter');
+
+  typeLinkItems.forEach((link) => {
+    link.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      document.querySelectorAll(".type-filter").forEach(
+          (link) => link.classList.remove("active"));
+      this.classList.add("active");
+      const currentStatus = this.dataset.status;
+      if (currentStatus !== "") {
+        requestBody.type = this.dataset.status;
+      } else {
+        requestBody.type = null;
+      }
+      loadPage(1);
+    });
+  });
+
+  // 신고 사유 필터
+  const reportTypeSelect = document.querySelector("#reportTypeSelect");
+
+  reportTypeSelect.addEventListener("change", function () {
+    const selectedValue = this.value;
+
+    if (selectedValue === "") {
+      requestBody.reportType = null;
+    } else {
+      requestBody.reportType = selectedValue;
+    }
+
+    loadPage(1);
+  });
 });

@@ -165,20 +165,27 @@ public class ReplyService {
   }
 
   // 답글 좋아요
-  public void likeReply(Long replyId, String email) {
+  public ReplyResponseDto likeReply(Long replyId, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
-    
+
     ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));
 
     userPostLikeRepository.save(UserPostLike.builder()
+        .post(reply.getPost())
         .user(user)
         .replyPostId(reply.getReplyPostId())
         .build());
+
+    return ReplyResponseDto.builder()
+        .replyPostId(reply.getReplyPostId())
+        .content(reply.getContent())
+        .likesNumber(getReplyLikesNum(reply.getReplyPostId()))
+        .build();
   }
 
   // 게시글 답글 조회

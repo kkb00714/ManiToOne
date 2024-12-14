@@ -87,12 +87,12 @@ public class ReplyController {
 
   // 답글 좋아요
   @PostMapping("/reply/like/{replyId}")
-  public ResponseEntity<Void> likeReply(@PathVariable("replyId") Long replyId,
+  public ResponseEntity<ReplyResponseDto> likeReply(@PathVariable("replyId") Long replyId,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 
-    replyService.likeReply(replyId, email);
-    return ResponseEntity.ok().build();
+    ReplyResponseDto reply = replyService.likeReply(replyId, email);
+    return ResponseEntity.ok(reply);
   }
 
   // 게시글 답글 조회

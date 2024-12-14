@@ -9,10 +9,10 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -98,6 +98,10 @@ public class User implements OAuth2User {
     this.nickname = nickname;
   }
 
+  public void setBirth(LocalDate birth) {
+    this.birth = birth;
+  }
+
   public void updateDefaultImage() {
     this.profileImage = "/img/defaultProfile.png";
   }
@@ -109,7 +113,7 @@ public class User implements OAuth2User {
   public void updateProfileImage(String profileImage) {
     this.profileImage = profileImage;
   }
-  
+
   public void setStatus(Integer status) {
     this.status = status;
   }

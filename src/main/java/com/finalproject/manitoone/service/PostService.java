@@ -67,8 +67,14 @@ public class PostService {
     AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
     aiPostLogRepository.save(aiPost);
 
-    return new PostResponseDto(post.getPostId(), post.getUser(), post.getContent(),
-        post.getCreatedAt(), post.getUpdatedAt(), post.getIsManito());
+    return PostResponseDto.builder()
+        .postId(post.getPostId())
+        .user(post.getUser())
+        .content(post.getContent())
+        .createdAt(post.getCreatedAt())
+        .updatedAt(post.getUpdatedAt())
+        .isManito(post.getIsManito())
+        .build();
   }
 
   // 이미지 저장
@@ -136,7 +142,8 @@ public class PostService {
         post.getContent(),
         post.getCreatedAt(),
         post.getUpdatedAt(),
-        post.getIsManito()
+        post.getIsManito(),
+        getPostLikesNum(post.getPostId())
     ));
   }
 
@@ -154,7 +161,8 @@ public class PostService {
         post.getContent(),
         post.getCreatedAt(),
         post.getUpdatedAt(),
-        post.getIsManito()
+        post.getIsManito(),
+        getPostLikesNum(post.getPostId())
     );
   }
 
@@ -223,7 +231,7 @@ public class PostService {
   }
 
   // 게시글 좋아요
-  public void likePost(Long postId, String email) {
+  public PostResponseDto likePost(Long postId, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
@@ -237,6 +245,12 @@ public class PostService {
         .post(post)
         .user(user)
         .build());
+
+    return PostResponseDto.builder()
+        .postId(post.getPostId())
+        .user(post.getUser())
+        .likesNumber(getPostLikesNum(post.getPostId()))
+        .build();
   }
 
   // 게시글 신고
@@ -366,13 +380,13 @@ public class PostService {
     Page<Post> posts = postRepository.findTimelinePostsByUserId(currentUser.getUserId(), pageable);
     return posts.map(post -> {
       PostViewResponseDto dto = new PostViewResponseDto(
-      post.getPostId(),
-      post.getUser().getProfileImage(),
-      post.getUser().getNickname(),
-      post.getContent(),
-      post.getCreatedAt(),
-      post.getUpdatedAt()
-          );
+          post.getPostId(),
+          post.getUser().getProfileImage(),
+          post.getUser().getNickname(),
+          post.getContent(),
+          post.getCreatedAt(),
+          post.getUpdatedAt()
+      );
       return addAdditionalDataToDto(List.of(dto)).get(0);
     });
   }

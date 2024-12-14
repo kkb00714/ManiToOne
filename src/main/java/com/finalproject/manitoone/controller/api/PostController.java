@@ -95,11 +95,12 @@ public class PostController {
 
   // 게시글 좋아요
   @PostMapping("/like/{postId}")
-  public ResponseEntity<Void> likePost(@PathVariable("postId") Long postId, HttpSession session) {
+  public ResponseEntity<PostResponseDto> likePost(@PathVariable("postId") Long postId,
+      HttpSession session) {
     String email = session.getAttribute("email") + "";
 
-    postService.likePost(postId, email);
-    return ResponseEntity.ok().build();
+    PostResponseDto post = postService.likePost(postId, email);
+    return ResponseEntity.ok(post);
   }
 
   // 게시글 좋아요 개수 조회
@@ -135,7 +136,9 @@ public class PostController {
 
   @GetMapping("/hidden")
   public ResponseEntity<List<PostViewResponseDto>> getPostById(
-      @PageableDefault(sort = "postId", direction = Sort.Direction.DESC) Pageable pageable, HttpSession session) {
-    return ResponseEntity.ok(postService.getMyHiddenPosts((String)session.getAttribute("nickname"), pageable));
+      @PageableDefault(sort = "postId", direction = Sort.Direction.DESC) Pageable pageable,
+      HttpSession session) {
+    return ResponseEntity.ok(
+        postService.getMyHiddenPosts((String) session.getAttribute("nickname"), pageable));
   }
 }

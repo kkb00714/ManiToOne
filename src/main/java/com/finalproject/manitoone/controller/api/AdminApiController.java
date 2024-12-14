@@ -1,10 +1,10 @@
 package com.finalproject.manitoone.controller.api;
 
-import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
-import com.finalproject.manitoone.domain.dto.admin.ReportSearchRequestDto;
-import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
-import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
-import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
+import com.finalproject.manitoone.dto.admin.PostSearchRequestDto;
+import com.finalproject.manitoone.dto.admin.ReportSearchRequestDto;
+import com.finalproject.manitoone.dto.admin.UserProfileRequestDto;
+import com.finalproject.manitoone.dto.admin.UserProfileResponseDto;
+import com.finalproject.manitoone.dto.admin.UserSearchRequestDto;
 import com.finalproject.manitoone.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -99,5 +99,12 @@ public class AdminApiController {
   public ResponseEntity<Object> deleteReport(@PathVariable Long reportId) {
     adminService.deleteReport(reportId);
     return ResponseEntity.ok().build();
+  }
+
+  @PostMapping("/manito/reports")
+  public ResponseEntity<Object> getManitoReports (
+      @PageableDefault(size = 2, sort = "reportId", direction = Sort.Direction.ASC) Pageable pageable,
+      @RequestBody ReportSearchRequestDto reportSearchRequestDto) {
+    return ResponseEntity.ok(adminService.searchReports(reportSearchRequestDto, pageable));
   }
 }

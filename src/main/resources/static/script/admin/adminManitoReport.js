@@ -45,16 +45,15 @@ document.addEventListener("DOMContentLoaded", function () {
       loadPage(1);
     }
   }
+  searchButton.addEventListener("click", handleSearchClick);
 
   loadPage(1);
 
   function loadPage(page) {
     currentPage = page;
-    searchButton.removeEventListener("click", handleSearchClick);
-    searchButton.addEventListener("click", handleSearchClick);
     syncSearchFields();
 
-    tableBody.innerHTML = '<tr><td colspan="9">Loading...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
 
     fetch(`/admin/manito/reports?page=${page - 1}`, {
       method: "POST",
@@ -70,26 +69,16 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.json();
     })
     .then((data) => {
+      console.log(data)
       if (!data.content || data.content.length === 0) {
         tableBody.innerHTML = `
     <tr>
-      <td colspan="11" class="text-center">데이터가 없습니다</td>
+      <td colspan="8" class="text-center">데이터가 없습니다</td>
     </tr>
   `;
       } else {
         tableBody.innerHTML = data.content
         .map((report) => {
-          if (!report.post && !report.replyPost) {
-            return `
-                <tr data-user='${JSON.stringify(report)}'>
-                    <td>${report.reportId}</td>
-                    <td colspan="9" class="text-center">
-                      삭제된 ${report.type ? report.type.label : ''}
-                    </td>
-                    <td><a href="#" class="delete-report" data-id="${report.reportId}">삭제</a></td>
-                </tr>
-            `;
-          } else {
             return `
                 <tr data-user='${JSON.stringify(report)}'>
                     <td>${report.reportId}</td>
@@ -101,26 +90,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 0, 6) + '...' : report.content}</td>
                     <td>${report.reportedByUser.nickname}</td> 
                     <td>
-                        ${report.post ? report.post.user.nickname : ''}
-                        ${report.replyPost ? report.replyPost.user.nickname
-                : ''}
+                        ${report.reportedToUser.nickname}
                     </td>
                     <td>${formatDatetimeSecond(report.createdAt)}</td>
-                    <td class="blind-status">
-                        ${report.post ? (report.post.isBlind ? 'O' : 'X') : ''}
-                        ${report.replyPost ? (report.replyPost.isBlind ? 'O'
-                : 'X') : ''}
-                    </td>
-                    <td><a href="#" class="change-status" data-id="${report.post
-                ? report.post.postId : report.replyPost.replyPostId}"
-                    data-value="${report.type.data}">변경</a></td>
-                    <td><a href="#" class="delete-post" data-id="${report.post
-                ? report.post.postId : report.replyPost.replyPostId}"
-                    data-value="${report.type.data}">삭제</a></td>
-                    <td><a href="#" class="delete-report" data-id="${report.reportId}">삭제</a></td>
-                </tr>
             `;
-          }
         })
         .join("");
         renderPagination(page, data.totalPages);
@@ -196,13 +169,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     pagination.innerHTML = html;
 
-    searchQuery.addEventListener("keydown", function (event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        searchButton.click();
-      }
-    });
-
     document.querySelectorAll(".page-link, .page-link-number").forEach(
         (button) => {
           if (!button.classList.contains("disabled")) {
@@ -213,4 +179,11 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         });
   }
+
+  searchQuery.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      searchButton.click();
+    }
+  });
 });

@@ -67,7 +67,7 @@
                     alt="I like this"
                     th:onclick="'likePost(' + ${post.postId} + ')'"
                   />
-                  <span class="like-count" th:text="${postLikesNum}"></span>
+                  <span class="like-count" th:text="${post.likesNumber}"></span>
                   <img
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-comment2.png}"

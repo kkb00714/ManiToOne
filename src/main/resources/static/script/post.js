@@ -10,8 +10,7 @@ async function likePost(postId) {
 
     if (response.ok) {
       alert("해당 게시글에 좋아요를 누르셨습니다.");
-    }
-    else {
+    } else {
       alert("좋아요 요청에 실패하셨습니다.")
     }
   } catch (error) {
@@ -32,8 +31,7 @@ async function likeReply(replyId) {
 
     if (response.ok) {
       alert("해당 댓글에 좋아요를 누르셨습니다.");
-    }
-    else {
+    } else {
       alert("좋아요 요청에 실패하셨습니다.")
     }
   } catch (error) {
@@ -50,4 +48,41 @@ function directToReply(replyId) {
 // 게시글 상세 페이지 이동
 function directToPost(postId) {
   window.location.href = `/post/${postId}`;
+}
+
+// 마니또 여부 확인
+let isManito = false;
+
+async function thisIsManito() {
+  isManito = true;
+}
+
+// 게시글 작성
+async function submitPost() {
+  const content = document.getElementById('new-post-content').value.trim();
+
+  const postData = {
+    content: this.content,
+    isManito: this.isManito
+  };
+
+  try {
+    const response = await fetch('/api/post', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'applicaton/json'
+      },
+      body: JSON.stringify(postData)
+    });
+
+    if (response.ok) {
+      alert("게시글 작성을 완료하셨습니다.");
+      location.reload();
+    } else {
+      alert("게시글 작성에 실패하셨습니다.");
+    }
+  } catch (error) {
+    console.error("게시글 작성 에러: ", error);
+    alert("게시글 작성 중 에러가 발생했습니다.");
+  }
 }

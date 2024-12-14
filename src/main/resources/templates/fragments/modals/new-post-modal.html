@@ -18,7 +18,7 @@
       <div class="new-post-content">
         <img
           class="user-photo"
-          th:src="@{/images/icons/UI-user2.png}"
+          th:src="@{${user.profileImage}}"
           alt="user icon"
         />
         <div class="new-post-text-container">
@@ -36,7 +36,7 @@
       </div>
       <div
         class="manito-response-toggle"
-        onclick="toggleManito(this, 'response')"
+        onclick="toggleManito(this, 'response'); thisIsManito();"
       >
         <img
           class="tiny-icons"
@@ -54,7 +54,7 @@
         th:src="@{/images/icons/icon-image2.png}"
         alt="add image icon"
       />
-      <button class="post-button">게시하기</button>
+      <button class="post-button" th:onclick="'submitPost()'">게시하기</button>
     </div>
   </div>
 </div>

@@ -4,6 +4,8 @@ import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReplyResponseDto;
 import com.finalproject.manitoone.service.PostService;
 import com.finalproject.manitoone.service.ReplyService;
+import com.finalproject.manitoone.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,6 +21,7 @@ public class PostViewController {
 
   private final PostService postService;
   private final ReplyService replyService;
+  private final UserService userService;
 
   // 게시글 상세 조회
   @GetMapping("/post/{postId}")
@@ -43,5 +46,12 @@ public class PostViewController {
     model.addAttribute("reply", reply);
     model.addAttribute("rereplies", replyService.getReReplies(reply.getReplyPostId(), pageable));
     return "pages/post/replyDetail";
+  }
+
+  @GetMapping("/")
+  public String getUser(HttpSession session, Model model) {
+    String nickname = (String) session.getAttribute("nickname");
+    model.addAttribute("user", userService.getCurrentUser(nickname));
+    return "index";
   }
 }

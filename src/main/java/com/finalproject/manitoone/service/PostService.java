@@ -235,7 +235,7 @@ public class PostService {
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
-    Post post = postRepository.findByPostId(postId)
+    Post post = postRepository.findByPostIdAndIsHiddenFalseAndIsBlindFalse(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
@@ -258,7 +258,7 @@ public class PostService {
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
-    Post post = postRepository.findByPostId(postId)
+    Post post = postRepository.findByPostIdAndIsHiddenFalseAndIsBlindFalse(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));

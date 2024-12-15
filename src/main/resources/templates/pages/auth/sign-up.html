@@ -123,6 +123,32 @@
     });
   });
 
+  document.getElementById("user-nickname").addEventListener("input", function () {
+    const nickname = this.value;
+    const nicknameError = document.getElementById("nickname-error");
+
+    if (nickname.length > 0) {
+      fetch(`/api/check-nickname?nickname=${nickname}`)
+      .then(response => {
+        if (response.ok) {
+          nicknameError.textContent = '사용 가능한 닉네임입니다.';  // 닉네임 사용 가능
+          nicknameError.style.color = 'green';
+        } else {
+          return response.text().then(errorText => {
+            nicknameError.textContent = errorText;  // 중복된 닉네임
+            nicknameError.style.color = 'red';
+          });
+        }
+      })
+      .catch(error => {
+        nicknameError.textContent = '서버 오류가 발생했습니다. 다시 시도해주세요.';
+        nicknameError.style.color = 'red';
+      });
+    } else {
+      nicknameError.textContent = '';
+    }
+  });
+
   document.getElementById("sign-up-form").addEventListener("submit", function (event) {
     event.preventDefault();
 

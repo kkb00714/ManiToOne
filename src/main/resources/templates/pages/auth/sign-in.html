@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
+  <link rel="stylesheet" th:href="@{/style/sign-in.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -38,6 +39,7 @@
             placeholder="비밀번호"
             aria-label="비밀번호"
         />
+        <button type="button" id="toggle-password" aria-label="비밀번호 표시/숨기기">표시️</button>
         <button class="sign-in-button">로그인</button>
       </div>
     </form>
@@ -123,6 +125,19 @@
 
   document.querySelector(".google-login").addEventListener("click", function () {
     window.location.href = "/oauth2/authorization/google";
+  });
+
+  document.getElementById("toggle-password").addEventListener("click", function () {
+    const passwordInput = document.getElementById("user-password");
+    const toggleButton = this;
+
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      toggleButton.textContent = "숨기기";
+    } else {
+      passwordInput.type = "password";
+      toggleButton.textContent = "표시";
+    }
   });
 
 </script>

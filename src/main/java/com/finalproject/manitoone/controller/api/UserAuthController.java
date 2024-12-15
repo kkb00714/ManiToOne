@@ -11,7 +11,6 @@ import com.finalproject.manitoone.service.UserAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -104,14 +103,26 @@ public class UserAuthController {
     return ResponseEntity.ok("회원 탈퇴 처리되었습니다.");
   }
 
+  @GetMapping("/check-email")
+  public ResponseEntity<String> checkEmail(
+      @RequestParam String email
+  ) {
+    if (userAuthService.isEmailExist(email)) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(IllegalActionMessages.EMAIL_ALREADY_IN_USE.getMessage());
+    }
+    return ResponseEntity.ok("사용 가능한 이메일 입니다.");
+  }
+
   @GetMapping("/check-nickname")
-  public ResponseEntity<String> checkValue(
+  public ResponseEntity<String> checkNickname(
       @RequestParam String nickname
   ) {
     if (userAuthService.isNicknameExist(nickname)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(IllegalActionMessages.NICKNAME_ALREADY_IN_USE.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(IllegalActionMessages.NICKNAME_ALREADY_IN_USE.getMessage());
     }
-    return ResponseEntity.ok("사용 가능한 닉네임입니다.");
+    return ResponseEntity.ok("사용 가능한 닉네임 입니다.");
   }
 
 }

@@ -6,6 +6,7 @@
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
   <link rel="stylesheet" th:href="@{/style/sign-up.css}"/>
+  <link rel="stylesheet" th:href="@{/style/sign-in.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -37,15 +38,18 @@
         />
         <p><span id="email-error" class="error-message"></span></p>
 
-        <input
-            class="sign-up-input"
-            type="password"
-            name="user-password"
-            id="user-password"
-            placeholder="비밀번호(영문 대-소문자, 숫자, 특수문자 포함 8~16자)"
-            aria-label="비밀번호 입력"
-            required
-        />
+        <div class="password-input-container">
+          <input
+              class="sign-up-input"
+              type="password"
+              name="user-password"
+              id="user-password"
+              placeholder="비밀번호(영문 대-소문자, 숫자, 특수문자 포함 8~16자)"
+              aria-label="비밀번호 입력"
+              required
+          />
+          <button type="button" id="toggle-password" aria-label="비밀번호 표시/숨기기">표시</button>
+        </div>
         <p><span id="password-error" class="error-message"></span></p>
 
         <input
@@ -100,6 +104,19 @@
       emailInput.setAttribute('readonly', true); // 수정 불가능하게 설정
       localStorage.removeItem('verifiedEmail');
     }
+
+    const togglePasswordButton = document.getElementById("toggle-password");
+    const passwordInput = document.getElementById("user-password");
+
+    togglePasswordButton.addEventListener("click", function () {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        togglePasswordButton.textContent = "숨기기";
+      } else {
+        passwordInput.type = "password";
+        togglePasswordButton.textContent = "표시";
+      }
+    });
   });
 
   document.getElementById("sign-up-form").addEventListener("submit", function (event) {

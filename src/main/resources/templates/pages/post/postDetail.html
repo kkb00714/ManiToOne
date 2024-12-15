@@ -180,6 +180,7 @@
               <button
                 type="button"
                 class="list-group-item list-group-item-action"
+                th:onclick="'deletePost(' + ${post.postId} + ')'"
               >
                 삭제하기
               </button>

@@ -148,4 +148,20 @@ function hidePost(postId) {
   });
 }
 
-// 게시글
+// 게시글 삭제
+function deletePost(postId) {
+  fetch(`/api/post/${postId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then((response) => {
+    if (response.ok) {
+      alert("해당 게시글을 삭제하셨습니다.");
+      window.location.href = '/';
+    }
+    else {
+      alert("해당 게시글을 삭제하지 못했습니다.");
+    }
+  });
+}

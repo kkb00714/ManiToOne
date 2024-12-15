@@ -104,14 +104,14 @@ public class UserAuthController {
     return ResponseEntity.ok("회원 탈퇴 처리되었습니다.");
   }
 
-  @GetMapping("/exist-email-and-nick")
-  public ResponseEntity<Map<String, Boolean>> checkValue(
-      @RequestParam String type,
-      @RequestParam String value
+  @GetMapping("/check-nickname")
+  public ResponseEntity<String> checkValue(
+      @RequestParam String nickname
   ) {
-    boolean isTaken = userAuthService.isValueExist(type, value);
-    Map<String, Boolean> response = Map.of("isTaken", isTaken);
-    return ResponseEntity.ok(response);
+    if (userAuthService.isNicknameExist(nickname)) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(IllegalActionMessages.NICKNAME_ALREADY_IN_USE.getMessage());
+    }
+    return ResponseEntity.ok("사용 가능한 닉네임입니다.");
   }
 
 }

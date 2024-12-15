@@ -7,6 +7,7 @@
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
   <link rel="stylesheet" th:href="@{/style/sign-up.css}"/>
   <link rel="stylesheet" th:href="@{/style/sign-in.css}"/>
+  <link rel="stylesheet" th:href="@{/style/loading.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -84,7 +85,10 @@
         />
         <p><span id="birth-error" class="error-message"></span></p>
 
-        <button class="sign-up-button">가입</button>
+        <button id="sign-up-button" class="sign-up-button">
+          <span class="button-text">가입</span>
+          <span id="loading-spinner" class="loading-spinner" style="display: none;"></span>
+        </button>
       </div>
     </form>
   </div>
@@ -203,6 +207,12 @@
       nickname: nickname,
       birth: birth,
     };
+
+    const signUpButton = document.getElementById('sign-up-button');
+    const buttonText = signUpButton.querySelector('.button-text');
+    const loadingSpinner = signUpButton.querySelector('#loading-spinner');
+    buttonText.style.display = 'none';
+    loadingSpinner.style.display = 'inline-block';
 
     fetch('/api/signup', {
       method: "POST",

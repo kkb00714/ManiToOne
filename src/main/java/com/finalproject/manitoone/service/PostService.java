@@ -130,11 +130,10 @@ public class PostService {
 
   // 전체 게시글 조회
   public Page<PostResponseDto> getPosts(Pageable pageable) {
-    Page<Post> posts = postRepository.findAll(pageable);
-
-    if (posts.isEmpty()) {
-      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_FIND_ANY_POST.getMessage());
-    }
+    Page<Post> posts = postRepository.findAllByIsHiddenFalseAndIsBlindFalse(pageable)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_ANY_POST.getMessage()
+        ));
 
     return posts.map(post -> new PostResponseDto(
         post.getPostId(),

@@ -23,6 +23,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
   Optional<List<Post>> findAllByUserUserId(Long userId);
 
+  Optional<Page<Post>> findAllByIsHiddenFalseAndIsBlindFalse(Pageable pageable);
+
   // 타임라인 조회를 위한 쿼리
   @Query("SELECT DISTINCT p FROM Post p " +
       "JOIN Follow f ON f.following.userId = p.user.userId " +

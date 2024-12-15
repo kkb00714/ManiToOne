@@ -18,6 +18,12 @@ public class WebViewController {
 
   @GetMapping("/")
   public String getIndex(Model model, HttpSession session) {
+    Boolean isNewUser = (Boolean) session.getAttribute("isNewUser");
+
+    if (Boolean.TRUE.equals(isNewUser)) {
+      return "/pages/auth/additional-info";
+    }
+
     String nickname = (String) session.getAttribute("nickname");
     if (nickname == null) {
       return "redirect:/login";

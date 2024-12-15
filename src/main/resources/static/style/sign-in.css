@@ -1,0 +1,17 @@
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+#toggle-password {
+  position: absolute;
+  right: 10px;
+  top : 146px;
+  background: none;
+  border: none;
+  color: #3f624c;
+  cursor: pointer;
+  font-size: 0.9em;
+  padding: 0;
+}

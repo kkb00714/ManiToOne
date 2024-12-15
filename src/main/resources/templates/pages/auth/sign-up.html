@@ -6,8 +6,8 @@
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
   <link rel="stylesheet" th:href="@{/style/sign-up.css}"/>
-  <link rel="stylesheet" th:href="@{/style/sign-in.css}"/>
-  <link rel="stylesheet" th:href="@{/style/loading.css}"/>
+  <link rel="stylesheet" th:href="@{/style/password-view.css}"/>
+  <link rel="stylesheet" th:href="@{/style/password-view.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -49,7 +49,7 @@
               aria-label="비밀번호 입력"
               required
           />
-          <button type="button" id="toggle-password" aria-label="비밀번호 표시/숨기기">표시</button>
+          <button type="button" id="toggle-password-sign-up" aria-label="비밀번호 표시/숨기기">표시</button>
         </div>
         <p><span id="password-error" class="error-message"></span></p>
 
@@ -109,7 +109,7 @@
       localStorage.removeItem('verifiedEmail');
     }
 
-    const togglePasswordButton = document.getElementById("toggle-password");
+    const togglePasswordButton = document.getElementById("toggle-password-sign-up");
     const passwordInput = document.getElementById("user-password");
 
     togglePasswordButton.addEventListener("click", function () {

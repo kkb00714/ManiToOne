@@ -129,3 +129,23 @@ function closeRereplyOptionsModal(event) {
 }
 
 document.getElementById('rereply-options-modal').addEventListener('click', closeRereplyOptionsModal);
+
+// 게시글 숨기기
+function hidePost(postId) {
+  fetch(`/api/post/hidden/${postId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then((response) => {
+    if (response.ok) {
+      alert("해당 게시글을 숨김 처리하셨습니다.");
+      window.location.href = '/';
+    }
+    else {
+      alert("해당 게시글 숨김 처리에 실패했습니다.");
+    }
+  });
+}
+
+// 게시글

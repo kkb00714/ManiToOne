@@ -72,14 +72,17 @@ public class UserAuthService {
     return new UserLoginResponseDto(user);
   }
 
-
   @Transactional
   public void deleteUser(String email, String password) {
     User user = validateUserCredentials(email, password);
     user.setStatus(3);
   }
 
-  public boolean isNicknameExist (String nickname) {
+  public boolean isEmailExist(String email) {
+    return userRepository.existsByEmail(email);
+  }
+
+  public boolean isNicknameExist(String nickname) {
     return userRepository.existsByNickname(nickname);
   }
 

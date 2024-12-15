@@ -4,7 +4,12 @@
   align-items: center;
 }
 
-#toggle-password {
+.sign-up-input {
+  flex: 1;
+  padding-right: 10px;
+}
+
+#toggle-password-sign-in {
   position: absolute;
   right: 10px;
   top : 146px;
@@ -14,4 +19,18 @@
   cursor: pointer;
   font-size: 0.9em;
   padding: 0;
+}
+
+button#toggle-password {
+  position: absolute;
+  right: 10px;
+  bottom: 16px;
+  background: none;
+  border: none;
+  color: #3f624c;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  z-index: 1000;
 }

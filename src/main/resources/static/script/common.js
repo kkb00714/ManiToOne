@@ -11,6 +11,8 @@ class BaseModal {
       this.initializeEventListeners();
       this.initializeTextareas();
     }
+
+    this.initializeCloseHandlers();
   }
 
   initializeEventListeners() {
@@ -81,22 +83,7 @@ class BaseModal {
   }
 
   showWarning(message) {
-    const warningPopup = document.getElementById('warningPopup');
-    const warningMessage = document.getElementById('warningMessage');
-    const warningConfirmBtn = document.getElementById('warningConfirmBtn');
-
-    if (warningPopup && warningMessage && warningConfirmBtn) {
-      warningMessage.textContent = message;
-      warningPopup.style.display = 'block';
-
-      const newConfirmButton = warningConfirmBtn.cloneNode(true);
-      warningConfirmBtn.parentNode.replaceChild(newConfirmButton,
-          warningConfirmBtn);
-
-      newConfirmButton.addEventListener('click', () => {
-        warningPopup.style.display = 'none';
-      });
-    }
+    CommonUtils.showWarningMessage(message);
   }
 
   resetForm() {
@@ -119,6 +106,23 @@ class BaseModal {
           img.src = img.getAttribute('data-unchecked-src').replace('@{',
               '').replace('}', '');
           element.style.opacity = '0.3';
+        }
+      });
+    }
+  }
+  initializeCloseHandlers() {
+    // ESC 키 눌렀을 때 닫기
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.modal?.style.display === 'block') {
+        this.close();
+      }
+    });
+
+    // 모달 바깥 클릭시 닫기
+    if (this.background) {
+      this.background.addEventListener('click', (e) => {
+        if (e.target === this.background) {
+          this.close();
         }
       });
     }
@@ -147,7 +151,48 @@ class ProfileUpdateModal extends BaseModal {
   }
 }
 
+const ContentValidator = {
+  validateContentQuality(text) {
+    const trimmedText = text.trim();
+
+    // 연속된 자음/모음 패턴 검사
+    const consonantPattern = /[ㄱ-ㅎ]{3,}/g;
+    const vowelPattern = /[ㅏ-ㅣ]{3,}/g;
+
+    // 같은 글자 반복 패턴 검사 (한글)
+    const repeatedCharPattern = /([\uAC00-\uD7AF])\1{9,}/;
+
+    // 연속된 ㅋ, ㅎ, ㅠ, ㅜ 등의 패턴
+    const repeatedConsonantPattern = /([ㅋㅎㅠㅜ])\1{4,}/g;
+
+    const consonantMatches = text.match(consonantPattern) || [];
+    const vowelMatches = text.match(vowelPattern) || [];
+    const repeatedConsMatches = text.match(repeatedConsonantPattern) || [];
+
+    // 반복 문자의 총 길이 계산
+    const totalRepeatedLength =
+        consonantMatches.join('').length +
+        vowelMatches.join('').length +
+        repeatedConsMatches.join('').length;
+
+    // 반복 문자가 전체의 50% 이상이거나 같은 글자가 10회 이상 반복되면 false 반환
+    if (totalRepeatedLength > trimmedText.length / 2 || repeatedCharPattern.test(trimmedText)) {
+      return {
+        isValid: false,
+        message: '내용에 반복되는 문구가 많은 것 같아요. 정성을 담아 작성해주세요.'
+      };
+    }
+
+    return {
+      isValid: true,
+      message: ''
+    };
+  }
+};
+
 const CommonUtils = {
+  ContentValidator,
+
   initializeAllTextareas() {
     const allTextareas = document.getElementsByTagName('textarea');
     Array.from(allTextareas).forEach(textarea => {
@@ -255,13 +300,27 @@ const CommonUtils = {
       emptyMessage.className = 'empty-message';
       emptyMessage.textContent = '편지함이 비어 있습니다';
       emptyMessage.style.color = '#888';
-      emptyMessage.style.textAlign = 'center';
+      emptyMessage.style.textAlign = 'left';
       emptyMessage.style.padding = '10px 0';
       container.appendChild(emptyMessage);
       return;
     }
 
-    letters.forEach(letter => {
+    // 신고되지 않은 편지만 필터링
+    const validLetters = letters.filter(letter => !letter.report);
+
+    if (validLetters.length === 0) {
+      const emptyMessage = document.createElement('li');
+      emptyMessage.className = 'empty-message';
+      emptyMessage.textContent = '편지함이 비어 있습니다';
+      emptyMessage.style.color = '#888';
+      emptyMessage.style.textAlign = 'left';
+      emptyMessage.style.padding = '10px 0';
+      container.appendChild(emptyMessage);
+      return;
+    }
+
+    validLetters.forEach(letter => {
       const content = letter.letterContent || '';
       const truncatedContent = content.substring(0, 20);
 
@@ -279,7 +338,7 @@ const CommonUtils = {
     loadingMessage.className = 'loading-message';
     loadingMessage.textContent = '편지 로딩 중...';
     loadingMessage.style.color = '#888';
-    loadingMessage.style.textAlign = 'center';
+    loadingMessage.style.textAlign = 'left';
     loadingMessage.style.padding = '10px 0';
     container.appendChild(loadingMessage);
   },
@@ -311,6 +370,23 @@ const CommonUtils = {
     });
   },
 
+  showWarningMessage(message) {
+    const warningPopup = document.getElementById('warningPopup');
+    const warningMessage = document.getElementById('warningMessage');
+    const warningConfirmBtn = document.getElementById('warningConfirmBtn');
+
+    if (warningPopup && warningMessage && warningConfirmBtn) {
+      warningMessage.textContent = message;
+      warningPopup.style.display = 'block';
+
+      const newConfirmBtn = warningConfirmBtn.cloneNode(true);
+      // 오타 수정: newConfirmButton -> newConfirmBtn
+      newConfirmBtn.addEventListener('click', () => {
+        warningPopup.style.display = 'none';
+      });
+      warningConfirmBtn.parentNode.replaceChild(newConfirmBtn, warningConfirmBtn);
+    }
+  }
 };
 
 document.addEventListener('DOMContentLoaded', () => {

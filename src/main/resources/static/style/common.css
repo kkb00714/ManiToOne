@@ -50,6 +50,13 @@ body {
   max-width: fit-content;
 }
 
+.reported-content {
+  padding: 2rem;
+  text-align: center;
+  color: #8f8f8f;
+  font-style: italic;
+}
+
 /* 유저 관련 서식 */
 .user-photo {
   height: 3rem;

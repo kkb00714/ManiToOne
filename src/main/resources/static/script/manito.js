@@ -30,6 +30,12 @@ class ManitoLetterModal extends BaseModal {
       return false;
     }
 
+    if (letterText.value.trim().length < 200) {
+      this.showWarning('편지는 200자 이상 작성해주세요.');
+      letterText.focus();
+      return false;
+    }
+
     if (letterText.value.length > 500) {
       this.showWarning('편지는 500자를 초과할 수 없습니다.');
       letterText.focus();
@@ -614,6 +620,11 @@ const ManitoPage = {
         }
         const letterData = await response.json();
 
+        if (!isMyReply && letterData.answerReport) {
+          ManitoPage.modals.showWarningMessage('신고된 답장입니다.');
+          return;
+        }
+
         const modalContainer = document.getElementById(
             'manitoLetterReplySentModalContainer');
         const modalBackground = document.getElementById(
@@ -750,6 +761,17 @@ const ManitoPage = {
 
 class ManitoLetterRenderer {
   static generateLetterHTML(letter, isReceived = true) {
+
+    if (isReceived && letter.report) {
+      return `
+        <div class="manito-reply-outer-container ${isReceived ? 'received' : 'sent'}" data-letter-id="${letter.manitoLetterId}">
+            <div class="reported-content">
+                <p>신고된 편지입니다</p>
+            </div>
+        </div>`;
+    }
+
+
     const ownerClass = isReceived ? 'received' : 'sent';
 
     const isChecked = Boolean(letter.public);
@@ -758,6 +780,16 @@ class ManitoLetterRenderer {
     const buttonOpacity = isChecked ? '1' : '0.3';
 
     const statusStyle = isChecked ? '' : 'opacity: 0.3;';
+
+
+    let musicCommentText = letter.musicComment;
+    if (!letter.musicComment) {
+      if (!letter.musicUrl) {
+        musicCommentText = '추천 음악이 없습니다';
+      } else {
+        musicCommentText = '코멘트 없음';
+      }
+    }
 
     return `
      <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}" data-report-type="${isReceived
@@ -782,11 +814,9 @@ class ManitoLetterRenderer {
               </p>
             ` : ''}
           </div>
-          <p class="manito-music-comment" ${!letter.musicComment
-        ? 'style="color: #8f8f8f; opacity: 0.7; font-style: italic;"' : ''}>
-              ${letter.musicComment ? letter.musicComment.replace(/\n/g, '<br>')
-        : '추천 음악이 없습니다'}
-          </p>
+          <p class="manito-music-comment" ${!letter.musicComment ? 'style="color: #8f8f8f; opacity: 0.7; font-style: italic;"' : ''}>
+            ${musicCommentText}
+        </p>
           ${letter.formattedCreatedAt ? `
           <p class="post-time">${letter.formattedCreatedAt}</p>
           ` : ''}
@@ -845,6 +875,13 @@ class ManitoLetterReplyModal extends BaseModal {
   validateForm() {
     const replyText = this.modal.querySelector('#manito-letter-reply-input');
 
+    const contentValidation = CommonUtils.ContentValidator.validateContentQuality(letterText.value);
+    if (!contentValidation.isValid) {
+      this.showWarning(contentValidation.message);
+      letterText.focus();
+      return false;
+    }
+
     if (!replyText) {
       console.error('Reply text input element not found');
       this.showWarning('답장 입력 필드를 찾을 수 없습니다.');
@@ -859,6 +896,12 @@ class ManitoLetterReplyModal extends BaseModal {
 
     if (replyText.value.length > 500) {
       this.showWarning('답장은 500자를 초과할 수 없습니다.');
+      replyText.focus();
+      return false;
+    }
+
+    if (replyText.value.trim().length < 200) {
+      this.showWarning('답장은 200자 이상 작성해주세요.');
       replyText.focus();
       return false;
     }
@@ -1074,23 +1117,16 @@ async function requestMatch() {
       }
     });
 
+    const data = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || '매칭 요청 중 오류가 발생했습니다.');
+      CommonUtils.showWarningMessage(data.message || '매칭 요청 중 오류가 발생했습니다.');
+      return;
     }
 
-    // 성공 시 페이지 새로고침
     window.location.reload();
   } catch (error) {
-    // 에러 메시지 표시
-    const warningPopup = document.getElementById('warningPopup');
-    const warningMessage = document.getElementById('warningMessage');
-    if (warningPopup && warningMessage) {
-      warningMessage.textContent = error.message;
-      warningPopup.style.display = 'block';
-    } else {
-      alert(error.message);
-    }
+    CommonUtils.showWarningMessage('서버와의 통신 중 오류가 발생했습니다.');
   }
 }
 

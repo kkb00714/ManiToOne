@@ -166,10 +166,19 @@ public class PostService {
   }
 
   // 게시글 삭제
-  public void deletePost(Long postId) {
+  public void deletePost(Long postId, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    if (!user.equals(post.getUser())) {
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_DELETE_POST_AND_REPLY.getMessage());
+    }
 
     deleteImages(postId);
     deleteReplies(postId);

@@ -85,8 +85,9 @@ public class PostController {
 
   // 게시글 삭제
   @DeleteMapping("/{postId}")
-  public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId) {
-    postService.deletePost(postId);
+  public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId, HttpSession session) {
+    String email = (String) session.getAttribute("email");
+    postService.deletePost(postId, email);
     return ResponseEntity.ok().build();
   }
 

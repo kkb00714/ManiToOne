@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.domain.dto.AuthUpdateDto;
 import com.finalproject.manitoone.domain.dto.UserLoginRequestDto;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,6 +48,7 @@ public class UserAuthController {
 
   @PostMapping("/local-login")
   public ResponseEntity<Object> localLogin(
+      @Valid
       @RequestBody UserLoginRequestDto userLoginRequestDto,
       HttpServletRequest request
   ) {
@@ -62,6 +65,7 @@ public class UserAuthController {
       session.setAttribute("name", userResponse.getName());
       session.setAttribute("profileImage", userResponse.getProfileImage());
       session.setAttribute("introduce", userResponse.getIntroduce());
+      session.setAttribute("isNewUser", false);
 
       // 알림
       userResponse.setRead(notificationService.hasUnreadNotifications(
@@ -74,8 +78,28 @@ public class UserAuthController {
     }
   }
 
+  @PutMapping("/additional-info")
+  public ResponseEntity<String> additionalInfo(
+      @Valid
+      @RequestBody AuthUpdateDto authUpdateDto,
+      HttpSession session
+  ) {
+    try {
+      String email = (String) session.getAttribute("email");
+
+      customOAuth2UserService.updateAdditionalInfo(email, authUpdateDto, session);
+
+      return ResponseEntity.ok("추가 정보 입력이 완료되었습니다.");
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
   @DeleteMapping("/cancel-account")
-  public ResponseEntity<String> deleteUser(@RequestBody UserLoginRequestDto userLoginRequestDto) {
+  public ResponseEntity<String> deleteUser(
+      @Valid
+      @RequestBody UserLoginRequestDto userLoginRequestDto
+  ) {
     userAuthService.deleteUser(userLoginRequestDto.getEmail(), userLoginRequestDto.getPassword());
     return ResponseEntity.ok("회원 탈퇴 처리되었습니다.");
   }

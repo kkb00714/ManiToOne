@@ -93,6 +93,43 @@
                   alt="add friend"
                 />
               </div>
+
+              <!-- 게시글 추가 기능 모달 -->
+              <div
+                class="list-group post-options-modal"
+                id="post-options-modal"
+                style="display: none"
+              >
+                <div class="options-modal-content">
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    aria-current="true"
+                  >
+                    수정하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'hidePost(' + ${post.postId} + ')'"
+                  >
+                    숨기기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'deletePost(' + ${post.postId} + ')'"
+                  >
+                    삭제하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                  >
+                    신고하기
+                  </button>
+                </div>
+              </div>
             </div>
 
             <!-- 답글 -->
@@ -152,6 +189,42 @@
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
+              </div>
+
+              <!-- 답글 추가 기능 모달 -->
+              <div
+                class="list-group post-options-modal"
+                id="reply-options-modal"
+                style="display: none"
+              >
+                <div class="options-modal-content">
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    aria-current="true"
+                  >
+                    수정하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                  >
+                    숨기기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'deleteReply(' + ${reply.replyPostId} +')'"
+                  >
+                    삭제하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                  >
+                    신고하기
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -217,111 +290,42 @@
                   alt="add friend"
                 />
               </div>
-            </div>
-          </div>
 
-          <!-- 게시글 추가 기능 모달 -->
-          <div
-            class="list-group post-options-modal"
-            id="post-options-modal"
-            style="display: none"
-          >
-            <div class="options-modal-content">
-              <button
-                type="button"
-                class="list-group-item list-group-item-action"
-                aria-current="true"
+              <!--답글의 답글 추가 기능 모달 -->
+              <div
+                class="list-group post-options-modal"
+                id="rereply-options-modal"
+                style="display: none"
               >
-                수정하기
-              </button>
-              <button
-                type="button"
-                class="list-group-item list-group-item-action"
-              >
-                숨기기
-              </button>
-              <button
-                type="button"
-                class="list-group-item list-group-item-action"
-              >
-                삭제하기
-              </button>
-              <button
-                type="button"
-                class="list-group-item list-group-item-action"
-              >
-                신고하기
-              </button>
-            </div>
-          </div>
-
-          <!-- 답글 추가 기능 모달 -->
-          <div
-            class="list-group post-options-modal"
-            id="reply-options-modal"
-            style="display: none"
-          >
-            <div class="options-modal-content">
-              <button
-                type="button"
-                class="list-group-item list-group-item-action"
-                aria-current="true"
-              >
-                수정하기
-              </button>
-              <button
-                type="button"
-                class="list-group-item list-group-item-action"
-              >
-                숨기기
-              </button>
-              <button
-                type="button"
-                class="list-group-item list-group-item-action"
-              >
-                삭제하기
-              </button>
-              <button
-                type="button"
-                class="list-group-item list-group-item-action"
-              >
-                신고하기
-              </button>
-            </div>
-          </div>
-
-          <!--답글의 답글 추가 기능 모달 -->
-          <div
-              class="list-group post-options-modal"
-              id="rereply-options-modal"
-              style="display: none"
-          >
-            <div class="options-modal-content">
-              <button
-                  type="button"
-                  class="list-group-item list-group-item-action"
-                  aria-current="true"
-              >
-                수정하기
-              </button>
-              <button
-                  type="button"
-                  class="list-group-item list-group-item-action"
-              >
-                숨기기
-              </button>
-              <button
-                  type="button"
-                  class="list-group-item list-group-item-action"
-              >
-                삭제하기
-              </button>
-              <button
-                  type="button"
-                  class="list-group-item list-group-item-action"
-              >
-                신고하기
-              </button>
+                <div class="options-modal-content">
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    aria-current="true"
+                  >
+                    수정하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                  >
+                    숨기기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'deleteReply(' + ${rereply.replyPostId} + ')'"
+                  >
+                    삭제하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                  >
+                    신고하기
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </section>

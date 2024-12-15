@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/style/sign-in.css}"/>
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
-  <link rel="stylesheet" th:href="@{/style/sign-in.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -39,7 +39,7 @@
             placeholder="비밀번호"
             aria-label="비밀번호"
         />
-        <button type="button" id="toggle-password" aria-label="비밀번호 표시/숨기기">표시️</button>
+        <span><button type="button" id="toggle-password-sign-up" aria-label="비밀번호 표시/숨기기">표시️</button></span>
         <button class="sign-in-button">로그인</button>
       </div>
     </form>

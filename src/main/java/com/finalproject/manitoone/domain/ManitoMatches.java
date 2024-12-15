@@ -18,7 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "manito_matches")
@@ -67,5 +66,11 @@ public class ManitoMatches {
       throw new IllegalStateException("이미 처리된 매칭은 PASS할 수 없습니다.");
     }
     this.status = MatchStatus.PASSED;
+  }
+
+  public void validateMatchStatus() {
+    if (this.status != MatchStatus.MATCHED) {
+      throw new IllegalStateException("유효하지 않은 매칭 상태입니다.");
+    }
   }
 }

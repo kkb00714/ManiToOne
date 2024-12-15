@@ -4,7 +4,10 @@ class ManitoLetterModal extends BaseModal {
   constructor(modalId, backgroundId, openBtnId, closeBtnId) {
     super(modalId, backgroundId, openBtnId, closeBtnId);
     this.initializeSendConfirmation();
-    this.postId = document.querySelector('meta[name="post-id"]')?.content;
+    this.userNameElement = this.modal.querySelector('.user-name');
+    this.recipientName = this.userNameElement ? this.userNameElement.textContent : '';
+    // postId 대신 manitoMatchesId를 사용
+    this.manitoMatchesId = document.querySelector('meta[name="manito-matches-id"]')?.content;
   }
 
   isValidYoutubeUrl(url) {
@@ -74,14 +77,17 @@ class ManitoLetterModal extends BaseModal {
   }
 
   async sendLetter() {
-    const letterText = this.modal.querySelector(
-        '#manito-letter-text-input').value;
+    if (!this.manitoMatchesId) {
+      this.showWarning('매칭 정보를 찾을 수 없습니다.');
+      return false;
+    }
+
+    const letterText = this.modal.querySelector('#manito-letter-text-input').value;
     const musicUrl = this.modal.querySelector('#music-link-input').value;
-    const musicComment = this.modal.querySelector(
-        '#manito-music-comment-input').value;
+    const musicComment = this.modal.querySelector('#manito-music-comment-input').value;
 
     try {
-      const response = await fetch(`/api/manito/letter/${this.postId}`, {
+      const response = await fetch(`/api/manito/letter/${this.manitoMatchesId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,45 +99,17 @@ class ManitoLetterModal extends BaseModal {
         })
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || '편지 전송에 실패했습니다.');
+        throw new Error(data.message || '편지 전송에 실패했습니다.');
       }
 
+      // 성공 시 처리 로직
       if (window.ManitoPage && window.ManitoPage.letterBox) {
         const letterBox = window.ManitoPage.letterBox;
         letterBox.activeTab = 'sent';
-
-        const receivedTab = document.querySelector('.received-letter-box');
-        const sentTab = document.querySelector('.sent-letter-box');
-        const switchElement = document.querySelector(
-            '.manito-letter-box-switch');
-
-        if (receivedTab && sentTab && switchElement) {
-          receivedTab.classList.remove('active');
-          sentTab.classList.add('active');
-          switchElement.classList.remove('received-active');
-          switchElement.classList.add('sent-active');
-        }
-
-        letterBox.currentPage = 0;
-        letterBox.hasMore = true;
-        letterBox.container.innerHTML = '';
-        await letterBox.loadMoreLetters();
-      }
-
-      const elements = {
-        receivedList: document.querySelector(
-            '.manito-letter-section .received-letter ul'),
-        sentList: document.querySelector(
-            '.manito-letter-section .sent-letter ul'),
-        receivedLink: document.querySelector(
-            '.manito-letter-section .received-letter h3 a'),
-        sentLink: document.querySelector(
-            '.manito-letter-section .sent-letter h3 a')
-      };
-      if (elements.receivedList && elements.sentList) {
-        await CommonUtils.loadRecentLetters(elements);
+        await letterBox.refreshLetterBox();
       }
 
       await this.updateLetterButton();
@@ -1071,6 +1049,35 @@ class ReportModal extends BaseModal {
     } catch (error) {
       console.error('Error checking report status:', error);
       this.showWarning(error.message);
+    }
+  }
+}
+
+async function requestMatch() {
+  try {
+    const response = await fetch('/api/manito/match', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || '매칭 요청 중 오류가 발생했습니다.');
+    }
+
+    // 성공 시 페이지 새로고침
+    window.location.reload();
+  } catch (error) {
+    // 에러 메시지 표시
+    const warningPopup = document.getElementById('warningPopup');
+    const warningMessage = document.getElementById('warningMessage');
+    if (warningPopup && warningMessage) {
+      warningMessage.textContent = error.message;
+      warningPopup.style.display = 'block';
+    } else {
+      alert(error.message);
     }
   }
 }

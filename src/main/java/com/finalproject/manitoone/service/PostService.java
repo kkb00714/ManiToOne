@@ -149,7 +149,7 @@ public class PostService {
   // 게시글 상세 조회
   // TODO: 이미지 조회
   public PostResponseDto getPostDetail(Long postId) {
-    Post post = postRepository.findByPostId(postId)
+    Post post = postRepository.findByPostIdAndIsHiddenFalseAndIsBlindFalse(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));

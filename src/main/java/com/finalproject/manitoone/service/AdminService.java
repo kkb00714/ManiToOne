@@ -15,6 +15,7 @@ import com.finalproject.manitoone.domain.ReplyPost;
 import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
+import com.finalproject.manitoone.domain.dto.PostImageResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.PostSearchResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.ReplyPostSearchResponseDto;
@@ -32,6 +33,7 @@ import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
+import com.finalproject.manitoone.util.DataUtil;
 import com.finalproject.manitoone.util.FileUtil;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPAExpressions;
@@ -70,6 +72,7 @@ public class AdminService {
   private final ReportRepository reportRepository;
 
   private final FileUtil fileUtil;
+  private final DataUtil dataUtil;
 
   public Page<UserSearchResponseDto> searchUsers(UserSearchRequestDto userSearchRequestDto,
       Pageable pageable) {
@@ -308,6 +311,12 @@ public class AdminService {
     return new PageImpl<>(dtoList, pageable, total);
   }
 
+  public List<PostImageResponseDto> getPostImages(Long postId) {
+    return postImageRepository.findAllByPost_PostId(postId).orElse(new ArrayList<>()).stream().map(
+        postImage -> PostImageResponseDto.builder().postImageId(postImage.getPostImageId())
+            .fileName(postImage.getFileName()).build()).toList();
+  }
+
   private PostSearchResponseDto toPostSearchResponseDto(Post post) {
     return PostSearchResponseDto.builder()
         .postId(post.getPostId())
@@ -319,6 +328,7 @@ public class AdminService {
         .isSelected(post.getIsSelected())
         .isHidden(post.getIsHidden())
         .isBlind(post.getIsBlind())
+        .timeDifference(dataUtil.getTimeDifference(post.getCreatedAt()))
         .build();
   }
 
@@ -645,7 +655,8 @@ public class AdminService {
     }
 
     // 신고당한 사람 닉네임 검색 (reportedTo)
-    if (reportSearchRequestDto.getReportedTo() != null && !reportSearchRequestDto.getReportedTo().isEmpty()) {
+    if (reportSearchRequestDto.getReportedTo() != null && !reportSearchRequestDto.getReportedTo()
+        .isEmpty()) {
       BooleanBuilder reportedToBuilder = new BooleanBuilder();
 
       if (reportSearchRequestDto.getType() == ReportObjectType.MANITO_LETTER) {
@@ -659,7 +670,8 @@ public class AdminService {
                         .join(manitoMatches.matchedUserId, user) // User 조인 추가
                         .where(
                             manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
-                                .and(user.nickname.containsIgnoreCase(reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
+                                .and(user.nickname.containsIgnoreCase(
+                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
                         )
                         .exists()
                 )
@@ -676,7 +688,8 @@ public class AdminService {
                         .join(post.user, user) // User 조인 추가
                         .where(
                             manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
-                                .and(user.nickname.containsIgnoreCase(reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
+                                .and(user.nickname.containsIgnoreCase(
+                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
                         )
                         .exists()
                 )
@@ -692,7 +705,8 @@ public class AdminService {
                         .join(manitoMatches.matchedUserId, user) // User 조인 추가
                         .where(
                             manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
-                                .and(user.nickname.containsIgnoreCase(reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
+                                .and(user.nickname.containsIgnoreCase(
+                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
                         )
                         .exists()
                 )
@@ -708,7 +722,8 @@ public class AdminService {
                         .join(post.user, user) // User 조인 추가
                         .where(
                             manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
-                                .and(user.nickname.containsIgnoreCase(reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
+                                .and(user.nickname.containsIgnoreCase(
+                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
                         )
                         .exists()
                 )
@@ -719,7 +734,8 @@ public class AdminService {
     }
 
     // 키워드 검색 (content)
-    if (reportSearchRequestDto.getContent() != null && !reportSearchRequestDto.getContent().isEmpty()) {
+    if (reportSearchRequestDto.getContent() != null && !reportSearchRequestDto.getContent()
+        .isEmpty()) {
       BooleanBuilder contentSearchBuilder = new BooleanBuilder();
 
       String keyword = reportSearchRequestDto.getContent().toLowerCase();

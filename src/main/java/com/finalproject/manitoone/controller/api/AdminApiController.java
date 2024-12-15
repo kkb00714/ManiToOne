@@ -56,6 +56,11 @@ public class AdminApiController {
     return ResponseEntity.ok(adminService.searchPosts(postSearchRequestDto, pageable));
   }
 
+  @GetMapping("/post/{postId}/image")
+  public ResponseEntity<Object> getPostImages(@PathVariable Long postId) {
+    return ResponseEntity.ok(adminService.getPostImages(postId));
+  }
+
   @PutMapping("/blind/post/{postId}")
   public ResponseEntity<Object> blindPost(@PathVariable Long postId) {
     return ResponseEntity.ok(adminService.updateBlind(postId));

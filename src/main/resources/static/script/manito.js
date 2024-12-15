@@ -112,6 +112,18 @@ class ManitoLetterModal extends BaseModal {
         await letterBox.refreshLetterBox();
       }
 
+      // 우측 섹션 편지함 새로고침
+      const elements = {
+        receivedList: document.querySelector('.manito-letter-section .received-letter ul'),
+        sentList: document.querySelector('.manito-letter-section .sent-letter ul'),
+        receivedLink: document.querySelector('.manito-letter-section .received-letter h3 a'),
+        sentLink: document.querySelector('.manito-letter-section .sent-letter h3 a')
+      };
+
+      if (CommonUtils) {
+        await CommonUtils.loadRecentLetters(elements);
+      }
+
       await this.updateLetterButton();
       return true;
 

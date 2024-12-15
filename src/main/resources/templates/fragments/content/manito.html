@@ -4,11 +4,20 @@
     <p th:text="${errorMessage}"></p>
   </div>
 
-  <div th:if="${canRequestMatch == true}">
-    <button onclick="requestMatch()" class="match-request-button">
-      마니또 매칭 받기
-    </button>
+  <div th:if="${canRequestMatch == true}" class="pre-match-container">
+    <div class="pre-match-content">
+      <h2 class="pre-match-title">🍀두근두근! 오늘 나는 누구의 마니또일까요?🍀</h2>
+      <p class="pre-match-description">'지금 확인하기' 버튼을 눌러 확인해보세요!</p>
+      <button onclick="requestMatch()" class="reply-button match-request-button">
+        지금 확인하기
+      </button>
+      <div class="match-notice">
+        <p>※ 게시글을 배정받고 24시간이 경과해야 새로운 게시글을 배정받을 수 있습니다.</p>
+        <p>※ 게시글에 편지를 쓰지 않거나 포기하고 넘기더라도 24시간 후에 새로 배정받을 수 있습니다.</p>
+      </div>
+    </div>
   </div>
+
 
   <th:block th:if="${todaysPost != null}">
     <meta name="post-id" th:content="${todaysPost.postId}"/>

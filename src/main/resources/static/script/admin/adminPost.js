@@ -207,65 +207,65 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // 게시글 블라인드 처리
-  document.addEventListener("click", function (event) {
-    if (event.target.classList.contains("change-status")) {
-      event.preventDefault();
-
-      const postId = event.target.dataset.id;
-      const currentRow = event.target.closest('tr');
-      const blindStatusCell = currentRow.querySelector('.blind-status');
-
-      fetch(`/admin/blind/post/${postId}`, {
-        method: "PUT",
-      })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        blindStatusCell.textContent = data.isBlind ? 'O' : 'X';
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-    }
-  });
+  // document.addEventListener("click", function (event) {
+  //   if (event.target.classList.contains("change-status")) {
+  //     event.preventDefault();
+  //
+  //     const postId = event.target.dataset.id;
+  //     const currentRow = event.target.closest('tr');
+  //     const blindStatusCell = currentRow.querySelector('.blind-status');
+  //
+  //     fetch(`/admin/blind/post/${postId}`, {
+  //       method: "PUT",
+  //     })
+  //     .then((response) => {
+  //       if (!response.ok) {
+  //         throw new Error("Failed to fetch data");
+  //       }
+  //       return response.json();
+  //     })
+  //     .then((data) => {
+  //       blindStatusCell.textContent = data.isBlind ? 'O' : 'X';
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error:", error);
+  //     });
+  //   }
+  // });
 
   // 게시글 삭제 처리
-  document.addEventListener("click", function (event) {
-    if (event.target.classList.contains("delete-post")) {
-      event.preventDefault();
-
-      const postId = event.target.dataset.id;
-
-      if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
-        fetch(`/admin/report/post/${postId}`, {
-          method: "GET",
-        })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to delete post");
-          }
-          return response.json();
-        })
-        .then((isReportedPost) => {
-          if (isReportedPost) {
-            if (confirm("해당 게시글은 신고된 게시글입니다. 정말 삭제하시겠습니까? (신고 목록도 삭제)")) {
-              deletePost(postId);
-            }
-          } else {
-            deletePost(postId);
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("게시글 삭제 중 오류가 발생했습니다.");
-        });
-      }
-    }
-  });
+  // document.addEventListener("click", function (event) {
+  //   if (event.target.classList.contains("delete-post")) {
+  //     event.preventDefault();
+  //
+  //     const postId = event.target.dataset.id;
+  //
+  //     if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+  //       fetch(`/admin/report/post/${postId}`, {
+  //         method: "GET",
+  //       })
+  //       .then((response) => {
+  //         if (!response.ok) {
+  //           throw new Error("Failed to delete post");
+  //         }
+  //         return response.json();
+  //       })
+  //       .then((isReportedPost) => {
+  //         if (isReportedPost) {
+  //           if (confirm("해당 게시글은 신고된 게시글입니다. 정말 삭제하시겠습니까? (신고 목록도 삭제)")) {
+  //             deletePost(postId);
+  //           }
+  //         } else {
+  //           deletePost(postId);
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error:", error);
+  //         alert("게시글 삭제 중 오류가 발생했습니다.");
+  //       });
+  //     }
+  //   }
+  // });
 
   function deletePost(postId) {
     fetch(`/admin/post/${postId}`, {
@@ -383,16 +383,79 @@ document.addEventListener("DOMContentLoaded", function () {
 
   tableBody.addEventListener("click", function (event) {
     const row = event.target.closest("tr");
+
+    // 변경 버튼 클릭 처리
+    if (event.target.classList.contains("change-status")) {
+      event.preventDefault(); // 기본 동작 방지
+      event.stopPropagation(); // 이벤트 전파 방지
+
+      const postId = event.target.dataset.id;
+      const currentRow = event.target.closest('tr');
+      const blindStatusCell = currentRow.querySelector('.blind-status');
+
+      fetch(`/admin/blind/post/${postId}`, {
+        method: "PUT",
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        blindStatusCell.textContent = data.isBlind ? 'O' : 'X';
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+      return; // 버튼 클릭 이후 나머지 로직 실행 방지
+    }
+
+    // 삭제 버튼 클릭 처리
+    if (event.target.classList.contains("delete-post")) {
+      event.preventDefault(); // 기본 동작 방지
+      event.stopPropagation(); // 이벤트 전파 방지
+
+      const postId = event.target.dataset.id;
+
+      if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+        fetch(`/admin/report/post/${postId}`, {
+          method: "GET",
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to delete post");
+          }
+          return response.json();
+        })
+        .then((isReportedPost) => {
+          if (isReportedPost) {
+            if (confirm("해당 게시글은 신고된 게시글입니다. 정말 삭제하시겠습니까? (신고 목록도 삭제)")) {
+              deletePost(postId);
+            }
+          } else {
+            deletePost(postId);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("게시글 삭제 중 오류가 발생했습니다.");
+        });
+      }
+      return; // 버튼 클릭 이후 나머지 로직 실행 방지
+    }
+
+    // Row 클릭 시 모달 열기
     if (row) {
-      const postData = JSON.parse(row.dataset.post);  // 이미 바인딩된 데이터
+      const postData = JSON.parse(row.dataset.post); // 이미 바인딩된 데이터
       const postId = postData.postId;
 
       fetch(`/admin/post/${postId}/image`)
-      .then(response => response.json())
-      .then(imageData => {
+      .then((response) => response.json())
+      .then((imageData) => {
         openProfileModal(postData, imageData);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("이미지 로드 오류:", error);
       });
     }

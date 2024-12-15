@@ -580,6 +580,7 @@ public class AdminService {
         .content(replyPost.getContent())
         .createdAt(replyPost.getCreatedAt())
         .isBlind(replyPost.getIsBlind())
+        .timeDifference(dataUtil.getTimeDifference(replyPost.getCreatedAt()))
         .build();
   }
 

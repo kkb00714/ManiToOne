@@ -19,4 +19,5 @@ public class ReplyPostSearchResponseDto {
   private String content;
   private LocalDateTime createdAt;
   private Boolean isBlind;
+  private String timeDifference;
 }

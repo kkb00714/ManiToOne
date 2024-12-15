@@ -3,7 +3,6 @@ package com.finalproject.manitoone.service;
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.domain.AiPostLog;
-import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.ReplyPost;
@@ -150,7 +149,7 @@ public class PostService {
     deleteImages(postId);
     deleteReplies(postId);
     deleteLikes(postId);
-    deleteManitoLetters(postId);
+//    deleteManitoLetters(postId);
     postRepository.delete(post);
   }
 
@@ -185,14 +184,14 @@ public class PostService {
   }
 
   // 마니또 편지 삭제
-  private void deleteManitoLetters(Long postId) {
-    List<ManitoLetter> manitoLetterList = manitoLetterRepository.findAllByPostIdPostId(postId)
-        .orElseThrow(() -> new IllegalArgumentException(
-            IllegalActionMessages.CANNOT_FIND_MANITO_LETTER_WITH_GIVEN_ID.getMessage()
-        ));
-
-    manitoLetterRepository.deleteAll(manitoLetterList);
-  }
+//  private void deleteManitoLetters(Long postId) {
+//    List<ManitoLetter> manitoLetterList = manitoLetterRepository.findAllByPostIdPostId(postId)
+//        .orElseThrow(() -> new IllegalArgumentException(
+//            IllegalActionMessages.CANNOT_FIND_MANITO_LETTER_WITH_GIVEN_ID.getMessage()
+//        ));
+//
+//    manitoLetterRepository.deleteAll(manitoLetterList);
+//  }
 
   // 게시글 숨기기
   public void hidePost(Long postId) {

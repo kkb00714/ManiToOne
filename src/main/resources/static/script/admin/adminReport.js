@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const pagination = document.querySelector(".pagination");
   const searchButton = document.querySelector("#searchButton");
   const searchQuery = document.querySelector("#searchQuery");
+  const modalContainer = document.querySelector(".post-modal");
+  const modalBackground = document.querySelector("#modalOverlay");
+  const closeModalButton = document.querySelector("#closeProfileUpdateBtn");
 
   let requestBody = {}
   let currentPage = 1;
@@ -79,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .map((report) => {
           if (!report.post && !report.replyPost) {
             return `
-                <tr data-user='${JSON.stringify(report)}'>
+                <tr data-report='${JSON.stringify(report)}'>
                     <td>${report.reportId}</td>
                     <td colspan="9" class="text-center">
                       삭제된 ${report.type ? report.type.label : ''}
@@ -89,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
           } else {
             return `
-                <tr data-user='${JSON.stringify(report)}'>
+                <tr data-report='${JSON.stringify(report)}'>
                     <td>${report.reportId}</td>
                     <td data-value="${report.type.data}">${report.type.label}</td> 
                     <td data-value="${report.reportType.data}">${report.reportType.label
@@ -417,6 +420,156 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     loadPage(1);
+  });
+
+  function initializeSlider(reportData, imageUrls) {
+    // DOM 요소 가져오기
+    const imageSlider = document.querySelector(".image-slider");
+    const imageContainer = document.getElementById("imageContainer");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    // 이미지 초기화
+    imageContainer.innerHTML = ""; // 이전 이미지 초기화
+
+    // 이미지 추가
+    imageUrls.forEach((url) => {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "Slider Image";
+      imageContainer.appendChild(img);
+    });
+
+    // 이미지가 없을 경우 슬라이더 숨김
+    if (imageUrls.length === 0) {
+      imageSlider.style.display = "none";
+      return; // 더 이상 진행하지 않음
+    } else {
+      imageSlider.style.display = "block"; // 슬라이더 표시
+    }
+
+    // 슬라이더 초기 상태 설정
+    let currentIndex = 0; // 초기화 위치를 위로 이동
+
+    // 버튼 클릭 이벤트
+    prevBtn.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateSlider();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (currentIndex < imageUrls.length - 1) {
+        currentIndex++;
+        updateSlider();
+      }
+    });
+
+    // 슬라이더 업데이트 함수
+    function updateSlider() {
+      const offset = -currentIndex * imageSlider.offsetWidth;
+      imageContainer.style.transform = `translateX(${offset}px)`;
+      updateButtons();
+    }
+
+    // 버튼 상태 업데이트
+    function updateButtons() {
+      prevBtn.style.display = currentIndex > 0 ? "block" : "none";
+      nextBtn.style.display = currentIndex < imageUrls.length - 1 ? "block" : "none";
+    }
+
+    // 초기 버튼 상태 및 슬라이더 위치 설정
+    updateButtons();
+    updateSlider();
+  }
+
+  function openProfileModal(reportData, imageData) {
+    // 첫 번째 데이터 - postData
+    const profileImageElement = document.querySelector(".profile-image");
+    const userIdElement = document.querySelector(".user-id");
+    const postTimeElement = document.querySelector(".post-time");
+    const postContentElement = document.querySelector(".post-content");
+
+    const replyBox = document.querySelector(".reply-box");
+    const replyProfileImageElement = document.querySelector(".reply-profile-image");
+    const replyUserIdElement = document.querySelector(".reply-user-id");
+    const replyPostTimeElement = document.querySelector(".reply-post-time");
+    const replyContentElement = document.querySelector(".reply-content");
+
+    // 기본적으로 reply-box 숨김 처리
+    replyBox.style.display = "none";
+
+
+    // type에 따라 데이터 설정
+    if (reportData.type.data === "POST") {
+      // POST 데이터 설정
+      profileImageElement.src = reportData.post.user.profileImage || "/images/icons/UI-user2.png";
+      userIdElement.textContent = reportData.post.user.nickname;
+      postContentElement.textContent = reportData.post.content;
+      postTimeElement.textContent = reportData.post.timeDifference;
+    } else if (reportData.type.data === "REPLY") {
+      // REPLY 데이터 설정
+      profileImageElement.src = reportData.replyPost.post.user.profileImage || "/images/icons/UI-user2.png";
+      userIdElement.textContent = reportData.replyPost.post.user.nickname;
+      postContentElement.textContent = reportData.replyPost.post.content;
+      postTimeElement.textContent = reportData.replyPost.post.timeDifference;
+
+      // reply-box 데이터 매칭
+      replyProfileImageElement.src = reportData.replyPost.user.profileImage || "/images/icons/UI-user2.png";
+      replyUserIdElement.textContent = reportData.replyPost.user.nickname;
+      replyPostTimeElement.textContent = reportData.replyPost.timeDifference;
+      replyContentElement.textContent = reportData.replyPost.content;
+
+      // reply-box 표시
+      replyBox.style.display = "block";
+    }
+
+    const imageUrls = imageData.map(image => image.fileName);
+
+    // 이미지 슬라이더 초기화
+    initializeSlider(reportData, imageUrls);
+
+    modalContainer.style.display = "block";
+    modalBackground.style.display = "block";
+
+    closeModalButton.addEventListener("click", function () {
+      modalContainer.style.display = "none";
+      modalBackground.style.display = "none";
+      replyBox.style.display = "none"; // 모달 닫힐 때 reply-box 숨김 처리
+    });
+
+    modalBackground.addEventListener("click", function (event) {
+      if (event.target === modalBackground) {
+        modalContainer.style.display = "none";
+        modalBackground.style.display = "none";
+        replyBox.style.display = "none"; // 모달 닫힐 때 reply-box 숨김 처리
+      }
+    });
+  }
+
+  tableBody.addEventListener("click", function (event) {
+    const row = event.target.closest("tr");
+    if (row) {
+      const reportData = JSON.parse(row.dataset.report);  // 이미 바인딩된 데이터
+
+      // type에 따라 postId 설정
+      let postId;
+      if (reportData.type.data === "POST") {
+        postId = reportData.post.postId; // type이 POST일 경우
+      } else if (reportData.type.data === "REPLY") {
+        postId = reportData.replyPost.post.postId; // type이 REPLY일 경우
+      }
+
+      fetch(`/admin/post/${postId}/image`)
+      .then(response => response.json())
+      .then(imageData => {
+        openProfileModal(reportData, imageData);
+      })
+      .catch(error => {
+        console.error("이미지 로드 오류:", error);
+      });
+    }
   });
 })
 ;

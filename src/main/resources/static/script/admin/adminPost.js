@@ -349,9 +349,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function openProfileModal(postData, imageData) {
-    console.log(postData);
-    console.log(imageData)
-
     // 첫 번째 데이터 - postData
     const profileImageElement = document.querySelector(".profile-image");
     const userIdElement = document.querySelector(".user-id");
@@ -388,9 +385,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const row = event.target.closest("tr");
     if (row) {
       const postData = JSON.parse(row.dataset.post);  // 이미 바인딩된 데이터
-      console.log(postData);
       const postId = postData.postId;
-      console.log(postId);
 
       fetch(`/admin/post/${postId}/image`)
       .then(response => response.json())

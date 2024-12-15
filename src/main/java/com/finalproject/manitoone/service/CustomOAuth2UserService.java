@@ -1,9 +1,14 @@
 package com.finalproject.manitoone.service;
 
+import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.User;
+import com.finalproject.manitoone.domain.dto.AuthUpdateDto;
 import com.finalproject.manitoone.domain.dto.PrincipalDetails;
+import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +39,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     String name = oAuth2User.getAttribute("name");
     String password = UUID.randomUUID().toString();
 
+    // todo : 이미 이메일이 존재하는 유저 == 로그인을 1회 이상 한 사람이기 때문에 isNewUser를 False 처리
+    boolean isNewUser = userRepository.findByEmail(email).isEmpty();
+
     User user = userRepository.findByEmail(email)
         .map(existingUser -> updateUser(existingUser, provider, loginId))
         .orElseGet(() -> createUser(email, password, name, provider, loginId));
 
-    saveUserInfoToSession(user);
+    saveUserInfoToSession(user, isNewUser);
 
     return new PrincipalDetails(user, oAuth2User.getAttributes());
   }
@@ -65,11 +73,43 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     return userRepository.save(newUser);
   }
 
-  private void saveUserInfoToSession(User user) {
+  private void saveUserInfoToSession(User user, boolean isNewUser) {
     session.setAttribute("email", user.getEmail());
     session.setAttribute("name", user.getName());
     session.setAttribute("nickname", user.getNickname());
     session.setAttribute("profileImage", user.getProfileImage());
     session.setAttribute("introduce", user.getIntroduce());
+    session.setAttribute("isNewUser", isNewUser); // 최초 가입 여부 저장
+  }
+
+  @Transactional
+  public void updateAdditionalInfo(String email, AuthUpdateDto authUpdateDto, HttpSession session) {
+    // 세션 확인
+    if (email == null) {
+      throw new IllegalArgumentException("세션 정보가 만료되었습니다.");
+    }
+
+    // User 객체 가져와서 업데이트
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(
+            () -> new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
+
+    if (authUpdateDto.getPassword() != null && !authUpdateDto.getPassword().isEmpty()) {
+      String encryptedPassword = passwordEncoder.encode(authUpdateDto.getPassword());
+      user.setPassword(encryptedPassword); // 비밀번호 설정
+    }
+
+    // 닉네임, 생년월일 업데이트
+    if (authUpdateDto.getNickname() != null) {
+      user.setNickname(authUpdateDto.getNickname());
+    }
+    if (authUpdateDto.getBirth() != null) {
+      user.setBirth(authUpdateDto.getBirth());
+    }
+
+    // 업데이트된 User 객체 저장
+    userRepository.save(user);
+
+    saveUserInfoToSession(user, false);
   }
 }

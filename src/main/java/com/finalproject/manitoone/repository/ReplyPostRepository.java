@@ -15,6 +15,8 @@ public interface ReplyPostRepository extends JpaRepository<ReplyPost, Long> {
 
   Optional<List<ReplyPost>> findAllByPostPostId(Long postId);
 
+  Optional<ReplyPost> findByReplyPostId(Long replyId);
+
   Optional<ReplyPost> findByReplyPostIdAndIsBlindFalse(Long replyPostId);
 
   Optional<Page<ReplyPost>> findAllByPostPostIdAndParentIdIsNullAndIsBlindFalse(Long postId,
@@ -30,6 +32,8 @@ public interface ReplyPostRepository extends JpaRepository<ReplyPost, Long> {
   Optional<Page<ReplyPost>> findAllByParentIdAndIsBlindFalse(Long parentId, Pageable pageable);
 
   Optional<List<ReplyPost>> findAllByPostPostIdAndParentIdIsNotNull(Long postId);
+
+  Optional<List<ReplyPost>> findAllByParentId(Long parentId);
 
   Optional<List<ReplyPost>> findAllByParentIdAndIsBlindFalse(Long parentId);
 }

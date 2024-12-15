@@ -85,6 +85,7 @@
                   class="tiny-icons"
                   th:src="@{/images/icons/UI-more2.png}"
                   alt="more options"
+                  th:onclick="'openPostOptionsModal()'"
                 />
                 <img
                   class="tiny-icons"
@@ -144,6 +145,7 @@
                   class="tiny-icons"
                   th:src="@{/images/icons/UI-more2.png}"
                   alt="more options"
+                  th:onclick="'openReplyOptionsModal()'"
                 />
                 <img
                   class="tiny-icons"
@@ -207,6 +209,7 @@
                   class="tiny-icons"
                   th:src="@{/images/icons/UI-more2.png}"
                   alt="more options"
+                  th:onclick="'openRereplyOptionsModal()'"
                 />
                 <img
                   class="tiny-icons"
@@ -217,7 +220,110 @@
             </div>
           </div>
 
-          <!-- 드롭다운 메뉴 -->
+          <!-- 게시글 추가 기능 모달 -->
+          <div
+            class="list-group post-options-modal"
+            id="post-options-modal"
+            style="display: none"
+          >
+            <div class="options-modal-content">
+              <button
+                type="button"
+                class="list-group-item list-group-item-action"
+                aria-current="true"
+              >
+                수정하기
+              </button>
+              <button
+                type="button"
+                class="list-group-item list-group-item-action"
+              >
+                숨기기
+              </button>
+              <button
+                type="button"
+                class="list-group-item list-group-item-action"
+              >
+                삭제하기
+              </button>
+              <button
+                type="button"
+                class="list-group-item list-group-item-action"
+              >
+                신고하기
+              </button>
+            </div>
+          </div>
+
+          <!-- 답글 추가 기능 모달 -->
+          <div
+            class="list-group post-options-modal"
+            id="reply-options-modal"
+            style="display: none"
+          >
+            <div class="options-modal-content">
+              <button
+                type="button"
+                class="list-group-item list-group-item-action"
+                aria-current="true"
+              >
+                수정하기
+              </button>
+              <button
+                type="button"
+                class="list-group-item list-group-item-action"
+              >
+                숨기기
+              </button>
+              <button
+                type="button"
+                class="list-group-item list-group-item-action"
+              >
+                삭제하기
+              </button>
+              <button
+                type="button"
+                class="list-group-item list-group-item-action"
+              >
+                신고하기
+              </button>
+            </div>
+          </div>
+
+          <!--답글의 답글 추가 기능 모달 -->
+          <div
+              class="list-group post-options-modal"
+              id="rereply-options-modal"
+              style="display: none"
+          >
+            <div class="options-modal-content">
+              <button
+                  type="button"
+                  class="list-group-item list-group-item-action"
+                  aria-current="true"
+              >
+                수정하기
+              </button>
+              <button
+                  type="button"
+                  class="list-group-item list-group-item-action"
+              >
+                숨기기
+              </button>
+              <button
+                  type="button"
+                  class="list-group-item list-group-item-action"
+              >
+                삭제하기
+              </button>
+              <button
+                  type="button"
+                  class="list-group-item list-group-item-action"
+              >
+                신고하기
+              </button>
+            </div>
+          </div>
         </section>
       </section>
       <article

@@ -56,6 +56,7 @@ let isManito = false;
 async function thisIsManito() {
   isManito = true;
 }
+
 console.log(isManito);
 
 // 게시글 작성
@@ -89,3 +90,42 @@ async function submitPost() {
     alert("게시글 작성 중 오류가 발생했습니다.");
   }
 }
+
+// 게시글 추가 기능 모달
+function openPostOptionsModal() {
+  document.getElementById('post-options-modal').style.display = 'flex';
+}
+
+function closePostOptionsModal(event) {
+  if (event.target.id === 'post-options-modal') {
+    document.getElementById('post-options-modal').style.display = 'none';
+  }
+}
+
+document.getElementById('post-options-modal').addEventListener('click', closePostOptionsModal);
+
+// 답글 추가 기능 모달
+function openReplyOptionsModal() {
+  document.getElementById('reply-options-modal').style.display = 'flex';
+}
+
+function closeReplyOptionsModal(event) {
+  if (event.target.id === 'reply-options-modal') {
+    document.getElementById('reply-options-modal').style.display = 'none';
+  }
+}
+
+document.getElementById('reply-options-modal').addEventListener('click', closeReplyOptionsModal);
+
+// 답글의 답글 추가 기능 모달
+function openRereplyOptionsModal() {
+  document.getElementById('rereply-options-modal').style.display = 'flex';
+}
+
+function closeRereplyOptionsModal(event) {
+  if (event.target.id === 'rereply-options-modal') {
+    document.getElementById('rereply-options-modal').style.display = 'none';
+  }
+}
+
+document.getElementById('rereply-options-modal').addEventListener('click', closeRereplyOptionsModal);

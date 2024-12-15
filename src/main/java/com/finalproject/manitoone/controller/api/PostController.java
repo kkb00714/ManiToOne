@@ -41,6 +41,10 @@ public class PostController {
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 
+    System.out.println("email: " + email);
+    System.out.println("content: " + request.getContent());
+    System.out.println(request.getIsManito());
+
     return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, email));
   }
 

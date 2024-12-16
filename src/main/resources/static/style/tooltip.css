@@ -4,6 +4,7 @@
 
 .tooltip {
   position: absolute;
+  text-align: center;
   min-width: 72px;
   top: -60px;
   background: white;

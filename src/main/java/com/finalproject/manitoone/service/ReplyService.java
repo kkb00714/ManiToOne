@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.ReplyPost;
@@ -17,12 +18,16 @@ import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
+import com.finalproject.manitoone.util.NotificationUtil;
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReplyService {
@@ -32,6 +37,8 @@ public class ReplyService {
   private final ReportRepository reportRepository;
   private final UserPostLikeRepository userPostLikeRepository;
   private final UserRepository userRepository;
+
+  private final NotificationUtil notificationUtil;
 
   // 답글 생성
   public ReplyResponseDto createReply(Long postId, AddReplyRequestDto request, String email) {
@@ -48,6 +55,13 @@ public class ReplyService {
         .user(user)
         .content(request.getContent())
         .build());
+
+    try
+    {
+      notificationUtil.createNotification(post.getUser().getNickname(), user, NotiType.POST_REPLY, user.getUserId());
+    } catch (IOException e) {
+      log.error(e.getMessage());
+    }
 
     return ReplyResponseDto.builder()
         .post(reply.getPost())

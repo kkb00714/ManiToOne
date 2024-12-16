@@ -21,4 +21,6 @@ public class PostSearchResponseDto {
   private Boolean isSelected = false;
   private Boolean isHidden = false;
   private Boolean isBlind = false;
+  private String timeDifference;
+
 }

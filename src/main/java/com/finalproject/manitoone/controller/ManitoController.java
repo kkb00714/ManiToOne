@@ -81,6 +81,14 @@ public class ManitoController {
     }
   }
 
+  // 마니또 매칭
+  @PostMapping("/manito/match")
+  public ResponseEntity<ManitoMatchResponseDto> createMatch(HttpSession session) {
+    String nickname = validateSession(session);
+    ManitoMatches match = manitoMatchesService.createMatch(nickname);
+    return ResponseEntity.ok(ManitoMatchResponseDto.from(match));
+  }
+
   // Pass 기능
   @PutMapping("/manito/pass/{manitoMatchesId}")
   public ResponseEntity<Void> passManitoMatch(
@@ -91,14 +99,6 @@ public class ManitoController {
     manitoMatchesService.passMatch(manitoMatchesId, nickname);
     return ResponseEntity.ok().build();
   }
-
-  @PostMapping("/manito/match")
-  public ResponseEntity<ManitoMatchResponseDto> createMatch(HttpSession session) {
-    String nickname = validateSession(session);
-    ManitoMatches match = manitoMatchesService.createMatch(nickname);
-    return ResponseEntity.ok(ManitoMatchResponseDto.from(match));
-  }
-
 
   // 편지에 대한 답장
   @PutMapping("/manito/answer/{manitoPostId}")
@@ -183,7 +183,6 @@ public class ManitoController {
     ManitoLetterResponseDto letter = manitoService.getLetterWithPermissionCheck(letterId, nickname);
     return ResponseEntity.ok(letter);
   }
-
 
   // 신고 상태 조회
   @GetMapping("/manito/report/status/{letterId}")

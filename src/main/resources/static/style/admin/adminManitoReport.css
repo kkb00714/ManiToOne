@@ -1,0 +1,67 @@
+.admin-manito-report-image {
+  opacity: 100% !important;
+}
+
+.type {
+  font-size: 12px;
+}
+
+.type a {
+  color: #A5A5A5;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.type a.active {
+  color: black;
+  pointer-events: none;
+}
+
+.type a:hover {
+  text-decoration: underline; /* 마우스 오버 시 강조 */
+}
+
+.form-select {
+  width: 125px !important;
+}
+
+.reportType-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  padding: 5px 10px;
+  background-color: #F5F5F5;
+  border-radius: 10px;
+  width: 125px;
+  text-align: center;
+  font-size: 12px;
+  height: 30px;
+}
+
+.caption-header {
+  margin-right: 415px !important;
+}
+
+.delete-manito {
+  position: relative;
+  z-index: 2;
+}
+
+.delete-manito:hover {
+  text-decoration: underline;
+}
+
+.manito-report-table-body tr {
+  position: relative;
+  z-index: 1;
+}
+
+.delete-report {
+  position: relative;
+  z-index: 2;
+}
+
+.delete-report:hover {
+  text-decoration: underline;
+}

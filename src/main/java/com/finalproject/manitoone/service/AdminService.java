@@ -2,8 +2,11 @@ package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
+import com.finalproject.manitoone.domain.QManitoLetter;
+import com.finalproject.manitoone.domain.QManitoMatches;
 import com.finalproject.manitoone.domain.QPost;
 import com.finalproject.manitoone.domain.QReplyPost;
 import com.finalproject.manitoone.domain.QReport;
@@ -12,6 +15,7 @@ import com.finalproject.manitoone.domain.ReplyPost;
 import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
+import com.finalproject.manitoone.domain.dto.PostImageResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.PostSearchResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.ReplyPostSearchResponseDto;
@@ -29,9 +33,11 @@ import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
+import com.finalproject.manitoone.util.DataUtil;
 import com.finalproject.manitoone.util.FileUtil;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.io.File;
 import java.nio.file.Paths;
@@ -66,6 +72,7 @@ public class AdminService {
   private final ReportRepository reportRepository;
 
   private final FileUtil fileUtil;
+  private final DataUtil dataUtil;
 
   public Page<UserSearchResponseDto> searchUsers(UserSearchRequestDto userSearchRequestDto,
       Pageable pageable) {
@@ -304,6 +311,12 @@ public class AdminService {
     return new PageImpl<>(dtoList, pageable, total);
   }
 
+  public List<PostImageResponseDto> getPostImages(Long postId) {
+    return postImageRepository.findAllByPost_PostId(postId).orElse(new ArrayList<>()).stream().map(
+        postImage -> PostImageResponseDto.builder().postImageId(postImage.getPostImageId())
+            .fileName(postImage.getFileName()).build()).toList();
+  }
+
   private PostSearchResponseDto toPostSearchResponseDto(Post post) {
     return PostSearchResponseDto.builder()
         .postId(post.getPostId())
@@ -315,6 +328,7 @@ public class AdminService {
         .isSelected(post.getIsSelected())
         .isHidden(post.getIsHidden())
         .isBlind(post.getIsBlind())
+        .timeDifference(dataUtil.getTimeDifference(post.getCreatedAt()))
         .build();
   }
 
@@ -420,7 +434,13 @@ public class AdminService {
 
     // 신고 대상 타입 필터링 (ReportObjectType)
     if (reportSearchRequestDto.getType() != null) {
+      // 특정 타입이 지정된 경우 해당 타입만 필터링
       builder.and(report.type.eq(reportSearchRequestDto.getType()));
+    } else {
+      // 타입이 null인 경우 MANITO_LETTER와 MANITO_ANSWER 모두 포함
+      builder.and(
+          report.type.in(ReportObjectType.POST, ReportObjectType.REPLY)
+      );
     }
 
     // 신고한 사람 닉네임 검색 (reportedBy)
@@ -560,6 +580,7 @@ public class AdminService {
         .content(replyPost.getContent())
         .createdAt(replyPost.getCreatedAt())
         .isBlind(replyPost.getIsBlind())
+        .timeDifference(dataUtil.getTimeDifference(replyPost.getCreatedAt()))
         .build();
   }
 
@@ -594,5 +615,252 @@ public class AdminService {
     if (!reports.isEmpty()) {
       reportRepository.deleteAll(reports);
     }
+  }
+
+
+  public Page<ReportSearchResponseDto> searchManitoReports(
+      ReportSearchRequestDto reportSearchRequestDto,
+      Pageable pageable) {
+    QReport report = QReport.report;
+    QPost post = QPost.post;
+    QUser user = QUser.user;
+    QManitoMatches manitoMatches = QManitoMatches.manitoMatches;
+    QManitoLetter manitoLetter = QManitoLetter.manitoLetter;
+
+    BooleanBuilder builder = new BooleanBuilder();
+
+    // 신고 타입 필터링 (ReportType)
+    if (reportSearchRequestDto.getReportType() != null) {
+      builder.and(report.reportType.eq(reportSearchRequestDto.getReportType()));
+    }
+
+    // 신고 대상 타입 필터링 (ReportObjectType)
+    if (reportSearchRequestDto.getType() != null) {
+      // 특정 타입이 지정된 경우 해당 타입만 필터링
+      builder.and(report.type.eq(reportSearchRequestDto.getType()));
+    } else {
+      // 타입이 null인 경우 MANITO_LETTER와 MANITO_ANSWER 모두 포함
+      builder.and(
+          report.type.in(ReportObjectType.MANITO_LETTER, ReportObjectType.MANITO_ANSWER)
+      );
+    }
+
+    // 신고한 사람 닉네임 검색 (reportedBy)
+    if (reportSearchRequestDto.getReportedBy() != null && !reportSearchRequestDto.getReportedBy()
+        .isEmpty()) {
+      builder.and(report.userId.in(
+          JPAExpressions.select(user.userId)
+              .from(user)
+              .where(user.nickname.containsIgnoreCase(reportSearchRequestDto.getReportedBy()))
+      ));
+    }
+
+    // 신고당한 사람 닉네임 검색 (reportedTo)
+    if (reportSearchRequestDto.getReportedTo() != null && !reportSearchRequestDto.getReportedTo()
+        .isEmpty()) {
+      BooleanBuilder reportedToBuilder = new BooleanBuilder();
+
+      if (reportSearchRequestDto.getType() == ReportObjectType.MANITO_LETTER) {
+        // MANITO_LETTER 신고 상황
+        reportedToBuilder.or(
+            report.type.eq(ReportObjectType.MANITO_LETTER)
+                .and(
+                    JPAExpressions.select(manitoMatches.matchedUserId.userId) // 매취스의 유저 (피신고자)
+                        .from(manitoLetter)
+                        .join(manitoLetter.manitoMatches, manitoMatches)
+                        .join(manitoMatches.matchedUserId, user) // User 조인 추가
+                        .where(
+                            manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
+                                .and(user.nickname.containsIgnoreCase(
+                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
+                        )
+                        .exists()
+                )
+        );
+      } else if (reportSearchRequestDto.getType() == ReportObjectType.MANITO_ANSWER) {
+        // MANITO_ANSWER 신고 상황
+        reportedToBuilder.or(
+            report.type.eq(ReportObjectType.MANITO_ANSWER)
+                .and(
+                    JPAExpressions.select(post.user.userId) // 게시글 작성자 (피신고자)
+                        .from(manitoLetter)
+                        .join(manitoLetter.manitoMatches, manitoMatches)
+                        .join(manitoMatches.matchedPostId, post) // 매취스와 게시글 연결
+                        .join(post.user, user) // User 조인 추가
+                        .where(
+                            manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
+                                .and(user.nickname.containsIgnoreCase(
+                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
+                        )
+                        .exists()
+                )
+        );
+      } else {
+        // 전체 검색 (MANITO_LETTER + MANITO_ANSWER)
+        reportedToBuilder.or(
+            report.type.eq(ReportObjectType.MANITO_LETTER)
+                .and(
+                    JPAExpressions.select(manitoMatches.matchedUserId.userId) // 매취스의 유저 (피신고자)
+                        .from(manitoLetter)
+                        .join(manitoLetter.manitoMatches, manitoMatches)
+                        .join(manitoMatches.matchedUserId, user) // User 조인 추가
+                        .where(
+                            manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
+                                .and(user.nickname.containsIgnoreCase(
+                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
+                        )
+                        .exists()
+                )
+        );
+
+        reportedToBuilder.or(
+            report.type.eq(ReportObjectType.MANITO_ANSWER)
+                .and(
+                    JPAExpressions.select(post.user.userId) // 게시글 작성자 (피신고자)
+                        .from(manitoLetter)
+                        .join(manitoLetter.manitoMatches, manitoMatches)
+                        .join(manitoMatches.matchedPostId, post) // 매취스와 게시글 연결
+                        .join(post.user, user) // User 조인 추가
+                        .where(
+                            manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
+                                .and(user.nickname.containsIgnoreCase(
+                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
+                        )
+                        .exists()
+                )
+        );
+      }
+
+      builder.and(reportedToBuilder);
+    }
+
+    // 키워드 검색 (content)
+    if (reportSearchRequestDto.getContent() != null && !reportSearchRequestDto.getContent()
+        .isEmpty()) {
+      BooleanBuilder contentSearchBuilder = new BooleanBuilder();
+
+      String keyword = reportSearchRequestDto.getContent().toLowerCase();
+
+      if (reportSearchRequestDto.getType() == ReportObjectType.MANITO_LETTER) {
+        // 마니또 답변 내용으로 검색 (letterContent)
+        contentSearchBuilder.or(
+            JPAExpressions.selectOne()
+                .from(manitoLetter)
+                .where(
+                    manitoLetter.letterContent.containsIgnoreCase(keyword)
+                        .and(manitoLetter.manitoLetterId.eq(report.reportObjectId))
+                )
+                .exists()
+        );
+      } else if (reportSearchRequestDto.getType() == ReportObjectType.MANITO_ANSWER) {
+        // 마니또 감사 인사 내용으로 검색 (answerLetter)
+        contentSearchBuilder.or(
+            JPAExpressions.selectOne()
+                .from(manitoLetter)
+                .where(
+                    manitoLetter.answerLetter.containsIgnoreCase(keyword)
+                        .and(manitoLetter.manitoLetterId.eq(report.reportObjectId))
+                )
+                .exists()
+        );
+      } else {
+        // 전체 검색
+        contentSearchBuilder.and(
+            JPAExpressions.selectOne()
+                .from(manitoLetter)
+                .where(
+                    manitoLetter.manitoLetterId.eq(report.reportObjectId)
+                        .and(
+                            report.type.eq(ReportObjectType.MANITO_LETTER)
+                                .and(manitoLetter.letterContent.containsIgnoreCase(keyword))
+                                .or(
+                                    report.type.eq(ReportObjectType.MANITO_ANSWER)
+                                        .and(manitoLetter.answerLetter.containsIgnoreCase(keyword))
+                                )
+                        )
+                )
+                .exists()
+        );
+      }
+
+      builder.and(contentSearchBuilder);
+    }
+
+    JPQLQuery<Report> query = queryFactory
+        .selectFrom(report)
+        .where(builder)
+        .offset(pageable.getOffset())
+        .limit(pageable.getPageSize())
+        .orderBy(report.reportId.asc());
+
+    System.out.println("Generated Query: " + query); // 디버깅용 쿼리 출력
+
+    List<Report> reports = null;
+
+    reports = queryFactory
+        .selectFrom(report)
+        .where(builder)
+        .offset(pageable.getOffset())
+        .limit(pageable.getPageSize())
+        .orderBy(report.reportId.asc())
+        .fetch();
+
+    long total = queryFactory
+        .selectFrom(report)
+        .where(builder)
+        .fetchCount();
+
+    List<ReportSearchResponseDto> reportDtos = reports.stream()
+        .map(this::toManitoReportSearchResponseDto)
+        .toList();
+    return new PageImpl<>(reportDtos, pageable, total);
+  }
+
+  private ReportSearchResponseDto toManitoReportSearchResponseDto(Report report) {
+    User ReportedByUser = userRepository.findById(report.getUserId()).orElseThrow(
+        () -> new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
+// 신고자 (Reported By)
+    UserSearchResponseDto reportedByUser = toUserSearchResponseDto(ReportedByUser);
+
+    // 피신고자 (Reported To) 처리
+    UserSearchResponseDto reportedToUser = null;
+    ManitoLetter manitoLetter = manitoLetterRepository.findById(report.getReportObjectId())
+        .orElseThrow(() -> new IllegalStateException(
+            IllegalActionMessages.CANNOT_FIND_MANITO_WITH_GIVEN_ID.getMessage())); // Optional 처리 (null 반환 가능)
+
+    if (manitoLetter != null) {
+      if (report.getType() == ReportObjectType.MANITO_LETTER) {
+        reportedToUser = toUserSearchResponseDto(
+            manitoLetter.getManitoMatches().getMatchedUserId());
+      } else {
+        reportedToUser = toUserSearchResponseDto(
+            manitoLetter.getManitoMatches().getMatchedPostId().getUser());
+      }
+
+    }
+
+    // ReportSearchResponseDto 빌더로 변환
+    return ReportSearchResponseDto.builder()
+        .reportId(report.getReportId())
+        .type(Map.of("data", report.getType().name(), "label", report.getType().getType()))
+        .reportType(Map.of("data", report.getReportType().name(), "label",
+            report.getReportType().getType()))
+        .content(getReportContent(report, manitoLetter)) // 신고 타입에 따라 컨텐츠 결정
+        .reportedByUser(reportedByUser)
+        .reportObjectId(report.getReportObjectId())
+        .createdAt(report.getCreatedAt())
+        .reportedToUser(reportedToUser)
+        .build();
+  }
+
+  private String getReportContent(Report report, ManitoLetter manitoLetter) {
+    if (report.getType() == ReportObjectType.MANITO_LETTER) {
+      // 마니또 답변 신고
+      return manitoLetter.getLetterContent();
+    } else if (report.getType() == ReportObjectType.MANITO_ANSWER) {
+      // 감사 인사 신고
+      return manitoLetter.getAnswerLetter();
+    }
+    return null; // 타입이 명확하지 않을 경우 null 반환
   }
 }

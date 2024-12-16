@@ -156,14 +156,24 @@ const ContentValidator = {
   validateContentQuality(text) {
     const trimmedText = text.trim();
 
-    // 연속된 같은 문자 패턴 (한글, 영문, 특수문자 모두 포함)
+    // 1. 연속된 같은 문자 패턴 (한글, 영문, 특수문자 모두 포함)
     const sameCharPattern = /(.)\1{29,}/;
     const matches = trimmedText.match(sameCharPattern);
 
-    // 연속된 자음/모음/특정 문자 패턴
+    // 2. 연속된 자음/모음/특정 문자 패턴
     const repeatedPattern = /([\u3131-\u314E\u314F-\u3163ㅋㅎㅠㅜzZ])\1{29,}/g;
     const repeatedMatches = trimmedText.match(repeatedPattern) || [];
 
+    // 3. 동일 문장 반복 패턴 검사
+    const sentences = this.findRepeatedSentences(trimmedText);
+    const totalLength = trimmedText.length;
+    let totalRepeatedLength = 0;
+
+    for (const sentence of sentences) {
+      totalRepeatedLength += sentence.text.length * (sentence.count - 1); // 첫 번째 문장은 제외하고 반복된 만큼만 계산
+    }
+
+    // 기존 검사 조건
     if (matches || repeatedMatches.length > 0) {
       return {
         isValid: false,
@@ -176,7 +186,15 @@ const ContentValidator = {
     if (nonWhitespaceLength < trimmedText.length * 0.6) { // 40% 이상이 공백인 경우
       return {
         isValid: false,
-        message: '내용에 공백이 너무 많아요. 정성을 담아 작성하면 편지를 받는 사람이 기쁠 거예요.'
+        message: '내용에 공백이 너무 많아요. 당신의 메세지를 조금 더 담아보면 좋을 것 같아요.'
+      };
+    }
+
+    // 동일 문장 반복이 전체 텍스트의 50% 이상인 경우
+    if (totalRepeatedLength / totalLength > 0.5) {
+      return {
+        isValid: false,
+        message: '같은 내용이 너무 많이 반복되었어요. 더 다양하고 다채로운 이야기를 전해보는 게 어떨까요?'
       };
     }
 
@@ -184,8 +202,45 @@ const ContentValidator = {
       isValid: true,
       message: ''
     };
+  },
+
+  findRepeatedSentences(text) {
+    const sentences = [];
+    const minLength = 4; // 최소 4글자 이상의 문장만 검사
+
+    for (let len = minLength; len <= text.length / 2; len++) {
+      for (let i = 0; i <= text.length - len; i++) {
+        const currentText = text.slice(i, i + len);
+
+        // 이미 처리된 패턴은 건너뛰기
+        if (sentences.some(s => s.text.includes(currentText) || currentText.includes(s.text))) {
+          continue;
+        }
+
+        let count = 0;
+        let pos = -1;
+        while ((pos = text.indexOf(currentText, pos + 1)) !== -1) {
+          count++;
+        }
+
+        if (count >= 2) { // 2번 이상 반복되는 경우만 저장
+          sentences.push({
+            text: currentText,
+            count: count
+          });
+        }
+      }
+    }
+
+    // 더 긴 패턴이 우선되도록 정렬
+    return sentences.sort((a, b) => b.text.length - a.text.length);
   }
 };
+
+if (typeof window !== 'undefined') {
+  window.CommonUtils = window.CommonUtils || {};
+  window.CommonUtils.ContentValidator = ContentValidator;
+}
 
 const CommonUtils = {
   ContentValidator,

@@ -5,6 +5,7 @@ import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.User;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +18,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
   Notification findByUserAndSenderUserAndType(User receiveUser, User senderUser, NotiType type);
   Notification findByUserAndSenderUserAndTypeAndRelatedObjectId(User receiveUser, User senderUser, NotiType type, Long relatedObjectId);
+
+  Optional<List<Notification>> findByTypeInAndRelatedObjectId(List<NotiType> types, Long relatedObjectId);
 }

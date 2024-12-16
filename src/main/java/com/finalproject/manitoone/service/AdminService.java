@@ -1,8 +1,11 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.domain.ManitoLetter;
+import com.finalproject.manitoone.domain.ManitoMatches;
+import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.QManitoLetter;
@@ -27,6 +30,8 @@ import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchResponseDto;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
+import com.finalproject.manitoone.repository.ManitoMatchesRepository;
+import com.finalproject.manitoone.repository.NotificationRepository;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
@@ -45,6 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -69,7 +75,9 @@ public class AdminService {
   private final UserPostLikeRepository userPostLikeRepository;
   private final ReplyPostRepository replyPostRepository;
   private final ManitoLetterRepository manitoLetterRepository;
+  private final ManitoMatchesRepository manitoMatchesRepository;
   private final ReportRepository reportRepository;
+  private final NotificationRepository notificationRepository;
 
   private final FileUtil fileUtil;
   private final DataUtil dataUtil;
@@ -382,14 +390,35 @@ public class AdminService {
     }
 
     // 마니또 연결 삭제
-    // fixme : 컬럼이 많이 바뀌어서 추후에 주석 해제
-//    manitoLetterRepository.findByPostId(post).ifPresent(manitoLetterRepository::delete);
+    List<ManitoMatches> manitoMatches = manitoMatchesRepository.findByMatchedPostId(post).orElse(new ArrayList<>());
+
+    if (!manitoMatches.isEmpty()) {
+      for (ManitoMatches match : manitoMatches) {
+        // 매취스 아이디로 ManitoLetter 찾기
+        Optional<ManitoLetter> manitoLetterOptional = manitoLetterRepository.findByManitoMatches_ManitoMatchesId(match.getManitoMatchesId());
+        if (manitoLetterOptional.isPresent()) {
+          // ManitoLetter가 존재하면 삭제
+          ManitoLetter manitoLetter = manitoLetterOptional.get();
+          manitoLetterRepository.delete(manitoLetter);
+        }
+        // 매취스 삭제
+        manitoMatchesRepository.delete(match);
+      }
+    }
+
 
     // 게시글 신고 목록 삭제
     List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(ReportObjectType.POST,
         postId).orElse(new ArrayList<>());
     if (!reports.isEmpty()) {
       reportRepository.deleteAll(reports);
+    }
+
+    // 알림 삭제
+    List<Notification> notifications = notificationRepository.findByTypeInAndRelatedObjectId(List.of(
+        NotiType.LIKE_CLOVER, NotiType.POST_REPLY, NotiType.POST_RE_REPLY), postId).orElse(new ArrayList<>());
+    if (!notifications.isEmpty()) {
+      notificationRepository.deleteAll(notifications);
     }
 
     postRepository.delete(post);
@@ -840,6 +869,7 @@ public class AdminService {
     }
 
     // ReportSearchResponseDto 빌더로 변환
+    assert manitoLetter != null;
     return ReportSearchResponseDto.builder()
         .reportId(report.getReportId())
         .type(Map.of("data", report.getType().name(), "label", report.getType().getType()))
@@ -850,6 +880,7 @@ public class AdminService {
         .reportObjectId(report.getReportObjectId())
         .createdAt(report.getCreatedAt())
         .reportedToUser(reportedToUser)
+        .post(toPostSearchResponseDto(manitoLetter.getManitoMatches().getMatchedPostId()))
         .build();
   }
 

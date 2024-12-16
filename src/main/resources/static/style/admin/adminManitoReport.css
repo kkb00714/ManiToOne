@@ -65,3 +65,157 @@
 .delete-report:hover {
   text-decoration: underline;
 }
+
+.post-modal {
+  background-color: #f3f3f3;
+  border-radius: 20px;
+  box-shadow: 0 0 2px 2px rgba(171, 171, 171, 0.25);
+  display: none;
+  z-index: 2;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 40rem;
+  min-width: 25rem;
+  width: 100%;
+  height: auto;
+  padding-bottom: 30px;
+}
+
+/* 슬라이더 스타일 */
+.image-slider {
+  position: relative;
+  width: 100%;
+  max-width: 500px; /* 슬라이더 최대 너비 */
+  height: auto;
+  margin: 0 auto;
+  overflow: hidden; /* 슬라이더 밖 이미지 숨김 */
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid rgba(200, 200, 200, 0.5);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 이미지 컨테이너 */
+.image-container {
+  display: flex;
+  transition: transform 0.5s ease-in-out; /* 부드러운 슬라이드 */
+  width: 100%;
+}
+
+/* 각 이미지 */
+.image-container img {
+  flex-shrink: 0;
+  width: 100%; /* 부모 슬라이더에 맞춤 */
+  height: auto;
+  object-fit: contain; /* 원본 비율 유지 */
+  border-radius: 10px;
+}
+
+/* 좌우 버튼 */
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  z-index: 2;
+  font-size: 1.2rem;
+  border-radius: 50%;
+  display: none;
+}
+
+.prev-btn {
+  left: 10px;
+}
+
+.next-btn {
+  right: 10px;
+}
+
+/* 프로필 컨텐츠 전체 스타일 */
+.profile-content-container ,
+.reply-container{
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  max-width: 500px;
+  margin: 0 auto;
+  margin-top: 30px;
+}
+
+/* 프로필 이미지 스타일 */
+.profile-image,
+.reply-profile-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* 텍스트 컨테이너 */
+.profile-text-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 아이디와 시간 컨테이너 */
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 아이디 스타일 */
+.user-id,
+.reply-user-id {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #333;
+}
+
+/* 시간 스타일 */
+.post-time,
+.reply-post-time {
+  width: 50px;
+  font-size: 0.875rem;
+  color: #888;
+}
+
+/* 내용 스타일 */
+.post-content,
+.reply-content {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.4;
+  margin-top: 10px
+}
+
+.modal-overlay {
+  z-index: 1 !important;
+}
+
+.reply-box {
+  margin-top: 30px;
+  display: block; !important;
+}
+
+.reply {
+  display: block;
+}
+
+.reply-header {
+  margin: 0 auto;
+  font-size: 30px;
+  max-width: 500px;
+}
+
+hr {
+  max-width: 500px;
+}

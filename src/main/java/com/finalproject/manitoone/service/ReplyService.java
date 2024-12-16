@@ -66,7 +66,8 @@ public class ReplyService {
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
-    ReplyPost parentReply = replyPostRepository.findByReplyPostIdAndIsBlindFalse(replyId)
+    ReplyPost parentReply = replyPostRepository.findByReplyPostIdAndIsBlindFalseAndIsHiddenFalse(
+            replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));
@@ -95,7 +96,7 @@ public class ReplyService {
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
-    ReplyPost reply = replyPostRepository.findByReplyPostIdAndIsBlindFalse(replyId)
+    ReplyPost reply = replyPostRepository.findByReplyPostIdAndIsBlindFalseAndIsHiddenFalse(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));
@@ -125,7 +126,7 @@ public class ReplyService {
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
-    ReplyPost reply = replyPostRepository.findByReplyPostIdAndIsBlindFalse(replyId)
+    ReplyPost reply = replyPostRepository.findByReplyPostIdAndIsBlindFalseAndIsHiddenFalse(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));
@@ -153,7 +154,7 @@ public class ReplyService {
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
-    ReplyPost reply = replyPostRepository.findByReplyPostIdAndIsBlindFalse(replyId)
+    ReplyPost reply = replyPostRepository.findByReplyPostIdAndIsBlindFalseAndIsHiddenFalse(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));
@@ -180,7 +181,7 @@ public class ReplyService {
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
-    ReplyPost reply = replyPostRepository.findByReplyPostIdAndIsBlindFalse(replyId)
+    ReplyPost reply = replyPostRepository.findByReplyPostIdAndIsBlindFalseAndIsHiddenFalse(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));
@@ -200,7 +201,7 @@ public class ReplyService {
 
   // 게시글 답글 조회
   public Page<ReplyResponseDto> getReplies(Long postId, Pageable pageable) {
-    Page<ReplyPost> replies = replyPostRepository.findAllByPostPostIdAndParentIdIsNullAndIsBlindFalse(
+    Page<ReplyPost> replies = replyPostRepository.findAllByPostPostIdAndParentIdIsNullAndIsBlindFalseAndIsHiddenFalse(
             postId, pageable)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
@@ -221,7 +222,7 @@ public class ReplyService {
 
   // 답글 개수 조회
   public Integer getRepliesNum(Long postId) {
-    List<ReplyPost> replies = replyPostRepository.findAllByPostPostIdAndParentIdNullAndIsBlindFalse(
+    List<ReplyPost> replies = replyPostRepository.findAllByPostPostIdAndParentIdNullAndIsBlindFalseAndIsHiddenFalse(
             postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
@@ -232,7 +233,7 @@ public class ReplyService {
 
   // 답글 단건 조회
   public ReplyResponseDto getReply(Long replyId) {
-    ReplyPost reply = replyPostRepository.findByReplyPostIdAndIsBlindFalse(replyId)
+    ReplyPost reply = replyPostRepository.findByReplyPostIdAndIsBlindFalseAndIsHiddenFalse(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));
@@ -252,7 +253,8 @@ public class ReplyService {
 
   // 답글의 답글 조회
   public Page<ReplyResponseDto> getReReplies(Long replyId, Pageable pageable) {
-    Page<ReplyPost> rereplies = replyPostRepository.findAllByParentIdAndIsBlindFalse(replyId,
+    Page<ReplyPost> rereplies = replyPostRepository.findAllByParentIdAndIsBlindFalseAndIsHiddenFalse(
+            replyId,
             pageable)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
@@ -273,7 +275,8 @@ public class ReplyService {
 
   // 답글의 답글 개수 조회
   public Integer getReRepliesNum(Long replyId) {
-    List<ReplyPost> rereplies = replyPostRepository.findAllByParentIdAndIsBlindFalse(replyId)
+    List<ReplyPost> rereplies = replyPostRepository.findAllByParentIdAndIsBlindFalseAndIsHiddenFalse(
+            replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));

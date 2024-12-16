@@ -1,10 +1,12 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.domain.AiPostLog;
 import com.finalproject.manitoone.domain.ManitoLetter;
+import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.ReplyPost;
@@ -12,7 +14,6 @@ import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
-import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
@@ -21,6 +22,7 @@ import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
 import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
+import com.finalproject.manitoone.repository.NotificationRepository;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
@@ -28,6 +30,8 @@ import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
+import com.finalproject.manitoone.util.FileUtil;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +52,9 @@ public class PostService {
   private final ReportRepository reportRepository;
   private final AiPostLogRepository aiPostLogRepository;
   private final UserRepository userRepository;
+  private final NotificationRepository notificationRepository;
   private final UserService userService;
+  private final FileUtil fileUtil;
 
 
   // 게시글 생성 (미완성)
@@ -184,18 +190,24 @@ public class PostService {
     deleteImages(postId);
     deleteReplies(postId);
     deleteLikes(postId);
+    deleteReports(postId);
+    deleteNotis(postId);
     deleteManitoLetters(postId);
     postRepository.delete(post);
   }
 
   // 게시글 이미지 삭제
   private void deleteImages(Long postId) {
-    List<PostImage> imageList = postImageRepository.findAllByPostPostId(postId)
+    List<PostImage> postImages = postImageRepository.findAllByPostPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_IMAGE_WITH_GIVEN_ID.getMessage()
         ));
 
-    postImageRepository.deleteAll(imageList);
+    for (PostImage postImage : postImages) {
+      fileUtil.cleanUp(Paths.get(postImage.getFileName()));
+    }
+
+    postImageRepository.deleteAll(postImages);
   }
 
   // 게시글 답글 삭제
@@ -210,12 +222,12 @@ public class PostService {
 
   // 게시글 좋아요 삭제
   private void deleteLikes(Long postId) {
-    List<UserPostLike> likeList = userPostLikeRepository.findAllByPostPostId(postId)
+    List<UserPostLike> postLikes = userPostLikeRepository.findAllByPostPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
         ));
 
-    userPostLikeRepository.deleteAll(likeList);
+    userPostLikeRepository.deleteAll(postLikes);
   }
 
   // 마니또 편지 삭제
@@ -226,6 +238,28 @@ public class PostService {
         ));
 
     manitoLetterRepository.deleteAll(manitoLetterList);
+  }
+
+  // 게시글 신고 목록 삭제
+  private void deleteReports(Long postId) {
+    List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(ReportObjectType.POST,
+            postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPORT_WITH_GIVEN_ID.getMessage()
+        ));
+
+    reportRepository.deleteAll(reports);
+  }
+
+  // 알림 삭제
+  private void deleteNotis(Long postId) {
+    List<Notification> notis = notificationRepository.findByTypeInAndRelatedObjectId(List.of(
+            NotiType.LIKE_CLOVER, NotiType.POST_REPLY, NotiType.POST_RE_REPLY), postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_ANY_NOTIFICATIONS.getMessage()
+        ));
+
+    notificationRepository.deleteAll(notis);
   }
 
   // 게시글 숨기기

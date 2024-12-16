@@ -74,13 +74,12 @@ function submitPost() {
 
   fetch("/api/post", {
     method: "POST",
-    body: formData
+    body: formData,
   }).then((response) => {
     if (response.ok) {
       alert("게시글 작성을 완료했습니다.");
       window.location.reload();
-    }
-    else {
+    } else {
       alert("게시글 작성에 실패했습니다.");
     }
   });
@@ -234,4 +233,85 @@ function openRereplyReportModal() {
 function closeRereplyReportModal() {
   document.getElementById("reReplyReportModal").style.display = "none";
   document.getElementById("reReplyReportModalContainer").style.display = "none";
+}
+
+// 게시글 신고 form
+function onPostReportSubmit(event) {
+  event.preventDefault();
+
+  const form = event.target;
+  const baseUrl = form.action;
+  const reportType = document
+    .getElementById("post-report-type-select")
+    .value.trim();
+
+  const url = `${baseUrl}?reportType=${encodeURIComponent(reportType)}`;
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  }).then((response) => {
+    if (response.ok) {
+      alert("해당 게시글을 신고하셨습니다.");
+      closePostReportModal();
+    } else {
+      alert("해당 게시글 신고에 실패했습니다.");
+    }
+  });
+}
+
+// 답글 신고 form
+function onReplyReportSubmit(event) {
+  event.preventDefault();
+
+  const form = event.target;
+  const baseUrl = form.action;
+  const reportType = document
+    .getElementById("reply-report-type-select")
+    .value.trim();
+
+  const url = `${baseUrl}?reportType=${encodeURIComponent(reportType)}`;
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  }).then((response) => {
+    if (response.ok) {
+      alert("해당 게시글을 신고하셨습니다.");
+      closeReplyReportModal();
+    } else {
+      alert("해당 게시글 신고에 실패했습니다.");
+    }
+  });
+}
+
+// 답글의 답글 신고 form
+function onRereplyReportSubmit(event) {
+  event.preventDefault();
+
+  const form = event.target;
+  const baseUrl = form.action;
+  const reportType = document
+    .getElementById("rereply-report-type-select")
+    .value.trim();
+
+  const url = `${baseUrl}?reportType=${encodeURIComponent(reportType)}`;
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  }).then((response) => {
+    if (response.ok) {
+      alert("해당 게시글을 신고하셨습니다.");
+      closeRereplyReportModal();
+    } else {
+      alert("해당 게시글 신고에 실패했습니다.");
+    }
+  });
 }

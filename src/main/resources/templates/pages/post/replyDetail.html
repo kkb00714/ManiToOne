@@ -139,6 +139,7 @@
                   id="postReportModalContainer"
                   th:action="@{/api/post/report/{postId}(postId=${post.postId})}"
                   method="post"
+                  th:onsubmit="'onPostReportSubmit(event)'"
                 >
                   <div class="report-title">
                     <p>신고하기</p>
@@ -293,6 +294,7 @@
                   id="replyReportModalContainer"
                   th:action="@{/api/reply/report/{replyId}(replyId=${reply.replyPostId})}"
                   method="post"
+                  th:onsubmit="'onReplyReportSubmit(event)'"
                 >
                   <div class="report-title">
                     <p>신고하기</p>
@@ -451,6 +453,7 @@
                   id="reReplyReportModalContainer"
                   th:action="@{/api/reply/report/{replyId}(replyId=${rereply.replyPostId})}"
                   method="post"
+                  th:onsubmit="'onRereplyReportSubmit(event)'"
                 >
                   <div class="report-title">
                     <p>신고하기</p>

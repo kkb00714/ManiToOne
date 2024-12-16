@@ -20,6 +20,8 @@ public class ProfileViewController {
 
   @GetMapping("/{nickname}")
   public String myPage(@PathVariable String nickname, Model model, HttpSession session) {
+    if (session.getAttribute("nickname") == null)
+      return "redirect:/";
     model.addAttribute("isFollowed",
         followService.isFollowed((String) session.getAttribute("nickname"), nickname));
     model.addAttribute("nickname", session.getAttribute("nickname"));

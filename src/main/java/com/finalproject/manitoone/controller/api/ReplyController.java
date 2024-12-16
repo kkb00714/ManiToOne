@@ -75,7 +75,7 @@ public class ReplyController {
   }
 
   // 답글 신고
-  @PutMapping("/reply/report/{replyId}")
+  @PostMapping("/reply/report/{replyId}")
   public ResponseEntity<ReportResponseDto> reportReply(@PathVariable("replyId") Long replyId,
       @RequestBody AddReportRequestDto request,
       HttpSession session) {

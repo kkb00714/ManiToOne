@@ -118,7 +118,7 @@ public class PostController {
   }
 
   // 게시글 신고
-  @PutMapping("/report/{postId}")
+  @PostMapping("/report/{postId}")
   public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId,
       @ModelAttribute AddReportRequestDto request,
       HttpSession session) {

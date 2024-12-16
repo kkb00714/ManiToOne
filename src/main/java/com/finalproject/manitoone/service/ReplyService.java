@@ -58,7 +58,7 @@ public class ReplyService {
 
     try {
       notificationUtil.createNotification(post.getUser().getNickname(), user, NotiType.POST_REPLY,
-          user.getUserId());
+          post.getPostId());
     } catch (IOException e) {
       log.error(e.getMessage());
     }
@@ -93,7 +93,7 @@ public class ReplyService {
 
     try {
       notificationUtil.createNotification(parentReply.getUser().getNickname(), user, NotiType.POST_RE_REPLY,
-          user.getUserId());
+          parentReply.getPost().getPostId());
     } catch (IOException e) {
       log.error(e.getMessage());
     }

@@ -126,6 +126,57 @@
                   </button>
                 </div>
               </div>
+
+              <!-- 게시글 신고 모달 -->
+              <div class="report-modal" id="postReportModal">
+                <form
+                  class="report-modal-container"
+                  id="postReportModalContainer"
+                  th:action="@{/api/post/report/{postId}(postId=${post.postId})}"
+                  th:method="PUT"
+                >
+                  <div class="report-title">
+                    <p>신고하기</p>
+                    <img
+                      class="tiny-icons"
+                      id="closePostReportModalBtn"
+                      th:src="@{/images/icons/icon-cancel.png}"
+                      alt="close icon"
+                    />
+                  </div>
+                  <div class="report-container">
+                    <label for="post-report-type-select"
+                      >신고 사유를 선택해주세요</label
+                    >
+                    <select
+                      name="reportType"
+                      id="post-report-type-select"
+                      class="report-type-select"
+                    >
+                      <option value="">신고 사유 선택</option>
+                      <option value="DISLIKE">마음에 들지 않습니다</option>
+                      <option value="HARASSMENT">
+                        따돌림 또는 원치 않은 연락
+                      </option>
+                      <option value="SELF_HARM">자살, 자해 및 섭식 장애</option>
+                      <option value="ABUSE">폭력, 혐오 또는 학대</option>
+                      <option value="RESTRICTED_ITEMS">
+                        제한된 품목을 판매하거나 홍보함
+                      </option>
+                      <option value="ADULT_CONTENT">
+                        나체 이미지 또는 성적 행위
+                      </option>
+                      <option value="SCAM">스캠, 사기 또는 스팸</option>
+                      <option value="MISINFO">거짓 정보</option>
+                    </select>
+                  </div>
+                  <div class="report-send-button-container">
+                    <button class="report-send-button" id="postReportSendBtn">
+                      전송하기
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
 
             <div id="reply-divider">
@@ -225,6 +276,55 @@
                     신고하기
                   </button>
                 </div>
+              </div>
+
+              <!-- 답글 신고 모달 -->
+              <div class="report-modal" id="replyReportModal">
+                <form
+                  class="report-modal-container"
+                  id="replyReportModalContainer"
+                >
+                  <div class="report-title">
+                    <p>신고하기</p>
+                    <img
+                      class="tiny-icons"
+                      id="closeReplyReportModalBtn"
+                      th:src="@{/images/icons/icon-cancel.png}"
+                      alt="close icon"
+                    />
+                  </div>
+                  <div class="report-container">
+                    <label for="reply-report-type-select"
+                      >신고 사유를 선택해주세요</label
+                    >
+                    <select
+                      name="reportType"
+                      id="reply-report-type-select"
+                      class="report-type-select"
+                    >
+                      <option value="">신고 사유 선택</option>
+                      <option value="DISLIKE">마음에 들지 않습니다</option>
+                      <option value="HARASSMENT">
+                        따돌림 또는 원치 않은 연락
+                      </option>
+                      <option value="SELF_HARM">자살, 자해 및 섭식 장애</option>
+                      <option value="ABUSE">폭력, 혐오 또는 학대</option>
+                      <option value="RESTRICTED_ITEMS">
+                        제한된 품목을 판매하거나 홍보함
+                      </option>
+                      <option value="ADULT_CONTENT">
+                        나체 이미지 또는 성적 행위
+                      </option>
+                      <option value="SCAM">스캠, 사기 또는 스팸</option>
+                      <option value="MISINFO">거짓 정보</option>
+                    </select>
+                  </div>
+                  <div class="report-send-button-container">
+                    <button class="report-send-button" id="replyReportSendBtn">
+                      전송하기
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>

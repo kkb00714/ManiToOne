@@ -19,6 +19,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -119,7 +120,7 @@ public class PostController {
   // 게시글 신고
   @PutMapping("/report/{postId}")
   public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId,
-      @RequestBody AddReportRequestDto request,
+      @ModelAttribute AddReportRequestDto request,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 

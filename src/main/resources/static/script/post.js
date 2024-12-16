@@ -181,5 +181,7 @@ function deleteReply(replyId) {
     else {
       alert("해당 답글을 삭제하지 못했습니다.");
     }
-  })
+  });
 }
+
+// 게시글 신고

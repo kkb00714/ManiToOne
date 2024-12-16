@@ -75,7 +75,7 @@ public class ManitoService {
     ManitoLetter savedLetter = manitoLetterRepository.save(manitoLetter);
 
     try {
-      notificationUtil.createNotification(match.getMatchedPostId().getUser().getNickname(), user, NotiType.MANITO_COMMENT,
+      notificationUtil.createNotification(match.getMatchedPostId().getUser().getNickname(), user, NotiType.MANITO_LETTER,
           manitoLetter.getManitoLetterId());
     } catch (IOException e) {
       log.error(e.getMessage());
@@ -180,7 +180,7 @@ public class ManitoService {
     manitoLetter.addAnswer(answerLetter, userNickname);
 
     try {
-      notificationUtil.createNotification(manitoLetter.getLetterWriter().getNickname(), manitoLetter.getLetterReceiver(), NotiType.MANITO_THANK_COMMENT,
+      notificationUtil.createNotification(manitoLetter.getLetterWriter().getNickname(), manitoLetter.getLetterReceiver(), NotiType.MANITO_ANSWER_LETTER,
           manitoLetter.getManitoLetterId());
     } catch (IOException e) {
       log.error(e.getMessage());

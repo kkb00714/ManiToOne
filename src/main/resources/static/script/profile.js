@@ -193,6 +193,19 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   addDocumentClickEventListener();
+
+  document.getElementById("toggle-password-sign-in").addEventListener("click", function () {
+    const passwordInput = document.getElementById("user-password");
+    const toggleButton = this;
+
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      toggleButton.textContent = "숨기기";
+    } else {
+      passwordInput.type = "password";
+      toggleButton.textContent = "표시";
+    }
+  });
 });
 
 function handleMoreOptionsClick(event, moreOptionsButton) {

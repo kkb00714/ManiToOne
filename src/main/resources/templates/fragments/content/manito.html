@@ -1,9 +1,4 @@
 <div th:fragment="manito">
-
-  <div th:if="${errorMessage != null}" class="alert alert-danger">
-    <p th:text="${errorMessage}"></p>
-  </div>
-
   <div th:if="${canRequestMatch == true}" class="pre-match-container">
     <div class="pre-match-content">
       <h2 class="pre-match-title">🍀두근두근! 오늘 나는 누구의 마니또일까요?🍀</h2>
@@ -17,10 +12,11 @@
       </div>
     </div>
   </div>
-
-
   <th:block th:if="${todaysPost != null}">
     <meta name="post-id" th:content="${todaysPost.postId}"/>
+    <meta name="manito-match-id"
+          th:content="${currentMatch != null ? currentMatch.manitoMatchesId : ''}"/>
+    <meta name="matched-time" th:content="${currentMatch != null ? currentMatch.matchedTime : ''}"/>
     <div class="who-is-today">
       <p>
         🎉오늘 나는 <span class="user-name" th:text="${todaysPost.nickName}">beer_lover</span> 님의
@@ -105,19 +101,38 @@
       </p>
     </div>
     <!-- 편지 존재 여부에 따라 버튼 변경 -->
-    <button class="reply-button"
-            th:if="${existingLetter == null}"
-            id="openManitoLetterModalBtn">
-      이 게시물에 편지 보내기
-    </button>
-    <button class="reply-button"
-            th:if="${existingLetter != null}"
-            style="display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto 2rem; cursor: none ">
-      이미 편지를 작성하셨습니다
-    </button>
+    <div th:if="${todaysPost != null}" class="action-buttons">
+      <!-- 편지를 아직 쓰지 않았고, 아직 넘기지도 않은 상태 -->
+      <button class="reply-button"
+              th:if="${existingLetter == null and currentMatch.status.name() == 'MATCHED'}"
+              id="openManitoLetterModalBtn">
+        이 게시물에 편지 보내기
+      </button>
+      <button class="pass-post-button"
+              th:if="${existingLetter == null and currentMatch.status.name() == 'MATCHED'}"
+              onclick="passMatch()">
+        이 게시물에 편지를 보내지 않을래요
+      </button>
+      <!-- 이미 편지를 쓴 상태 -->
+      <button class="reply-button"
+              th:if="${existingLetter != null}"
+              style="display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto; cursor: default"
+              disabled>
+        이미 편지를 작성하셨습니다
+      </button>
+      <!-- 넘긴 상태 -->
+      <button class="reply-button"
+              th:if="${currentMatch.status.name() == 'PASSED'}"
+              style="display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto; cursor: default"
+              disabled>
+        이 게시물을 넘기셨습니다
+      </button>
+      <div class="remaining-time" id="remainingTime"></div>
+    </div>
   </th:block>
   <div th:replace="~{fragments/common/manito-letter-box :: manito-letter-box}"></div>
-  <div th:replace="~{fragments/modals/manito-letter-modal :: manito-letter-modal(${todaysPost != null ? todaysPost.nickName : ''})}"></div>
+  <div
+      th:replace="~{fragments/modals/manito-letter-modal :: manito-letter-modal(${todaysPost != null ? todaysPost.nickName : ''})}"></div>
   <div
       th:replace="~{fragments/modals/manito-letter-reply-modal :: manito-letter-reply-modal}"></div>
   <div

@@ -110,6 +110,7 @@ class BaseModal {
       });
     }
   }
+
   initializeCloseHandlers() {
     // ESC 키 눌렀을 때 닫기
     document.addEventListener('keydown', (e) => {
@@ -155,31 +156,27 @@ const ContentValidator = {
   validateContentQuality(text) {
     const trimmedText = text.trim();
 
-    // 연속된 자음/모음 패턴 검사
-    const consonantPattern = /[ㄱ-ㅎ]{3,}/g;
-    const vowelPattern = /[ㅏ-ㅣ]{3,}/g;
+    // 연속된 같은 문자 패턴 (한글, 영문, 특수문자 모두 포함)
+    const sameCharPattern = /(.)\1{29,}/;
+    const matches = trimmedText.match(sameCharPattern);
 
-    // 같은 글자 반복 패턴 검사 (한글)
-    const repeatedCharPattern = /([\uAC00-\uD7AF])\1{9,}/;
+    // 연속된 자음/모음/특정 문자 패턴
+    const repeatedPattern = /([\u3131-\u314E\u314F-\u3163ㅋㅎㅠㅜzZ])\1{29,}/g;
+    const repeatedMatches = trimmedText.match(repeatedPattern) || [];
 
-    // 연속된 ㅋ, ㅎ, ㅠ, ㅜ 등의 패턴
-    const repeatedConsonantPattern = /([ㅋㅎㅠㅜ])\1{4,}/g;
-
-    const consonantMatches = text.match(consonantPattern) || [];
-    const vowelMatches = text.match(vowelPattern) || [];
-    const repeatedConsMatches = text.match(repeatedConsonantPattern) || [];
-
-    // 반복 문자의 총 길이 계산
-    const totalRepeatedLength =
-        consonantMatches.join('').length +
-        vowelMatches.join('').length +
-        repeatedConsMatches.join('').length;
-
-    // 반복 문자가 전체의 50% 이상이거나 같은 글자가 10회 이상 반복되면 false 반환
-    if (totalRepeatedLength > trimmedText.length / 2 || repeatedCharPattern.test(trimmedText)) {
+    if (matches || repeatedMatches.length > 0) {
       return {
         isValid: false,
-        message: '내용에 반복되는 문구가 많은 것 같아요. 정성을 담아 작성해주세요.'
+        message: '내용에 무의미하게 반복되는 글자가 많은 것 같아요. 정성을 담아 작성하면 편지를 받는 사람이 기쁠 거예요.'
+      };
+    }
+
+    // 공백 문자가 과도하게 많은 경우 체크
+    const nonWhitespaceLength = trimmedText.replace(/\s/g, '').length;
+    if (nonWhitespaceLength < trimmedText.length * 0.6) { // 40% 이상이 공백인 경우
+      return {
+        isValid: false,
+        message: '내용에 공백이 너무 많아요. 정성을 담아 작성하면 편지를 받는 사람이 기쁠 거예요.'
       };
     }
 
@@ -380,11 +377,11 @@ const CommonUtils = {
       warningPopup.style.display = 'block';
 
       const newConfirmBtn = warningConfirmBtn.cloneNode(true);
-      // 오타 수정: newConfirmButton -> newConfirmBtn
       newConfirmBtn.addEventListener('click', () => {
         warningPopup.style.display = 'none';
       });
-      warningConfirmBtn.parentNode.replaceChild(newConfirmBtn, warningConfirmBtn);
+      warningConfirmBtn.parentNode.replaceChild(newConfirmBtn,
+          warningConfirmBtn);
     }
   }
 };

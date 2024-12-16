@@ -37,7 +37,8 @@ public class ManitoService {
   }
 
   @Transactional(readOnly = true)
-  public ManitoLetterResponseDto getLetterByMatchIdAndNickname(Long manitoMatchesId, String nickname) {
+  public ManitoLetterResponseDto getLetterByMatchIdAndNickname(Long manitoMatchesId,
+      String nickname) {
     validateManitoMatch(manitoMatchesId);
 
     return manitoLetterRepository.findByManitoMatches_ManitoMatchesId(manitoMatchesId)
@@ -48,15 +49,18 @@ public class ManitoService {
 
   // 마니또 편지 생성
   @Transactional
-  public ManitoLetterResponseDto createLetter(Long manitoMatchesId, ManitoLetterRequestDto requestDto, String userNickname) {
+  public ManitoLetterResponseDto createLetter(Long manitoMatchesId,
+      ManitoLetterRequestDto requestDto, String userNickname) {
     ManitoMatches match = manitoMatchesRepository.findById(manitoMatchesId)
-        .orElseThrow(() -> new EntityNotFoundException("마니또 매칭 기록을 찾을 수 없습니다."));
+        .orElseThrow(() -> new EntityNotFoundException(
+            ManitoErrorMessages.MANITO_MATCH_NOT_FOUND.getMessage()));
 
     // 매칭 상태 확인
     match.validateMatchStatus();  // MATCHED 상태인지 확인
 
     User user = userRepository.findUserByNickname(userNickname)
-        .orElseThrow(() -> new EntityNotFoundException(ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
+        .orElseThrow(
+            () -> new EntityNotFoundException(ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
 
     validateLetterCreation(match, user);
 
@@ -80,7 +84,8 @@ public class ManitoService {
     }
 
     // 이미 편지를 보냈는지 확인
-    if (manitoLetterRepository.findByManitoMatches_ManitoMatchesId(match.getManitoMatchesId()).isPresent()) {
+    if (manitoLetterRepository.findByManitoMatches_ManitoMatchesId(match.getManitoMatchesId())
+        .isPresent()) {
       throw new IllegalStateException(ManitoErrorMessages.ALREADY_REPLIED.getMessage());
     }
 
@@ -104,6 +109,7 @@ public class ManitoService {
         .musicComment(letter.getMusicComment())
         .isPublic(letter.isPublic())
         .isReport(letter.isReport())
+        .isAnswerReport(letter.isAnswerReport())
         .answerLetter(letter.getAnswerLetter())
         .timeDiff(TimeFormatter.formatTimeDiff(letter.getCreatedAt()))
         .isOwner(letter.isOwnedBy(currentUser))

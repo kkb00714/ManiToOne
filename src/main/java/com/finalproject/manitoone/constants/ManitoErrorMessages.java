@@ -12,6 +12,7 @@ public enum ManitoErrorMessages {
   MANITO_LETTER_NOT_FOUND("편지를 찾을 수 없습니다."),
   ANSWER_NOT_FOUND("답장이 존재하지 않습니다."),
   MANITO_MATCH_NOT_FOUND("마니또 매칭 기록을 찾을 수 없습니다."),
+  NO_AVAILABLE_POSTS("매칭 가능한 게시글이 없습니다."),
 
   // 유효성 검사
   NOT_MANITO_POST("마니또 게시물이 아닙니다."),
@@ -24,6 +25,9 @@ public enum ManitoErrorMessages {
   ALREADY_ANSWERED("이미 편지에 대한 답장을 작성하셨습니다."),
   ALREADY_REPORTED("이미 신고된 편지입니다."),
   ALREADY_REPORTED_ANSWER("이미 신고된 답장입니다."),
+  ALREADY_MATCHED_24HOURS("24시간 이내에 이미 게시글을 배정받았습니다."),
+  ALREADY_PROCESSED_MATCH("이미 처리된 매칭은 PASS할 수 없습니다."),
+  INVALID_MATCH_STATUS("유효하지 않은 매칭 상태입니다."),
 
   // 권한 검사
   NO_PERMISSION_REPLY("답장을 작성할 권한이 없습니다."),

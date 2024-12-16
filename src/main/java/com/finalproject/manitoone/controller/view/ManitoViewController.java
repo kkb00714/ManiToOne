@@ -1,6 +1,5 @@
 package com.finalproject.manitoone.controller.view;
 
-import com.finalproject.manitoone.constants.MatchStatus;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.dto.manito.ManitoLetterResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
@@ -35,10 +34,9 @@ public class ManitoViewController {
       return "fragments/common/manito-letter :: manito-letter(letter=${letter})";
     } catch (Exception e) {
       log.error("Error loading letter fragment: ", e);
-      return "error/fragment";  // 에러 fragment 템플릿
+      return "error/fragment";
     }
   }
-
 
   @GetMapping
   public String getManitoPage(
@@ -53,33 +51,33 @@ public class ManitoViewController {
     }
 
     try {
-      // 기본 속성 설정
-      model.addAttribute("canRequestMatch", true);
       model.addAttribute("userNickname", nickname);
       model.addAttribute("initialTab", tab);
       model.addAttribute("initialLetterId", letterId);
 
-      // 현재 유효한 매칭 확인
+      // 현재 유효한 매칭 확인 (24시간 이내의 매칭)
       Optional<ManitoMatches> currentMatch = manitoMatchesService.getCurrentValidMatch(nickname);
 
       if (currentMatch.isPresent()) {
         ManitoMatches match = currentMatch.get();
-        if (match.getStatus() == MatchStatus.MATCHED) {
-          try {
-            PostViewResponseDto todaysPost = postService.getPost(match.getMatchedPostId().getPostId());
-            ManitoLetterResponseDto existingLetter = manitoService.getLetterByMatchIdAndNickname(
-                match.getManitoMatchesId(),
-                nickname
-            );
+        try {
+          PostViewResponseDto todaysPost = postService.getPost(
+              match.getMatchedPostId().getPostId());
+          ManitoLetterResponseDto existingLetter = manitoService.getLetterByMatchIdAndNickname(
+              match.getManitoMatchesId(),
+              nickname
+          );
 
-            model.addAttribute("todaysPost", todaysPost);
-            model.addAttribute("existingLetter", existingLetter);
-            model.addAttribute("currentMatch", match);
-            model.addAttribute("canRequestMatch", false);
-          } catch (Exception e) {
-            log.error("Error loading match data", e);
-          }
+          model.addAttribute("todaysPost", todaysPost);
+          model.addAttribute("existingLetter", existingLetter);
+          model.addAttribute("currentMatch", match);
+          model.addAttribute("canRequestMatch", false);
+        } catch (Exception e) {
+          log.error("Error loading match data", e);
+          model.addAttribute("canRequestMatch", false);
         }
+      } else {
+        model.addAttribute("canRequestMatch", true);
       }
 
       return "pages/manito";

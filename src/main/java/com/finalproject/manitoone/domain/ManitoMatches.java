@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.domain;
 
 
+import com.finalproject.manitoone.constants.ManitoErrorMessages;
 import com.finalproject.manitoone.constants.MatchStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -63,14 +64,14 @@ public class ManitoMatches {
   // 유저가 PASS를 선택했을 때
   public void markAsPassed() {
     if (this.status != MatchStatus.MATCHED) {
-      throw new IllegalStateException("이미 처리된 매칭은 PASS할 수 없습니다.");
+      throw new IllegalStateException(ManitoErrorMessages.ALREADY_PROCESSED_MATCH.getMessage());
     }
     this.status = MatchStatus.PASSED;
   }
 
   public void validateMatchStatus() {
     if (this.status != MatchStatus.MATCHED) {
-      throw new IllegalStateException("유효하지 않은 매칭 상태입니다.");
+      throw new IllegalStateException(ManitoErrorMessages.INVALID_MATCH_STATUS.getMessage());
     }
   }
 }

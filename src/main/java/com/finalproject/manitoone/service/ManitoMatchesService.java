@@ -6,7 +6,6 @@ import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.repository.ManitoMatchesRepository;
-import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -25,19 +24,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class ManitoMatchesService {
 
   private final ManitoMatchesRepository manitoMatchesRepository;
-  private final PostRepository postRepository;
   private final UserRepository userRepository;
 
   // 유저에게 게시글 배정
   @Transactional(isolation = Isolation.SERIALIZABLE)
   public ManitoMatches createMatch(String nickname) {
     User user = userRepository.findUserByNickname(nickname)
-        .orElseThrow(() -> new EntityNotFoundException(ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
+        .orElseThrow(
+            () -> new EntityNotFoundException(ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
 
     // 24시간 이내 매칭 여부 확인
     LocalDateTime timeLimit = LocalDateTime.now().minusHours(24);
     if (manitoMatchesRepository.hasRecentMatch(user, timeLimit)) {
-      throw new IllegalStateException("24시간 이내에 이미 게시글을 배정받았습니다.");
+      throw new IllegalStateException(ManitoErrorMessages.ALREADY_MATCHED_24HOURS.getMessage());
     }
 
     // 배정 가능한 게시글 찾기 (72시간 이내)
@@ -45,7 +44,7 @@ public class ManitoMatchesService {
     List<Post> assignablePosts = manitoMatchesRepository.findAssignablePosts(postTimeLimit);
 
     if (assignablePosts.isEmpty()) {
-      throw new IllegalStateException("배정 가능한 게시글이 없습니다.");
+      throw new IllegalStateException(ManitoErrorMessages.NO_AVAILABLE_POSTS.getMessage());
     }
 
     for (Post post : assignablePosts) {
@@ -67,26 +66,14 @@ public class ManitoMatchesService {
       }
     }
 
-    throw new IllegalStateException("매칭 가능한 게시글이 없습니다. 잠시 후 다시 시도해주세요.");
+    throw new IllegalStateException(ManitoErrorMessages.NO_AVAILABLE_POSTS.getMessage());
   }
-
 
   @Transactional(readOnly = true)
   public Optional<ManitoMatches> getCurrentValidMatch(String nickname) {
     User user = userRepository.findUserByNickname(nickname)
         .orElseThrow(() -> new EntityNotFoundException(
             ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
-
-    LocalDateTime timeLimit = LocalDateTime.now().minusHours(24);
-    return manitoMatchesRepository.findLatestMatchByUser(user.getUserId(), timeLimit);
-  }
-
-  // 유저의 현재 유효한 매칭 조회
-  @Transactional(readOnly = true)
-  public Optional<ManitoMatches> getCurrentMatch(String nickname) {
-    User user = userRepository.findUserByNickname(nickname)
-        .orElseThrow(
-            () -> new EntityNotFoundException(ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
 
     LocalDateTime timeLimit = LocalDateTime.now().minusHours(24);
     return manitoMatchesRepository.findLatestMatchByUser(user.getUserId(), timeLimit);
@@ -106,7 +93,7 @@ public class ManitoMatchesService {
     match.markAsPassed();
   }
 
-  // 편지 미작성 매칭 만료 처리 (스케줄러에서 호출)
+  // 편지 미작성 매칭 만료 처리 (이후 추가될 스케줄러에서 호출)
   @Transactional
   public void expireUnwrittenMatches() {
     LocalDateTime timeLimit = LocalDateTime.now().minusHours(24);

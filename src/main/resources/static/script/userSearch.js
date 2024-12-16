@@ -52,6 +52,12 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="nick-name">${user.nickname}</div>
       `;
 
+      // 클릭 이벤트 추가
+      userItem.addEventListener("click", function () {
+        // 프로필 페이지로 이동
+        window.location.href = `/profile/${user.nickname}`;
+      });
+
       searchResults.appendChild(userItem);
     });
   }

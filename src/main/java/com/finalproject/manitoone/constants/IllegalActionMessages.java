@@ -15,6 +15,7 @@ public enum IllegalActionMessages {
   CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID("해당 게시물을 좋아하는 사람이 없습니다."),
   CANNOT_FIND_MANITO_LETTER_WITH_GIVEN_ID("해당 게시물에 대한 마니또 편지가 없습니다."),
   CANNOT_FIND_MANITO_WITH_GIVEN_ID("해당하는 마니또를 찾을 수 없습니다."),
+  CANNOT_FIND_MANITO_MATCH_WITH_GIVEN_ID("해당 게시물은 마니또가 매칭되지 않았습니다."),
   CANNOT_FIND_ANY_POST("작성된 게시물이 없습니다."),
   CANNOT_DELETE_POST_AND_REPLY("타인의 게시글을 삭제할 수 없습니다"),
   CANNOT_FIND_USER_BY_GIVEN_NICKNAME("해당하는 유저의 닉네임을 찾을 수 없습니다."),
@@ -26,6 +27,7 @@ public enum IllegalActionMessages {
 
   // Auth
   USER_NOT_FOUND("해당하는 유저를 찾을 수 없습니다."),
+  USER_ALREADY_IN_USE("이미 존재하는 유저입니다."),
   EMAIL_ALREADY_IN_USE("이미 사용 중인 이메일입니다"),
   NICKNAME_ALREADY_IN_USE("이미 사용 중인 닉네임입니다"),
   EMAIL_VERIFICATION_FAILED("이메일 인증에 실패했습니다."),

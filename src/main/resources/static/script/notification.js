@@ -5,7 +5,7 @@ function handleNotificationClick(notiType, relatedObjectId, nickname) {
     case 'POST_RE_REPLY':
     case 'LIKE_CLOVER':
       // 게시글 상세 페이지로 이동
-      url = `/`;
+      url = `/post/${relatedObjectId}`;
       break;
     case 'FOLLOW':
       url = `/profile/${nickname}`;
@@ -13,8 +13,7 @@ function handleNotificationClick(notiType, relatedObjectId, nickname) {
     case 'RECEIVE_MANITO':
     case 'MANITO_COMMENT':
     case 'MANITO_THANK_COMMENT':
-      // 마니또 페이지 연결
-      url = `/`;
+      url = `/manito?letterId=` + relatedObjectId + '$tab=received';
       break;
     default:
       url = '/notifications';

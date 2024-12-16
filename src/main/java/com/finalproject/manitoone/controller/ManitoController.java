@@ -2,17 +2,22 @@ package com.finalproject.manitoone.controller;
 
 import com.finalproject.manitoone.constants.ManitoErrorMessages;
 import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.dto.ReportRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.ReportStatusResponseDto;
 import com.finalproject.manitoone.dto.manito.ManitoAnswerRequestDto;
 import com.finalproject.manitoone.dto.manito.ManitoLetterRequestDto;
 import com.finalproject.manitoone.dto.manito.ManitoLetterResponseDto;
+import com.finalproject.manitoone.dto.manito.ManitoMatchResponseDto;
 import com.finalproject.manitoone.dto.manito.ManitoPageResponseDto;
+import com.finalproject.manitoone.service.ManitoMatchesService;
 import com.finalproject.manitoone.service.ManitoService;
 import com.finalproject.manitoone.service.ReportService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -27,7 +32,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -35,6 +42,7 @@ public class ManitoController {
 
   private final ManitoService manitoService;
   private final ReportService reportService;
+  private final ManitoMatchesService manitoMatchesService;
 
 
   private String validateSession(HttpSession session) {
@@ -52,17 +60,45 @@ public class ManitoController {
   }
 
   // 마니또 편지 생성
-  @PostMapping("/manito/letter/{manitoPostId}")
+  // manitoPostId -> manitoMatchesId로 변경
+  @PostMapping("/manito/letter/{manitoMatchesId}")
   public ResponseEntity<ManitoLetterResponseDto> createManitoLetter(
-      @PathVariable Long manitoPostId,
+      @PathVariable Long manitoMatchesId,
       @Valid @RequestBody ManitoLetterRequestDto request,
       HttpSession session
   ) {
-    String nickname = validateSession(session);
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(manitoService.createLetter(manitoPostId, request, nickname));
+    try {
+      String nickname = validateSession(session);
+      return ResponseEntity.status(HttpStatus.CREATED)
+          .body(manitoService.createLetter(manitoMatchesId, request, nickname));
+    } catch (EntityNotFoundException e) {
+      log.error("Manito match not found: {}", manitoMatchesId);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+    } catch (Exception e) {
+      log.error("Error creating manito letter: ", e);
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+          "편지 작성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    }
   }
 
+  // 마니또 매칭
+  @PostMapping("/manito/match")
+  public ResponseEntity<ManitoMatchResponseDto> createMatch(HttpSession session) {
+    String nickname = validateSession(session);
+    ManitoMatches match = manitoMatchesService.createMatch(nickname);
+    return ResponseEntity.ok(ManitoMatchResponseDto.from(match));
+  }
+
+  // Pass 기능
+  @PutMapping("/manito/pass/{manitoMatchesId}")
+  public ResponseEntity<Void> passManitoMatch(
+      @PathVariable Long manitoMatchesId,
+      HttpSession session
+  ) {
+    String nickname = validateSession(session);
+    manitoMatchesService.passMatch(manitoMatchesId, nickname);
+    return ResponseEntity.ok().build();
+  }
 
   // 편지에 대한 답장
   @PutMapping("/manito/answer/{manitoPostId}")
@@ -147,7 +183,6 @@ public class ManitoController {
     ManitoLetterResponseDto letter = manitoService.getLetterWithPermissionCheck(letterId, nickname);
     return ResponseEntity.ok(letter);
   }
-
 
   // 신고 상태 조회
   @GetMapping("/manito/report/status/{letterId}")

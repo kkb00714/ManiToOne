@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
+  <link rel="stylesheet" th:href="@{/style/sign-up.css}"/>
+  <link rel="stylesheet" th:href="@{/style/password-view.css}"/>
+  <link rel="stylesheet" th:href="@{/style/password-view.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -36,16 +39,18 @@
         />
         <p><span id="email-error" class="error-message"></span></p>
 
-        <span>비밀번호(영문 대-소문자, 숫자, 특수문자 포함 8~16자)</span>
-        <input
-            class="sign-up-input"
-            type="password"
-            name="user-password"
-            id="user-password"
-            placeholder="비밀번호(영문 대-소문자, 숫자, 특수문자 포함 8~16자)"
-            aria-label="비밀번호 입력"
-            required
-        />
+        <div class="password-input-container">
+          <input
+              class="sign-up-input"
+              type="password"
+              name="user-password"
+              id="user-password"
+              placeholder="비밀번호(영문 대-소문자, 숫자, 특수문자 포함 8~16자)"
+              aria-label="비밀번호 입력"
+              required
+          />
+          <button type="button" id="toggle-password-sign-up" aria-label="비밀번호 표시/숨기기">표시</button>
+        </div>
         <p><span id="password-error" class="error-message"></span></p>
 
         <input
@@ -80,7 +85,10 @@
         />
         <p><span id="birth-error" class="error-message"></span></p>
 
-        <button class="sign-up-button">가입</button>
+        <button id="sign-up-button" class="sign-up-button">
+          <span class="button-text">가입</span>
+          <span id="loading-spinner" class="loading-spinner" style="display: none;"></span>
+        </button>
       </div>
     </form>
   </div>
@@ -99,6 +107,45 @@
       emailInput.value = savedEmail;
       emailInput.setAttribute('readonly', true); // 수정 불가능하게 설정
       localStorage.removeItem('verifiedEmail');
+    }
+
+    const togglePasswordButton = document.getElementById("toggle-password-sign-up");
+    const passwordInput = document.getElementById("user-password");
+
+    togglePasswordButton.addEventListener("click", function () {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        togglePasswordButton.textContent = "숨기기";
+      } else {
+        passwordInput.type = "password";
+        togglePasswordButton.textContent = "표시";
+      }
+    });
+  });
+
+  document.getElementById("user-nickname").addEventListener("input", function () {
+    const nickname = this.value;
+    const nicknameError = document.getElementById("nickname-error");
+
+    if (nickname.length > 0) {
+      fetch(`/api/check-nickname?nickname=${nickname}`)
+      .then(response => {
+        if (response.ok) {
+          nicknameError.textContent = '사용 가능한 닉네임입니다.';  // 닉네임 사용 가능
+          nicknameError.style.color = 'green';
+        } else {
+          return response.text().then(errorText => {
+            nicknameError.textContent = errorText;  // 중복된 닉네임
+            nicknameError.style.color = 'red';
+          });
+        }
+      })
+      .catch(error => {
+        nicknameError.textContent = '서버 오류가 발생했습니다. 다시 시도해주세요.';
+        nicknameError.style.color = 'red';
+      });
+    } else {
+      nicknameError.textContent = '';
     }
   });
 
@@ -186,6 +233,12 @@
       nickname: nickname,
       birth: birth,
     };
+
+    const signUpButton = document.getElementById('sign-up-button');
+    const buttonText = signUpButton.querySelector('.button-text');
+    const loadingSpinner = signUpButton.querySelector('#loading-spinner');
+    buttonText.style.display = 'none';
+    loadingSpinner.style.display = 'inline-block';
 
     fetch('/api/signup', {
       method: "POST",

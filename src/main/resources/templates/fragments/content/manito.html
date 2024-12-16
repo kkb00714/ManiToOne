@@ -1,100 +1,142 @@
 <div th:fragment="manito">
-  <div class="who-is-today">
-    <p>
-      🎉오늘 나는 <span class="user-name" th:text="${todaysPost.nickName}">beer_lover</span> 님의
-      마니또입니다!🎁
-    </p>
-  </div>
-  <section class="todays-manito-section">
-    <div class="todays-manito-post">
-      <div class="post-container">
-        <img
-            class="user-photo"
-            th:src="${todaysPost.profileImage != null ? todaysPost.profileImage : '/images/icons/UI-user2.png'}"
-            alt="user icon"
-        />
-        <div class="post-content">
-          <div class="user-info">
-            <span class="user-name" th:text="${todaysPost.nickName}">beer_lover</span>
-            <span class="passed-time" th:text="${todaysPost.formattedTime}">3분</span>
-          </div>
-          <p class="content-text" th:text="${todaysPost.content}">
-            오늘 일 완전 힘들었다... 스트레스 받아서 귀가하는 길에 지친
-            심신을 달래줄 맥주 한 캔 샀음~ <br/>
-            아쉽지만 치킨은 없다ㅋㅋ 이번달 돈 아껴야 해~~
-          </p>
-          <img
-              class="post-image"
-              th:if="${todaysPost.postImages != null and not #lists.isEmpty(todaysPost.postImages)}"
-              th:src="${todaysPost.postImages[0].imageUrl}"
-              alt="beer image"
-          />
-          <p class="post-time"
-             th:text="${#temporals.format(todaysPost.createdAt, 'yyyy년 MM월 dd일 a hh시 mm분')}">2024년
-            11월 27일 오후 11시 33분</p>
-          <div class="reaction-icons">
-            <img
-                class="tiny-icons"
-                th:src="@{/images/icons/icon-clover2.png}"
-                alt="I like this"
-            />
-            <span class="like-count" th:text="${todaysPost.likeCount}">22</span>
-            <img
-                class="tiny-icons"
-                th:src="@{/images/icons/icon-comment2.png}"
-                alt="add reply"
-            />
-            <span class="reply-count"
-                  th:text="${todaysPost.replies != null ? todaysPost.replies.size() : 0}">3</span>
-          </div>
-        </div>
-        <div class="option-icons">
-          <img
-              class="tiny-icons"
-              th:src="@{/images/icons/UI-more2.png}"
-              alt="more options"
-          />
-          <img
-              class="tiny-icons"
-              th:src="@{/images/icons/icon-add-friend.png}"
-              alt="add friend"
-          />
-        </div>
+  <div th:if="${canRequestMatch == true}" class="pre-match-container">
+    <div class="pre-match-content">
+      <h2 class="pre-match-title">🍀두근두근! 오늘 나는 누구의 마니또일까요?🍀</h2>
+      <p class="pre-match-description">'지금 확인하기' 버튼을 눌러 확인해보세요!</p>
+      <button onclick="requestMatch()" class="reply-button match-request-button">
+        지금 확인하기
+      </button>
+      <div class="match-notice">
+        <p>※ 게시글을 배정받고 24시간이 경과해야 새로운 게시글을 배정받을 수 있습니다.</p>
+        <p>※ 게시글에 편지를 쓰지 않거나 포기하고 넘기더라도 24시간 후에 새로 배정받을 수 있습니다.</p>
       </div>
     </div>
-  </section>
-  <div class="send-letter-container">
-    <p class="send-letter-description">
-      <span class="highlight">편지 보내기</span> 버튼을 눌러
-      <span class="highlight" th:text="${todaysPost.nickName}">beer_lover</span> 님께 익명의 격려와 공감을
-      보내보세요!<br/>추천하고 싶은 음악이 있다면 편지에 음악 링크를
-      첨부해주세요.<br/>따뜻한 진심을 담은 응원이 모두를 행복하게
-      만듭니다.
-    </p>
-    <p class="send-letter-terms">
-      ※ 마니또로 보내는 편지는 익명 처리됩니다. 받는 상대에게 내 계정
-      정보가 보이지 않습니다.<br/>※ 초면의 상대에게 상호 존중을 담아
-      존댓말을 사용해주세요.<br/>※ 사용자 간의 존중과 긍정적인 소통을
-      유지하기 위해 비난, 욕설, 모욕, 혐오 표현 또는 기타 부적절한
-      게시물은 커뮤니티 이용 약관에 위배되며, 이를 게시할 경우 게시물
-      삭제, 계정 일시 정지 또는 영구 차단, 필요한 경우 관계 법령에 따른
-      조치가 취해질 수 있습니다. 건강하고 안전한 커뮤니티 환경을 위해
-      사용자 여러분의 협조를 부탁드립니다.
-    </p>
   </div>
-  <!-- 편지 존재 여부에 따라 버튼 변경 -->
-  <button class="reply-button"
-          th:if="${existingLetter == null}"
-          id="openManitoLetterModalBtn">
-    이 게시물에 편지 보내기
-  </button>
-  <button class="reply-button"
-          th:if="${existingLetter != null}"
-          style="display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto 2rem; cursor: none ">
-    이미 편지를 작성하셨습니다
-  </button>
+  <th:block th:if="${todaysPost != null}">
+    <meta name="post-id" th:content="${todaysPost.postId}"/>
+    <meta name="manito-match-id"
+          th:content="${currentMatch != null ? currentMatch.manitoMatchesId : ''}"/>
+    <meta name="matched-time" th:content="${currentMatch != null ? currentMatch.matchedTime : ''}"/>
+    <div class="who-is-today">
+      <p>
+        🎉오늘 나는 <span class="user-name" th:text="${todaysPost.nickName}">beer_lover</span> 님의
+        마니또입니다!🎁
+      </p>
+    </div>
+    <section class="todays-manito-section">
+      <div class="todays-manito-post">
+        <div class="post-container">
+          <img
+              class="user-photo"
+              th:src="${todaysPost.profileImage != null ? todaysPost.profileImage : '/images/icons/UI-user2.png'}"
+              alt="user icon"
+          />
+          <div class="post-content">
+            <div class="user-info">
+              <span class="user-name" th:text="${todaysPost.nickName}">beer_lover</span>
+              <span class="passed-time" th:text="${todaysPost.formattedTime}">3분</span>
+            </div>
+            <p class="content-text" th:text="${todaysPost.content}">
+              오늘 일 완전 힘들었다... 스트레스 받아서 귀가하는 길에 지친
+              심신을 달래줄 맥주 한 캔 샀음~ <br/>
+              아쉽지만 치킨은 없다ㅋㅋ 이번달 돈 아껴야 해~~
+            </p>
+            <img
+                class="post-image"
+                th:if="${todaysPost.postImages != null and not #lists.isEmpty(todaysPost.postImages)}"
+                th:src="${todaysPost.postImages[0].imageUrl}"
+                alt="beer image"
+            />
+            <p class="post-time"
+               th:text="${#temporals.format(todaysPost.createdAt, 'yyyy년 MM월 dd일 a hh시 mm분')}">2024년
+              11월 27일 오후 11시 33분</p>
+            <div class="reaction-icons">
+              <img
+                  class="tiny-icons"
+                  th:src="@{/images/icons/icon-clover2.png}"
+                  alt="I like this"
+              />
+              <span class="like-count" th:text="${todaysPost.likeCount}">22</span>
+              <img
+                  class="tiny-icons"
+                  th:src="@{/images/icons/icon-comment2.png}"
+                  alt="add reply"
+              />
+              <span class="reply-count"
+                    th:text="${todaysPost.replies != null ? todaysPost.replies.size() : 0}">3</span>
+            </div>
+          </div>
+          <div class="option-icons">
+            <img
+                class="tiny-icons"
+                th:src="@{/images/icons/UI-more2.png}"
+                alt="more options"
+            />
+            <img
+                class="tiny-icons"
+                th:src="@{/images/icons/icon-add-friend.png}"
+                alt="add friend"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="send-letter-container">
+      <p class="send-letter-description">
+        <span class="highlight">편지 보내기</span> 버튼을 눌러
+        <span class="highlight" th:text="${todaysPost.nickName}">beer_lover</span> 님께 익명의 격려와 공감을
+        보내보세요!<br/>추천하고 싶은 음악이 있다면 편지에 음악 링크를
+        첨부해주세요.<br/>따뜻한 진심을 담은 응원이 모두를 행복하게
+        만듭니다.
+      </p>
+      <p class="send-letter-terms">
+        ※ 마니또로 보내는 편지는 익명 처리됩니다. 받는 상대에게 내 계정
+        정보가 보이지 않습니다.<br/>※ 초면의 상대에게 상호 존중을 담아
+        존댓말을 사용해주세요.<br/>※ 사용자 간의 존중과 긍정적인 소통을
+        유지하기 위해 비난, 욕설, 모욕, 혐오 표현 또는 기타 부적절한
+        게시물은 커뮤니티 이용 약관에 위배되며, 이를 게시할 경우 게시물
+        삭제, 계정 일시 정지 또는 영구 차단, 필요한 경우 관계 법령에 따른
+        조치가 취해질 수 있습니다. 건강하고 안전한 커뮤니티 환경을 위해
+        사용자 여러분의 협조를 부탁드립니다.
+      </p>
+    </div>
+    <!-- 편지 존재 여부에 따라 버튼 변경 -->
+    <div th:if="${todaysPost != null}" class="action-buttons">
+      <th:block th:if="${existingLetter == null}">
+        <!-- 편지를 아직 쓰지 않았고, 아직 넘기지도 않은 상태 -->
+        <th:block th:if="${currentMatch.status.name() == 'MATCHED'}">
+          <button class="reply-button"
+                  id="openManitoLetterModalBtn">
+            이 게시물에 편지 보내기
+          </button>
+          <button class="pass-post-button"
+                  onclick="passMatch()">
+            이 게시물에 편지를 보내지 않을래요
+          </button>
+        </th:block>
+      </th:block>
+
+      <!-- 이미 편지를 쓴 상태 -->
+      <button class="reply-button"
+              th:if="${existingLetter != null}"
+              style="display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto; cursor: default"
+              disabled>
+        이미 편지를 작성하셨습니다
+      </button>
+
+      <!-- 넘긴 상태 -->
+      <button class="reply-button"
+              th:if="${currentMatch.status.name() == 'PASSED'}"
+              style="display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto; cursor: default"
+              disabled>
+        이 게시물을 넘기셨습니다
+      </button>
+      <div class="remaining-time" id="remainingTime"></div>
+    </div>
+  </th:block>
   <div th:replace="~{fragments/common/manito-letter-box :: manito-letter-box}"></div>
-  <div th:replace="~{fragments/modals/manito-letter-modal :: manito-letter-modal}"></div>
+  <div
+      th:replace="~{fragments/modals/manito-letter-modal :: manito-letter-modal(${todaysPost != null ? todaysPost.nickName : ''})}"></div>
   <div
       th:replace="~{fragments/modals/manito-letter-reply-modal :: manito-letter-reply-modal}"></div>
   <div

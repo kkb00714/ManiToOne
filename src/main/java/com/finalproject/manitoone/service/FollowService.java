@@ -1,21 +1,27 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.domain.Follow;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.repository.FollowRepository;
 import com.finalproject.manitoone.repository.UserRepository;
+import com.finalproject.manitoone.util.NotificationUtil;
 import jakarta.transaction.Transactional;
+import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FollowService {
 
   private final FollowRepository followRepository;
   private final UserRepository userRepository;
+  private final NotificationUtil notificationUtil;
 
   public Boolean isFollowed(String myNickName, String targetNickName) {
     User my = userRepository.findUserByNickname(myNickName).orElseThrow(
@@ -52,6 +58,12 @@ public class FollowService {
       if (Boolean.FALSE.equals(followRepository.existsByFollower_UserIdAndFollowing_UserId(my.getUserId(), target.getUserId()))) {
         Follow newFollow = new Follow(null, my, target);
         followRepository.save(newFollow);
+        try
+        {
+          notificationUtil.createNotification(target.getNickname(), my, NotiType.FOLLOW, my.getUserId());
+        } catch (IOException e) {
+          log.error(e.getMessage());
+        }
         return Boolean.TRUE;
       }
       return Boolean.FALSE;

@@ -3,6 +3,8 @@ package com.finalproject.manitoone.service;
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.domain.AiPostLog;
+import com.finalproject.manitoone.domain.ManitoLetter;
+import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.ReplyPost;
@@ -19,11 +21,13 @@ import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
 import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
+import com.finalproject.manitoone.repository.ManitoMatchesRepository;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
+import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,12 +48,20 @@ public class PostService {
   private final ManitoLetterRepository manitoLetterRepository;
   private final ReportRepository reportRepository;
   private final AiPostLogRepository aiPostLogRepository;
+  private final UserRepository userRepository;
   private final UserService userService;
+  // ManitoMatchesRepository 생성으로 인한 필드 추가
+  private final ManitoMatchesRepository manitoMatchesRepository;
+
 
   // 게시글 생성 (미완성)
   // TODO: 이미지 업로드
   @Async
-  public PostResponseDto createPost(AddPostRequestDto request, User user) {
+  public PostResponseDto createPost(AddPostRequestDto request, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.save(Post.builder()
         .content(request.getContent())
         .user(user)
@@ -60,7 +72,7 @@ public class PostService {
     aiPostLogRepository.save(aiPost);
 
     return new PostResponseDto(post.getPostId(), post.getUser(), post.getContent(),
-        post.getIsManito());
+        post.getCreatedAt(), post.getUpdatedAt(), post.getIsManito());
   }
 
   // 이미지 저장
@@ -86,7 +98,11 @@ public class PostService {
 
   // 게시글 수정
   // TODO: 이미지 수정 
-  public PostResponseDto updatePost(Long postId, UpdatePostRequestDto request, User user) {
+  public PostResponseDto updatePost(Long postId, UpdatePostRequestDto request, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
@@ -104,6 +120,8 @@ public class PostService {
         .postId(updatedPost.getPostId())
         .user(updatedPost.getUser())
         .content(updatedPost.getContent())
+        .createdAt(updatedPost.getCreatedAt())
+        .updatedAt(updatedPost.getUpdatedAt())
         .isManito(updatedPost.getIsManito())
         .build();
   }
@@ -120,6 +138,8 @@ public class PostService {
         post.getPostId(),
         post.getUser(),
         post.getContent(),
+        post.getCreatedAt(),
+        post.getUpdatedAt(),
         post.getIsManito()
     ));
   }
@@ -136,6 +156,8 @@ public class PostService {
         post.getPostId(),
         post.getUser(),
         post.getContent(),
+        post.getCreatedAt(),
+        post.getUpdatedAt(),
         post.getIsManito()
     );
   }
@@ -149,7 +171,7 @@ public class PostService {
     deleteImages(postId);
     deleteReplies(postId);
     deleteLikes(postId);
-//    deleteManitoLetters(postId);
+    deleteManitoLetters(postId);
     postRepository.delete(post);
   }
 
@@ -183,7 +205,7 @@ public class PostService {
     userPostLikeRepository.deleteAll(likeList);
   }
 
-  // 마니또 편지 삭제
+//  // 마니또 편지 삭제
 //  private void deleteManitoLetters(Long postId) {
 //    List<ManitoLetter> manitoLetterList = manitoLetterRepository.findAllByPostIdPostId(postId)
 //        .orElseThrow(() -> new IllegalArgumentException(
@@ -192,6 +214,19 @@ public class PostService {
 //
 //    manitoLetterRepository.deleteAll(manitoLetterList);
 //  }
+
+  // 마니또 편지 삭제 (수정된 버전)
+  private void deleteManitoLetters(Long postId) {
+    // 해당 postId와 연결된 모든 매칭 찾기
+    List<ManitoMatches> matches = manitoMatchesRepository.findAllByMatchedPostId_PostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_MANITO_MATCH_WITH_GIVEN_ID.getMessage()
+        ));
+
+    // 각 매칭에 연결된 편지들 찾아서 삭제
+    matches.forEach(match -> manitoLetterRepository.findByManitoMatches_ManitoMatchesId(match.getManitoMatchesId())
+        .ifPresent(manitoLetterRepository::delete));
+  }
 
   // 게시글 숨기기
   public void hidePost(Long postId) {
@@ -205,7 +240,11 @@ public class PostService {
   }
 
   // 게시글 좋아요
-  public void likePost(Long postId, User user) {
+  public void likePost(Long postId, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
@@ -218,7 +257,11 @@ public class PostService {
   }
 
   // 게시글 신고
-  public ReportResponseDto reportPost(Long postId, AddReportRequestDto request, User user) {
+  public ReportResponseDto reportPost(Long postId, AddReportRequestDto request, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
@@ -238,6 +281,16 @@ public class PostService {
         .reportType(report.getReportType())
         .type(report.getType())
         .build();
+  }
+
+  // 게시글 좋아요 개수 조회
+  public Integer getPostLikesNum(Long postId) {
+    List<UserPostLike> likes = userPostLikeRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return likes.size();
   }
 
   public List<PostViewResponseDto> getPostsByNickName(String nickName, Pageable pageable) {
@@ -324,19 +377,18 @@ public class PostService {
 
   // 타임라인 조회를 위한 메서드
   public Page<PostViewResponseDto> getTimelinePosts(String nickname, Pageable pageable) {
-    //TODO : 현재 로그인한 사용자의 ID를 가져오는 로직
     User currentUser = userService.getCurrentUser(nickname);
 
     Page<Post> posts = postRepository.findTimelinePostsByUserId(currentUser.getUserId(), pageable);
     return posts.map(post -> {
       PostViewResponseDto dto = new PostViewResponseDto(
-      post.getPostId(),
-      post.getUser().getProfileImage(),
-      post.getUser().getNickname(),
-      post.getContent(),
-      post.getCreatedAt(),
-      post.getUpdatedAt()
-          );
+          post.getPostId(),
+          post.getUser().getProfileImage(),
+          post.getUser().getNickname(),
+          post.getContent(),
+          post.getCreatedAt(),
+          post.getUpdatedAt()
+      );
       return addAdditionalDataToDto(List.of(dto)).get(0);
     });
   }

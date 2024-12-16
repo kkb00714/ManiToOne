@@ -75,9 +75,9 @@
         <p id="openPostFormModalBtn">함께 나누고픈 감정이 있나요?</p>
       </div>
 
-      <div th:replace="fragments/modals/follow-list-modal :: follow-list-modal"></div>
-      <div th:replace="fragments/modals/profile-update-modal :: profile-update-modal"></div>
-      <div th:replace="fragments/modals/new-post-modal :: new-post-modal"></div>
+      <div th:replace="~{fragments/modals/follow-list-modal :: follow-list-modal}"></div>
+      <div th:replace="~{fragments/modals/profile-update-modal :: profile-update-modal}"></div>
+      <div th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"></div>
       <div th:replace="~{fragments/modals/manito-confirm-message-modal :: manito-confirm-message-modal}"></div>
 
       <!--작성 시간, 답글 보이지 않는 가장 기본 게시글 덩어리-->
@@ -91,6 +91,5 @@
   ></article>
 </main>
 <script th:src="@{/script/common.js}"></script>
-<script th:src="@{/script/newPost.js}"></script>
 </body>
 </html>

@@ -6,8 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -15,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
   private final CustomOAuth2UserService customOAuth2UserService;
+  private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -23,19 +22,11 @@ public class SecurityConfig {
             // .antMatchers("/admin/"**).hasRole("ADMIN") // 어드민 페이지 생성 및 롤 생성 시 활성화
             .anyRequest().permitAll()
         )
-        .formLogin(custom -> custom
-            .loginPage("/api/local-login")
-            .loginProcessingUrl("/login")
-            .defaultSuccessUrl("/")
-            .permitAll()
-        )
         .oauth2Login(oauth2 -> oauth2
             .loginPage("/login")
-            .userInfoEndpoint(userInfoEndpointConfig ->
-                userInfoEndpointConfig.userService(customOAuth2UserService))
-            .defaultSuccessUrl("/", true)
-            .failureUrl("/login?error=true")
-            .permitAll()
+            .userInfoEndpoint(userInfo ->
+                userInfo.userService(customOAuth2UserService))
+            .failureUrl("/login-fail")
         )
         .logout(custom -> custom
             .logoutSuccessUrl("/")
@@ -43,10 +34,5 @@ public class SecurityConfig {
         )
         .csrf(AbstractHttpConfigurer::disable)
         .build();
-  }
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
   }
 }

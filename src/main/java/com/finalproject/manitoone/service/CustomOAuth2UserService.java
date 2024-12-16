@@ -4,11 +4,9 @@ import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AuthUpdateDto;
 import com.finalproject.manitoone.domain.dto.PrincipalDetails;
-import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +37,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     String name = oAuth2User.getAttribute("name");
     String password = UUID.randomUUID().toString();
 
-    // todo : 이미 이메일이 존재하는 유저 == 로그인을 1회 이상 한 사람이기 때문에 isNewUser를 False 처리
     boolean isNewUser = userRepository.findByEmail(email).isEmpty();
 
     User user = userRepository.findByEmail(email)

@@ -1,4 +1,4 @@
-package com.finalproject.manitoone.config;
+package com.finalproject.manitoone.aop;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.User;

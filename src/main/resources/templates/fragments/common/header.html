@@ -1,7 +1,7 @@
 <header class="header-container" th:fragment="header">
   <h1>ManiToOne</h1>
   <div class="UI-icon-logo">
-    <a class="home-link"  th:href="@{/}"
+    <a class="home-link" th:href="@{/}"
     ><img th:src="@{/images/logo/logo.png}" alt="home"
     /></a>
   </div>
@@ -19,8 +19,8 @@
         <a th:href="@{/noti}">
           <button>
             <img class="noti-image"
-                th:src="@{/images/icons/UI-notification2.png}"
-                alt="notification"/>
+                 th:src="@{/images/icons/UI-notification2.png}"
+                 alt="notification"/>
           </button>
         </a>
       </li>
@@ -49,7 +49,12 @@
     </ul>
   </nav>
   <div class="UI-icon-more">
-    <img th:src="@{/images/icons/UI-more2.png}" alt="Show-more-options"/>
+    <button id="more-options-btn">
+      <img th:src="@{/images/icons/UI-more2.png}" alt="Show-more-options"/>
+    </button>
+    <div id="tooltip-menu" class="hidden tooltip">
+        <button id="logout-btn">로그아웃</button>
+    </div>
   </div>
   <!-- 로그인된 유저의 이메일을 meta 태그로 전달 -->
   <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>

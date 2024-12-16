@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/common.css}"/>
+  <link rel="stylesheet" th:href="@{/style/email-auth.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <link rel="icon" type="image/x-icon" th:href="@{/images/favicon/favicon.ico}">
+  <title>ManiToOne</title>
+</head>
+<body>
+<section class="email-auth-section">
+  <div class="logo-box">
+    <img th:src="@{/images/logo/long-logo.png}" alt="ManiToOne logo"/>
+  </div>
+
+  <div class="sign-in-link-container">
+    <p>해당 페이지는 접근할 수 없습니다.</p>
+
+    <p class="sign-in-link">
+      <a href="javascript:history.back()">돌아가기</a>
+    </p>
+  </div>
+</section>
+
+</body>
+</html>

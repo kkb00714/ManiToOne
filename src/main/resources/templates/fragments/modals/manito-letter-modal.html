@@ -1,11 +1,15 @@
 <!-- 마니또 편지 모달 시작 -->
-<div class="manito-letter-modal" id="manitoLetterModalBackground" th:fragment="manito-letter-modal">
+<div class="manito-letter-modal" id="manitoLetterModalBackground" th:fragment="manito-letter-modal(recipient)">
   <form
       class="manito-letter-modal-container"
       id="manitoLetterModalContainer"
   >
     <div class="send-letter-title">
-      <p><span class="user-name" th:text="${todaysPost.nickName}">beer_lover</span> 에게 편지 보내기</p>
+      <!-- todaysPost가 null일 수 있으므로 조건부 렌더링 추가 -->
+      <p th:if="${todaysPost != null}">
+        <span class="user-name" th:text="${todaysPost.nickName}">beer_lover</span> 에게 편지 보내기
+      </p>
+      <p th:unless="${todaysPost != null}">편지 보내기</p>
       <img
           class="tiny-icons"
           id="closeManitoLetterModalBtn"
@@ -20,10 +24,6 @@
           <textarea class="manito-letter-text" id="manito-letter-text-input"
                     placeholder="따뜻한 공감과 격려를 보내주세요. 초면의 상대에게는 예의를 갖춰 존댓말을 사용해주세요. 모든 마니또 편지는 익명처리 되며 부적절한 내용 혹은 링크가 포함될 시 커뮤니티 이용 약관 및 관련 법령에 따라 조치될 수 있습니다."
                     maxlength="500"></textarea>
-          <p class="ai-post-comment">
-            AI : 따뜻한 공감과 격려, 건강에 대한 조언까지! 아주 좋은
-            편지인 것 같아요! 이대로 보내볼까요?
-          </p>
         </div>
       </div>
     </div>

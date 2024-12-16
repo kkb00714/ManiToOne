@@ -56,4 +56,12 @@ public class Notification {
   public void markAsRead() {
     this.isRead = true;
   }
+
+  public void updateCreatedAt() {
+    this.createdAt = LocalDateTime.now();
+  }
+
+  public void unMarkAsRead() {
+    this.isRead = false;
+  }
 }

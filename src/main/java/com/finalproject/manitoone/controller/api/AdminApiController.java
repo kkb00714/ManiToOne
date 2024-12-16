@@ -56,6 +56,11 @@ public class AdminApiController {
     return ResponseEntity.ok(adminService.searchPosts(postSearchRequestDto, pageable));
   }
 
+  @GetMapping("/post/{postId}/image")
+  public ResponseEntity<Object> getPostImages(@PathVariable Long postId) {
+    return ResponseEntity.ok(adminService.getPostImages(postId));
+  }
+
   @PutMapping("/blind/post/{postId}")
   public ResponseEntity<Object> blindPost(@PathVariable Long postId) {
     return ResponseEntity.ok(adminService.updateBlind(postId));
@@ -99,5 +104,12 @@ public class AdminApiController {
   public ResponseEntity<Object> deleteReport(@PathVariable Long reportId) {
     adminService.deleteReport(reportId);
     return ResponseEntity.ok().build();
+  }
+
+  @PostMapping("/manito/reports")
+  public ResponseEntity<Object> getManitoReports (
+      @PageableDefault(size = 2, sort = "reportId", direction = Sort.Direction.ASC) Pageable pageable,
+      @RequestBody ReportSearchRequestDto reportSearchRequestDto) {
+    return ResponseEntity.ok(adminService.searchManitoReports(reportSearchRequestDto, pageable));
   }
 }

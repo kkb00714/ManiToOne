@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/admin/adminCommon.css}"/>
+  <link rel="stylesheet" th:href="@{/style/admin/adminManitoReport.css}"/>
+  <link rel="stylesheet" th:href="@{/style/fileModal.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <title>ManiToOne AdminPage Manito Report</title>
+</head>
+<body>
+<header th:replace="fragments/admin/adminHeader :: adminHeader"></header>
+<nav th:replace="fragments/admin/adminNav :: adminNav"></nav>
+<main class="main-container">
+  <section class="middle-section" id="middleSection">
+    <div class="table-box">
+      <div class="table-header"><span class="caption-header">마니또 신고 관리</span>
+        <span class="type">
+          <a href="#" class="type-filter active" data-status="">전체</a>
+            <a th:each="filter : ${types}"
+               class="type-filter"
+               th:data-status="${filter.value}"
+               th:text="${filter.label}">
+            </a>
+        </span>
+        <span class="type">
+           <select id="reportTypeSelect" class="reportType-select me-2" aria-label="신고 사유 선택">
+              <option value="" selected>신고 사유 선택</option>
+              <option th:each="reportType : ${reportTypes}"
+                      th:value="${reportType.value}"
+                      th:text="${reportType.label}">
+              </option>
+            </select>
+        </span>
+      </div>
+      <table class="table-container">
+        <thead>
+        <tr>
+          <th>No</th>
+          <th>유형</th>
+          <th>사유</th>
+          <th>내용</th>
+          <th>신고 닉네임</th>
+          <th>피신고 닉네임</th>
+          <th>날짜</th>
+        </tr>
+        </thead>
+        <tbody id="manito-report-table-body">
+        </tbody>
+      </table>
+
+      <nav aria-label="Page navigation" class="paging">
+        <ul class="pagination">
+        </ul>
+      </nav>
+      <nav class="navbar bg-light">
+        <div class="container-fluid justify-content-center">
+          <select id="filterSelect" class="form-select me-2" aria-label="말머리 선택">
+            <option value="reportedBy">신고한 닉네임</option>
+            <option value="reportedTo">신고 당한 닉네임</option>
+            <option value="content">내용</option>
+          </select>
+
+          <!-- 검색 입력 및 버튼 -->
+          <input id="searchQuery" class="form-control me-2" type="search" placeholder="Search"
+                 aria-label="Search">
+          <button id="searchButton" class="btn btn-outline-success">검색</button>
+        </div>
+      </nav>
+    </div>
+  </section>
+  <div th:replace="fragments/admin/modals/manito-report-modal :: manito-report-modal"></div>
+</main>
+<div class="modal-overlay" id="modalOverlay"></div>
+<script th:src="@{/script/admin/adminManitoReport.js}"></script>
+</body>
+</html>

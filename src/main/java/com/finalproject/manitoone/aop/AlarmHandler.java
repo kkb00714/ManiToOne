@@ -27,14 +27,11 @@ public class AlarmHandler extends TextWebSocketHandler {
   //클라이언트가 서버에 접속 성공시 호출
   @Override
   public void afterConnectionEstablished(WebSocketSession session) {
-    System.out.println("소켓 호출했다");
   }
 
   //소켓에 메세지를 보냈을 때 호출
   @Override
   protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-    System.out.println("소켓! 연결!");
-    System.out.println(message.getPayload());
     String payload = message.getPayload(); // 클라이언트가 보낸 메시지 (예: 이메일 또는 고유 ID)
 
     // 사용자 ID와 세션 매핑

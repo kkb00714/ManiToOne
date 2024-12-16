@@ -5,6 +5,7 @@
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/admin/adminCommon.css}"/>
   <link rel="stylesheet" th:href="@{/style/admin/adminPost.css}"/>
+  <link rel="stylesheet" th:href="@{/style/fileModal.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -65,6 +66,9 @@
       </nav>
     </div>
   </section>
+  <div th:replace="fragments/admin/modals/post-modal :: post-modal"></div>
   <script th:src="@{/script/admin/adminPost.js}"></script>
+</main>
+<div class="modal-overlay" id="modalOverlay"></div>
 </body>
 </html>

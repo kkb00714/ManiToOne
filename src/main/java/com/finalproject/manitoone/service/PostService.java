@@ -6,6 +6,7 @@ import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.domain.AiPostLog;
 import com.finalproject.manitoone.domain.ManitoLetter;
+import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
@@ -22,6 +23,7 @@ import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
 import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
+import com.finalproject.manitoone.repository.ManitoMatchesRepository;
 import com.finalproject.manitoone.repository.NotificationRepository;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
@@ -32,14 +34,18 @@ import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import com.finalproject.manitoone.util.FileUtil;
 import java.nio.file.Paths;
+import com.finalproject.manitoone.util.NotificationUtil;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -55,7 +61,10 @@ public class PostService {
   private final NotificationRepository notificationRepository;
   private final UserService userService;
   private final FileUtil fileUtil;
-
+  // ManitoMatchesRepository 생성으로 인한 필드 추가
+  private final ManitoMatchesRepository manitoMatchesRepository;
+  private final NotificationRepository notificationRepository;
+  private final NotificationUtil notificationUtil;
 
   // 게시글 생성 (미완성)
   // TODO: 이미지 업로드
@@ -236,14 +245,28 @@ public class PostService {
     userPostLikeRepository.deleteAll(postLikes);
   }
 
-  // 마니또 편지 삭제
+//  // 마니또 편지 삭제
+//  private void deleteManitoLetters(Long postId) {
+//    List<ManitoLetter> manitoLetterList = manitoLetterRepository.findAllByPostIdPostId(postId)
+//        .orElseThrow(() -> new IllegalArgumentException(
+//            IllegalActionMessages.CANNOT_FIND_MANITO_LETTER_WITH_GIVEN_ID.getMessage()
+//        ));
+//
+//    manitoLetterRepository.deleteAll(manitoLetterList);
+//  }
+
+  // 마니또 편지 삭제 (수정된 버전)
   private void deleteManitoLetters(Long postId) {
-    List<ManitoLetter> manitoLetterList = manitoLetterRepository.findAllByPostIdPostId(postId)
+    // 해당 postId와 연결된 모든 매칭 찾기
+    List<ManitoMatches> matches = manitoMatchesRepository.findAllByMatchedPostId_PostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
-            IllegalActionMessages.CANNOT_FIND_MANITO_LETTER_WITH_GIVEN_ID.getMessage()
+            IllegalActionMessages.CANNOT_FIND_MANITO_MATCH_WITH_GIVEN_ID.getMessage()
         ));
 
-    manitoLetterRepository.deleteAll(manitoLetterList);
+    // 각 매칭에 연결된 편지들 찾아서 삭제
+    matches.forEach(match -> manitoLetterRepository.findByManitoMatches_ManitoMatchesId(
+            match.getManitoMatchesId())
+        .ifPresent(manitoLetterRepository::delete));
   }
 
   // 게시글 신고 목록 삭제
@@ -302,7 +325,25 @@ public class PostService {
         .post(post)
         .user(user)
         .build());
+    
+    try {
+      Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(post.getUser(), user,
+          NotiType.LIKE_CLOVER, postId);
+      // 이미 해당 게시글에 좋아요를 눌렀다면
+      if (notification != null) {
+        notification.updateCreatedAt();
+        notification.unMarkAsRead();
+        notificationRepository.save(notification);
+        notificationUtil.sendAlarm(post.getUser());
+      } else {
+        notificationUtil.createNotification(post.getUser().getNickname(), user, NotiType.LIKE_CLOVER,
+            postId);
+      }
 
+    } catch (IOException e) {
+      log.error(e.getMessage());
+    }
+    
     return PostResponseDto.builder()
         .postId(post.getPostId())
         .user(post.getUser())
@@ -440,7 +481,6 @@ public class PostService {
 
   // 타임라인 조회를 위한 메서드
   public Page<PostViewResponseDto> getTimelinePosts(String nickname, Pageable pageable) {
-    //TODO : 현재 로그인한 사용자의 ID를 가져오는 로직
     User currentUser = userService.getCurrentUser(nickname);
 
     Page<Post> posts = postRepository.findTimelinePostsByUserId(currentUser.getUserId(), pageable);

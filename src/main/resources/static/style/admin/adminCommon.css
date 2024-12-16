@@ -238,3 +238,19 @@ thead {
 tbody tr {
   cursor: pointer;
 }
+
+.tiny-icons {
+  width: 1.3rem;
+  height: 1.3rem;
+  opacity: 75%;
+}
+
+.tiny-icons:hover {
+  cursor: pointer;
+}
+
+.tiny-icons-linkless {
+  width: 1.3rem;
+  height: 1.3rem;
+  opacity: 75%;
+}

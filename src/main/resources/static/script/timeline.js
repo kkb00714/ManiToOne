@@ -1,164 +1,154 @@
-//timeline.js
+document.addEventListener("DOMContentLoaded", function () {
+  let pageNum = 0;
+  const postsContainer = document.querySelector(".timeline-posts");
+  let isLoading = false;
+  let hasMorePosts = true;
 
-const Timeline = {
-  page: 0,
-  loading: false,
-  hasMore: true,
-  container: null,
+  loadPosts();
 
-  init() {
-    this.container = document.querySelector('.timeline-posts');
-    if (!this.container) {
-      return;
+  window.addEventListener('scroll', handleScroll);
+
+  function handleScroll() {
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 100) {
+      if (!isLoading && hasMorePosts) {
+        pageNum++;
+        loadPosts();
+      }
     }
+  }
 
-    this.setupInfiniteScroll();
-    this.loadInitialPosts();
-  },
+  function loadPosts() {
+    if (isLoading) return;
 
-  // 무한스크롤
-  setupInfiniteScroll() {
-    window.addEventListener('scroll', () => {
-      if (this.loading || !this.hasMore) {
-        return;
-      }
+    isLoading = true;
+    showLoader();
 
-      const {scrollTop, scrollHeight, clientHeight} = document.documentElement;
-
-      if (scrollHeight - scrollTop <= cliendHeight + 100) {
-        this.loadMorePosts();
-      }
-    });
-  },
-
-  async loadInitialPosts() {
-    this.page = 0;
-    this.container.innerHTML = '';
-    await this.loadMorePosts();
-  },
-
-  async loadMorePosts() {
-    try {
-      this.loading = true;
-      this.showLoader();
-
-      const response = await fetch(`/api/timeline?page=${this.page}&size=20`);
-      if (!response.ok) {
-        throw new Error('게시글을 불러오는데 실패했습니다.');
-      }
-
-      const data = await response.json();
-
-      if (data.content.length === 0) {
-        this.hasMore = false;
-        if (this.page === 0) {
-          this.showEmptyState();
+    fetch(`/api/timeline?page=${pageNum}&size=20`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.content && data.content.length > 0) {
+        data.content.forEach(post => {
+          const postElement = createPostElement(post);
+          postsContainer.appendChild(postElement);
+        });
+        hasMorePosts = !data.last;
+      } else {
+        hasMorePosts = false;
+        if (pageNum === 0) {
+          showEmptyState();
         }
-        return;
       }
-
-      this.renderPosts(data.content);
-      this.page++;
-      this.hasMore = !data.last;
-
-    } catch (error) {
-      console.error('게시글 로딩 에러 : ' + error);
-      this.showError();
-    } finally {
-      this.loading = false;
-      this.hideLoader();
-    }
-  },
-
-  renderPosts(posts) {
-    posts.forEach(post => {
-      const postHTML = this.createPostHTML(post);
-      this.container.insertAdjacentHTML('beforeend', postHTML);
+    })
+    .catch(error => {
+      console.error('Error loading posts:', error);
+      showError();
+    })
+    .finally(() => {
+      isLoading = false;
+      hideLoader();
     });
-  },
+  }
 
-  createPostHTML(post) {
-    return `
-        <div class="post-container" data-post-id="${post.postId}">
-            <img
-                class="user-photo"
-                src="${post.profileImage || '/images/icons/UI-user2.png'}"
-                alt="user icon"
-            />
-            <div class="post-content">
-                <div class="user-info">
-                    <span class="user-name">${post.nickname}</span>
-                    <span class="passed-time">${post.formattedTime}</span>
-                </div>
-                <p class="content-text">${post.content}</p>
-                ${this.createImagesHTML(post.postImages)}
-                <div class="reaction-icons">
-                    <img
-                        class="tiny-icons"
-                        src="/images/icons/icon-clover2.png"
-                        alt="I like this"
-                    />
-                    <span class="like-count">${post.likeCount}</span>
-                    <img
-                        class="tiny-icons"
-                        src="/images/icons/icon-comment2.png"
-                        alt="add reply"
-                    />
-                    <span class="reply-count">${post.replies.length}</span>
-                </div>
-            </div>
-            <div class="option-icons">
-                <img
-                    class="tiny-icons"
-                    src="/images/icons/UI-more2.png"
-                    alt="more options"
-                />
-                <img
-                    class="tiny-icons"
-                    src="/images/icons/icon-add-friend.png"
-                    alt="add friend"
-                />
-            </div>
+  function createPostElement(post) {
+    const postElement = document.createElement("div");
+    postElement.classList.add("post-container");
+
+    const timeText = post.updatedAt ?
+        `(수정됨) ${timeForToday(post.updatedAt)}` :
+        timeForToday(post.createdAt);
+
+    postElement.innerHTML = `
+      <img 
+        class="user-photo" 
+        src="${post.profileImage || '/images/icons/UI-user2.png'}" 
+        alt="user icon"
+      />
+      <div class="post-content">
+        <div class="user-info">
+          <a href="/profile/${post.nickName}" class="user-name">${post.nickName}</a>
+          <span class="passed-time">${timeText}</span>
         </div>
-    `;
-  },
-
-  createImagesHTML(images) {
-    if (!images || images.length === 0) {
-      return '';
-    }
-
-    return `
+        <p class="content-text">${post.content}</p>
+        ${createImagesHTML(post.postImages)}
+        <div class="reaction-icons">
+          <img 
+            class="tiny-icons" 
+            src="/images/icons/icon-clover2.png" 
+            alt="I like this"
+          />
+          <span class="like-count">${post.likeCount}</span>
+          <img 
+            class="tiny-icons" 
+            src="/images/icons/icon-comment2.png" 
+            alt="add reply"
+          />
+          <span class="reply-count">${post.replies.length}</span>
+        </div>
+      </div>
+      <div class="option-icons">
         <img 
-            class="post-image" 
-            src="/images/upload/${images[0].fileName}" 
-            alt="post image"
+          class="tiny-icons" 
+          src="/images/icons/UI-more2.png" 
+          alt="more options"
         />
+        <img 
+          class="tiny-icons" 
+          src="/images/icons/icon-add-friend.png" 
+          alt="add friend" 
+          data-target-id="${post.nickName}"
+        />
+      </div>
     `;
-  },
 
-  showLoader() {
-    if (!document.querySelector('.timeline-loader')) {
-      const loader = document.createElement('div');
-      loader.className = 'timeline-loader';
-      loader.innerHTML = `
-        <div class="loader-content">
-          <span class="loader-text">로딩 중...</span>
-        </div>
-      `;
-      this.container.appendChild(loader);
-    }
-  },
+    return postElement;
+  }
 
-  hideLoader() {
+  function createImagesHTML(images) {
+    if (!images || images.length === 0) return '';
+
+    return `
+      <img 
+        class="post-image" 
+        src="/images/upload/${images[0].fileName}" 
+        alt="post image"
+      />
+    `;
+  }
+
+  function timeForToday(value) {
+    const today = new Date();
+    const timeValue = new Date(value);
+    const betweenTime = Math.floor(
+        (today.getTime() - timeValue.getTime()) / 1000 / 60
+    );
+
+    if (betweenTime < 1) return '방금전';
+    if (betweenTime < 60) return `${betweenTime}분전`;
+
+    const betweenTimeHour = Math.floor(betweenTime / 60);
+    if (betweenTimeHour < 24) return `${betweenTimeHour}시간전`;
+
+    const betweenTimeDay = Math.floor(betweenTime / 60 / 24);
+    if (betweenTimeDay < 30) return `${betweenTimeDay}일전`;
+    if (betweenTimeDay < 365) return `${Math.floor(betweenTimeDay / 30)}개월전`;
+
+    return `${Math.floor(betweenTimeDay / 365)}년전`;
+  }
+
+  function showLoader() {
+    const loader = document.createElement('div');
+    loader.className = 'timeline-loader';
+    loader.innerHTML = '<div class="loader-content">로딩 중...</div>';
+    postsContainer.appendChild(loader);
+  }
+
+  function hideLoader() {
     const loader = document.querySelector('.timeline-loader');
-    if (loader) {
-      loader.remove();
-    }
-  },
+    if (loader) loader.remove();
+  }
 
-  showEmptyState() {
-    this.container.innerHTML = `
+  function showEmptyState() {
+    postsContainer.innerHTML = `
       <div class="empty-timeline">
         <div class="empty-timeline-content">
           <img 
@@ -173,20 +163,16 @@ const Timeline = {
         </div>
       </div>
     `;
-  },
+  }
 
-  showError() {
-    if (this.page === 0) {
-      this.container.innerHTML = `
-                <div class="timeline-error">
-                    <p>게시물을 불러오는 중 오류가 발생했습니다.</p>
-                    <button onclick="Timeline.loadInitialPosts()">다시 시도</button>
-                </div>
-            `;
+  function showError() {
+    if (pageNum === 0) {
+      postsContainer.innerHTML = `
+        <div class="timeline-error">
+          <p>게시물을 불러오는 중 오류가 발생했습니다.</p>
+          <button onclick="location.reload()">다시 시도</button>
+        </div>
+      `;
     }
   }
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-  Timeline.init();
 });

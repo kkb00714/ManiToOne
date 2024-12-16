@@ -46,4 +46,8 @@ public class NotificationUtil {
     alarmHandler.sendNotification(notification);
     return notification;
   }
+
+  public void sendAlarm(User receiveUser) throws IOException {
+    alarmHandler.sendMessage(receiveUser.getEmail(), "알림");
+  }
 }

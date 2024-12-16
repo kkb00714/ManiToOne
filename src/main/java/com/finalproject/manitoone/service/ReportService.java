@@ -11,12 +11,12 @@ import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
+@Transactional(transactionManager = "transactionManager")
 @RequiredArgsConstructor
 public class ReportService {
 
@@ -25,6 +25,7 @@ public class ReportService {
   private final ManitoLetterRepository manitoLetterRepository;
 
   // 마니또 편지 신고
+  @Transactional
   public void reportManitoLetter(Long manitoLetterId, String userNickname,
       ReportRequestDto requestDto) {
     User user = userRepository.findUserByNickname(userNickname)

@@ -202,7 +202,7 @@
     }
 
     if (!nicknameRegex.test(nickname)) {
-      nicknameError.textContent = "닉네임은 2~10자리로 설정해야 합니다.";
+      nicknameError.textContent = "닉네임은 특수문자를 제외한 2~10자리로 설정해야 합니다.";
       if (!firstErrorField) {
         firstErrorField = document.getElementById("user-nickname");
       }

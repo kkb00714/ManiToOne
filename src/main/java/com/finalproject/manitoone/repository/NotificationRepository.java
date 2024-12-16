@@ -18,6 +18,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
   Notification findByUserAndSenderUserAndType(User receiveUser, User senderUser, NotiType type);
   Notification findByUserAndSenderUserAndTypeAndRelatedObjectId(User receiveUser, User senderUser, NotiType type, Long relatedObjectId);
-
   Optional<List<Notification>> findByTypeInAndRelatedObjectId(List<NotiType> types, Long relatedObjectId);
 }

@@ -30,13 +30,13 @@
     <header th:replace="~{fragments/common/header :: header}"></header>
     <main class="main-container">
       <section class="middle-section" id="middleSection">
-        <!-- 게시글 -->
         <section class="timeline-section">
           <div class="timeline">
+            <!-- 게시글 -->
             <div class="post-container">
               <img
                 class="user-photo"
-                th:src="@{/images/profileImage/{fileName}(fileName=${post.user.profileImage})}"
+                th:src="@{${post.user.profileImage}}"
                 alt="user icon"
               />
               <div class="post-content">
@@ -67,7 +67,7 @@
                     alt="I like this"
                     th:onclick="'likePost(' + ${post.postId} + ')'"
                   />
-                  <span class="like-count" th:text="${postLikesNum}"></span>
+                  <span class="like-count" th:text="${post.likesNumber}"></span>
                   <img
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-comment2.png}"
@@ -81,12 +81,107 @@
                   class="tiny-icons"
                   th:src="@{/images/icons/UI-more2.png}"
                   alt="more options"
+                  th:onclick="'openPostOptionsModal()'"
                 />
                 <img
                   class="tiny-icons"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
+              </div>
+
+              <!-- 게시글 추가 기능 모달 -->
+              <div
+                class="list-group post-options-modal"
+                id="post-options-modal"
+                style="display: none"
+              >
+                <div class="options-modal-content">
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    aria-current="true"
+                  >
+                    수정하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'hidePost(' + ${post.postId} + ')'"
+                  >
+                    숨기기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'deletePost(' + ${post.postId} + ')'"
+                  >
+                    삭제하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'openPostReportModal()'"
+                  >
+                    신고하기
+                  </button>
+                </div>
+              </div>
+
+              <!-- 게시글 신고 모달 -->
+              <div class="report-modal" id="postReportModal">
+                <form
+                  class="report-modal-container"
+                  id="postReportModalContainer"
+                  th:action="@{/api/post/report/{postId}(postId=${post.postId})}"
+                  method="post"
+                >
+                  <div class="report-title">
+                    <p>신고하기</p>
+                    <img
+                      class="tiny-icons"
+                      id="closePostReportModalBtn"
+                      th:src="@{/images/icons/icon-cancel.png}"
+                      alt="close icon"
+                      th:onclick="'closePostReportModal()'"
+                    />
+                  </div>
+                  <div class="report-container">
+                    <label for="post-report-type-select"
+                      >신고 사유를 선택해주세요</label
+                    >
+                    <select
+                      name="reportType"
+                      id="post-report-type-select"
+                      class="report-type-select"
+                    >
+                      <option value="">신고 사유 선택</option>
+                      <option value="DISLIKE">마음에 들지 않습니다</option>
+                      <option value="HARASSMENT">
+                        따돌림 또는 원치 않은 연락
+                      </option>
+                      <option value="SELF_HARM">자살, 자해 및 섭식 장애</option>
+                      <option value="ABUSE">폭력, 혐오 또는 학대</option>
+                      <option value="RESTRICTED_ITEMS">
+                        제한된 품목을 판매하거나 홍보함
+                      </option>
+                      <option value="ADULT_CONTENT">
+                        나체 이미지 또는 성적 행위
+                      </option>
+                      <option value="SCAM">스캠, 사기 또는 스팸</option>
+                      <option value="MISINFO">거짓 정보</option>
+                    </select>
+                  </div>
+                  <div class="report-send-button-container">
+                    <button
+                      class="report-send-button"
+                      id="postReportSendBtn"
+                      type="submit"
+                    >
+                      전송하기
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
 
@@ -98,7 +193,7 @@
             <div class="post-container" th:each="reply : ${replies}">
               <img
                 class="user-photo"
-                th:src="@{/images/profileImage/{fileName}(fileName=${reply.user.profileImage})}"
+                th:src="@{${reply.user.profileImage}}"
                 alt="user icon"
               />
               <div class="post-content">
@@ -144,12 +239,107 @@
                   class="tiny-icons"
                   th:src="@{/images/icons/UI-more2.png}"
                   alt="more options"
+                  th:onclick="'openReplyOptionsModal()'"
                 />
                 <img
                   class="tiny-icons"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
+              </div>
+
+              <!-- 답글 추가 기능 모달 -->
+              <div
+                class="list-group post-options-modal"
+                id="reply-options-modal"
+                style="display: none"
+              >
+                <div class="options-modal-content">
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    aria-current="true"
+                  >
+                    수정하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'hideReply(' + ${reply.replyPostId} + ')'"
+                  >
+                    숨기기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'deleteReply(' + ${reply.replyPostId} + ')'"
+                  >
+                    삭제하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'openReplyReportModal()'"
+                  >
+                    신고하기
+                  </button>
+                </div>
+              </div>
+
+              <!-- 답글 신고 모달 -->
+              <div class="report-modal" id="replyReportModal">
+                <form
+                  class="report-modal-container"
+                  id="replyReportModalContainer"
+                  th:action="@{/api/reply/report/{replyId}(replyId=${reply.replyPostId})}"
+                  method="post"
+                >
+                  <div class="report-title">
+                    <p>신고하기</p>
+                    <img
+                      class="tiny-icons"
+                      id="closeReplyReportModalBtn"
+                      th:src="@{/images/icons/icon-cancel.png}"
+                      alt="close icon"
+                      th:onclick="'closeReplyReportModal()'"
+                    />
+                  </div>
+                  <div class="report-container">
+                    <label for="reply-report-type-select"
+                      >신고 사유를 선택해주세요</label
+                    >
+                    <select
+                      name="reportType"
+                      id="reply-report-type-select"
+                      class="report-type-select"
+                    >
+                      <option value="">신고 사유 선택</option>
+                      <option value="DISLIKE">마음에 들지 않습니다</option>
+                      <option value="HARASSMENT">
+                        따돌림 또는 원치 않은 연락
+                      </option>
+                      <option value="SELF_HARM">자살, 자해 및 섭식 장애</option>
+                      <option value="ABUSE">폭력, 혐오 또는 학대</option>
+                      <option value="RESTRICTED_ITEMS">
+                        제한된 품목을 판매하거나 홍보함
+                      </option>
+                      <option value="ADULT_CONTENT">
+                        나체 이미지 또는 성적 행위
+                      </option>
+                      <option value="SCAM">스캠, 사기 또는 스팸</option>
+                      <option value="MISINFO">거짓 정보</option>
+                    </select>
+                  </div>
+                  <div class="report-send-button-container">
+                    <button
+                      class="report-send-button"
+                      id="replyReportSendBtn"
+                      type="submit"
+                    >
+                      전송하기
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>

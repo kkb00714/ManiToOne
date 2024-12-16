@@ -25,7 +25,6 @@ public class PostViewController {
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
       Model model) {
     model.addAttribute("post", postService.getPostDetail(postId));
-    model.addAttribute("postLikesNum", postService.getPostLikesNum(postId));
     model.addAttribute("postRepliesNum", replyService.getRepliesNum(postId));
     model.addAttribute("replies", replyService.getReplies(postId, pageable));
     return "pages/post/postDetail";

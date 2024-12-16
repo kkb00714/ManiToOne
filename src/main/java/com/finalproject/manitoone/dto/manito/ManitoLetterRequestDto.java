@@ -1,8 +1,7 @@
 package com.finalproject.manitoone.dto.manito;
 
 import com.finalproject.manitoone.domain.ManitoLetter;
-import com.finalproject.manitoone.domain.Post;
-import com.finalproject.manitoone.domain.User;
+import com.finalproject.manitoone.domain.ManitoMatches;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -54,7 +53,7 @@ public class ManitoLetterRequestDto {
         .trim();
 
     if (!sanitizedUrl.isEmpty()) {
-      String youtubePattern = "^(?:https?://)?(?:www\\.)?(?:youtube\\.com/(?:watch\\?v=|embed/)|youtu\\.be/)(\\w{11})$";
+      String youtubePattern = "^(?:https?://)(?:www\\.)?(?:youtube\\.com/watch\\?v=|youtu\\.be/)[\\w-]{11}.*$";
       if (!sanitizedUrl.matches(youtubePattern)) {
         throw new IllegalArgumentException("올바른 YouTube URL 형식이 아닙니다.");
       }
@@ -64,14 +63,13 @@ public class ManitoLetterRequestDto {
   }
 
   // 정제된 값으로 엔티티 변환
-  public ManitoLetter toEntity(Post post, User user) {
+  public ManitoLetter toEntity(ManitoMatches manitoMatches) {
     String safeContent = sanitizeText(letterContent);
     String safeUrl = validateAndSanitizeYoutubeUrl(musicUrl);
     String safeMusicComment = sanitizeText(musicComment);
 
     return ManitoLetter.builder()
-        .postId(post)
-        .user(user)
+        .manitoMatches(manitoMatches)
         .letterContent(safeContent)
         .musicUrl(safeUrl)
         .musicComment(safeMusicComment)

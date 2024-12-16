@@ -12,7 +12,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="user-nickname" th:content="${userNickname}">
     <link rel="stylesheet" th:href="@{/style/reset.css}" />
     <link rel="stylesheet" th:href="@{/style/common.css}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -34,8 +33,7 @@
       <section class="middle-section" id="middleSection">
         <!--여기에 중앙 컨텐츠가 들어갑니다-->
         <div th:replace="~{fragments/common/new-post-form :: new-post-form}"></div>
-        <div
-            th:replace="~{fragments/modals/manito-confirm-message-modal :: manito-confirm-message-modal}"></div>
+        <div th:replace="~{fragments/modals/manito-confirm-message-modal :: manito-confirm-message-modal}"></div>
         <div th:replace="~{fragments/content/timeline :: timeline}"></div>
         <div
           th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"

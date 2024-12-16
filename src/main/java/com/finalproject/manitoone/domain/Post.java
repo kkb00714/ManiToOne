@@ -45,6 +45,7 @@ public class Post {
   @Builder.Default
   private Boolean isManito = false;
 
+  // 삭제해야 하는 필드
   @Column(name = "is_selected", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. x\\n1. o'")
   @Builder.Default
   private Boolean isSelected = false;

@@ -178,7 +178,6 @@ public class ManitoService {
     return buildLetterResponseDto(letter, letter.getLetterReceiver().getNickname());
   }
 
-
   @Transactional(readOnly = true)
   public ManitoLetterResponseDto getLetterWithPermissionCheck(Long letterId, String nickname) {
     ManitoLetter letter = manitoLetterRepository.findById(letterId)
@@ -199,6 +198,5 @@ public class ManitoService {
 
     return buildLetterResponseDto(letter, nickname);
   }
-
 
 }

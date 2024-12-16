@@ -1,9 +1,11 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.ManitoMatches;
+import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.QManitoLetter;
@@ -29,6 +31,7 @@ import com.finalproject.manitoone.domain.dto.admin.UserSearchResponseDto;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.ManitoMatchesRepository;
+import com.finalproject.manitoone.repository.NotificationRepository;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
@@ -74,6 +77,7 @@ public class AdminService {
   private final ManitoLetterRepository manitoLetterRepository;
   private final ManitoMatchesRepository manitoMatchesRepository;
   private final ReportRepository reportRepository;
+  private final NotificationRepository notificationRepository;
 
   private final FileUtil fileUtil;
   private final DataUtil dataUtil;
@@ -408,6 +412,13 @@ public class AdminService {
         postId).orElse(new ArrayList<>());
     if (!reports.isEmpty()) {
       reportRepository.deleteAll(reports);
+    }
+
+    // 알림 삭제
+    List<Notification> notifications = notificationRepository.findByTypeInAndRelatedObjectId(List.of(
+        NotiType.LIKE_CLOVER, NotiType.POST_REPLY, NotiType.POST_RE_REPLY), postId).orElse(new ArrayList<>());
+    if (!notifications.isEmpty()) {
+      notificationRepository.deleteAll(notifications);
     }
 
     postRepository.delete(post);

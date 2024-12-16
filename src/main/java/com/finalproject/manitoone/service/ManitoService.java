@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.ManitoErrorMessages;
+import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.User;
@@ -10,15 +11,19 @@ import com.finalproject.manitoone.dto.manito.ManitoPageResponseDto;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.ManitoMatchesRepository;
 import com.finalproject.manitoone.repository.UserRepository;
+import com.finalproject.manitoone.util.NotificationUtil;
 import com.finalproject.manitoone.util.TimeFormatter;
 import jakarta.persistence.EntityNotFoundException;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -27,6 +32,8 @@ public class ManitoService {
   private final ManitoLetterRepository manitoLetterRepository;
   private final ManitoMatchesRepository manitoMatchesRepository;
   private final UserRepository userRepository;
+
+  private final NotificationUtil notificationUtil;
 
 
   // 마니또 매칭 검증 메서드
@@ -66,6 +73,13 @@ public class ManitoService {
 
     ManitoLetter manitoLetter = requestDto.toEntity(match);
     ManitoLetter savedLetter = manitoLetterRepository.save(manitoLetter);
+
+    try {
+      notificationUtil.createNotification(match.getMatchedPostId().getUser().getNickname(), user, NotiType.MANITO_COMMENT,
+          manitoLetter.getManitoLetterId());
+    } catch (IOException e) {
+      log.error(e.getMessage());
+    }
 
     return buildLetterResponseDto(savedLetter, userNickname);
   }
@@ -164,6 +178,13 @@ public class ManitoService {
             ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
 
     manitoLetter.addAnswer(answerLetter, userNickname);
+
+    try {
+      notificationUtil.createNotification(manitoLetter.getLetterWriter().getNickname(), manitoLetter.getLetterReceiver(), NotiType.MANITO_THANK_COMMENT,
+          manitoLetter.getManitoLetterId());
+    } catch (IOException e) {
+      log.error(e.getMessage());
+    }
 
     return buildLetterResponseDto(manitoLetter, userNickname);
   }

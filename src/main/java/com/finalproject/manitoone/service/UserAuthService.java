@@ -72,23 +72,18 @@ public class UserAuthService {
     return new UserLoginResponseDto(user);
   }
 
-
   @Transactional
   public void deleteUser(String email, String password) {
     User user = validateUserCredentials(email, password);
     user.setStatus(3);
   }
 
-  public boolean isValueExist(String type, String value) {
-    if (type == null || value == null || value.isBlank()) {
-      throw new IllegalArgumentException("유효하지 않은 입력입니다.");
-    }
+  public boolean isEmailExist(String email) {
+    return userRepository.existsByEmail(email);
+  }
 
-    return switch (type.toLowerCase()) {
-      case "email" -> userRepository.existsByEmail(value);
-      case "nickname" -> userRepository.existsByNickname(value);
-      default -> throw new IllegalArgumentException("지원하지 않는 타입입니다: " + type);
-    };
+  public boolean isNicknameExist(String nickname) {
+    return userRepository.existsByNickname(nickname);
   }
 
 }

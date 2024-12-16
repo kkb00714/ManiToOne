@@ -6,6 +6,7 @@
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
   <link rel="stylesheet" th:href="@{/style/email-auth.css}"/>
+  <link rel="stylesheet" th:href="@{/style/loading.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -36,7 +37,12 @@
             aria-label="이메일 입력"
             required
         />
-        <button class="sign-up-complete-button" type="submit">메일 인증하기</button>
+        <span id="emailError" style="color: red; display: none;">이 이메일은 이미 사용 중입니다.</span>
+        <span id="emailSuccess" style="color: green; display: none;">사용 가능한 이메일입니다.</span>
+        <button id="emailAuthButton" class="sign-up-complete-button">
+          <span class="button-text">메일 인증하기</span>
+          <span id="emailLoadingSpinner" class="loading-spinner" style="display: none;"></span>
+        </button>
       </div>
     </form>
   </div>
@@ -69,7 +75,8 @@
               required
           />
           <button type="submit" class="verify-auth-code-button">
-            인증하기
+            <span class="button-text">메일 인증하기</span>
+            <span id="authCodeLoadingSpinner" class="loading-spinner" style="display: none;"></span>
           </button>
         </form>
       </div>
@@ -78,10 +85,62 @@
 </section>
 
 <script>
+  document.getElementById('email').addEventListener('blur', function () {
+    const emailInput = document.getElementById('email').value;
+    const emailError = document.getElementById('emailError');
+    const emailSuccess = document.getElementById('emailSuccess');
+    const emailAuthButton = document.getElementById('emailAuthButton');
+
+    emailError.style.display = 'none';
+    emailSuccess.style.display = 'none';
+    emailAuthButton.disabled = true;
+
+    // 이메일 유효성 검사
+    const emailValidate = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailValidate.test(emailInput)) {
+      emailError.style.display = 'inline';
+      emailError.textContent = '올바른 이메일 형식이 아닙니다.';
+      return;
+    }
+
+    if (emailInput) {
+      fetch(`/api/check-email?email=${emailInput}`)
+      .then(response => {
+        if (!response.ok) {
+          emailError.style.display = 'inline';
+          emailError.textContent = '이 이메일은 이미 사용 중입니다.';
+          emailSuccess.style.display = 'none';
+          emailAuthButton.disabled = true;
+        } else {
+          emailError.style.display = 'none';
+          emailSuccess.style.display = 'inline';
+          emailSuccess.textContent = '사용 가능한 이메일입니다.';
+          emailAuthButton.disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        emailError.style.display = 'none';
+        emailSuccess.style.display = 'none';
+        emailAuthButton.disabled = true;
+      });
+    } else {
+      emailError.style.display = 'none';
+      emailSuccess.style.display = 'none';
+      emailAuthButton.disabled = true;
+    }
+  });
+
   document.getElementById('emailInputForm').addEventListener('submit', function (event) {
-    event.preventDefault(); // 빈 값 제출 불가
+    event.preventDefault();
 
     const emailInput = document.getElementById('email').value;
+    const emailAuthButton = document.getElementById('emailAuthButton');
+    const buttonText = emailAuthButton.querySelector('.button-text');
+    const loadingSpinner = emailAuthButton.querySelector('#emailLoadingSpinner');
+
+    buttonText.style.display = 'none';
+    loadingSpinner.style.display = 'inline-block';
 
     if (!emailInput) {
       alert('이메일을 입력해주세요.');
@@ -101,12 +160,12 @@
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({email: emailInput}),
+      body: JSON.stringify({ email: emailInput }),
     })
     .then(response => response.text())
     .then(data => {
       if (data) {
-        alert(`${emailInput}으로 메일을 전송했습니다.`)
+        alert(`${emailInput}으로 메일을 전송했습니다.`);
         document.getElementById('emailAuthModal').style.display = 'block';
         document.getElementById('modalOverlay').style.display = 'block';
       } else {
@@ -116,7 +175,10 @@
     .catch(error => {
       console.error('Error: ', error.message);
       alert('메일 전송 중 문제가 발생했습니다.');
-    });
+    })
+    .finally(() => {
+      resetButtonState();
+    })
   });
 
   document.getElementById('emailAuthModal').addEventListener('submit', function (event) {
@@ -126,9 +188,10 @@
     const emailInput = document.getElementById('email').value;
 
     if (!authCode) {
-      alert('인증번호를 입력해주세요.')
+      alert('인증번호를 입력해주세요.');
       return;
     }
+
     // 인증번호 확인 요청
     fetch('/api/email-check', {
       method: 'POST',
@@ -165,8 +228,18 @@
   // 모달 닫기
   document.querySelector('.close-button').addEventListener('click', function () {
     document.getElementById('emailAuthModal').style.display = 'none';
-    document.getElementById("modalOverlay").style.display = 'none';
+    document.getElementById('modalOverlay').style.display = 'none';
   });
+
+  // 버튼 상태 복원 함수
+  function resetButtonState() {
+    const emailAuthButton = document.getElementById('emailAuthButton');
+    const buttonText = emailAuthButton.querySelector('.button-text');
+    const loadingSpinner = emailAuthButton.querySelector('#emailLoadingSpinner');
+
+    buttonText.style.display = 'inline';
+    loadingSpinner.style.display = 'none';
+  }
 </script>
 </body>
 </html>

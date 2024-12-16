@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/style/password-view.css}"/>
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -38,6 +39,7 @@
             placeholder="비밀번호"
             aria-label="비밀번호"
         />
+        <span><button type="button" id="toggle-password-sign-in" aria-label="비밀번호 표시/숨기기">표시️</button></span>
         <button class="sign-in-button">로그인</button>
       </div>
     </form>
@@ -120,25 +122,22 @@
       alert("로그인 실패: " + error.message);
     });
   });
+
   document.querySelector(".google-login").addEventListener("click", function () {
-    fetch('/api/oauth-login', {
-      method: "GET",
-      credentials: "include",
-    })
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error("OAuth2 인증 실패");
-      }
-    })
-    .then(user => {
-      alert(`OAuth 로그인 성공! 환영합니다, ${user.nickname} 님.`);
-      window.location.href = "/";
-    })
-    .catch(error => {
-      alert("OAuth 로그인 실패: " + error.message);
-    });
+    window.location.href = "/oauth2/authorization/google";
+  });
+
+  document.getElementById("toggle-password-sign-in").addEventListener("click", function () {
+    const passwordInput = document.getElementById("user-password");
+    const toggleButton = this;
+
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      toggleButton.textContent = "숨기기";
+    } else {
+      passwordInput.type = "password";
+      toggleButton.textContent = "표시";
+    }
   });
 
 </script>

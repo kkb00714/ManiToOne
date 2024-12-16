@@ -1,10 +1,11 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.domain.AiPostLog;
-import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.ManitoMatches;
+import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
 import com.finalproject.manitoone.domain.ReplyPost;
@@ -22,6 +23,7 @@ import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.ManitoMatchesRepository;
+import com.finalproject.manitoone.repository.NotificationRepository;
 import com.finalproject.manitoone.repository.PostImageRepository;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
@@ -29,14 +31,18 @@ import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
+import com.finalproject.manitoone.util.NotificationUtil;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -52,6 +58,9 @@ public class PostService {
   private final UserService userService;
   // ManitoMatchesRepository 생성으로 인한 필드 추가
   private final ManitoMatchesRepository manitoMatchesRepository;
+  private final NotificationRepository notificationRepository;
+
+  private final NotificationUtil notificationUtil;
 
 
   // 게시글 생성 (미완성)
@@ -224,7 +233,8 @@ public class PostService {
         ));
 
     // 각 매칭에 연결된 편지들 찾아서 삭제
-    matches.forEach(match -> manitoLetterRepository.findByManitoMatches_ManitoMatchesId(match.getManitoMatchesId())
+    matches.forEach(match -> manitoLetterRepository.findByManitoMatches_ManitoMatchesId(
+            match.getManitoMatchesId())
         .ifPresent(manitoLetterRepository::delete));
   }
 
@@ -254,6 +264,24 @@ public class PostService {
         .post(post)
         .user(user)
         .build());
+
+    try {
+      Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(post.getUser(), user,
+          NotiType.LIKE_CLOVER, postId);
+      // 이미 해당 게시글에 좋아요를 눌렀다면
+      if (notification != null) {
+        notification.updateCreatedAt();
+        notification.unMarkAsRead();
+        notificationRepository.save(notification);
+        notificationUtil.sendAlarm(post.getUser());
+      } else {
+        notificationUtil.createNotification(post.getUser().getNickname(), user, NotiType.LIKE_CLOVER,
+            postId);
+      }
+
+    } catch (IOException e) {
+      log.error(e.getMessage());
+    }
   }
 
   // 게시글 신고

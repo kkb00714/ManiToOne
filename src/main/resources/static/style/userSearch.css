@@ -1,7 +1,7 @@
 .search-results {
   position: absolute;
   width: 100%;
-  max-height: 100px; /* 필요에 따라 조정 */
+  max-height: 200px; /* 필요에 따라 조정 */
   overflow-y: auto; /* 스크롤 가능 */
   border: none;
   background-color: #f3f3f3;
@@ -31,4 +31,9 @@
 
 .search-results .result-item:hover {
   background-color: #f0f0f0;
+}
+
+.no-results {
+  padding: 10px;
+  padding-left: 18px;
 }

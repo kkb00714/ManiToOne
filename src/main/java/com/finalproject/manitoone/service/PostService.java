@@ -228,10 +228,18 @@ public class PostService {
   }
 
   // 게시글 숨기기
-  public void hidePost(Long postId) {
+  public void hidePost(Long postId, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    if (!user.equals(post.getUser())) {
+      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_HIDE_POST.getMessage());
+    }
 
     post.hidePost(true);
 

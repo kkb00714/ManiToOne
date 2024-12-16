@@ -93,8 +93,9 @@ public class PostController {
 
   // 게시글 숨기기
   @PutMapping("/hidden/{postId}")
-  public ResponseEntity<Void> hidePost(@PathVariable("postId") Long postId) {
-    postService.hidePost(postId);
+  public ResponseEntity<Void> hidePost(@PathVariable("postId") Long postId, HttpSession session) {
+    String email = (String) session.getAttribute("email");
+    postService.hidePost(postId, email);
     return ResponseEntity.ok().build();
   }
 

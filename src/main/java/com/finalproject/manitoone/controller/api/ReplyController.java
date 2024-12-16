@@ -96,6 +96,15 @@ public class ReplyController {
     return ResponseEntity.ok(reply);
   }
 
+  // 답글 숨기기
+  @PutMapping("/reply/hidden/{replyId}")
+  public ResponseEntity<Void> hideReply(@PathVariable("replyId") Long replyId,
+      HttpSession session) {
+    String email = (String) session.getAttribute("email");
+    replyService.hideReply(replyId, email);
+    return ResponseEntity.ok().build();
+  }
+
   // 게시글 답글 조회
   @GetMapping("/replies/{postId}")
   public ResponseEntity<Page<ReplyResponseDto>> getReplies(@PathVariable("postId") Long postId,

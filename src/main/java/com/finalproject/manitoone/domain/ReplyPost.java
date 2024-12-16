@@ -62,6 +62,6 @@ public class ReplyPost {
   }
 
   public void hideReply() {
-    this.isHidden = true;
+    this.isHidden = !this.isHidden;
   }
 }

@@ -199,6 +199,26 @@ public class ReplyService {
         .build();
   }
 
+  // 답글 숨기기
+  public void hideReply(Long replyId, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
+    ReplyPost reply = replyPostRepository.findByReplyPostIdAndIsBlindFalseAndIsHiddenFalse(replyId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
+        ));
+
+    if (!reply.getUser().equals(user)) {
+      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_HIDE_POST.getMessage());
+    }
+
+    reply.hideReply();
+
+    replyPostRepository.save(reply);
+  }
+
   // 게시글 답글 조회
   public Page<ReplyResponseDto> getReplies(Long postId, Pageable pageable) {
     Page<ReplyPost> replies = replyPostRepository.findAllByPostPostIdAndParentIdIsNullAndIsBlindFalseAndIsHiddenFalse(

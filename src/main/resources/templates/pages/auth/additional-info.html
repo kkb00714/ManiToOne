@@ -56,6 +56,7 @@
             required
         />
         <p><span id="nickname-error" class="error-message"></span></p>
+
         <p>생년월일</p>
         <input
             class="sign-up-input"
@@ -80,6 +81,32 @@
 </section>
 
 <script>
+  document.getElementById("user-nickname").addEventListener("input", function () {
+    const nickname = this.value;
+    const nicknameError = document.getElementById("nickname-error");
+
+    if (nickname.length > 0) {
+      fetch(`/api/check-nickname?nickname=${nickname}`)
+      .then(response => {
+        if (response.ok) {
+          nicknameError.textContent = '사용 가능한 닉네임입니다.';
+          nicknameError.style.color = 'green';
+        } else {
+          return response.text().then(errorText => {
+            nicknameError.textContent = errorText;
+            nicknameError.style.color = 'red';
+          });
+        }
+      })
+      .catch(error => {
+        nicknameError.textContent = '서버 오류가 발생했습니다. 다시 시도해주세요.';
+        nicknameError.style.color = 'red';
+      });
+    } else {
+      nicknameError.textContent = '이미 존재하는 닉네임 입니다.';
+    }
+  });
+
   document.getElementById("sign-up-form").addEventListener("submit", function (event) {
     event.preventDefault();
 
@@ -102,7 +129,7 @@
     loadingSpinner.style.display = 'inline-block';
 
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
-    const nicknameRegex = /^.{2,10}$/;
+    const nicknameRegex = /^[a-zA-Z0-9]{2,10}$/;
 
     let isValid = true;
     let firstErrorField = null;
@@ -172,7 +199,7 @@
       window.location.href = "/";
     })
     .catch(error => {
-      alert('추가 정보 입력 실패: ' + error.message);
+      alert('추가 정보 전송에 실패했습니다. 에러 메시지를 확인해주세요.');
     })
     .finally(() => {
       resetButtonState();
@@ -200,7 +227,6 @@
       togglePasswordButton.textContent = "표시";
     }
   });
-
 
 </script>
 </body>

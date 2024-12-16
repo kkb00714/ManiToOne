@@ -56,9 +56,9 @@ public class ReplyService {
         .content(request.getContent())
         .build());
 
-    try
-    {
-      notificationUtil.createNotification(post.getUser().getNickname(), user, NotiType.POST_REPLY, user.getUserId());
+    try {
+      notificationUtil.createNotification(post.getUser().getNickname(), user, NotiType.POST_REPLY,
+          user.getUserId());
     } catch (IOException e) {
       log.error(e.getMessage());
     }
@@ -90,6 +90,13 @@ public class ReplyService {
         .content(request.getContent())
         .parentId(parentReply.getReplyPostId())
         .build());
+
+    try {
+      notificationUtil.createNotification(parentReply.getUser().getNickname(), user, NotiType.POST_RE_REPLY,
+          user.getUserId());
+    } catch (IOException e) {
+      log.error(e.getMessage());
+    }
 
     return ReplyResponseDto.builder()
         .post(childReply.getPost())
@@ -183,7 +190,7 @@ public class ReplyService {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
-    
+
     ReplyPost reply = replyPostRepository.findByReplyPostId(replyId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()

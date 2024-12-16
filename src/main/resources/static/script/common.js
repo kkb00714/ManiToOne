@@ -257,7 +257,6 @@ const ContentValidator = {
   },
 
   isSignificantPhrase(phrase) {
-    // 의미 있는 구문인지 확인하는 조건들
     return (
         phrase.length >= 10 && // 최소 길이
         phrase.trim().split(/\s+/).length >= 2 && // 최소 2개 이상의 단어
@@ -267,7 +266,6 @@ const ContentValidator = {
     );
   }
 };
-
 
 if (typeof window !== 'undefined') {
   window.CommonUtils = window.CommonUtils || {};
@@ -291,26 +289,22 @@ const CommonUtils = {
   },
 
   initializeCharacterCounters() {
-    // 마니또 편지 모달의 500자 카운터 초기화
     const letterTextarea = document.getElementById('manito-letter-text-input');
     const letterCount500Display = document.getElementById('count500');
     if (letterTextarea && letterCount500Display) {
       new CharacterCounter(letterTextarea, letterCount500Display, 500);
     }
 
-    // 마니또 편지 모달의 100자 카운터 초기화
     const musicCommentTextarea = document.getElementById('manito-music-comment-input');
     const count100Display = document.getElementById('count100');
     if (musicCommentTextarea && count100Display) {
       new CharacterCounter(musicCommentTextarea, count100Display, 100);
     }
 
-    // 새 게시물 작성 모달의 500자 카운터 초기화
     const postTextarea = document.getElementById('new-post-content');
     const postCount500Display = postTextarea?.closest('.new-post-text-container')?.querySelector('.letter-count');
     if (postTextarea && postCount500Display) {
       new CharacterCounter(postTextarea, postCount500Display, 500);
-      // maxLength 속성 추가
       postTextarea.setAttribute('maxlength', '500');
     }
   },
@@ -413,7 +407,6 @@ const CommonUtils = {
       return;
     }
 
-    // 신고되지 않은 편지만 필터링
     const validLetters = letters.filter(letter => !letter.report);
 
     if (validLetters.length === 0) {

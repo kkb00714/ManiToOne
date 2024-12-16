@@ -123,14 +123,12 @@ class ManitoLetterModal extends BaseModal {
         throw new Error(data.message || '편지 전송에 실패했습니다.');
       }
 
-      // 성공 시 처리 로직
       if (window.ManitoPage && window.ManitoPage.letterBox) {
         const letterBox = window.ManitoPage.letterBox;
         letterBox.activeTab = 'sent';
         await letterBox.refreshLetterBox();
       }
 
-      // 우측 섹션 편지함 새로고침
       const elements = {
         receivedList: document.querySelector(
             '.manito-letter-section .received-letter ul'),

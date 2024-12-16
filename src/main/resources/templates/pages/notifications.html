@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="user-nickname" th:content="${nickname}">
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
   <link rel="stylesheet" th:href="@{/style/notification.css}"/>
@@ -17,13 +16,13 @@
   <title>ManiToOne</title>
 </head>
 <body>
-<header th:replace="fragments/common/header :: header"></header>
+<header th:replace="~{fragments/common/header :: header}"></header>
 <main class="main-container">
   <section class="middle-section" id="middleSection">
     <!--여기에 중앙 컨텐츠가 들어갑니다-->
-    <div th:replace="fragments/content/notification :: notification"></div>
+    <div th:replace="~{fragments/content/notification :: notification}"></div>
   </section>
-  <article th:replace="fragments/common/right-section :: right-section"></article>
+  <article th:replace="~{fragments/common/right-section :: right-section}"></article>
 </main>
 <script th:src="@{/script/common.js}"></script>
 <script th:src="@{/script/notification.js}"></script>

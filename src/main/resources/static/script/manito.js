@@ -4,7 +4,11 @@ class ManitoLetterModal extends BaseModal {
   constructor(modalId, backgroundId, openBtnId, closeBtnId) {
     super(modalId, backgroundId, openBtnId, closeBtnId);
     this.initializeSendConfirmation();
-    this.postId = document.querySelector('meta[name="post-id"]')?.content;
+    this.userNameElement = this.modal.querySelector('.user-name');
+    this.recipientName = this.userNameElement ? this.userNameElement.textContent
+        : '';
+    this.manitoMatchesId = document.querySelector(
+        'meta[name="manito-matches-id"]')?.content;
   }
 
   isValidYoutubeUrl(url) {
@@ -21,8 +25,22 @@ class ManitoLetterModal extends BaseModal {
     const musicComment = this.modal.querySelector(
         '#manito-music-comment-input');
 
+    const contentValidation = CommonUtils.ContentValidator.validateContentQuality(
+        letterText.value);
+    if (!contentValidation.isValid) {
+      this.showWarning(contentValidation.message);
+      letterText.focus();
+      return false;
+    }
+
     if (!letterText.value.trim()) {
       this.showWarning('편지 내용을 작성해주세요.');
+      letterText.focus();
+      return false;
+    }
+
+    if (letterText.value.trim().length < 200) {
+      this.showWarning('편지는 200자 이상 작성해주세요.');
       letterText.focus();
       return false;
     }
@@ -63,7 +81,7 @@ class ManitoLetterModal extends BaseModal {
 
       const existingButton = document.createElement('button');
       existingButton.className = 'reply-button';
-      existingButton.style.cssText = 'display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto 2rem;';
+      existingButton.style.cssText = 'display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto;';
       existingButton.textContent = '이미 편지를 작성하셨습니다';
       existingButton.disabled = true;
 
@@ -74,6 +92,11 @@ class ManitoLetterModal extends BaseModal {
   }
 
   async sendLetter() {
+    if (!this.manitoMatchesId) {
+      this.showWarning('매칭 정보를 찾을 수 없습니다.');
+      return false;
+    }
+
     const letterText = this.modal.querySelector(
         '#manito-letter-text-input').value;
     const musicUrl = this.modal.querySelector('#music-link-input').value;
@@ -81,45 +104,33 @@ class ManitoLetterModal extends BaseModal {
         '#manito-music-comment-input').value;
 
     try {
-      const response = await fetch(`/api/manito/letter/${this.postId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          letterContent: letterText.trim(),
-          musicUrl: musicUrl.trim(),
-          musicComment: musicComment.trim()
-        })
-      });
+      const response = await fetch(`/api/manito/letter/${this.manitoMatchesId}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              letterContent: letterText.trim(),
+              musicUrl: musicUrl.trim(),
+              musicComment: musicComment.trim()
+            })
+          });
+
+      const data = await response.json();
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || '편지 전송에 실패했습니다.');
+        throw new Error(data.message || '편지 전송에 실패했습니다.');
       }
 
+      // 성공 시 처리 로직
       if (window.ManitoPage && window.ManitoPage.letterBox) {
         const letterBox = window.ManitoPage.letterBox;
         letterBox.activeTab = 'sent';
-
-        const receivedTab = document.querySelector('.received-letter-box');
-        const sentTab = document.querySelector('.sent-letter-box');
-        const switchElement = document.querySelector(
-            '.manito-letter-box-switch');
-
-        if (receivedTab && sentTab && switchElement) {
-          receivedTab.classList.remove('active');
-          sentTab.classList.add('active');
-          switchElement.classList.remove('received-active');
-          switchElement.classList.add('sent-active');
-        }
-
-        letterBox.currentPage = 0;
-        letterBox.hasMore = true;
-        letterBox.container.innerHTML = '';
-        await letterBox.loadMoreLetters();
+        await letterBox.refreshLetterBox();
       }
 
+      // 우측 섹션 편지함 새로고침
       const elements = {
         receivedList: document.querySelector(
             '.manito-letter-section .received-letter ul'),
@@ -130,7 +141,8 @@ class ManitoLetterModal extends BaseModal {
         sentLink: document.querySelector(
             '.manito-letter-section .sent-letter h3 a')
       };
-      if (elements.receivedList && elements.sentList) {
+
+      if (CommonUtils) {
         await CommonUtils.loadRecentLetters(elements);
       }
 
@@ -340,15 +352,20 @@ const ManitoPage = {
       this.showLoader();
 
       try {
-        const userNickname = document.querySelector(
-            'meta[name="user-nickname"]')?.content;
+        // 세션 체크로 변경
+        const sessionResponse = await fetch('/api/session-info');
+        if (!sessionResponse.ok) {
+          throw new Error('Failed to get user session');
+        }
+        const sessionData = await sessionResponse.json();
+        const userNickname = sessionData.nickname;
 
         if (!userNickname) {
           this.container.innerHTML = `
-                <div class="empty-letter-message">
-                    <p>사용자 정보를 찾을 수 없습니다.</p>
-                </div>
-            `;
+        <div class="empty-letter-message">
+            <p>사용자 정보를 찾을 수 없습니다.</p>
+        </div>
+      `;
           return;
         }
 
@@ -370,10 +387,10 @@ const ManitoPage = {
               : '아직 보낸 편지가 없습니다.';
 
           this.container.innerHTML = `
-            <div class="empty-letter-message">
-              <p>${message}</p>
-            </div>
-          `;
+        <div class="empty-letter-message">
+          <p>${message}</p>
+        </div>
+      `;
           this.hasMore = false;
           return;
         } else if (data.content.length === 0) {
@@ -393,10 +410,10 @@ const ManitoPage = {
         console.error('Error loading letters:', error);
         if (this.currentPage === 0) {
           this.container.innerHTML = `
-            <div class="empty-letter-message">
-              <p>편지를 불러오는 중 오류가 발생했습니다.</p>
-            </div>
-          `;
+        <div class="empty-letter-message">
+          <p>편지를 불러오는 중 오류가 발생했습니다.</p>
+        </div>
+      `;
         }
       } finally {
         this.isLoading = false;
@@ -619,6 +636,11 @@ const ManitoPage = {
         }
         const letterData = await response.json();
 
+        if (!isMyReply && letterData.answerReport) {
+          CommonUtils.showWarningMessage('신고된 답장입니다.');
+          return;
+        }
+
         const modalContainer = document.getElementById(
             'manitoLetterReplySentModalContainer');
         const modalBackground = document.getElementById(
@@ -627,8 +649,6 @@ const ManitoPage = {
             '.send-letter-reply-title p');
         const replyTextElement = modalContainer.querySelector(
             '.manito-letter-reply-text');
-        const reportButton = modalContainer.querySelector(
-            '.manito-letter-reply-report-container');
 
         if (!modalContainer || !modalBackground || !replyTextElement
             || !modalTitle) {
@@ -636,9 +656,13 @@ const ManitoPage = {
         }
 
         modalTitle.textContent = isMyReply ? '내가 보낸 답장' : '마니또의 답장';
-        reportButton.style.display = isMyReply ? 'none' : 'flex';
-        replyTextElement.innerHTML = letterData.answerLetter?.replace(/\n/g,
-            '<br>') || '';
+
+        if (!isMyReply && letterData.answerReport) {
+          replyTextElement.innerHTML = '<em style="color: #8f8f8f; font-style: italic;">신고된 답장입니다.</em>';
+        } else {
+          replyTextElement.innerHTML = letterData.answerLetter?.replace(/\n/g,
+              '<br>') || '';
+        }
 
         const scrollbarWidth = window.innerWidth
             - document.documentElement.clientWidth;
@@ -690,7 +714,7 @@ const ManitoPage = {
 
       } catch (error) {
         console.error('Error displaying reply:', error);
-        this.showWarningMessage(error.message);
+        CommonUtils.showWarningMessage(error.message);
       }
     },
 
@@ -755,6 +779,17 @@ const ManitoPage = {
 
 class ManitoLetterRenderer {
   static generateLetterHTML(letter, isReceived = true) {
+
+    if (isReceived && letter.report) {
+      return `
+        <div class="manito-reply-outer-container ${isReceived ? 'received'
+          : 'sent'}" data-letter-id="${letter.manitoLetterId}">
+            <div class="reported-content">
+                <p>신고된 편지입니다</p>
+            </div>
+        </div>`;
+    }
+
     const ownerClass = isReceived ? 'received' : 'sent';
 
     const isChecked = Boolean(letter.public);
@@ -763,6 +798,15 @@ class ManitoLetterRenderer {
     const buttonOpacity = isChecked ? '1' : '0.3';
 
     const statusStyle = isChecked ? '' : 'opacity: 0.3;';
+
+    let musicCommentText = letter.musicComment;
+    if (!letter.musicComment) {
+      if (!letter.musicUrl) {
+        musicCommentText = '추천 음악이 없습니다';
+      } else {
+        musicCommentText = '코멘트 없음';
+      }
+    }
 
     return `
      <div class="manito-reply-outer-container ${ownerClass}" data-letter-id="${letter.manitoLetterId}" data-report-type="${isReceived
@@ -789,9 +833,8 @@ class ManitoLetterRenderer {
           </div>
           <p class="manito-music-comment" ${!letter.musicComment
         ? 'style="color: #8f8f8f; opacity: 0.7; font-style: italic;"' : ''}>
-              ${letter.musicComment ? letter.musicComment.replace(/\n/g, '<br>')
-        : '추천 음악이 없습니다'}
-          </p>
+            ${musicCommentText}
+        </p>
           ${letter.formattedCreatedAt ? `
           <p class="post-time">${letter.formattedCreatedAt}</p>
           ` : ''}
@@ -849,10 +892,15 @@ class ManitoLetterReplyModal extends BaseModal {
 
   validateForm() {
     const replyText = this.modal.querySelector('#manito-letter-reply-input');
-
     if (!replyText) {
-      console.error('Reply text input element not found');
-      this.showWarning('답장 입력 필드를 찾을 수 없습니다.');
+      return false;
+    }
+
+    const contentValidation = CommonUtils.ContentValidator.validateContentQuality(
+        replyText.value);
+    if (!contentValidation.isValid) {
+      this.showWarning(contentValidation.message);
+      replyText.focus();
       return false;
     }
 
@@ -864,6 +912,12 @@ class ManitoLetterReplyModal extends BaseModal {
 
     if (replyText.value.length > 500) {
       this.showWarning('답장은 500자를 초과할 수 없습니다.');
+      replyText.focus();
+      return false;
+    }
+
+    if (replyText.value.trim().length < 200) {
+      this.showWarning('답장은 200자 이상 작성해주세요.');
       replyText.focus();
       return false;
     }
@@ -1070,7 +1124,128 @@ class ReportModal extends BaseModal {
   }
 }
 
+async function requestMatch() {
+  try {
+    const response = await fetch('/api/manito/match', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await response.text();
+
+    if (!response.ok) {
+      console.log('에러 응답:', data);
+
+      if (data.includes('매칭 가능한 게시글이 없습니다')) {
+        CommonUtils.showWarningMessage('현재 마니또를 기다리고 있는 게시물이 없어요.');
+      } else {
+        CommonUtils.showWarningMessage(data || '매칭 요청 중 오류가 발생했습니다.');
+      }
+      return;
+    }
+
+    window.location.reload();
+  } catch (error) {
+    console.error('매칭 요청 에러:', error);
+    CommonUtils.showWarningMessage('서버와의 통신 중 오류가 발생했습니다.');
+  }
+}
+
+function passMatch() {
+  const confirmationPopup = document.getElementById('passPostConfirmPopup');
+  if (!confirmationPopup) {
+    console.error('Confirmation popup element not found');
+    return;
+  }
+
+  const confirmMessage = confirmationPopup.querySelector('.warning-text');
+  const confirmBtn = confirmationPopup.querySelector('#passPostConfirmBtn');
+  const cancelBtn = confirmationPopup.querySelector('#passPostCancelBtn');
+
+  if (!confirmMessage || !confirmBtn || !cancelBtn) {
+    console.error('Required confirmation elements not found');
+    return;
+  }
+
+  confirmMessage.innerHTML = `
+<span style="font-size:1.2rem; margin-bottom: 0.5rem;">정말 이 게시물에 편지를 쓰지 않으시겠어요?</span>
+ <span style="color: #303030;">편지 작성을 넘기더라도 24시간이 경과해야<br>새로운 게시물을 배정받을 수 있어요.</span>`;
+  confirmBtn.textContent = "넘기기";
+  cancelBtn.textContent = "취소";
+
+  const newConfirmBtn = confirmBtn.cloneNode(true);
+  newConfirmBtn.addEventListener('click', async () => {
+    confirmationPopup.style.display = 'none';
+
+    try {
+      const currentMatchId = document.querySelector(
+          'meta[name="manito-match-id"]')?.content;
+      if (!currentMatchId) {
+        CommonUtils.showWarningMessage('매칭 정보를 찾을 수 없습니다.');
+        return;
+      }
+
+      const response = await fetch(`/api/manito/pass/${currentMatchId}`, {
+        method: 'PUT'
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || '게시물을 넘기는데 실패했습니다.');
+      }
+
+      window.location.reload();
+    } catch (error) {
+      CommonUtils.showWarningMessage(error.message);
+    }
+  });
+  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+  const newCancelBtn = cancelBtn.cloneNode(true);
+  newCancelBtn.addEventListener('click', () => {
+    confirmationPopup.style.display = 'none';
+  });
+  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+  confirmationPopup.style.display = 'block';
+}
+
+// 남은 시간 표시
+function updateRemainingTime() {
+  const matchedTime = document.querySelector(
+      'meta[name="matched-time"]')?.content;
+  if (!matchedTime) {
+    return;
+  }
+
+  const matchDate = new Date(matchedTime);
+  const now = new Date();
+  const timeLimit = new Date(matchDate.getTime() + 24 * 60 * 60 * 1000);
+  const remainingTime = timeLimit - now;
+
+  if (remainingTime > 0) {
+    const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+    const minutes = Math.floor(
+        (remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
+
+    const remainingTimeElement = document.getElementById('remainingTime');
+    if (remainingTimeElement) {
+      remainingTimeElement.innerHTML = `<span class="remaining-time-label">다음 마니또 배정 가능 시간까지</span><br>
+  <span class="remaining-time-value">${hours}시간 ${minutes}분 ${seconds}초</span>`;
+    }
+  }
+}
+
+setInterval(updateRemainingTime, 1000);
+
 window.ManitoPage = ManitoPage;
+document.addEventListener('DOMContentLoaded', () => {
+  ManitoPage.init();
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   ManitoPage.init();
 });

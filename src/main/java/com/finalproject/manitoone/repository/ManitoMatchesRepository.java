@@ -70,4 +70,6 @@ public interface ManitoMatchesRepository extends JpaRepository<ManitoMatches, Lo
           )
     """)
   List<ManitoMatches> findUnansweredMatches(LocalDateTime deadline);
+
+  Optional<List<ManitoMatches>> findByMatchedPostId(Post post);
 }

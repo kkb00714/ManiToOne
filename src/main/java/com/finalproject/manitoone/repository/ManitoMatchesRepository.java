@@ -57,5 +57,17 @@ public interface ManitoMatchesRepository extends JpaRepository<ManitoMatches, Lo
   @Query("SELECT COUNT(m) > 0 FROM ManitoMatches m WHERE m.matchedPostId = :post AND m.status = :status")
   boolean existsByMatchedPostIdAndStatus(@Param("post") Post post, @Param("status") MatchStatus status);
 
-  Optional<List<ManitoMatches>> findByMatchedPostId(Post post);
+  // 24시간 이상 경과된 MATCHED 상태의 ManitoMatches 중 ManitoLetter가 없는 것 찾기
+  @Query("""
+        SELECT m
+        FROM ManitoMatches m
+        WHERE m.status = 'MATCHED'
+          AND m.matchedTime <= :deadline
+          AND NOT EXISTS (
+              SELECT l
+              FROM ManitoLetter l
+              WHERE l.manitoMatches = m
+          )
+    """)
+  List<ManitoMatches> findUnansweredMatches(LocalDateTime deadline);
 }

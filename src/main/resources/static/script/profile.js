@@ -397,7 +397,7 @@ function openModal(followers) {
       listItem.innerHTML = `
         <a href="/profile/${follower.nickname}" class="d-flex align-items-center">
           <img src="${follower.profileImage}" alt="Profile" class="rounded-circle" width="30" height="30">
-          ${follower.name} (@${follower.nickname})
+          <span class="ms-2">${follower.name} (@${follower.nickname})</span>
         </a>
       `;
 

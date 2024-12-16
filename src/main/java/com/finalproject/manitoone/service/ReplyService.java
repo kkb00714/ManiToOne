@@ -2,6 +2,7 @@ package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.ReplyPost;
 import com.finalproject.manitoone.domain.Report;
@@ -138,7 +139,16 @@ public class ReplyService {
   }
 
   // 답글 신고
-  public ReportResponseDto reportReply(Long replyId, AddReportRequestDto request, String email) {
+  public ReportResponseDto reportReply(Long replyId, String reportType, String email) {
+    ReportType theType = null;
+
+    for (ReportType type : ReportType.values()) {
+      if (type.name().equals(reportType)) {
+        theType = type;
+        break;
+      }
+    }
+
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
@@ -149,7 +159,7 @@ public class ReplyService {
         ));
 
     Report report = reportRepository.save(Report.builder()
-        .reportType(request.getReportType())
+        .reportType(theType)
         .userId(user.getUserId())
         .type(ReportObjectType.REPLY)
         .reportObjectId(reply.getReplyPostId())

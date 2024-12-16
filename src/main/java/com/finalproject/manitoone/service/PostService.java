@@ -2,6 +2,7 @@ package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.domain.AiPostLog;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.Post;
@@ -270,7 +271,16 @@ public class PostService {
   }
 
   // 게시글 신고
-  public ReportResponseDto reportPost(Long postId, AddReportRequestDto request, String email) {
+  public ReportResponseDto reportPost(Long postId, String reportType, String email) {
+    ReportType theType = null;
+
+    for (ReportType type : ReportType.values()) {
+      if (type.name().equals(reportType)) {
+        theType = type;
+        break;
+      }
+    }
+
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
@@ -281,7 +291,7 @@ public class PostService {
         ));
 
     Report report = reportRepository.save(Report.builder()
-        .reportType(request.getReportType())
+        .reportType(theType)
         .userId(user.getUserId())
         .type(ReportObjectType.POST)
         .reportObjectId(post.getPostId())

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -77,11 +78,11 @@ public class ReplyController {
   // 답글 신고
   @PostMapping("/reply/report/{replyId}")
   public ResponseEntity<ReportResponseDto> reportReply(@PathVariable("replyId") Long replyId,
-      @RequestBody AddReportRequestDto request,
+      @RequestParam("reportType") String reportType,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 
-    ReportResponseDto report = replyService.reportReply(replyId, request, email);
+    ReportResponseDto report = replyService.reportReply(replyId, reportType, email);
     return ResponseEntity.status(HttpStatus.CREATED).body(report);
   }
 

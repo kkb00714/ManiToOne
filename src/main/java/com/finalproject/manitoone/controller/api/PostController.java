@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -120,12 +121,12 @@ public class PostController {
   // 게시글 신고
   @PostMapping("/report/{postId}")
   public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId,
-      @ModelAttribute AddReportRequestDto request,
+      @RequestParam("reportType") String reportType,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(postService.reportPost(postId, request, email));
+        .body(postService.reportPost(postId, reportType, email));
   }
 
   @GetMapping("/by/{nickName}")

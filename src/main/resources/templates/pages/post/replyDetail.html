@@ -125,6 +125,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:onclick="'openPostReportModal()'"
                   >
                     신고하기
                   </button>
@@ -136,8 +137,8 @@
                 <form
                     class="report-modal-container"
                     id="postReportModalContainer"
-                    th:action="@{}"
-                    th:method="PUT"
+                    th:action="@{/api/post/report/{postId}(postId=${post.postId})}"
+                    method="post"
                 >
                   <div class="report-title">
                     <p>신고하기</p>
@@ -146,6 +147,7 @@
                         id="closePostReportModalBtn"
                         th:src="@{/images/icons/icon-cancel.png}"
                         alt="close icon"
+                        th:onclick="'closePostReportModal()'"
                     />
                   </div>
                   <div class="report-container">
@@ -245,6 +247,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:onclick="'hideReply(' + ${reply.replyPostId} + ')'"
                   >
                     숨기기
                   </button>
@@ -258,6 +261,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:onclick="'openReplyReportModal()'"
                   >
                     신고하기
                   </button>
@@ -269,8 +273,8 @@
                 <form
                     class="report-modal-container"
                     id="replyReportModalContainer"
-                    th:action="@{}"
-                    th:method="PUT"
+                    th:action="@{/api/reply/report/{replyId}(replyId=${reply.replyPostId})}"
+                    method="post"
                 >
                   <div class="report-title">
                     <p>신고하기</p>
@@ -279,6 +283,7 @@
                         id="closeReplyReportModalBtn"
                         th:src="@{/images/icons/icon-cancel.png}"
                         alt="close icon"
+                        th:onclick="'closeReplyReportModal()'"
                     />
                   </div>
                   <div class="report-container">
@@ -382,6 +387,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:onclick="'hideReply(' + ${rereply.replyPostId} + ')'"
                   >
                     숨기기
                   </button>
@@ -395,6 +401,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:onclick="'openRereplyReportModal()'"
                   >
                     신고하기
                   </button>
@@ -406,8 +413,8 @@
                 <form
                     class="report-modal-container"
                     id="reReplyReportModalContainer"
-                    th:action="@{}"
-                    th:method="PUT"
+                    th:action="@{/api/reply/report/{replyId}(replyId=${rereply.replyPostId})}"
+                    method="post"
                 >
                   <div class="report-title">
                     <p>신고하기</p>
@@ -416,6 +423,7 @@
                         id="closereReplyReportModalBtn"
                         th:src="@{/images/icons/icon-cancel.png}"
                         alt="close icon"
+                        th:onclick="'closeRereplyReportModal()'"
                     />
                   </div>
                   <div class="report-container">

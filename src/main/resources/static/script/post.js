@@ -148,6 +148,24 @@ function hidePost(postId) {
   });
 }
 
+// 답글 숨기기
+function hideReply(replyId) {
+  fetch(`/api/reply/hidden/${replyId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then((response) => {
+    if (response.ok) {
+      alert("해당 답글을 숨김 처리하셨습니다.");
+      window.location.reload();
+    }
+    else {
+      alert("해당 답글 숨김 처리에 실패했습니다.");
+    }
+  });
+}
+
 // 게시글 삭제
 function deletePost(postId) {
   fetch(`/api/post/${postId}`, {
@@ -184,4 +202,38 @@ function deleteReply(replyId) {
   });
 }
 
-// 게시글 신고
+// 게시글 신고 모달
+function openPostReportModal() {
+  document.getElementById('post-options-modal').style.display = 'none';
+  document.getElementById('postReportModal').style.display = 'block';
+  document.getElementById('postReportModalContainer').style.display = 'block';
+}
+
+function closePostReportModal() {
+  document.getElementById('postReportModal').style.display = 'none';
+  document.getElementById('postReportModalContainer').style.display = 'none';
+}
+
+// 답글 신고 모달
+function openReplyReportModal() {
+  document.getElementById('reply-options-modal').style.display = 'none';
+  document.getElementById('replyReportModal').style.display = 'block';
+  document.getElementById('replyReportModalContainer').style.display = 'block';
+}
+
+function closeReplyReportModal() {
+  document.getElementById('replyReportModal').style.display = 'none';
+  document.getElementById('replyReportModalContainer').style.display = 'none';
+}
+
+// 답글의 답글 신고 모달
+function openRereplyReportModal() {
+  document.getElementById('rereply-options-modal').style.display = 'none';
+  document.getElementById('reReplyReportModal').style.display = 'block';
+  document.getElementById('reReplyReportModalContainer').style.display = 'block';
+}
+
+function closeRereplyReportModal() {
+  document.getElementById('reReplyReportModal').style.display = 'none';
+  document.getElementById('reReplyReportModalContainer').style.display = 'none';
+}

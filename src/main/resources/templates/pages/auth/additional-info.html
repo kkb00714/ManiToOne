@@ -7,6 +7,7 @@
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
   <link rel="stylesheet" th:href="@{/style/sign-up.css}"/>
   <link rel="stylesheet" th:href="@{/style/additional-info.css}"/>
+  <link rel="stylesheet" th:href="@{/style/loading.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -62,7 +63,10 @@
         />
         <p><span id="birth-error" class="error-message"></span></p>
       </div>
-      <button class="sign-up-button">가입</button>
+      <button id="sign-up-button" class="sign-up-button">
+        <span class="button-text">가입</span>
+        <span id="loading-spinner" class="loading-spinner" style="display: none;"></span>
+      </button>
     </form>
   </div>
   <div class="sign-in-link-container">
@@ -86,6 +90,12 @@
     passwordError.textContent = "";
     nicknameError.textContent = "";
     birthError.textContent = "";
+
+    const signUpButton = document.getElementById("sign-up-button");
+    const buttonText = signUpButton.querySelector('.button-text');
+    const loadingSpinner = signUpButton.querySelector('#loading-spinner');
+    buttonText.style.display = 'none';
+    loadingSpinner.style.display = 'inline-block';
 
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
     const nicknameRegex = /^.{2,10}$/;
@@ -127,6 +137,7 @@
       if (firstErrorField) {
         firstErrorField.focus();
       }
+      resetButtonState();
       return;
     }
 
@@ -158,8 +169,20 @@
     })
     .catch(error => {
       alert('추가 정보 입력 실패: ' + error.message);
-    });
+    })
+    .finally(() => {
+      resetButtonState();
+    })
   });
+
+  function resetButtonState() {
+    const signUpButton = document.getElementById('sign-up-button');
+    const buttonText = signUpButton.querySelector('.button-text');
+    const loadingSpinner = signUpButton.querySelector('#loading-spinner');
+
+    buttonText.style.display = 'inline';
+    loadingSpinner.style.display = 'none';
+  }
 </script>
 </body>
 </html>

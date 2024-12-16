@@ -664,6 +664,19 @@ const ManitoPage = {
               '<br>') || '';
         }
 
+        const moreOptionsBtn = modalContainer.querySelector(
+            '.tiny-icons[src*="UI-more2.png"]')?.parentElement;
+        const reportMenu = modalContainer.querySelector('.manito-report-menu');
+
+        if (isMyReply) {
+          if (moreOptionsBtn) {
+            moreOptionsBtn.style.display = 'none';
+          }
+          if (reportMenu) {
+            reportMenu.style.display = 'none';
+          }
+        }
+
         const scrollbarWidth = window.innerWidth
             - document.documentElement.clientWidth;
         document.body.style.overflow = 'hidden';
@@ -804,7 +817,7 @@ class ManitoLetterRenderer {
       if (!letter.musicUrl) {
         musicCommentText = '추천 음악이 없습니다';
       } else {
-        musicCommentText = '코멘트 없음';
+        musicCommentText = '코멘트가 없습니다';
       }
     }
 
@@ -1078,6 +1091,17 @@ class ReportModal extends BaseModal {
       this.showWarning('신고가 접수되었습니다.');
       this.resetForm();
       this.close();
+
+      const replySentModal = document.getElementById(
+          'manitoLetterReplySentModalContainer');
+      const replySentModalBackground = document.getElementById(
+          'manitoLetterReplySentModalBackground');
+      if (replySentModal && replySentModalBackground) {
+        replySentModal.style.display = 'none';
+        replySentModalBackground.style.display = 'none';
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+      }
     } catch (error) {
       console.error('Error submitting report:', error);
       this.showWarning(error.message);

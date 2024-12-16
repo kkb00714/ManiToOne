@@ -92,14 +92,4 @@ public class ManitoMatchesService {
 
     match.markAsPassed();
   }
-
-  // 편지 미작성 매칭 만료 처리 (이후 추가될 스케줄러에서 호출)
-  @Transactional
-  public void expireUnwrittenMatches() {
-    LocalDateTime timeLimit = LocalDateTime.now().minusHours(24);
-    List<ManitoMatches> expiredMatches =
-        manitoMatchesRepository.findExpiredMatchesWithoutLetter(timeLimit);
-
-    expiredMatches.forEach(ManitoMatches::markAsExpired);
-  }
 }

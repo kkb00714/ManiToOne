@@ -63,7 +63,6 @@ public class PostService {
   private final FileUtil fileUtil;
   // ManitoMatchesRepository 생성으로 인한 필드 추가
   private final ManitoMatchesRepository manitoMatchesRepository;
-  private final NotificationRepository notificationRepository;
   private final NotificationUtil notificationUtil;
 
   // 게시글 생성 (미완성)

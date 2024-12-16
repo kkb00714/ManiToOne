@@ -65,10 +65,16 @@ public class PostService {
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
+    Boolean isManito = false;
+
+    if (request.getIsManito().equals("true")) {
+      isManito = true;
+    }
+
     Post post = postRepository.save(Post.builder()
         .content(request.getContent())
         .user(user)
-        .isManito(request.getIsManito())
+        .isManito(isManito)
         .build());
 
     AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));

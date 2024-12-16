@@ -319,7 +319,7 @@ public class PostService {
         .map(userPostLike -> new PostViewResponseDto(
             userPostLike.getPost().getPostId(),
             userPostLike.getUser().getProfileImage(),
-            userPostLike.getUser().getNickname(),
+            userPostLike.getPost().getUser().getNickname(),
             userPostLike.getPost().getContent(),
             userPostLike.getPost().getCreatedAt(),
             userPostLike.getPost().getUpdatedAt())

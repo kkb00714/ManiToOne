@@ -123,14 +123,12 @@ class ManitoLetterModal extends BaseModal {
         throw new Error(data.message || '편지 전송에 실패했습니다.');
       }
 
-      // 성공 시 처리 로직
       if (window.ManitoPage && window.ManitoPage.letterBox) {
         const letterBox = window.ManitoPage.letterBox;
         letterBox.activeTab = 'sent';
         await letterBox.refreshLetterBox();
       }
 
-      // 우측 섹션 편지함 새로고침
       const elements = {
         receivedList: document.querySelector(
             '.manito-letter-section .received-letter ul'),
@@ -664,6 +662,19 @@ const ManitoPage = {
               '<br>') || '';
         }
 
+        const moreOptionsBtn = modalContainer.querySelector(
+            '.tiny-icons[src*="UI-more2.png"]')?.parentElement;
+        const reportMenu = modalContainer.querySelector('.manito-report-menu');
+
+        if (isMyReply) {
+          if (moreOptionsBtn) {
+            moreOptionsBtn.style.display = 'none';
+          }
+          if (reportMenu) {
+            reportMenu.style.display = 'none';
+          }
+        }
+
         const scrollbarWidth = window.innerWidth
             - document.documentElement.clientWidth;
         document.body.style.overflow = 'hidden';
@@ -804,7 +815,7 @@ class ManitoLetterRenderer {
       if (!letter.musicUrl) {
         musicCommentText = '추천 음악이 없습니다';
       } else {
-        musicCommentText = '코멘트 없음';
+        musicCommentText = '코멘트가 없습니다';
       }
     }
 
@@ -1078,6 +1089,17 @@ class ReportModal extends BaseModal {
       this.showWarning('신고가 접수되었습니다.');
       this.resetForm();
       this.close();
+
+      const replySentModal = document.getElementById(
+          'manitoLetterReplySentModalContainer');
+      const replySentModalBackground = document.getElementById(
+          'manitoLetterReplySentModalBackground');
+      if (replySentModal && replySentModalBackground) {
+        replySentModal.style.display = 'none';
+        replySentModalBackground.style.display = 'none';
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+      }
     } catch (error) {
       console.error('Error submitting report:', error);
       this.showWarning(error.message);

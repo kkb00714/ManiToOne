@@ -29,14 +29,6 @@ public class ManitoScheduler {
     if (!expiredMatches.isEmpty()) {
       log.info("만기된 매칭 수: {}", expiredMatches.size());
 
-      expiredMatches.forEach(match -> {
-        log.info("삭제 대상 매칭 ID: {}", match.getManitoMatchesId());
-
-        // 매칭에 연결된 Post의 isSelected를 false로 변경
-        match.getMatchedPostId().unSelected();
-        manitoMatchesRepository.save(match);
-      });
-
       // 매칭 삭제
       manitoMatchesRepository.deleteAll(expiredMatches);
 

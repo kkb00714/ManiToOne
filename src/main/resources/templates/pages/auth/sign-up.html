@@ -219,11 +219,10 @@
     }
 
     if (!isValid) {
-      // 첫 번째 에러 필드에 포커스 설정
       if (firstErrorField) {
         firstErrorField.focus();
       }
-      return; // API 호출 중단
+      return;
     }
 
     const requestData = {
@@ -262,8 +261,20 @@
     })
     .catch(error => {
       alert('회원가입 실패 : ' + error.message);
-    });
+    })
+    .finally(() => {
+      resetButtonState();
+    })
   });
+
+  function resetButtonState() {
+    const emailAuthButton = document.getElementById('emailAuthButton');
+    const buttonText = emailAuthButton.querySelector('.button-text');
+    const loadingSpinner = emailAuthButton.querySelector('#emailLoadingSpinner');
+
+    buttonText.style.display = 'inline';
+    loadingSpinner.style.display = 'none';
+  }
 </script>
 </body>
 </html>

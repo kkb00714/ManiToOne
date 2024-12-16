@@ -28,11 +28,14 @@ public interface ManitoMatchesRepository extends JpaRepository<ManitoMatches, Lo
 
   // 배정 가능한 게시글 목록 조회
   @Query("SELECT DISTINCT p FROM Post p " +
-      "WHERE p.isManito = true " +  // isSelected 체크 제거
+      "WHERE p.isManito = true " +
       "AND p.createdAt > :timeLimit " +
+      "AND p.user.userId != :userId " +
       "AND NOT EXISTS (SELECT 1 FROM ManitoMatches m WHERE m.matchedPostId = p AND m.status = 'MATCHED') " +
       "ORDER BY p.createdAt ASC")
-  List<Post> findAssignablePosts(@Param("timeLimit") LocalDateTime timeLimit);
+  List<Post> findAssignablePosts(
+      @Param("timeLimit") LocalDateTime timeLimit,
+      @Param("userId") Long userId);
 
   // 편지 미작성된 MATCHED 상태 매칭 중 24시간 경과된 것 찾기
   @Query("SELECT m FROM ManitoMatches m " +

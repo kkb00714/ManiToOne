@@ -840,6 +840,7 @@ public class AdminService {
     }
 
     // ReportSearchResponseDto 빌더로 변환
+    assert manitoLetter != null;
     return ReportSearchResponseDto.builder()
         .reportId(report.getReportId())
         .type(Map.of("data", report.getType().name(), "label", report.getType().getType()))
@@ -850,6 +851,7 @@ public class AdminService {
         .reportObjectId(report.getReportObjectId())
         .createdAt(report.getCreatedAt())
         .reportedToUser(reportedToUser)
+        .post(toPostSearchResponseDto(manitoLetter.getManitoMatches().getMatchedPostId()))
         .build();
   }
 

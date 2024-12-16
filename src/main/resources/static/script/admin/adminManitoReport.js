@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const pagination = document.querySelector(".pagination");
   const searchButton = document.querySelector("#searchButton");
   const searchQuery = document.querySelector("#searchQuery");
+  const modalContainer = document.querySelector(".post-modal");
+  const modalBackground = document.querySelector("#modalOverlay");
+  const closeModalButton = document.querySelector("#closeProfileUpdateBtn");
 
   let requestBody = {}
   let currentPage = 1;
@@ -69,7 +72,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.json();
     })
     .then((data) => {
-      console.log(data)
       if (!data.content || data.content.length === 0) {
         tableBody.innerHTML = `
     <tr>
@@ -79,15 +81,15 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         tableBody.innerHTML = data.content
         .map((report) => {
-            return `
-                <tr data-user='${JSON.stringify(report)}'>
+          return `
+                <tr data-report='${JSON.stringify(report)}'>
                     <td>${report.reportId}</td>
                     <td data-value="${report.type.data}">${report.type.label}</td> 
                     <td data-value="${report.reportType.data}">${report.reportType.label
-            > 5 ? report.reportType.label.substring(0, 5) + '...'
-                : report.reportType.label}</td>
+          > 5 ? report.reportType.label.substring(0, 5) + '...'
+              : report.reportType.label}</td>
                     <td>${report.content.length > 6 ? report.content.substring(
-                0, 6) + '...' : report.content}</td>
+              0, 6) + '...' : report.content}</td>
                     <td>${report.reportedByUser.nickname}</td> 
                     <td>
                         ${report.reportedToUser.nickname}
@@ -220,5 +222,139 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     loadPage(1);
+  });
+
+  function initializeSlider(reportData, imageUrls) {
+    // DOM 요소 가져오기
+    const imageSlider = document.querySelector(".image-slider");
+    const imageContainer = document.getElementById("imageContainer");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    // 이미지 초기화
+    imageContainer.innerHTML = ""; // 이전 이미지 초기화
+
+    // 이미지 추가
+    imageUrls.forEach((url) => {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "Slider Image";
+      imageContainer.appendChild(img);
+    });
+
+    // 이미지가 없을 경우 슬라이더 숨김
+    if (imageUrls.length === 0) {
+      imageSlider.style.display = "none";
+      return; // 더 이상 진행하지 않음
+    } else {
+      imageSlider.style.display = "block"; // 슬라이더 표시
+    }
+
+    // 슬라이더 초기 상태 설정
+    let currentIndex = 0; // 초기화 위치를 위로 이동
+
+    // 버튼 클릭 이벤트
+    prevBtn.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateSlider();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (currentIndex < imageUrls.length - 1) {
+        currentIndex++;
+        updateSlider();
+      }
+    });
+
+    // 슬라이더 업데이트 함수
+    function updateSlider() {
+      const offset = -currentIndex * imageSlider.offsetWidth;
+      imageContainer.style.transform = `translateX(${offset}px)`;
+      updateButtons();
+    }
+
+    // 버튼 상태 업데이트
+    function updateButtons() {
+      prevBtn.style.display = currentIndex > 0 ? "block" : "none";
+      nextBtn.style.display = currentIndex < imageUrls.length - 1 ? "block"
+          : "none";
+    }
+
+    // 초기 버튼 상태 및 슬라이더 위치 설정
+    updateButtons();
+    updateSlider();
+  }
+
+  function openProfileModal(reportData, imageData) {
+    // 첫 번째 데이터 - postData
+    const profileImageElement = document.querySelector(".profile-image");
+    const userIdElement = document.querySelector(".user-id");
+    const postTimeElement = document.querySelector(".post-time");
+    const postContentElement = document.querySelector(".post-content");
+
+    const replyProfileImageElement = document.querySelector(
+        ".reply-profile-image");
+    const replyUserIdElement = document.querySelector(".reply-user-id");
+    const replyContentElement = document.querySelector(".reply-content");
+    const replyHeader = document.querySelector(".reply-header");
+
+    profileImageElement.src = reportData.post.user.profileImage
+        || "/images/icons/UI-user2.png";
+    userIdElement.textContent = reportData.post.user.nickname;
+    postContentElement.textContent = reportData.post.content;
+    postTimeElement.textContent = reportData.post.timeDifference;
+
+    if (reportData.type.data === "MANITO_LETTER") {
+      replyHeader.textContent = "신고된 편지";
+    } else if (reportData.type.data === "MANITO_ANSWER") {
+      replyHeader.textContent = "신고된 답변";
+    }
+    replyProfileImageElement.src = reportData.reportedToUser.profileImage || "/images/icons/UI-user2.png";
+    replyUserIdElement.textContent = reportData.reportedToUser.nickname;
+    replyContentElement.textContent = reportData.content;
+
+    const imageUrls = imageData.map(image => image.fileName);
+
+    // 이미지 슬라이더 초기화
+    initializeSlider(reportData, imageUrls);
+
+    modalContainer.style.display = "block";
+    modalBackground.style.display = "block";
+
+    closeModalButton.addEventListener("click", function () {
+      modalContainer.style.display = "none";
+      modalBackground.style.display = "none";
+    });
+
+    modalBackground.addEventListener("click", function (event) {
+      if (event.target === modalBackground) {
+        modalContainer.style.display = "none";
+        modalBackground.style.display = "none";
+      }
+    });
+  }
+
+  tableBody.addEventListener("click", function (event) {
+    const row = event.target.closest("tr");
+    if (row) {
+      const reportData = JSON.parse(row.dataset.report);  // 이미 바인딩된 데이터
+      console.log(reportData);
+
+      // type에 따라 postId 설정
+      let postId = reportData.post.postId;
+
+      fetch(`/admin/post/${postId}/image`)
+      .then(response => response.json())
+      .then(imageData => {
+        console.log("성공");
+        console.log(imageData);
+        openProfileModal(reportData, imageData);
+      })
+      .catch(error => {
+        console.error("이미지 로드 오류:", error);
+      });
+    }
   });
 });

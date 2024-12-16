@@ -5,6 +5,7 @@
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/admin/adminCommon.css}"/>
   <link rel="stylesheet" th:href="@{/style/admin/adminManitoReport.css}"/>
+  <link rel="stylesheet" th:href="@{/style/fileModal.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -74,7 +75,9 @@
       </nav>
     </div>
   </section>
+  <div th:replace="fragments/admin/modals/manito-report-modal :: manito-report-modal"></div>
 </main>
+<div class="modal-overlay" id="modalOverlay"></div>
 <script th:src="@{/script/admin/adminManitoReport.js}"></script>
 </body>
 </html>

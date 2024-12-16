@@ -164,14 +164,11 @@ const ContentValidator = {
     const repeatedPattern = /([\u3131-\u314E\u314F-\u3163ㅋㅎㅠㅜzZ])\1{29,}/g;
     const repeatedMatches = trimmedText.match(repeatedPattern) || [];
 
-    // 3. 동일 문장 반복 패턴 검사
-    const sentences = this.findRepeatedSentences(trimmedText);
+    // 3. 문장 반복 패턴 검사
+    const repeatingPhrases = this.findSignificantRepeats(trimmedText);
     const totalLength = trimmedText.length;
-    let totalRepeatedLength = 0;
-
-    for (const sentence of sentences) {
-      totalRepeatedLength += sentence.text.length * (sentence.count - 1); // 첫 번째 문장은 제외하고 반복된 만큼만 계산
-    }
+    let totalRepeatedLength = repeatingPhrases.reduce((sum, phrase) =>
+        sum + (phrase.text.length * (phrase.count - 1)), 0);
 
     // 기존 검사 조건
     if (matches || repeatedMatches.length > 0) {
@@ -190,8 +187,9 @@ const ContentValidator = {
       };
     }
 
-    // 동일 문장 반복이 전체 텍스트의 50% 이상인 경우
-    if (totalRepeatedLength / totalLength > 0.5) {
+    // 유의미한 반복이 전체 텍스트의 50% 이상인 경우
+    if (totalRepeatedLength / totalLength > 0.5 && repeatingPhrases.some(phrase =>
+        phrase.count >= 3 && phrase.text.length >= 10)) {
       return {
         isValid: false,
         message: '같은 내용이 너무 많이 반복되었어요. 더 다양하고 다채로운 이야기를 전해보는 게 어떨까요?'
@@ -204,38 +202,53 @@ const ContentValidator = {
     };
   },
 
-  findRepeatedSentences(text) {
-    const sentences = [];
-    const minLength = 4; // 최소 4글자 이상의 문장만 검사
+  findSignificantRepeats(text) {
+    const phrases = [];
+    const minPhraseLength = 10;  // 최소 10글자 이상의 문장만 검사
+    const words = text.split(/[\s,.!?]+/);  // 문장 부호와 공백으로 분리
 
-    for (let len = minLength; len <= text.length / 2; len++) {
-      for (let i = 0; i <= text.length - len; i++) {
-        const currentText = text.slice(i, i + len);
+    // 각 위치에서 시작하는 가능한 모든 구문 검사
+    for (let len = minPhraseLength; len <= text.length / 2; len++) {
+      for (let start = 0; start <= text.length - len; start++) {
+        const phrase = text.slice(start, start + len);
 
-        // 이미 처리된 패턴은 건너뛰기
-        if (sentences.some(s => s.text.includes(currentText) || currentText.includes(s.text))) {
+        // 이미 처리된 구문이거나 의미 있는 구문이 아닌 경우 건너뛰기
+        if (phrases.some(p => p.text.includes(phrase) || phrase.includes(p.text)) ||
+            !this.isSignificantPhrase(phrase)) {
           continue;
         }
 
+        // 구문의 출현 횟수 계산
         let count = 0;
         let pos = -1;
-        while ((pos = text.indexOf(currentText, pos + 1)) !== -1) {
+        while ((pos = text.indexOf(phrase, pos + 1)) !== -1) {
           count++;
         }
 
-        if (count >= 2) { // 2번 이상 반복되는 경우만 저장
-          sentences.push({
-            text: currentText,
+        if (count >= 3) {  // 3번 이상 반복되는 경우만 저장
+          phrases.push({
+            text: phrase,
             count: count
           });
         }
       }
     }
 
-    // 더 긴 패턴이 우선되도록 정렬
-    return sentences.sort((a, b) => b.text.length - a.text.length);
+    return phrases.sort((a, b) => (b.text.length * b.count) - (a.text.length * a.count));
+  },
+
+  isSignificantPhrase(phrase) {
+    // 의미 있는 구문인지 확인하는 조건들
+    return (
+        phrase.length >= 10 && // 최소 길이
+        phrase.trim().split(/\s+/).length >= 2 && // 최소 2개 이상의 단어
+        !/^\s*$/.test(phrase) && // 공백으로만 이루어지지 않음
+        !/^[.,!?;\s]*$/.test(phrase) && // 문장 부호로만 이루어지지 않음
+        phrase.replace(/\s/g, '').length > phrase.length * 0.5 // 50% 이상이 실제 문자
+    );
   }
 };
+
 
 if (typeof window !== 'undefined') {
   window.CommonUtils = window.CommonUtils || {};

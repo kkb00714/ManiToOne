@@ -1133,19 +1133,22 @@ async function requestMatch() {
       }
     });
 
-    const data = await response.json().catch(() => ({}));
+    const data = await response.text();
 
     if (!response.ok) {
-      if (data.message && data.message.trim().includes('매칭 가능한 게시글이 없습니다')) {
+      console.log('에러 응답:', data);
+
+      if (data.includes('매칭 가능한 게시글이 없습니다')) {
         CommonUtils.showWarningMessage('현재 마니또를 기다리고 있는 게시물이 없어요.');
       } else {
-        CommonUtils.showWarningMessage(data.message || '매칭 요청 중 오류가 발생했습니다.');
+        CommonUtils.showWarningMessage(data || '매칭 요청 중 오류가 발생했습니다.');
       }
       return;
     }
 
     window.location.reload();
   } catch (error) {
+    console.error('매칭 요청 에러:', error);
     CommonUtils.showWarningMessage('서버와의 통신 중 오류가 발생했습니다.');
   }
 }

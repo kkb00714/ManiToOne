@@ -152,6 +152,25 @@ class ProfileUpdateModal extends BaseModal {
   }
 }
 
+class CharacterCounter {
+  constructor(textarea, countDisplay, maxLength) {
+    this.textarea = textarea;
+    this.countDisplay = countDisplay;
+    this.maxLength = maxLength;
+    this.init();
+  }
+
+  init() {
+    this.updateCount();
+    this.textarea.addEventListener('input', () => this.updateCount());
+  }
+
+  updateCount() {
+    const currentLength = this.textarea.value.length;
+    this.countDisplay.textContent = `${currentLength}/${this.maxLength}`;
+  }
+}
+
 const ContentValidator = {
   validateContentQuality(text) {
     const trimmedText = text.trim();
@@ -238,7 +257,6 @@ const ContentValidator = {
   },
 
   isSignificantPhrase(phrase) {
-    // 의미 있는 구문인지 확인하는 조건들
     return (
         phrase.length >= 10 && // 최소 길이
         phrase.trim().split(/\s+/).length >= 2 && // 최소 2개 이상의 단어
@@ -248,7 +266,6 @@ const ContentValidator = {
     );
   }
 };
-
 
 if (typeof window !== 'undefined') {
   window.CommonUtils = window.CommonUtils || {};
@@ -269,6 +286,27 @@ const CommonUtils = {
       adjustHeight();
       textarea.addEventListener('input', adjustHeight);
     });
+  },
+
+  initializeCharacterCounters() {
+    const letterTextarea = document.getElementById('manito-letter-text-input');
+    const letterCount500Display = document.getElementById('count500');
+    if (letterTextarea && letterCount500Display) {
+      new CharacterCounter(letterTextarea, letterCount500Display, 500);
+    }
+
+    const musicCommentTextarea = document.getElementById('manito-music-comment-input');
+    const count100Display = document.getElementById('count100');
+    if (musicCommentTextarea && count100Display) {
+      new CharacterCounter(musicCommentTextarea, count100Display, 100);
+    }
+
+    const postTextarea = document.getElementById('new-post-content');
+    const postCount500Display = postTextarea?.closest('.new-post-text-container')?.querySelector('.letter-count');
+    if (postTextarea && postCount500Display) {
+      new CharacterCounter(postTextarea, postCount500Display, 500);
+      postTextarea.setAttribute('maxlength', '500');
+    }
   },
 
   initializePageModals() {
@@ -293,12 +331,10 @@ const CommonUtils = {
     const isChecked = img.src.includes('icon-check.png');
 
     if (isChecked) {
-      img.src = img.getAttribute('data-unchecked-src').replace('@{',
-          '').replace('}', '');
+      img.src = img.getAttribute('data-unchecked-src').replace('@{', '').replace('}', '');
       element.style.opacity = '0.3';
     } else {
-      img.src = img.getAttribute('data-checked-src').replace('@{', '').replace(
-          '}', '');
+      img.src = img.getAttribute('data-checked-src').replace('@{', '').replace('}', '');
       element.style.opacity = '1';
     }
   },
@@ -371,7 +407,6 @@ const CommonUtils = {
       return;
     }
 
-    // 신고되지 않은 편지만 필터링
     const validLetters = letters.filter(letter => !letter.report);
 
     if (validLetters.length === 0) {
@@ -457,7 +492,12 @@ const CommonUtils = {
 document.addEventListener('DOMContentLoaded', () => {
   CommonUtils.initializePageModals();
   CommonUtils.initializeAllTextareas();
+  CommonUtils.initializeCharacterCounters();
   CommonUtils.initializeRightSectionManito();
+
+  window.toggleAI = function(element) {
+    CommonUtils.toggleElement(element);
+  };
 
   window.toggleManito = function (element, type) {
     CommonUtils.toggleElement(element, type);

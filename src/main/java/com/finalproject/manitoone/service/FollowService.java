@@ -3,8 +3,10 @@ package com.finalproject.manitoone.service;
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.domain.Follow;
+import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.repository.FollowRepository;
+import com.finalproject.manitoone.repository.NotificationRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.NotificationUtil;
 import jakarta.transaction.Transactional;
@@ -21,6 +23,7 @@ public class FollowService {
 
   private final FollowRepository followRepository;
   private final UserRepository userRepository;
+  private final NotificationRepository notificationRepository;
   private final NotificationUtil notificationUtil;
 
   public Boolean isFollowed(String myNickName, String targetNickName) {
@@ -60,7 +63,17 @@ public class FollowService {
         followRepository.save(newFollow);
         try
         {
-          notificationUtil.createNotification(target.getNickname(), my, NotiType.FOLLOW, my.getUserId());
+          Notification notification = notificationRepository.findByUserAndSenderUserAndType(target, my, NotiType.FOLLOW);
+          // 이미 팔로우 한 알림이 존재한다면 알림만 업데이트
+          if (notification != null) {
+            notification.updateCreatedAt();
+            notification.unMarkAsRead();
+            notificationRepository.save(notification);
+            notificationUtil.sendAlarm(target);
+          } else {
+            notificationUtil.createNotification(target.getNickname(), my, NotiType.FOLLOW, my.getUserId());
+          }
+
         } catch (IOException e) {
           log.error(e.getMessage());
         }

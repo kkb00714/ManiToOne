@@ -57,5 +57,5 @@ public interface ManitoMatchesRepository extends JpaRepository<ManitoMatches, Lo
   @Query("SELECT COUNT(m) > 0 FROM ManitoMatches m WHERE m.matchedPostId = :post AND m.status = :status")
   boolean existsByMatchedPostIdAndStatus(@Param("post") Post post, @Param("status") MatchStatus status);
 
-
+  Optional<List<ManitoMatches>> findByMatchedPostId(Post post);
 }

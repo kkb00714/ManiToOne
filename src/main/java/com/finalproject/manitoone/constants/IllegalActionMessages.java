@@ -24,6 +24,7 @@ public enum IllegalActionMessages {
   CANNOT_GET_FOLLOWING("팔로잉 정보를 가져오는 중 문제가 발생했습니다."),
   CANNOT_FOLLOW_YOURSELF("자기 자신은 팔로우 할 수 없습니다."),
   CANNOT_HIDE_POST("타인의 게시글은 숨김 처리할 수 없습니다."),
+  CANNOT_SAVE_IMAGE("이미지를 저장할 수 없습니다."),
 
   DIFFERENT_USER("해당 게시물의 작성자와 ID가 다릅니다."),
 

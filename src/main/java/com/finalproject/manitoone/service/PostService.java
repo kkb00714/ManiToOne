@@ -34,17 +34,22 @@ import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import com.finalproject.manitoone.util.FileUtil;
 import jakarta.transaction.Transactional;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import com.finalproject.manitoone.util.NotificationUtil;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -80,6 +85,12 @@ public class PostService {
         .isManito(request.getIsManito())
         .build());
 
+    if (request.getImages() != null) {
+      for (MultipartFile image : request.getImages()) {
+        saveImage(image, post);
+      }
+    }
+
 //    AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
 //    aiPostLogRepository.save(aiPost);
 
@@ -94,25 +105,21 @@ public class PostService {
   }
 
   // 이미지 저장
-//  private void saveImage(Post post, MultipartFile image) throws IOException {
-//    // 파일 저장 경로 지정
-//    String uploadDir = "src/main/resources/static/img/upload/";
-//    Path uploadPath = Paths.get(uploadDir);
-//    if (!Files.exists(uploadPath)) {
-//      Files.createDirectories(uploadPath);
-//    }
-//
-//    // 이미지 저장
-//    String originalFilename = image.getOriginalFilename();
-//    String uniqueFileName = UUID.randomUUID() + "-" + originalFilename;
-//    Path filePath = uploadPath.resolve(uniqueFileName);
-//    Files.write(filePath, image.getBytes());
-//
-//    postImageRepository.save(PostImage.builder()
-//        .fileName(originalFilename)
-//        .post(post)
-//        .build());
-//  }
+  private void saveImage(MultipartFile image, Post post) {
+    String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+    Path filePath = Paths.get("/usr/local/images/posts", fileName);
+
+    try {
+      Files.copy(image.getInputStream(), filePath);
+      postImageRepository.save(
+          PostImage.builder()
+              .post(post)
+              .fileName(filePath.toString())
+              .build());
+    } catch (IOException e) {
+      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage());
+    }
+  }
 
   // 게시글 수정
   // TODO: 이미지 수정 

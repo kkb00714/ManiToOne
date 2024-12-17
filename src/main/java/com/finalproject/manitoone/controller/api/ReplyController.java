@@ -35,33 +35,33 @@ public class ReplyController {
   // 답글 생성
   @PostMapping("/reply/{postId}")
   public ResponseEntity<ReplyResponseDto> createReply(@PathVariable("postId") Long postId,
-      @RequestBody AddReplyRequestDto request,
+      @RequestParam("content") String content,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 
-    ReplyResponseDto reply = replyService.createReply(postId, request, email);
+    ReplyResponseDto reply = replyService.createReply(postId, content, email);
     return ResponseEntity.status(HttpStatus.CREATED).body(reply);
   }
 
   // 답글의 답글 생성
   @PostMapping("/rereply/{replyId}")
   public ResponseEntity<ReplyResponseDto> createReReply(@PathVariable("replyId") Long replyId,
-      @RequestBody AddReplyRequestDto request,
+      @RequestParam("content") String content,
       HttpSession session) {
-    String email = session.getAttribute("email") + "";
+    String email = (String) session.getAttribute("email");
 
-    ReplyResponseDto rereply = replyService.createReReply(replyId, request, email);
+    ReplyResponseDto rereply = replyService.createReReply(replyId, content, email);
     return ResponseEntity.status(HttpStatus.CREATED).body(rereply);
   }
 
   // 답글 수정
   @PutMapping("/reply/{replyId}")
   public ResponseEntity<ReplyResponseDto> updateReply(@PathVariable("replyId") Long replyId,
-      @RequestBody UpdateReplyRequestDto request,
+      @RequestParam("content") String content,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 
-    ReplyResponseDto updatedReply = replyService.updateReply(replyId, request, email);
+    ReplyResponseDto updatedReply = replyService.updateReply(replyId, content, email);
     return ResponseEntity.ok(updatedReply);
   }
 

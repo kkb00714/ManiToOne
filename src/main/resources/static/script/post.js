@@ -460,7 +460,68 @@ async function onUpdateReplySubmit(replyId) {
 
   console.log("Content: ", content);
 
-  const url = "/api/reply/"
+  const url = `/api/reply/${replyId}?content=${encodeURIComponent(content)}`;
+
+  console.log("URL: ", url);
+
+  try {
+    const response = await fetch(url, {
+      method: "PUT",
+    });
+
+    if (response.ok) {
+      alert("답글을 수정하셧습니다.");
+      window.location.reload();
+    } else {
+      alert("답글 수정에 실패했습니다.");
+    }
+  } catch (error) {
+    alert("답글 수정 중 오류가 발생했습니다.");
+    console.log("답글 수정 오류: ", error);
+  }
 }
 
 // 답글의 답글 수정
+async function onUpdateRereplySubmit(replyId) {
+  const content = document.getElementById("update-rereply-content").value.trim();
+
+  if (!content) {
+    alert("내용을 입력해주세요.");
+    return;
+  }
+
+  console.log("Content: ", content);
+
+  const url = `/api/reply/${replyId}?content=${encodeURIComponent(content)}`;
+
+  console.log("URL: ", url);
+
+  try {
+    const response = await fetch(url, {
+      method: "PUT",
+    });
+
+    if (response.ok) {
+      alert("답글을 수정하셧습니다.");
+      window.location.reload();
+    } else {
+      alert("답글 수정에 실패했습니다.");
+    }
+  } catch (error) {
+    alert("답글 수정 중 오류가 발생했습니다.");
+    console.log("답글 수정 오류: ", error);
+  }
+}
+
+// 답글 작성 모달
+function openNewReplyModal() {
+  document.getElementById("newReplyFormModal").style.display = "block";
+  document.getElementById("newReplyFormModalContainer").style.display =
+      "block";
+}
+
+function closeNewReplyModal() {
+  document.getElementById("newReplyFormModal").style.display = "none";
+  document.getElementById("newReplyFormModalContainer").style.display =
+      "none";
+}

@@ -8,11 +8,11 @@ public class MailViewController {
 
   @GetMapping("/find-password")
   public String getResetPage() {
-    return "/pages/auth/find-password";
+    return "pages/auth/find-password";
   }
 
   @GetMapping("/password-reset-confirm")
   public String getConfirmPage() {
-    return "/pages/auth/find-password-after";
+    return "pages/auth/find-password-after";
   }
 }

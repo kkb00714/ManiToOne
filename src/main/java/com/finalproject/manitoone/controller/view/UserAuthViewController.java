@@ -8,31 +8,31 @@ public class UserAuthViewController {
 
   @GetMapping("/register")
   public String getSignUpPage() {
-    return "/pages/auth/email-auth";
+    return "pages/auth/email-auth";
   }
 
   @GetMapping("/register-info")
   public String getInfoInputPage() {
-    return "/pages/auth/sign-up";
+    return "pages/auth/sign-up";
   }
 
   @GetMapping("/login")
   public String getSignInPage() {
-    return "/pages/auth/sign-in";
+    return "pages/auth/sign-in";
   }
 
   @GetMapping("/additional-info")
   public String getAdditionalInfoPage() {
-    return "/pages/auth/additional-info";
+    return "pages/auth/additional-info";
   }
 
   @GetMapping("/login-fail")
   public String getFailPage() {
-    return "/pages/auth/oauth-login-failure";
+    return "pages/auth/oauth-login-failure";
   }
 
   @GetMapping("/access-deny")
   public String getAccessDenyPage() {
-    return "/pages/auth/access-deny";
+    return "pages/auth/access-deny";
   }
 }

@@ -18,7 +18,7 @@ public class UserAuthViewController {
 
   @GetMapping("/login")
   public String getSignInPage() {
-    return "/pages/auth/sign-in";
+    return "pages/auth/sign-in";
   }
 
   @GetMapping("/additional-info")

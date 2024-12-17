@@ -153,17 +153,17 @@ public class AlanUtil {
     }
   }
 
-  private String extractFeedback(String content) {
+  public String extractFeedback(String content) {
     String feedbackPattern = "(\\*?\\*?피드백\\*?\\*?:\\s*)(.*?)(?=\\*?\\*?노래 추천\\*?\\*?|$)";
     return extractSection(content, feedbackPattern);
   }
 
-  private String extractYoutubeRecommendations(String content) {
+  public String extractYoutubeRecommendations(String content) {
     String youtubePattern = "(\\*?\\*?노래 추천\\*?\\*?:\\s*)(.*)";
     return extractSection(content, youtubePattern);
   }
 
-  private String extractSection(String content, String pattern) {
+  public String extractSection(String content, String pattern) {
     Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
     Matcher m = r.matcher(content);
     if (m.find()) {

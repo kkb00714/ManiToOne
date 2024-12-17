@@ -25,29 +25,23 @@
     </form>
   </section>
   <section class="ai-suggestion-section">
-    <div class="ai-comment">
+    <div class="ai-comment" id="ai-comment">
       <h2>AI의 피드백</h2>
-      <p>
-        오늘은 기분이 좋아 보이시네요! 잠에 들기 전에 몸을 따뜻하게
-        녹여주는 샤워와 스트레칭을 추천드려요. 짧은 명상으로 하루를
-        정리하는 건 어떠신가요? 숙면을 도와주는 좋은 습관입니다.
-      </p>
+      <p id="ai-feedback-content" class="ai-feedback-content">로딩 중...</p>
     </div>
-    <div class="ai-music-suggestion">
+    <div class="ai-music-suggestion" id="ai-music-section">
       <h3>
-              <span
-              ><img
-                  class="tiny-icons-linkless"
-                  th:src="@{/images/icons/icon-music.png}"
-                  alt="music icon"/></span
-              >추천하는 음악
+      <span>
+        <img
+            class="tiny-icons-linkless"
+            src="/images/icons/icon-music.png"
+            alt="music icon"
+        />
+      </span>
+        추천하는 음악
       </h3>
-      <p class="music-title">Coldplay - Fix You</p>
-      <p class="music-link">
-        <a href="https://youtu.be/k4V3Mo61fJM?si=yZNgNJ6Fzqp0Z2pz"
-        >https://youtu.be/k4V3Mo61fJM?si=yZNgNJ6Fzqp0Z2pz</a
-        >
-      </p>
+      <p class="music-title" id="music-title"></p>
+      <p class="music-link" id="music-link"></p>
     </div>
   </section>
   <section class="manito-letter-section">
@@ -83,4 +77,5 @@
   </section>
   <link rel="stylesheet" th:href="@{/style/userSearch.css}"/>
   <script th:src="@{/script/userSearch.js}"></script>
+  <script th:src="@{/script/aipost.js}"></script>
 </article>

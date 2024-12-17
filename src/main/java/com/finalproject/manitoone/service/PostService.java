@@ -32,11 +32,18 @@ import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import com.finalproject.manitoone.util.FileUtil;
+import jakarta.transaction.Transactional;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import com.finalproject.manitoone.util.NotificationUtil;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +51,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -66,26 +74,35 @@ public class PostService {
 
   // 게시글 생성 (미완성)
   // TODO: 이미지 업로드
-  @Async
+  @Transactional
   public PostResponseDto createPost(AddPostRequestDto request, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
-    Boolean isManito = false;
-
-    if (request.getIsManito().equals("true")) {
-      isManito = true;
-    }
-
     Post post = postRepository.save(Post.builder()
         .content(request.getContent())
         .user(user)
-        .isManito(isManito)
+        .isManito(request.getIsManito())
         .build());
 
-    AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
-    aiPostLogRepository.save(aiPost);
+    List<String> imagePaths = new ArrayList<>();
+    if (request.getImages() != null) {
+      for (MultipartFile image : request.getImages()) {
+        String imagePath = saveImage(image);
+        imagePaths.add(imagePath);
+      }
+
+      for (String imagePath : imagePaths) {
+        postImageRepository.save(PostImage.builder()
+            .post(post)
+            .fileName(imagePath)
+            .build());
+      }
+    }
+
+//    AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
+//    aiPostLogRepository.save(aiPost);
 
     return PostResponseDto.builder()
         .postId(post.getPostId())
@@ -98,25 +115,26 @@ public class PostService {
   }
 
   // 이미지 저장
-//  private void saveImage(Post post, MultipartFile image) throws IOException {
-//    // 파일 저장 경로 지정
-//    String uploadDir = "src/main/resources/static/img/upload/";
-//    Path uploadPath = Paths.get(uploadDir);
-//    if (!Files.exists(uploadPath)) {
-//      Files.createDirectories(uploadPath);
-//    }
-//
-//    // 이미지 저장
-//    String originalFilename = image.getOriginalFilename();
-//    String uniqueFileName = UUID.randomUUID() + "-" + originalFilename;
-//    Path filePath = uploadPath.resolve(uniqueFileName);
-//    Files.write(filePath, image.getBytes());
-//
-//    postImageRepository.save(PostImage.builder()
-//        .fileName(originalFilename)
-//        .post(post)
-//        .build());
-//  }
+  private String saveImage(MultipartFile image) {
+    String uploadDir = "/usr/local/images/posts";
+    File uploadPath = new File(uploadDir);
+
+    if (!uploadPath.exists()) {
+      uploadPath.mkdirs();
+    }
+
+    String imageName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+    File savedImage = new File(uploadPath, imageName);
+
+    try {
+      image.transferTo(savedImage);
+    } catch (IOException e) {
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage() + ": " + e.getMessage());
+    }
+
+    return savedImage.getAbsolutePath();
+  }
 
   // 게시글 수정
   // TODO: 이미지 수정 
@@ -318,6 +336,11 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
+    
+    userPostLikeRepository.save(UserPostLike.builder()
+        .post(post)
+        .user(user)
+        .build());
     
     Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
 

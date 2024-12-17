@@ -5,7 +5,6 @@ import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.domain.AiPostLog;
-import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.Post;
@@ -38,6 +37,7 @@ import com.finalproject.manitoone.util.NotificationUtil;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -300,11 +300,11 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
+    post.hidePost(!Boolean.TRUE.equals(post.getIsHidden()));
+    
     if (!user.equals(post.getUser())) {
       throw new IllegalArgumentException(IllegalActionMessages.CANNOT_HIDE_POST.getMessage());
     }
-
-    post.hidePost(true);
 
     postRepository.save(post);
   }
@@ -320,10 +320,16 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
 
-    userPostLikeRepository.save(UserPostLike.builder()
-        .post(post)
-        .user(user)
-        .build());
+    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
+
+    if (existingLike.isPresent()) {
+      userPostLikeRepository.delete(existingLike.get());
+    } else {
+      userPostLikeRepository.save(UserPostLike.builder()
+          .post(post)
+          .user(user)
+          .build());
+    }
     
     try {
       Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(post.getUser(), user,

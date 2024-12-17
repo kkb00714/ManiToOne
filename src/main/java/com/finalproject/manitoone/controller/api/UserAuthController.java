@@ -5,6 +5,7 @@ import com.finalproject.manitoone.domain.dto.AuthUpdateDto;
 import com.finalproject.manitoone.domain.dto.UserLoginRequestDto;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
+import com.finalproject.manitoone.domain.dto.UserUpdateDto;
 import com.finalproject.manitoone.service.CustomOAuth2UserService;
 import com.finalproject.manitoone.service.NotificationService;
 import com.finalproject.manitoone.service.UserAuthService;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,7 +50,7 @@ public class UserAuthController {
   }
 
   @PostMapping("/local-login")
-  public ResponseEntity<Object> localLogin(
+  public ResponseEntity<String> localLogin(
       @Valid
       @RequestBody UserLoginRequestDto userLoginRequestDto,
       HttpServletRequest request
@@ -56,6 +60,7 @@ public class UserAuthController {
           userLoginRequestDto.getEmail(),
           userLoginRequestDto.getPassword()
       );
+      System.out.println("로그인 시도: " + userResponse.getEmail()); // 로그 찍기
 
       HttpSession session = request.getSession(true);
 
@@ -70,7 +75,8 @@ public class UserAuthController {
       userResponse.setRead(notificationService.hasUnreadNotifications(
           userResponse.getEmail()));
 
-      return ResponseEntity.ok(userResponse);
+      String loginSuccessMessage = "로그인 성공! 환영합니다, " + userResponse.getNickname() + " 님.";
+      return ResponseEntity.ok(loginSuccessMessage);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
@@ -106,11 +112,11 @@ public class UserAuthController {
   public ResponseEntity<String> checkEmail(
       @RequestParam String email
   ) {
-    if (userAuthService.isEmailExist(email)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body(IllegalActionMessages.EMAIL_ALREADY_IN_USE.getMessage());
+    String message = userAuthService.isEmailExist(email);
+    if (message.equals(IllegalActionMessages.EMAIL_ALREADY_IN_USE.getMessage())) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
-    return ResponseEntity.ok("사용 가능한 이메일 입니다.");
+    return ResponseEntity.ok(message);
   }
 
   @GetMapping("/check-nickname")
@@ -122,6 +128,30 @@ public class UserAuthController {
           .body(IllegalActionMessages.NICKNAME_ALREADY_IN_USE.getMessage());
     }
     return ResponseEntity.ok("사용 가능한 닉네임 입니다.");
+  }
+
+  @PutMapping("/update")
+  public ResponseEntity<String> updateUser(
+      @SessionAttribute(name = "email", required = false) String sessionEmail,
+      @RequestBody @Valid UserUpdateDto updateDto,
+      BindingResult bindingResult,
+      @RequestParam("file") MultipartFile file) {
+
+    if (sessionEmail == null) {
+      return ResponseEntity.status(401).body("로그인이 필요합니다.");
+    }
+
+    if (!sessionEmail.equals(updateDto.getEmail())) {
+      return ResponseEntity.status(403).body("자신의 정보만 수정할 수 있습니다.");
+    }
+
+    // 유효성 검사 오류 체크
+    if (bindingResult.hasErrors()) {
+      return ResponseEntity.badRequest().body("입력값이 올바르지 않습니다.");
+    }
+
+    String responseMessage = userAuthService.updateUser(sessionEmail, updateDto);
+    return ResponseEntity.ok(responseMessage);
   }
 
 }

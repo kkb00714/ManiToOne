@@ -9,3 +9,41 @@
   font-size: 1.1rem;
   font-weight: bold;
 }
+
+/* 게시글 추가 기능 모달 */
+.post-options-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.options-modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  text-align: center;
+}
+
+/* 답글 수정 모달 textarea */
+#update-reply-content,
+#update-rereply-content,
+#new-reply-content,
+#new-rereply-content {
+  all: unset;
+  font-weight: normal;
+  width: 100%;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  resize: none;
+  min-height: 4rem;
+}

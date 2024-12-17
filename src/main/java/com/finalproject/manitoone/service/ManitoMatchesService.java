@@ -3,9 +3,11 @@ package com.finalproject.manitoone.service;
 import com.finalproject.manitoone.constants.ManitoErrorMessages;
 import com.finalproject.manitoone.constants.MatchStatus;
 import com.finalproject.manitoone.domain.ManitoMatches;
+import com.finalproject.manitoone.domain.MatchProcessStatus;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.repository.ManitoMatchesRepository;
+import com.finalproject.manitoone.repository.MatchProcessStatusRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -25,8 +27,9 @@ public class ManitoMatchesService {
 
   private final ManitoMatchesRepository manitoMatchesRepository;
   private final UserRepository userRepository;
+  private final AiValidationService aiValidationService;
+  private final MatchProcessStatusRepository matchProcessStatusRepository;
 
-  // 유저에게 게시글 배정
   @Transactional(isolation = Isolation.SERIALIZABLE)
   public ManitoMatches createMatch(String nickname) {
     User user = userRepository.findUserByNickname(nickname)
@@ -39,34 +42,65 @@ public class ManitoMatchesService {
       throw new IllegalStateException(ManitoErrorMessages.ALREADY_MATCHED_24HOURS.getMessage());
     }
 
-    // 배정 가능한 게시글 찾기 (72시간 이내)
-    LocalDateTime postTimeLimit = LocalDateTime.now().minusHours(72);
-    List<Post> assignablePosts = manitoMatchesRepository.findAssignablePosts(postTimeLimit);
+    // 매칭 프로세스 상태 생성
+    MatchProcessStatus processStatus = MatchProcessStatus.create(nickname);
+    matchProcessStatusRepository.save(processStatus);
 
-    if (assignablePosts.isEmpty()) {
-      throw new IllegalStateException(ManitoErrorMessages.NO_AVAILABLE_POSTS.getMessage());
-    }
+    try {
+      // 배정 가능한 게시글 찾기 (72시간 이내)
+      LocalDateTime postTimeLimit = LocalDateTime.now().minusHours(72);
+      List<Post> assignablePosts = manitoMatchesRepository.findAssignablePosts(postTimeLimit,
+          user.getUserId());
 
-    for (Post post : assignablePosts) {
-      try {
-        boolean isAlreadyMatched = manitoMatchesRepository
-            .existsByMatchedPostIdAndStatus(post, MatchStatus.MATCHED);
-
-        if (!isAlreadyMatched) {
-          ManitoMatches match = ManitoMatches.builder()
-              .matchedPostId(post)
-              .matchedUserId(user)
-              .status(MatchStatus.MATCHED)
-              .build();
-
-          return manitoMatchesRepository.save(match);
-        }
-      } catch (Exception e) {
-        log.error("Failed to create match for post: {}", post.getPostId(), e);
+      if (assignablePosts.isEmpty()) {
+        processStatus.fail();
+        matchProcessStatusRepository.save(processStatus);
+        throw new IllegalStateException(ManitoErrorMessages.NO_AVAILABLE_POSTS.getMessage());
       }
-    }
 
-    throw new IllegalStateException(ManitoErrorMessages.NO_AVAILABLE_POSTS.getMessage());
+      // 적절한 게시물을 찾을 때까지 반복
+      for (Post post : assignablePosts) {
+        try {
+          boolean isAlreadyMatched = manitoMatchesRepository
+              .existsByMatchedPostIdAndStatus(post, MatchStatus.MATCHED);
+
+          if (!isAlreadyMatched) {
+            // Post 객체를 직접 전달하여 AI 검증 수행
+            boolean isAppropriate = aiValidationService.validatePostContent(post);
+
+            if (isAppropriate) {
+              ManitoMatches match = ManitoMatches.builder()
+                  .matchedPostId(post)
+                  .matchedUserId(user)
+                  .status(MatchStatus.MATCHED)
+                  .build();
+
+              // 매칭 성공 시 프로세스 상태 업데이트
+              processStatus.complete();
+              matchProcessStatusRepository.save(processStatus);
+
+              return manitoMatchesRepository.save(match);
+            }
+
+            // AI가 부적절하다고 판단한 경우
+            post.updateManitoStatus(false);
+            log.warn("Post ID {} has been marked as inappropriate by AI", post.getPostId());
+          }
+        } catch (Exception e) {
+          log.error("Failed to process post: {}", post.getPostId(), e);
+        }
+      }
+
+      // 모든 게시물이 부적절하거나 매칭 실패한 경우
+      processStatus.fail();
+      matchProcessStatusRepository.save(processStatus);
+      throw new IllegalStateException(ManitoErrorMessages.NO_AVAILABLE_POSTS.getMessage());
+
+    } catch (Exception e) {
+      processStatus.fail();
+      matchProcessStatusRepository.save(processStatus);
+      throw e;
+    }
   }
 
   @Transactional(readOnly = true)
@@ -93,13 +127,11 @@ public class ManitoMatchesService {
     match.markAsPassed();
   }
 
-  // 편지 미작성 매칭 만료 처리 (이후 추가될 스케줄러에서 호출)
-  @Transactional
-  public void expireUnwrittenMatches() {
-    LocalDateTime timeLimit = LocalDateTime.now().minusHours(24);
-    List<ManitoMatches> expiredMatches =
-        manitoMatchesRepository.findExpiredMatchesWithoutLetter(timeLimit);
-
-    expiredMatches.forEach(ManitoMatches::markAsExpired);
+  @Transactional(readOnly = true)
+  public boolean hasRecentMatch(String nickname, LocalDateTime timeLimit) {
+    User user = userRepository.findUserByNickname(nickname)
+        .orElseThrow(
+            () -> new EntityNotFoundException(ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
+    return manitoMatchesRepository.hasRecentMatch(user, timeLimit);
   }
 }

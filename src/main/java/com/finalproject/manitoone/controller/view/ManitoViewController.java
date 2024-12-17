@@ -1,12 +1,16 @@
 package com.finalproject.manitoone.controller.view;
 
 import com.finalproject.manitoone.domain.ManitoMatches;
+import com.finalproject.manitoone.domain.MatchProcessStatus;
 import com.finalproject.manitoone.dto.manito.ManitoLetterResponseDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
+import com.finalproject.manitoone.repository.MatchProcessStatusRepository;
+import com.finalproject.manitoone.service.AsyncMatchService;
 import com.finalproject.manitoone.service.ManitoMatchesService;
 import com.finalproject.manitoone.service.ManitoService;
 import com.finalproject.manitoone.service.PostService;
 import jakarta.servlet.http.HttpSession;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +29,8 @@ public class ManitoViewController {
   private final ManitoService manitoService;
   private final PostService postService;
   private final ManitoMatchesService manitoMatchesService;
+  private final AsyncMatchService asyncMatchService;
+  private final MatchProcessStatusRepository statusRepository;
 
   @GetMapping("/fragments/manito-letter")
   public String getManitoLetterFragment(@RequestParam Long letterId, Model model) {
@@ -55,10 +61,11 @@ public class ManitoViewController {
       model.addAttribute("initialTab", tab);
       model.addAttribute("initialLetterId", letterId);
 
-      // 현재 유효한 매칭 확인 (24시간 이내의 매칭)
+      // 현재 유효한 매칭 확인
       Optional<ManitoMatches> currentMatch = manitoMatchesService.getCurrentValidMatch(nickname);
 
       if (currentMatch.isPresent()) {
+        // 현재 유효한 매칭이 있는 경우
         ManitoMatches match = currentMatch.get();
         try {
           PostViewResponseDto todaysPost = postService.getPost(
@@ -77,7 +84,25 @@ public class ManitoViewController {
           model.addAttribute("canRequestMatch", false);
         }
       } else {
-        model.addAttribute("canRequestMatch", true);
+        // 진행 중인 매칭 프로세스 확인
+        Optional<MatchProcessStatus> inProgressStatus = statusRepository
+            .findFirstByNicknameAndStatusOrderByCreatedAtDesc(
+                nickname,
+                MatchProcessStatus.ProcessStatus.IN_PROGRESS
+            );
+
+        if (inProgressStatus.isPresent()) {
+          model.addAttribute("matchProcessing", true);
+          model.addAttribute("canRequestMatch", false);
+        } else {
+          // 24시간 이내 매칭 여부 확인 - 서비스 메서드 사용
+          if (manitoMatchesService.hasRecentMatch(nickname, LocalDateTime.now().minusHours(24))) {
+            model.addAttribute("canRequestMatch", false);
+            model.addAttribute("errorMessage", "24시간 이내에 이미 매칭을 받으셨습니다.");
+          } else {
+            model.addAttribute("canRequestMatch", true);
+          }
+        }
       }
 
       return "pages/manito";

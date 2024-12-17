@@ -4,12 +4,11 @@ import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.AuthUpdateDto;
 import com.finalproject.manitoone.domain.dto.PrincipalDetails;
-import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,16 +38,33 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     String name = oAuth2User.getAttribute("name");
     String password = UUID.randomUUID().toString();
 
-    // todo : 이미 이메일이 존재하는 유저 == 로그인을 1회 이상 한 사람이기 때문에 isNewUser를 False 처리
     boolean isNewUser = userRepository.findByEmail(email).isEmpty();
 
     User user = userRepository.findByEmail(email)
         .map(existingUser -> updateUser(existingUser, provider, loginId))
         .orElseGet(() -> createUser(email, password, name, provider, loginId));
 
+    validateUserStatus(user);
+
     saveUserInfoToSession(user, isNewUser);
 
     return new PrincipalDetails(user, oAuth2User.getAttributes());
+  }
+
+  private void validateUserStatus(User user) {
+    if (user.getStatus() == 2) {
+      if (user.getUnbannedAt() != null && user.getUnbannedAt().isBefore(LocalDateTime.now())) {
+        user.updateStatus(1);
+        user.resetUnbannedAt();
+        userRepository.save(user);
+      } else {
+        session.setAttribute("errorMessage", IllegalActionMessages.ACCESS_DENIED_PROHIBITED_USER.getMessage());
+        throw new OAuth2AuthenticationException(IllegalActionMessages.ACCESS_DENIED_PROHIBITED_USER.getMessage());
+      }
+    } else if (user.getStatus() == 3) {
+      session.setAttribute("errorMessage", IllegalActionMessages.ACCESS_DENIED_EXPIRED_USER.getMessage());
+      throw new OAuth2AuthenticationException(IllegalActionMessages.ACCESS_DENIED_EXPIRED_USER.getMessage());
+    }
   }
 
   private User updateUser(User user, String provider, String loginId) {

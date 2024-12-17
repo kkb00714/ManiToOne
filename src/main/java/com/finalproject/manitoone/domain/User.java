@@ -102,6 +102,18 @@ public class User implements OAuth2User {
     this.birth = birth;
   }
 
+  public void updateStatus(Integer status) {
+    this.status = status;
+  }
+
+  public void setIntroduce(String introduce) {
+    this.introduce = introduce;
+  }
+
+  public void resetUnbannedAt() {
+    this.unbannedAt = null;
+  }
+
   public void updateDefaultImage() {
     this.profileImage = "/img/defaultProfile.png";
   }

@@ -5,15 +5,19 @@ import com.finalproject.manitoone.domain.dto.AuthUpdateDto;
 import com.finalproject.manitoone.domain.dto.UserLoginRequestDto;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
+import com.finalproject.manitoone.domain.dto.UserUpdateDto;
 import com.finalproject.manitoone.service.CustomOAuth2UserService;
 import com.finalproject.manitoone.service.NotificationService;
+import com.finalproject.manitoone.service.S3Service;
 import com.finalproject.manitoone.service.UserAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,12 +47,12 @@ public class UserAuthController {
       userAuthService.registerUser(userSignUpDTO);
       return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료됐습니다.");
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
 
   @PostMapping("/local-login")
-  public ResponseEntity<Object> localLogin(
+  public ResponseEntity<String> localLogin(
       @Valid
       @RequestBody UserLoginRequestDto userLoginRequestDto,
       HttpServletRequest request
@@ -56,6 +62,7 @@ public class UserAuthController {
           userLoginRequestDto.getEmail(),
           userLoginRequestDto.getPassword()
       );
+      System.out.println("로그인 시도: " + userResponse.getEmail()); // 로그 찍기
 
       HttpSession session = request.getSession(true);
 
@@ -65,15 +72,16 @@ public class UserAuthController {
       session.setAttribute("profileImage", userResponse.getProfileImage());
       session.setAttribute("introduce", userResponse.getIntroduce());
       session.setAttribute("isNewUser", false);
+      session.setAttribute("role", userResponse.getRole());
 
       // 알림
       userResponse.setRead(notificationService.hasUnreadNotifications(
           userResponse.getEmail()));
 
-      return ResponseEntity.ok(userResponse);
+      String loginSuccessMessage = "로그인 성공! 환영합니다, " + userResponse.getNickname() + " 님.";
+      return ResponseEntity.ok(loginSuccessMessage);
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest()
-          .body(new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
+      return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
 
@@ -107,11 +115,11 @@ public class UserAuthController {
   public ResponseEntity<String> checkEmail(
       @RequestParam String email
   ) {
-    if (userAuthService.isEmailExist(email)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body(IllegalActionMessages.EMAIL_ALREADY_IN_USE.getMessage());
+    String message = userAuthService.isEmailExist(email);
+    if (message.equals(IllegalActionMessages.EMAIL_ALREADY_IN_USE.getMessage())) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
-    return ResponseEntity.ok("사용 가능한 이메일 입니다.");
+    return ResponseEntity.ok(message);
   }
 
   @GetMapping("/check-nickname")
@@ -125,4 +133,19 @@ public class UserAuthController {
     return ResponseEntity.ok("사용 가능한 닉네임 입니다.");
   }
 
+  @PutMapping("/update")
+  public ResponseEntity<String> updateUser(
+      @Valid @RequestBody UserUpdateDto updateDto,
+      HttpServletRequest request
+  ) {
+    HttpSession session = request.getSession(false);
+    if (session == null || session.getAttribute("email") == null) {
+      throw new IllegalStateException("로그인 상태가 아닙니다. 다시 로그인해주세요.");
+    }
+
+    String sessionEmail = (String) session.getAttribute("email");
+
+    String result = userAuthService.updateUser(sessionEmail, updateDto);
+    return ResponseEntity.ok(result);
+  }
 }

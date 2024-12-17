@@ -79,13 +79,17 @@ class ManitoLetterModal extends BaseModal {
         return;
       }
 
-      const existingButton = document.createElement('button');
-      existingButton.className = 'reply-button';
-      existingButton.style.cssText = 'display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto;';
-      existingButton.textContent = '이미 편지를 작성하셨습니다';
-      existingButton.disabled = true;
-
-      sendButton.parentNode.replaceChild(existingButton, sendButton);
+      const actionButtons = sendButton.closest('.action-buttons');
+      if (actionButtons) {
+        actionButtons.innerHTML = `
+                <button class="reply-button"
+                    style="display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto;"
+                    disabled>
+                    이미 편지를 작성하셨습니다
+                </button>
+                <div class="remaining-time" id="remainingTime"></div>
+            `;
+      }
     } catch (error) {
       console.error('Error updating button state:', error);
     }
@@ -123,14 +127,12 @@ class ManitoLetterModal extends BaseModal {
         throw new Error(data.message || '편지 전송에 실패했습니다.');
       }
 
-      // 성공 시 처리 로직
       if (window.ManitoPage && window.ManitoPage.letterBox) {
         const letterBox = window.ManitoPage.letterBox;
         letterBox.activeTab = 'sent';
         await letterBox.refreshLetterBox();
       }
 
-      // 우측 섹션 편지함 새로고침
       const elements = {
         receivedList: document.querySelector(
             '.manito-letter-section .received-letter ul'),
@@ -664,6 +666,19 @@ const ManitoPage = {
               '<br>') || '';
         }
 
+        const moreOptionsBtn = modalContainer.querySelector(
+            '.tiny-icons[src*="UI-more2.png"]')?.parentElement;
+        const reportMenu = modalContainer.querySelector('.manito-report-menu');
+
+        if (isMyReply) {
+          if (moreOptionsBtn) {
+            moreOptionsBtn.style.display = 'none';
+          }
+          if (reportMenu) {
+            reportMenu.style.display = 'none';
+          }
+        }
+
         const scrollbarWidth = window.innerWidth
             - document.documentElement.clientWidth;
         document.body.style.overflow = 'hidden';
@@ -804,7 +819,7 @@ class ManitoLetterRenderer {
       if (!letter.musicUrl) {
         musicCommentText = '추천 음악이 없습니다';
       } else {
-        musicCommentText = '코멘트 없음';
+        musicCommentText = '코멘트가 없습니다';
       }
     }
 
@@ -1078,6 +1093,17 @@ class ReportModal extends BaseModal {
       this.showWarning('신고가 접수되었습니다.');
       this.resetForm();
       this.close();
+
+      const replySentModal = document.getElementById(
+          'manitoLetterReplySentModalContainer');
+      const replySentModalBackground = document.getElementById(
+          'manitoLetterReplySentModalBackground');
+      if (replySentModal && replySentModalBackground) {
+        replySentModal.style.display = 'none';
+        replySentModalBackground.style.display = 'none';
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+      }
     } catch (error) {
       console.error('Error submitting report:', error);
       this.showWarning(error.message);
@@ -1125,31 +1151,87 @@ class ReportModal extends BaseModal {
 }
 
 async function requestMatch() {
+  const originalContent = document.querySelector('.pre-match-container').innerHTML;
   try {
-    const response = await fetch('/api/manito/match', {
+    // 매칭 진행 중 상태 표시
+    document.querySelector('.pre-match-container').innerHTML = `
+            <div class="pre-match-content">
+                <h2 class="pre-match-title">매칭이 진행 중입니다...</h2>
+            </div>
+        `;
+
+    // 매칭 요청
+    const response = await fetch('/api/manito/match/request', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       }
     });
 
-    const data = await response.text();
+    const data = await response.json();
 
     if (!response.ok) {
-      console.log('에러 응답:', data);
-
-      if (data.includes('매칭 가능한 게시글이 없습니다')) {
-        CommonUtils.showWarningMessage('현재 마니또를 기다리고 있는 게시물이 없어요.');
-      } else {
-        CommonUtils.showWarningMessage(data || '매칭 요청 중 오류가 발생했습니다.');
-      }
-      return;
+      throw new Error(data.message || '매칭 요청 중 오류가 발생했습니다.');
     }
 
-    window.location.reload();
+    // 매칭이 시작되었음을 확인하기 위해 약간의 지연 후 상태 체크 시작
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // 매칭 상태 주기적 확인
+    const checkMatchStatus = async () => {
+      try {
+        const statusResponse = await fetch('/api/manito/match/status');
+        const statusData = await statusResponse.json();
+
+        if (!statusData) {
+          setTimeout(checkMatchStatus, 2000);
+          return;
+        }
+
+        // 매칭 진행 중인 경우
+        if (statusData.status === 'IN_PROGRESS') {
+          setTimeout(checkMatchStatus, 2000);
+          return;
+        }
+
+        // 매칭 실패한 경우
+        if (statusData.status === 'FAILED') {
+          if (statusData.message?.includes('매칭 가능한 게시글이 없습니다')) {
+            CommonUtils.showWarningMessage('현재 마니또를 기다리고 있는 게시물이 없어요.');
+            document.querySelector('.pre-match-container').innerHTML = originalContent;
+          } else {
+            CommonUtils.showWarningMessage(statusData.message);
+            document.querySelector('.pre-match-container').innerHTML = originalContent;
+          }
+          return;
+        }
+
+        // 매칭이 완료된 경우에만 페이지 리로드
+        if (statusData.status === 'COMPLETED') {
+          window.location.reload();
+          return;
+        }
+
+        // 그 외의 경우 계속 체크
+        setTimeout(checkMatchStatus, 2000);
+
+      } catch (error) {
+        console.error('매칭 상태 확인 중 오류:', error);
+        CommonUtils.showWarningMessage('매칭 상태 확인 중 오류가 발생했습니다.');
+        document.querySelector('.pre-match-container').innerHTML = originalContent;
+      }
+    };
+
+    checkMatchStatus();
+
   } catch (error) {
     console.error('매칭 요청 에러:', error);
-    CommonUtils.showWarningMessage('서버와의 통신 중 오류가 발생했습니다.');
+    if (error.message?.includes('매칭 가능한 게시글이 없습니다')) {
+      CommonUtils.showWarningMessage('현재 마니또를 기다리고 있는 게시물이 없어요.');
+    } else {
+      CommonUtils.showWarningMessage(error.message || '서버와의 통신 중 오류가 발생했습니다.');
+    }
+    document.querySelector('.pre-match-container').innerHTML = originalContent;
   }
 }
 

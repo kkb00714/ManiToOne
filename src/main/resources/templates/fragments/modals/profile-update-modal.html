@@ -1,6 +1,20 @@
-<!-- 프로필 수정 모달 시작-->
 <div class="profile-update-modal" id="profileUpdateModalBackground"
      th:fragment="profile-update-modal">
+  <input
+      type="file"
+      id="profile-image-input"
+      name="profileImage"
+      accept="image/*"
+      style="display: none;"
+  />
+  <div class="modal-overlay" id="modal-overlay"></div>
+  <div id="image-action-modal" class="image-action-modal">
+    <div class="modal-content">
+      <button id="delete-photo-btn" class="action-button">기본 이미지로 변경</button>
+      <button id="upload-photo-btn" class="action-button">컴퓨터에서 업로드</button>
+      <button id="close-modal-btn" class="action-button">취소</button>
+    </div>
+  </div>
   <div
       class="profile-update-modal-container"
       id="profileUpdateModalContainer"
@@ -15,7 +29,7 @@
             alt="close icon"
         />
       </div>
-      <form action="">
+      <form id="profile_form">
         <div class="profile-input-container">
           <div class="name-photo-container">
             <div class="user-name-container">
@@ -25,17 +39,18 @@
               <input
                   class="profile-input"
                   type="text"
-                  name="user-name"
+                  name="name"
                   id="user-name"
                   placeholder="이름 입력"
+                  disabled
                   th:value="${session.name}"
-                  required
               />
             </div>
             <img
+                id="user-photo"
                 class="user-photo"
-                th:src="@{/images/icons/UI-user2.png}"
-                alt=""
+                th:src="${session.profileImage}"
+                alt="프로필 이미지"
             />
           </div>
           <div class="user-nickname-container">
@@ -45,7 +60,7 @@
             <input
                 class="profile-input"
                 type="text"
-                name="user-nickname"
+                name="nickname"
                 id="user-nickname"
                 placeholder="닉네임 입력"
                 th:value="${session.nickname}"
@@ -59,7 +74,7 @@
             <input
                 class="profile-input"
                 type="text"
-                name="user-intruduce"
+                name="introduce"
                 id="user-introduce"
                 placeholder="소개 입력"
                 th:value="${session.introduce}"
@@ -79,8 +94,9 @@
                 aria-label="비밀번호 입력"
                 required
             />
+            <span><button type="button" id="toggle-password-sign-in" aria-label="비밀번호 표시/숨기기">표시️</button></span>
           </div>
-          <button class="profile-update-complete-button">완료</button>
+          <button type="button" class="profile-update-complete-button" id="update_profile_button">완료</button>
         </div>
       </form>
     </div>

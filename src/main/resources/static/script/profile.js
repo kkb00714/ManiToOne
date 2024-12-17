@@ -28,50 +28,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
   loadPosts(pageNum);
 
-  function handleScroll() {
+  async function handleScroll() {
     if (window.innerHeight + window.scrollY >= document.body.scrollHeight
         - 100) {
       if (!isLoading && hasMorePosts) {
         isLoading = true;
         pageNum++;
-        loadPosts(pageNum);
+        await loadPosts(pageNum);
       }
     }
   }
 
-  function switchCategory(category) {
+  async function switchCategory(category) {
     currentCategory = category;
     pageNum = 0;
     hasMorePosts = true;
     postsContainer.innerHTML = '';
-    loadPosts(pageNum);
+    await loadPosts(pageNum);
   }
 
-  function loadPosts(pageNum) {
+  async function loadPosts(pageNum) {
     const apiUrl = getApiUrl(pageNum);
-    fetch(apiUrl)
-    .then(response => response.json())
-    .then(posts => {
+    try {
+      const posts = await fetchPosts(apiUrl);
       if (posts && posts.length > 0) {
-        posts.forEach(post => {
-          const postElement = createPostElement(post);
+        for (const post of posts) {
+          const postElement = await createPostElement(post);
           postsContainer.appendChild(postElement);
-        });
+        }
       } else {
         hasMorePosts = false;
       }
+    } catch (error) {
+      console.error('게시물을 불러오지 못했습니다.:', error);
+    } finally {
       isLoading = false;
-      addFriendButtonsEventListener();
-      addHidePostEventListener();
-      addReportPostEventListener();
-      addDocumentClickEventListener();
-      addPostLikeEventListener();
-      addPostDeleteEventHandler();
-    })
-    .catch(error => {
-      console.error('Error loading posts:', error);
-      isLoading = false;
-    });
+    }
+
+    addFriendButtonsEventListener();
+    addHidePostEventListener();
+    addReportPostEventListener();
+    addDocumentClickEventListener();
+    addPostLikeEventListener();
+    addPostDeleteEventHandler();
+    postContentEventListener();
+  }
+
+  async function fetchPosts(apiUrl) {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error('게시물 목록을 가져오지 못했습니다.');
+    }
+    return response.json();
   }
 
   function getApiUrl(pageNum) {
@@ -84,7 +92,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function createPostElement(post) {
+  async function createPostElement(post) {
+    const isFollowed = await getIsFollowed(post.nickName);
+
     const postElement = document.createElement("div");
     postElement.classList.add("post-container");
 
@@ -92,44 +102,81 @@ document.addEventListener("DOMContentLoaded", function () {
         : timeForToday(post.createdAt);
 
     postElement.innerHTML = `
-          <img class="user-photo" src="${post.profileImage
-    || '/images/icons/UI-user2.png'}" alt="user icon" />
-          <div class="post-content">
-            <div class="user-info">
-              <a href="/profile/${post.nickName}" class="user-name">${post.nickName}</a>
-              <span class="passed-time" data-created-at="${post.createdAt}" data-updated-at="${post.updatedAt}">${timeText}</span>
-            </div>
-            <p class="content-text">${post.content}</p>
-            <div class="reaction-icons">
+        <a href="/profile/${post.nickName}"><img class="user-photo" src="${post.profileImage || '/images/icons/UI-user2.png'}" alt="user icon" /></a>
+        <div class="post-content">
+          <div class="user-info">
+            <a href="/profile/${post.nickName}" class="user-name">${post.nickName}</a>
+            <span class="passed-time" data-created-at="${post.createdAt}" data-updated-at="${post.updatedAt}">${timeText}</span>
+          </div>
+          <p class="content-text" data-post-id="${post.postId}">${post.content}</p>
+          <div class="reaction-icons">
             ${myNickName !== post.nickName
         ? `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="I like this" data-post-id="${post.postId}"/>`
         : `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="my post"/>`}
-              <span class="like-count">${post.likeCount}</span>
-              <img class="tiny-icons" src="/images/icons/icon-comment2.png" alt="add reply" />
-              <span class="reply-count">${post.replies.length}</span>
-            </div>
+            <span class="like-count">${post.likeCount}</span>
+            <img class="tiny-icons" src="/images/icons/icon-comment2.png" alt="add reply" />
+            <span class="reply-count">${post.replies.length}</span>
           </div>
-          ${currentCategory !== 3 ? `
-          <div class="option-icons">
-            <img class="tiny-icons" src="/images/icons/UI-more2.png" alt="more options" />
-            ${myNickName !== post.nickName
+        </div>
+        ${currentCategory !== 3 ? `
+        <div class="option-icons">
+          <img class="tiny-icons" src="/images/icons/UI-more2.png" alt="more options" />
+          ${myNickName !== post.nickName && !isFollowed
         ? `<img class="tiny-icons" src="/images/icons/icon-add-friend.png" alt="add friend" data-target-id="${post.nickName}"/>`
-        : ''}
-            <div class="more-options-menu hidden">
-              <ul>
-                ${myNickName === post.nickName
+        : ''} 
+          <div class="more-options-menu hidden">
+            <ul>
+              ${myNickName === post.nickName
         ? `
-                    <li><a href="#" class="hide-post" data-post-id="${post.postId}">숨기기</a></li>
-                    <hr>
-                    <li><a href="#" class="delete-post" data-post-id="${post.postId}">삭제하기</a></li>
-                  `
+                  <li><a href="#" class="hide-post" data-post-id="${post.postId}">숨기기</a></li>
+                  <hr>
+                  <li><a href="#" class="delete-post" data-post-id="${post.postId}">삭제하기</a></li>
+                `
         : `<li><a href="#" class="report-post" data-post-id="${post.postId}">신고하기</a></li>`}
-              </ul>
-            </div>
+            </ul>
           </div>
-        ` : ''}
-        `;
+        </div>
+      ` : `
+        <div class="option-icons">
+          <img class="tiny-icons" src="/images/icons/UI-more2.png" alt="more options" />
+          ${myNickName !== post.nickName && !isFollowed
+        ? `<img class="tiny-icons" src="/images/icons/icon-add-friend.png" alt="add friend" data-target-id="${post.nickName}"/>`
+        : ''} 
+          <div class="more-options-menu hidden">
+            <ul>
+              ${myNickName === post.nickName
+        ? `
+                  <li><a href="#" class="hide-post" data-post-id="${post.postId}">숨기기 해제</a></li>
+                  <hr>
+                  <li><a href="#" class="delete-post" data-post-id="${post.postId}">삭제하기</a></li>
+                `
+        : `<li><a href="#" class="report-post" data-post-id="${post.postId}">신고하기</a></li>`}
+            </ul>
+          </div>
+        </div>
+      `}
+      `;
+
     return postElement;
+  }
+
+  async function getIsFollowed(nickName) {
+    try {
+      const response = await fetch(`/api/follow/followed/${nickName}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const body = await response.text();
+      const isFollowed = body === 'true';
+
+      return isFollowed;
+    } catch (error) {
+      console.error("팔로우 상태를 가져오는데 실패했습니다.:", error);
+      return false;
+    }
   }
 
   function timeForToday(value) {
@@ -139,25 +186,25 @@ document.addEventListener("DOMContentLoaded", function () {
         (today.getTime() - timeValue.getTime()) / 1000 / 60);
 
     if (betweenTime < 1) {
-      return '방금전';
+      return '지금';
     }
     if (betweenTime < 60) {
-      return `${betweenTime}분전`;
+      return `${betweenTime}분 전`;
     }
 
     const betweenTimeHour = Math.floor(betweenTime / 60);
     if (betweenTimeHour < 24) {
-      return `${betweenTimeHour}시간전`;
+      return `${betweenTimeHour}시간 전`;
     }
 
     const betweenTimeDay = Math.floor(betweenTime / 60 / 24);
     if (betweenTimeDay < 30) {
-      return `${betweenTimeDay}일전`;
+      return `${betweenTimeDay}일 전`;
     }
     if (betweenTimeDay < 365) {
-      return `${Math.floor(betweenTimeDay / 30)}개월전`;
+      return `${Math.floor(betweenTimeDay / 30)}달 전`;
     }
-    return `${Math.floor(betweenTimeDay / 365)}년전`;
+    return `${Math.floor(betweenTimeDay / 365)}년 전`;
   }
 
   function addFriendButtonsEventListener() {
@@ -179,8 +226,18 @@ document.addEventListener("DOMContentLoaded", function () {
       location.reload();
       button.alt = response.status === 201 ? "remove friend" : "add friend";
     } else {
-      alert("wtf?");
+      alert("how?");
     }
+  }
+
+  function postContentEventListener() {
+    const postContents = document.querySelectorAll('.content-text');
+    postContents.forEach(click => click.addEventListener("click", handlePostContentClick));
+  }
+
+  function handlePostContentClick() {
+    const postId = this.dataset.postId;
+    location.href="/post/" + postId;
   }
 
   postsContainer.addEventListener('click', function (event) {
@@ -193,6 +250,142 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   addDocumentClickEventListener();
+
+  document.getElementById("toggle-password-sign-in").addEventListener("click", function () {
+    const passwordInput = document.getElementById("user-password");
+    const toggleButton = this;
+
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      toggleButton.textContent = "숨기기";
+    } else {
+      passwordInput.type = "password";
+      toggleButton.textContent = "표시";
+    }
+  });
+
+  const profileImage = document.querySelector("#user-photo");
+  const profileImageInput = document.querySelector("#profile-image-input");
+  const modal = document.querySelector("#image-action-modal");
+  const deletePhotoBtn = document.querySelector("#delete-photo-btn");
+  const uploadPhotoBtn = document.querySelector("#upload-photo-btn");
+  const closeModalBtn = document.querySelector("#close-modal-btn");
+  const modalOverlay = document.querySelector("#modal-overlay");
+
+  function updateProfileImage(file) {
+    const formData = new FormData();
+    formData.append("profileImageFile", file);
+
+    fetch(`/api/user`, {
+      method: "PUT",
+      body: formData,
+    })
+    .then((response) => {
+      if (!response.ok) {
+        return response.text().then((message) => {
+          throw new Error(message);
+        });
+      }
+      return response.json();
+    })
+    .then((updatedUser) => {
+      alert("프로필 이미지가 성공적으로 업데이트되었습니다.");
+      profileImage.src = updatedUser.profileImage;
+    })
+    .catch((error) => {
+      alert(`프로필 이미지 업데이트에 실패했습니다: ${error.message}`);
+    });
+  }
+
+  profileImage.addEventListener("click", () => {
+    modal.style.display = "block";
+    modalOverlay.style.display = "block";
+  });
+
+  const closeModal = () => {
+    modal.style.display = "none";
+    modalOverlay.style.display = "none";
+  };
+
+  closeModalBtn.addEventListener("click", closeModal);
+
+  modalOverlay.addEventListener("click", closeModal);
+
+  deletePhotoBtn.addEventListener("click", () => {
+    // profileImage.src = defaultImageSrc;
+    // profileImageInput.value = "";
+    updateProfileImage(null);
+    closeModal();
+  });
+
+  uploadPhotoBtn.addEventListener("click", () => {
+    profileImageInput.click();
+    closeModal();
+  });
+
+  profileImageInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        alert("이미지 파일만 선택할 수 있습니다.");
+        profileImageInput.value = "";
+        return;
+      }
+
+      // const reader = new FileReader();
+      //
+      // reader.onload = (e) => {
+      //   profileImage.src = e.target.result;
+      // };
+
+      // reader.readAsDataURL(file);
+      updateProfileImage(file);
+    }
+  });
+
+  const updateProfileButton = document.getElementById('update_profile_button');
+
+  updateProfileButton.addEventListener('click', function () {
+    const nickname = document.getElementById('user-nickname').value;
+    const introduce = document.getElementById('user-introduce').value;
+    const password = document.getElementById('user-password').value;
+
+    if (!nickname || !introduce || !password) {
+      alert("모든 필드를 입력해주세요.");
+      return;
+    }
+
+    const userData = {
+      nickname: nickname,
+      introduce: introduce,
+      password: password
+    };
+
+    fetch('/api/user', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData)
+    })
+    .then(response => {
+      if (response.ok) {
+        location.reload();
+        closeProfileUpdateModal();
+      } else {
+        throw new Error('프로필 수정에 실패했습니다.');
+      }
+    })
+    .catch(error => {
+      alert(`오류가 발생했습니다: ${error.message}`);
+    });
+  });
+
+  function closeProfileUpdateModal() {
+    const profileUpdateModal = document.getElementById('profileUpdateModalBackground');
+    profileUpdateModal.style.display = 'none';
+  }
+
 });
 
 function handleMoreOptionsClick(event, moreOptionsButton) {
@@ -259,9 +452,9 @@ function addHidePostEventListener() {
         })
         .then(response => {
           if (response.ok) {
-            alert('게시글이 숨김 처리 되었습니다.');
+            alert('게시글 숨기기 토글이 완료되었습니다.');
           } else {
-            alert('게시글 숨김 처리에 실패했습니다.');
+            alert('게시글 숨기기 토글에 실패했습니다.');
           }
         })
         .catch(error => {
@@ -281,9 +474,6 @@ function addPostLikeEventListener() {
 
   likePostButtons.forEach(button => {
     button.addEventListener('click', function () {
-      if (button.classList.contains('liked')) {
-        return;
-      }
       const postId = this.dataset.postId;
 
       if (postId) {
@@ -292,15 +482,24 @@ function addPostLikeEventListener() {
         })
         .then(response => {
           if (response.status === 200) {
-            const likeCountElement = button.closest('div').querySelector(
-                '.like-count');
+            const likeCountElement = button.closest('div').querySelector('.like-count');
 
             if (likeCountElement) {
-              const currentLikes = parseInt(likeCountElement.textContent, 10);
-              likeCountElement.textContent = currentLikes + 1;
-              button.classList.add('liked');
+              fetch('/api/post/like/number/' + postId)
+              .then(response => response.text())
+              .then(countText => {
+                const currentLikes = parseInt(countText, 10);
+                likeCountElement.textContent = currentLikes;
+                button.classList.add('liked');
+              })
+              .catch(error => {
+                console.error('Error fetching like count:', error);
+              });
             }
           }
+        })
+        .catch(error => {
+          console.error('Error liking the post:', error);
         });
       }
     });
@@ -335,36 +534,88 @@ function addPostDeleteEventHandler() {
 
 function addReportPostEventListener() {
   const reportPostButtons = document.querySelectorAll('.report-post');
+  const reportModal = document.getElementById('reportModal');
+  const reportModalContainer = document.getElementById('reportModalContainer');
+  const closeReportModalButton = document.getElementById('closeReportModalBtn');
+  const reportSendButton = document.getElementById('reportSendBtn');
+  const reportTypeSelect = document.getElementById('report-type-select');
+
+  let isReportButtonClicked = false;
+
   reportPostButtons.forEach(button => {
     button.addEventListener('click', function () {
-      const postId = this.dataset.postId;
+      const postId = button.getAttribute('data-post-id');
+      reportModalContainer.setAttribute('data-post-id', postId);
 
-      if (postId) {
-        fetch('/api/post/report/' + postId, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({postId: postId}),
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            alert('게시글이 신고되었습니다.');
-          } else {
-            alert('게시글 신고에 실패했습니다.');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('요청에 실패했습니다.');
-        });
-      } else {
-        alert('게시글 ID를 찾을 수 없습니다.');
-      }
+      reportModal.style.display = 'block';
+      reportModalContainer.style.display = 'block';
+
+      isReportButtonClicked = false;
     });
   });
+
+  // 신고하기 버튼 클릭 시 API 요청
+  function handleReportSubmit(event) {
+    event.preventDefault();
+
+    if (isReportButtonClicked) {
+      alert('이미 신고가 제출되었습니다.');
+      return;
+    }
+
+    const selectedReportType = reportTypeSelect.value;
+    const postId = reportModalContainer.getAttribute('data-post-id');
+
+    if (!selectedReportType) {
+      alert('신고 사유를 선택해주세요.');
+      return;
+    }
+
+    isReportButtonClicked = true;
+
+    fetch(`/api/post/report/${postId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        reportType: selectedReportType,
+      }),
+    })
+    .then(response => {
+      if (response.ok) {
+        alert('신고가 완료되었습니다.');
+        reportModal.style.display = 'none';
+        reportModalContainer.style.display = 'none';
+      } else {
+        return response.json().then(errorData => {
+          alert(`신고 실패: ${errorData.message || '알 수 없는 오류 발생'}`);
+        });
+      }
+    })
+    .catch(error => {
+      alert('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
+    });
+  }
+
+  if (!reportSendButton.hasEventListener) {
+    reportSendButton.addEventListener('click', handleReportSubmit);
+    reportSendButton.hasEventListener = true;
+  }
+
+  closeReportModalButton.addEventListener('click', function () {
+    reportModal.style.display = 'none';
+    reportModalContainer.style.display = 'none';
+  });
+
+  window.addEventListener('click', function (event) {
+    if (event.target === reportModal) {
+      reportModal.style.display = 'none';
+      reportModalContainer.style.display = 'none';
+    }
+  });
 }
+
 
 function openModal(followers) {
   const followerList = document.getElementById("followerList");
@@ -384,7 +635,7 @@ function openModal(followers) {
       listItem.innerHTML = `
         <a href="/profile/${follower.nickname}" class="d-flex align-items-center">
           <img src="${follower.profileImage}" alt="Profile" class="rounded-circle" width="30" height="30">
-          ${follower.name} (@${follower.nickname})
+          <span class="ms-2">${follower.name} (@${follower.nickname})</span>
         </a>
       `;
 
@@ -392,7 +643,6 @@ function openModal(followers) {
     });
   }
 
-  // 모달을 표시
   const myModal = new bootstrap.Modal(document.getElementById('followerModal'));
   myModal.show();
 }

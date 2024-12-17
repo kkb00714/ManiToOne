@@ -7,6 +7,8 @@
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
   <link rel="stylesheet" th:href="@{/style/sign-up.css}"/>
   <link rel="stylesheet" th:href="@{/style/additional-info.css}"/>
+  <link rel="stylesheet" th:href="@{/style/loading.css}"/>
+  <link rel="stylesheet" th:href="@{/style/password-view.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -29,16 +31,19 @@
       <p id="desc" class="desc">비밀번호, 닉네임, 생년월일을 입력하여 주십시오.</p>
       <div class="sign-up-input-container">
         <br/>
-        <p>비밀번호</p>
-        <input
-            class="sign-up-input"
-            type="password"
-            name="user-password"
-            id="user-password"
-            placeholder="비밀번호(영문 대-소문자, 숫자, 특수문자 포함 8~16자)"
-            aria-label="비밀번호 입력"
-            required
-        />
+        <div class="password-input-container">
+          <input
+              class="sign-up-input"
+              type="password"
+              name="user-password"
+              id="user-password"
+              placeholder="비밀번호(영문 대-소문자, 숫자, 특수문자 포함 8~16자)"
+              aria-label="비밀번호 입력"
+              required
+          />
+          <button type="button" id="toggle-password-sign-up" aria-label="비밀번호 표시/숨기기">표시</button>
+        </div>
+
         <p><span id="password-error" class="error-message"></span></p>
         <p>닉네임</p>
         <input
@@ -51,6 +56,7 @@
             required
         />
         <p><span id="nickname-error" class="error-message"></span></p>
+
         <p>생년월일</p>
         <input
             class="sign-up-input"
@@ -62,7 +68,10 @@
         />
         <p><span id="birth-error" class="error-message"></span></p>
       </div>
-      <button class="sign-up-button">가입</button>
+      <button id="sign-up-button" class="sign-up-button">
+        <span class="button-text">가입</span>
+        <span id="loading-spinner" class="loading-spinner" style="display: none;"></span>
+      </button>
     </form>
   </div>
   <div class="sign-in-link-container">
@@ -72,6 +81,32 @@
 </section>
 
 <script>
+  document.getElementById("user-nickname").addEventListener("input", function () {
+    const nickname = this.value;
+    const nicknameError = document.getElementById("nickname-error");
+
+    if (nickname.length > 0) {
+      fetch(`/api/check-nickname?nickname=${nickname}`)
+      .then(response => {
+        if (response.ok) {
+          nicknameError.textContent = '사용 가능한 닉네임입니다.';
+          nicknameError.style.color = 'green';
+        } else {
+          return response.text().then(errorText => {
+            nicknameError.textContent = errorText;
+            nicknameError.style.color = 'red';
+          });
+        }
+      })
+      .catch(error => {
+        nicknameError.textContent = '서버 오류가 발생했습니다. 다시 시도해주세요.';
+        nicknameError.style.color = 'red';
+      });
+    } else {
+      nicknameError.textContent = '이미 존재하는 닉네임 입니다.';
+    }
+  });
+
   document.getElementById("sign-up-form").addEventListener("submit", function (event) {
     event.preventDefault();
 
@@ -87,8 +122,14 @@
     nicknameError.textContent = "";
     birthError.textContent = "";
 
+    const signUpButton = document.getElementById("sign-up-button");
+    const buttonText = signUpButton.querySelector('.button-text');
+    const loadingSpinner = signUpButton.querySelector('#loading-spinner');
+    buttonText.style.display = 'none';
+    loadingSpinner.style.display = 'inline-block';
+
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
-    const nicknameRegex = /^.{2,10}$/;
+    const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,10}$/;
 
     let isValid = true;
     let firstErrorField = null;
@@ -102,7 +143,7 @@
     }
 
     if (!nicknameRegex.test(nickname)) {
-      nicknameError.textContent = "닉네임은 2~10자리로 설정해야 합니다.";
+      nicknameError.textContent = "닉네임은 특수문자를 제외한 2~10자리로 설정해야 합니다.";
       if (!firstErrorField) {
         firstErrorField = document.getElementById("user-nickname");
       }
@@ -127,6 +168,7 @@
       if (firstErrorField) {
         firstErrorField.focus();
       }
+      resetButtonState();
       return;
     }
 
@@ -157,9 +199,35 @@
       window.location.href = "/";
     })
     .catch(error => {
-      alert('추가 정보 입력 실패: ' + error.message);
-    });
+      alert('추가 정보 전송에 실패했습니다. 에러 메시지를 확인해주세요.');
+    })
+    .finally(() => {
+      resetButtonState();
+    })
   });
+
+  function resetButtonState() {
+    const signUpButton = document.getElementById('sign-up-button');
+    const buttonText = signUpButton.querySelector('.button-text');
+    const loadingSpinner = signUpButton.querySelector('#loading-spinner');
+
+    buttonText.style.display = 'inline';
+    loadingSpinner.style.display = 'none';
+  }
+
+  const togglePasswordButton = document.getElementById("toggle-password-sign-up");
+  const passwordInput = document.getElementById("user-password");
+
+  togglePasswordButton.addEventListener("click", function () {
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      togglePasswordButton.textContent = "숨기기";
+    } else {
+      passwordInput.type = "password";
+      togglePasswordButton.textContent = "표시";
+    }
+  });
+
 </script>
 </body>
 </html>

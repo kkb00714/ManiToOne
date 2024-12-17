@@ -1,5 +1,6 @@
 <!-- 마니또 편지 모달 시작 -->
-<div class="manito-letter-modal" id="manitoLetterModalBackground" th:fragment="manito-letter-modal(recipient)">
+<div class="manito-letter-modal" id="manitoLetterModalBackground"
+     th:fragment="manito-letter-modal(recipient)">
   <form
       class="manito-letter-modal-container"
       id="manitoLetterModalContainer"
@@ -25,6 +26,7 @@
                     placeholder="따뜻한 공감과 격려를 보내주세요. 초면의 상대에게는 예의를 갖춰 존댓말을 사용해주세요. 모든 마니또 편지는 익명처리 되며 부적절한 내용 혹은 링크가 포함될 시 커뮤니티 이용 약관 및 관련 법령에 따라 조치될 수 있습니다."
                     maxlength="500"></textarea>
         </div>
+        <p class="letter-count" id="count500">500/500</p>
       </div>
     </div>
     <div class="manito-recommend-music">
@@ -43,6 +45,7 @@
     <label for="manito-music-comment-input"></label>
     <textarea class="manito-music-comment" id="manito-music-comment-input"
               placeholder="이 음악을 추천하는 이유를 간단히 입력해주세요." maxlength="100"></textarea>
+    <p class="letter-count" id="count100" style="padding: 0 1.5rem; box-sizing: border-box; text-align: right;">100/100</p>
     <div class="send-letter-button-container">
       <button class="send-letter-button">전송하기</button>
     </div>

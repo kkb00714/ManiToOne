@@ -74,7 +74,7 @@ public class Post {
     this.isBlind = !this.isBlind;
   }
 
-  public void unSelected() {
-    this.isSelected = false;
+  public void updateManitoStatus(Boolean isManito) {
+    this.isManito = isManito;
   }
 }

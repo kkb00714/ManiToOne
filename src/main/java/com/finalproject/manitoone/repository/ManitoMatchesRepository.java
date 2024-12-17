@@ -26,20 +26,23 @@ public interface ManitoMatchesRepository extends JpaRepository<ManitoMatches, Lo
   boolean hasRecentMatch(@Param("user") User user,
       @Param("timeLimit") LocalDateTime timeLimit);
 
-  // 배정 가능한 게시글 목록 조회
+  // 배정 가능한 포스트 조회
   @Query("SELECT DISTINCT p FROM Post p " +
-      "WHERE p.isManito = true " +  // isSelected 체크 제거
+      "WHERE p.isManito = true " +
       "AND p.createdAt > :timeLimit " +
-      "AND NOT EXISTS (SELECT 1 FROM ManitoMatches m WHERE m.matchedPostId = p AND m.status = 'MATCHED') " +
+      "AND p.user.userId != :userId " +
+      "AND (NOT EXISTS (SELECT 1 FROM ManitoMatches m WHERE m.matchedPostId = p) " +
+      "OR EXISTS (SELECT 1 FROM ManitoMatches m " +
+      "          WHERE m.matchedPostId = p " +
+      "          AND m.matchedTime = (SELECT MAX(m2.matchedTime) FROM ManitoMatches m2 WHERE m2.matchedPostId = p) "
+      +
+      "          AND m.status IN (com.finalproject.manitoone.constants.MatchStatus.REPORTED, " +
+      "                          com.finalproject.manitoone.constants.MatchStatus.EXPIRED, " +
+      "                          com.finalproject.manitoone.constants.MatchStatus.PASSED))) " +
       "ORDER BY p.createdAt ASC")
-  List<Post> findAssignablePosts(@Param("timeLimit") LocalDateTime timeLimit);
-
-  // 편지 미작성된 MATCHED 상태 매칭 중 24시간 경과된 것 찾기
-  @Query("SELECT m FROM ManitoMatches m " +
-      "WHERE m.status = 'MATCHED' " +
-      "AND m.matchedTime < :timeLimit " +
-      "AND NOT EXISTS (SELECT l FROM ManitoLetter l WHERE l.manitoMatches = m)")
-  List<ManitoMatches> findExpiredMatchesWithoutLetter(@Param("timeLimit") LocalDateTime timeLimit);
+  List<Post> findAssignablePosts(
+      @Param("timeLimit") LocalDateTime timeLimit,
+      @Param("userId") Long userId);
 
   // 유저의 가장 최근 매칭 조회 (24시간 이내)
   @Query("SELECT m FROM ManitoMatches m " +
@@ -55,20 +58,21 @@ public interface ManitoMatchesRepository extends JpaRepository<ManitoMatches, Lo
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("SELECT COUNT(m) > 0 FROM ManitoMatches m WHERE m.matchedPostId = :post AND m.status = :status")
-  boolean existsByMatchedPostIdAndStatus(@Param("post") Post post, @Param("status") MatchStatus status);
+  boolean existsByMatchedPostIdAndStatus(@Param("post") Post post,
+      @Param("status") MatchStatus status);
 
   // 24시간 이상 경과된 MATCHED 상태의 ManitoMatches 중 ManitoLetter가 없는 것 찾기
   @Query("""
-        SELECT m
-        FROM ManitoMatches m
-        WHERE m.status = 'MATCHED'
-          AND m.matchedTime <= :deadline
-          AND NOT EXISTS (
-              SELECT l
-              FROM ManitoLetter l
-              WHERE l.manitoMatches = m
-          )
-    """)
+          SELECT m
+          FROM ManitoMatches m
+          WHERE m.status = 'MATCHED'
+            AND m.matchedTime <= :deadline
+            AND NOT EXISTS (
+                SELECT l
+                FROM ManitoLetter l
+                WHERE l.manitoMatches = m
+            )
+      """)
   List<ManitoMatches> findUnansweredMatches(LocalDateTime deadline);
 
   Optional<List<ManitoMatches>> findByMatchedPostId(Post post);

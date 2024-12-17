@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.controller.view;
 
-import com.finalproject.manitoone.service.PostService;
+import com.finalproject.manitoone.service.TimelineService;
+import com.finalproject.manitoone.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 public class WebViewController {
 
-  private final PostService postService;
+  private final TimelineService timelineService;
+  private final UserService userService;
+  private static final int DEFAULT_RECENT_DAYS = 7;
 
   @GetMapping("/")
   public String getIndex(Model model, HttpSession session) {
@@ -29,10 +32,12 @@ public class WebViewController {
       return "redirect:/login";
     }
     model.addAttribute("userNickname", nickname);
-    model.addAttribute("posts", postService.getTimelinePosts(
+    model.addAttribute("posts", timelineService.getTimelinePosts(
         nickname,
-        PageRequest.of(0, 20, Sort.by(Direction.DESC, "createdAt"))
+        PageRequest.of(0, 20, Sort.by(Direction.DESC, "createdAt")),
+        DEFAULT_RECENT_DAYS
     ));
+    model.addAttribute("user", userService.getCurrentUser(nickname));
     return "index";
   }
 

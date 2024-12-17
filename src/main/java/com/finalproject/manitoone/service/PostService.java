@@ -3,6 +3,7 @@ package com.finalproject.manitoone.service;
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.domain.AiPostLog;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Notification;
@@ -13,7 +14,6 @@ import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
-import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
@@ -31,16 +31,27 @@ import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
+import com.finalproject.manitoone.util.FileUtil;
+import jakarta.transaction.Transactional;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import com.finalproject.manitoone.util.NotificationUtil;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -55,17 +66,15 @@ public class PostService {
   private final ReportRepository reportRepository;
   private final AiPostLogRepository aiPostLogRepository;
   private final UserRepository userRepository;
-  private final UserService userService;
-  // ManitoMatchesRepository 생성으로 인한 필드 추가
-  private final ManitoMatchesRepository manitoMatchesRepository;
   private final NotificationRepository notificationRepository;
-
+  private final UserService userService;
+  private final FileUtil fileUtil;
+  private final ManitoMatchesRepository manitoMatchesRepository;
   private final NotificationUtil notificationUtil;
-
 
   // 게시글 생성 (미완성)
   // TODO: 이미지 업로드
-  @Async
+  @Transactional
   public PostResponseDto createPost(AddPostRequestDto request, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
@@ -77,33 +86,55 @@ public class PostService {
         .isManito(request.getIsManito())
         .build());
 
-    AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
-    aiPostLogRepository.save(aiPost);
+    List<String> imagePaths = new ArrayList<>();
+    if (request.getImages() != null) {
+      for (MultipartFile image : request.getImages()) {
+        String imagePath = saveImage(image);
+        imagePaths.add(imagePath);
+      }
 
-    return new PostResponseDto(post.getPostId(), post.getUser(), post.getContent(),
-        post.getCreatedAt(), post.getUpdatedAt(), post.getIsManito());
+      for (String imagePath : imagePaths) {
+        postImageRepository.save(PostImage.builder()
+            .post(post)
+            .fileName(imagePath)
+            .build());
+      }
+    }
+
+//    AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
+//    aiPostLogRepository.save(aiPost);
+
+    return PostResponseDto.builder()
+        .postId(post.getPostId())
+        .user(post.getUser())
+        .content(post.getContent())
+        .createdAt(post.getCreatedAt())
+        .updatedAt(post.getUpdatedAt())
+        .isManito(post.getIsManito())
+        .build();
   }
 
   // 이미지 저장
-//  private void saveImage(Post post, MultipartFile image) throws IOException {
-//    // 파일 저장 경로 지정
-//    String uploadDir = "src/main/resources/static/img/upload/";
-//    Path uploadPath = Paths.get(uploadDir);
-//    if (!Files.exists(uploadPath)) {
-//      Files.createDirectories(uploadPath);
-//    }
-//
-//    // 이미지 저장
-//    String originalFilename = image.getOriginalFilename();
-//    String uniqueFileName = UUID.randomUUID() + "-" + originalFilename;
-//    Path filePath = uploadPath.resolve(uniqueFileName);
-//    Files.write(filePath, image.getBytes());
-//
-//    postImageRepository.save(PostImage.builder()
-//        .fileName(originalFilename)
-//        .post(post)
-//        .build());
-//  }
+  private String saveImage(MultipartFile image) {
+    String uploadDir = "/usr/local/images/posts";
+    File uploadPath = new File(uploadDir);
+
+    if (!uploadPath.exists()) {
+      uploadPath.mkdirs();
+    }
+
+    String imageName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+    File savedImage = new File(uploadPath, imageName);
+
+    try {
+      image.transferTo(savedImage);
+    } catch (IOException e) {
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage() + ": " + e.getMessage());
+    }
+
+    return savedImage.getAbsolutePath();
+  }
 
   // 게시글 수정
   // TODO: 이미지 수정 
@@ -137,11 +168,10 @@ public class PostService {
 
   // 전체 게시글 조회
   public Page<PostResponseDto> getPosts(Pageable pageable) {
-    Page<Post> posts = postRepository.findAll(pageable);
-
-    if (posts.isEmpty()) {
-      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_FIND_ANY_POST.getMessage());
-    }
+    Page<Post> posts = postRepository.findAllByIsHiddenFalseAndIsBlindFalse(pageable)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_ANY_POST.getMessage()
+        ));
 
     return posts.map(post -> new PostResponseDto(
         post.getPostId(),
@@ -149,14 +179,15 @@ public class PostService {
         post.getContent(),
         post.getCreatedAt(),
         post.getUpdatedAt(),
-        post.getIsManito()
+        post.getIsManito(),
+        getPostLikesNum(post.getPostId())
     ));
   }
 
   // 게시글 상세 조회
   // TODO: 이미지 조회
   public PostResponseDto getPostDetail(Long postId) {
-    Post post = postRepository.findByPostId(postId)
+    Post post = postRepository.findByPostIdAndIsHiddenFalseAndIsBlindFalse(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
@@ -167,31 +198,47 @@ public class PostService {
         post.getContent(),
         post.getCreatedAt(),
         post.getUpdatedAt(),
-        post.getIsManito()
+        post.getIsManito(),
+        getPostLikesNum(post.getPostId())
     );
   }
 
   // 게시글 삭제
-  public void deletePost(Long postId) {
+  public void deletePost(Long postId, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
+    if (!user.equals(post.getUser())) {
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_DELETE_POST_AND_REPLY.getMessage());
+    }
+
     deleteImages(postId);
     deleteReplies(postId);
     deleteLikes(postId);
+    deleteReports(postId);
+    deleteNotis(postId);
     deleteManitoLetters(postId);
     postRepository.delete(post);
   }
 
   // 게시글 이미지 삭제
   private void deleteImages(Long postId) {
-    List<PostImage> imageList = postImageRepository.findAllByPostPostId(postId)
+    List<PostImage> postImages = postImageRepository.findAllByPostPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_IMAGE_WITH_GIVEN_ID.getMessage()
         ));
 
-    postImageRepository.deleteAll(imageList);
+    for (PostImage postImage : postImages) {
+      fileUtil.cleanUp(Paths.get(postImage.getFileName()));
+    }
+
+    postImageRepository.deleteAll(postImages);
   }
 
   // 게시글 답글 삭제
@@ -206,12 +253,12 @@ public class PostService {
 
   // 게시글 좋아요 삭제
   private void deleteLikes(Long postId) {
-    List<UserPostLike> likeList = userPostLikeRepository.findAllByPostPostId(postId)
+    List<UserPostLike> postLikes = userPostLikeRepository.findAllByPostPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
         ));
 
-    userPostLikeRepository.deleteAll(likeList);
+    userPostLikeRepository.deleteAll(postLikes);
   }
 
 //  // 마니또 편지 삭제
@@ -238,35 +285,77 @@ public class PostService {
         .ifPresent(manitoLetterRepository::delete));
   }
 
-  // 게시글 숨기기
-  public void hidePost(Long postId) {
-    Post post = postRepository.findByPostId(postId)
+  // 게시글 신고 목록 삭제
+  private void deleteReports(Long postId) {
+    List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(ReportObjectType.POST,
+            postId)
         .orElseThrow(() -> new IllegalArgumentException(
-            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+            IllegalActionMessages.CANNOT_FIND_REPORT_WITH_GIVEN_ID.getMessage()
+        ));
 
-    post.hidePost(true);
-
-    postRepository.save(post);
+    reportRepository.deleteAll(reports);
   }
 
-  // 게시글 좋아요
-  public void likePost(Long postId, String email) {
+  // 알림 삭제
+  private void deleteNotis(Long postId) {
+    List<Notification> notis = notificationRepository.findByTypeInAndRelatedObjectId(List.of(
+            NotiType.LIKE_CLOVER, NotiType.POST_REPLY, NotiType.POST_RE_REPLY), postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_ANY_NOTIFICATIONS.getMessage()
+        ));
+
+    notificationRepository.deleteAll(notis);
+  }
+
+  // 게시글 숨기기
+  public void hidePost(Long postId, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
     Post post = postRepository.findByPostId(postId)
         .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
+
+    post.hidePost(!Boolean.TRUE.equals(post.getIsHidden()));
+    
+    if (!user.equals(post.getUser())) {
+      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_HIDE_POST.getMessage());
+    }
+
+    postRepository.save(post);
+  }
+
+  // 게시글 좋아요
+  public PostResponseDto likePost(Long postId, String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
+        IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
+    ));
+
+    Post post = postRepository.findByPostIdAndIsHiddenFalseAndIsBlindFalse(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
-
+    
     userPostLikeRepository.save(UserPostLike.builder()
         .post(post)
         .user(user)
         .build());
+    
+    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
 
+    if (existingLike.isPresent()) {
+      userPostLikeRepository.delete(existingLike.get());
+    } else {
+      userPostLikeRepository.save(UserPostLike.builder()
+          .post(post)
+          .user(user)
+          .build());
+    }
+    
     try {
-      Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(post.getUser(), user,
+      Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(
+          post.getUser(), user,
           NotiType.LIKE_CLOVER, postId);
       // 이미 해당 게시글에 좋아요를 눌렀다면
       if (notification != null) {
@@ -275,28 +364,44 @@ public class PostService {
         notificationRepository.save(notification);
         notificationUtil.sendAlarm(post.getUser());
       } else {
-        notificationUtil.createNotification(post.getUser().getNickname(), user, NotiType.LIKE_CLOVER,
+        notificationUtil.createNotification(post.getUser().getNickname(), user,
+            NotiType.LIKE_CLOVER,
             postId);
       }
 
     } catch (IOException e) {
       log.error(e.getMessage());
     }
+
+    return PostResponseDto.builder()
+        .postId(post.getPostId())
+        .user(post.getUser())
+        .likesNumber(getPostLikesNum(post.getPostId()))
+        .build();
   }
 
   // 게시글 신고
-  public ReportResponseDto reportPost(Long postId, AddReportRequestDto request, String email) {
+  public ReportResponseDto reportPost(Long postId, String reportType, String email) {
+    ReportType theType = null;
+
+    for (ReportType type : ReportType.values()) {
+      if (type.name().equals(reportType)) {
+        theType = type;
+        break;
+      }
+    }
+
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
-    Post post = postRepository.findByPostId(postId)
+    Post post = postRepository.findByPostIdAndIsHiddenFalseAndIsBlindFalse(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
 
     Report report = reportRepository.save(Report.builder()
-        .reportType(request.getReportType())
+        .reportType(theType)
         .userId(user.getUserId())
         .type(ReportObjectType.POST)
         .reportObjectId(post.getPostId())
@@ -347,7 +452,7 @@ public class PostService {
         .map(userPostLike -> new PostViewResponseDto(
             userPostLike.getPost().getPostId(),
             userPostLike.getUser().getProfileImage(),
-            userPostLike.getUser().getNickname(),
+            userPostLike.getPost().getUser().getNickname(),
             userPostLike.getPost().getContent(),
             userPostLike.getPost().getCreatedAt(),
             userPostLike.getPost().getUpdatedAt())
@@ -403,24 +508,6 @@ public class PostService {
     return postResponses;
   }
 
-  // 타임라인 조회를 위한 메서드
-  public Page<PostViewResponseDto> getTimelinePosts(String nickname, Pageable pageable) {
-    User currentUser = userService.getCurrentUser(nickname);
-
-    Page<Post> posts = postRepository.findTimelinePostsByUserId(currentUser.getUserId(), pageable);
-    return posts.map(post -> {
-      PostViewResponseDto dto = new PostViewResponseDto(
-          post.getPostId(),
-          post.getUser().getProfileImage(),
-          post.getUser().getNickname(),
-          post.getContent(),
-          post.getCreatedAt(),
-          post.getUpdatedAt()
-      );
-      return addAdditionalDataToDto(List.of(dto)).get(0);
-    });
-  }
-
   // 단순 postId로 PostViewResponseDto를 가져오는 메서드 (마니또에서 씁니다)
   public PostViewResponseDto getPost(Long postId) {
     Post post = postRepository.findByPostId(postId)
@@ -436,7 +523,6 @@ public class PostService {
         post.getUpdatedAt()
     );
 
-    // addAdditionalDataToDto 메서드를 활용하여 추가 데이터(이미지, 좋아요 수, 답글) 설정
     return addAdditionalDataToDto(List.of(postResponse)).get(0);
   }
 }

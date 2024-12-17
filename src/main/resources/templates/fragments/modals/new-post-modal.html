@@ -4,7 +4,14 @@
   id="newPostFormModalBackground"
   th:fragment="new-post-modal"
 >
-  <div class="new-post-form-modal-container" id="newPostFormModalContainer">
+  <form
+    class="new-post-form-modal-container"
+    id="newPostFormModalContainer"
+    th:action="@{/api/post}"
+    method="post"
+    th:onsubmit="'onPostSubmit(this)'"
+    enctype="multipart/form-data"
+  >
     <div class="new-post-title">
       <p>새 게시물 작성</p>
       <img
@@ -14,11 +21,12 @@
         alt="close icon"
       />
     </div>
+
     <div class="new-post-content-container">
       <div class="new-post-content">
         <img
           class="user-photo"
-          th:src="@{/images/icons/UI-user2.png}"
+          th:src="@{${user.profileImage}}"
           alt="user icon"
         />
         <div class="new-post-text-container">
@@ -28,34 +36,58 @@
             class="new-post-text"
             placeholder="나누고 싶은 글을 작성해주세요"
           ></textarea>
-<!--          <p class="ai-post-comment">-->
-<!--            AI: 내용이 반복적이거나 무의미한 것 같아요.<br />마니또와 소통하기-->
-<!--            위해 조금 더 자신만의 이야기를 담아보면 어떨까요?-->
-<!--          </p>-->
+          <p class="letter-count" id="count500">500/500</p>
         </div>
       </div>
+
       <div
         class="manito-response-toggle"
-        onclick="toggleManito(this, 'response')"
+        onclick="togglesManito(this, 'response')"
       >
         <img
           class="tiny-icons"
           th:src="@{/images/icons/icon-check-empty.png}"
-          alt="check icon`"
+          alt="check icon"
           data-checked-src="@{/images/icons/icon-check.png}"
           data-unchecked-src="@{/images/icons/icon-check-empty.png}"
         />
         <p>이 게시물에 대해 마니또의 답변을 받습니다.</p>
       </div>
+
+      <div
+        class="ai-response-toggle"
+        onclick="toggleAI(this)"
+        style="opacity: 0.3"
+      >
+        <img
+          class="tiny-icons"
+          th:src="@{/images/icons/icon-check-empty.png}"
+          alt="check icon"
+          data-checked-src="@{/images/icons/icon-check.png}"
+          data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+        />
+        <p>이 게시물에 대해 AI의 피드백을 받습니다.</p>
+      </div>
     </div>
+
     <div class="post-button-container">
+      <input
+        type="file"
+        id="image-upload-btn"
+        name="images"
+        accept="image/jpeg, image/png"
+        multiple
+        onchange="countImages(this)"
+        style="display: none"
+      />
       <img
         class="tiny-icons"
         th:src="@{/images/icons/icon-image2.png}"
         alt="add image icon"
+        onclick="document.getElementById('image-upload-btn').click()"
       />
-      <button class="post-button">게시하기</button>
+      <button class="post-button" type="submit">게시하기</button>
     </div>
-  </div>
+  </form>
 </div>
 <!-- 새 게시물 작성 모달 끝-->

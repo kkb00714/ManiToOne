@@ -14,6 +14,7 @@ import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
+import com.finalproject.manitoone.domain.dto.AiFeedbackDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
@@ -30,6 +31,7 @@ import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
+import com.finalproject.manitoone.util.AlanUtil;
 import com.finalproject.manitoone.util.FileUtil;
 import jakarta.transaction.Transactional;
 import java.nio.file.Paths;
@@ -42,6 +44,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,13 +62,12 @@ public class PostService {
   private final AiPostLogRepository aiPostLogRepository;
   private final UserRepository userRepository;
   private final NotificationRepository notificationRepository;
-  private final FileUtil fileUtil;
   private final ManitoMatchesRepository manitoMatchesRepository;
-  private final NotificationUtil notificationUtil;
   private final S3Service s3Service;
+  private final FileUtil fileUtil;
+  private final NotificationUtil notificationUtil;
 
-  // 게시글 생성 (미완성)
-  // TODO: 이미지 업로드
+  // 게시글 생성
   @Transactional
   public PostResponseDto createPost(AddPostRequestDto request, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
@@ -95,11 +97,19 @@ public class PostService {
 
     return PostResponseDto.builder()
         .postId(post.getPostId())
-        .user(post.getUser())
         .content(post.getContent())
         .createdAt(post.getCreatedAt())
         .updatedAt(post.getUpdatedAt())
         .isManito(post.getIsManito())
+        .build();
+  }
+
+  // AI 피드백
+  @Async
+  public AiFeedbackDto getFeedback(String content) {
+    String feedback = AlanUtil.getValidationAnswer(content);
+    return AiFeedbackDto.builder()
+        .feedback(feedback)
         .build();
   }
 

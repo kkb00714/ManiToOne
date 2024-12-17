@@ -2,6 +2,7 @@ package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
 import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
+import com.finalproject.manitoone.domain.dto.AiFeedbackDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
@@ -58,6 +59,13 @@ public class PostController {
         .build();
 
     return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, email));
+  }
+
+  // 게시글 AI 피드백 받기
+  @GetMapping("/ai-feedback")
+  public ResponseEntity<AiFeedbackDto> getFeedback(@RequestParam("content") String content) {
+    AiFeedbackDto feedback = postService.getFeedback(content);
+    return ResponseEntity.ok(feedback);
   }
 
   // 게시글 수정

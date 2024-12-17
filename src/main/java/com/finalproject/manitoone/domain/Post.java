@@ -73,8 +73,4 @@ public class Post {
   public void updateBlind() {
     this.isBlind = !this.isBlind;
   }
-
-  public void unSelected() {
-    this.isSelected = false;
-  }
 }

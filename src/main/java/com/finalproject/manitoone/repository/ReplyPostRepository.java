@@ -15,19 +15,28 @@ public interface ReplyPostRepository extends JpaRepository<ReplyPost, Long> {
 
   Optional<List<ReplyPost>> findAllByPostPostId(Long postId);
 
-  Optional<ReplyPost> findByReplyPostId(Long replyPostId);
+  Optional<ReplyPost> findByReplyPostId(Long replyId);
 
-  Optional<Page<ReplyPost>> findAllByPostPostIdAndParentIdIsNull(Long postId, Pageable pageable);
+  Optional<ReplyPost> findByReplyPostIdAndIsBlindFalseAndIsHiddenFalse(Long replyPostId);
 
-  Optional<List<ReplyPost>> findAllByPostPostIdAndParentIdIsNull(Long postId);
+  Optional<Page<ReplyPost>> findAllByPostPostIdAndParentIdIsNullAndIsBlindFalseAndIsHiddenFalse(
+      Long postId,
+      Pageable pageable);
 
-  Optional<Page<ReplyPost>> findAllByReplyPostIdAndParentIdIsNotNull(Long replyId, Pageable pageable);
+  Optional<List<ReplyPost>> findAllByPostPostIdAndParentIdNullAndIsBlindFalseAndIsHiddenFalse(
+      Long postId);
+
+  Optional<Page<ReplyPost>> findAllByReplyPostIdAndParentIdIsNotNull(Long replyId,
+      Pageable pageable);
 
   Optional<List<ReplyPost>> findAllByReplyPostIdAndParentIdIsNotNull(Long replyId);
 
-  Optional<Page<ReplyPost>> findAllByParentId(Long parentId, Pageable pageable);
+  Optional<Page<ReplyPost>> findAllByParentIdAndIsBlindFalseAndIsHiddenFalse(Long parentId,
+      Pageable pageable);
 
   Optional<List<ReplyPost>> findAllByPostPostIdAndParentIdIsNotNull(Long postId);
 
   Optional<List<ReplyPost>> findAllByParentId(Long parentId);
+
+  Optional<List<ReplyPost>> findAllByParentIdAndIsBlindFalseAndIsHiddenFalse(Long parentId);
 }

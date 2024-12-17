@@ -49,11 +49,19 @@ public class ReplyPost {
   @Builder.Default
   private LocalDateTime createdAt = LocalDateTime.now();
 
+  @Column(name = "is_hidden", nullable = false, columnDefinition = "tinyint DEFAULT 0 COMMENT '0. x\\n1. o\\n자신이 숨길 수 있는 권한'")
+  @Builder.Default
+  private Boolean isHidden = false;
+
   public void updateReply(String content) {
     this.content = content;
   }
 
   public void updateBlind() {
     this.isBlind = !this.isBlind;
+  }
+
+  public void hideReply() {
+    this.isHidden = !this.isHidden;
   }
 }

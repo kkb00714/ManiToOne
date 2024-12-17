@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -75,23 +76,32 @@ public class ReplyController {
   }
 
   // 답글 신고
-  @PutMapping("/reply/report/{replyId}")
+  @PostMapping("/reply/report/{replyId}")
   public ResponseEntity<ReportResponseDto> reportReply(@PathVariable("replyId") Long replyId,
-      @RequestBody AddReportRequestDto request,
+      @RequestParam("reportType") String reportType,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 
-    ReportResponseDto report = replyService.reportReply(replyId, request, email);
+    ReportResponseDto report = replyService.reportReply(replyId, reportType, email);
     return ResponseEntity.status(HttpStatus.CREATED).body(report);
   }
 
   // 답글 좋아요
   @PostMapping("/reply/like/{replyId}")
-  public ResponseEntity<Void> likeReply(@PathVariable("replyId") Long replyId,
+  public ResponseEntity<ReplyResponseDto> likeReply(@PathVariable("replyId") Long replyId,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 
-    replyService.likeReply(replyId, email);
+    ReplyResponseDto reply = replyService.likeReply(replyId, email);
+    return ResponseEntity.ok(reply);
+  }
+
+  // 답글 숨기기
+  @PutMapping("/reply/hidden/{replyId}")
+  public ResponseEntity<Void> hideReply(@PathVariable("replyId") Long replyId,
+      HttpSession session) {
+    String email = (String) session.getAttribute("email");
+    replyService.hideReply(replyId, email);
     return ResponseEntity.ok().build();
   }
 

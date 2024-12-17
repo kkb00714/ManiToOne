@@ -37,29 +37,51 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   Page<Post> findTimelinePostsByUserId(@Param("userId") Long userId, Pageable pageable);
 
   @Query(value = """
-    WITH RankedRecentPosts AS (
-        SELECT p.*, 
-               ROW_NUMBER() OVER (ORDER BY RAND()) as rn
+        WITH RankedRecentPosts AS (
+            SELECT p.*, 
+                   ROW_NUMBER() OVER (
+                       ORDER BY RAND((:pageNumber * 123456789))
+                   ) as rn
+            FROM post p
+            WHERE p.user_id NOT IN (
+                SELECT f.following_id 
+                FROM follow f 
+                WHERE f.follower_id = :userId
+            )
+            AND p.post_id NOT IN :excludePostIds
+            AND p.user_id != :userId
+            AND p.is_blind = false 
+            AND p.is_hidden = false
+            AND p.created_at > :recentPeriod
+        )
+        SELECT * FROM RankedRecentPosts 
+        WHERE rn <= :limit
+        ORDER BY created_at DESC
+        """, nativeQuery = true)
+  List<Post> findRandomRecentPostsWithSeed(
+      @Param("userId") Long userId,
+      @Param("recentPeriod") LocalDateTime recentPeriod,
+      @Param("limit") int limit,
+      @Param("excludePostIds") List<Long> excludePostIds,
+      @Param("pageNumber") int pageNumber
+  );
+
+  @Query(value = """
+        SELECT COUNT(DISTINCT p.post_id)
         FROM post p
         WHERE p.user_id NOT IN (
             SELECT f.following_id 
             FROM follow f 
             WHERE f.follower_id = :userId
         )
-        AND p.post_id NOT IN :excludePostIds
         AND p.user_id != :userId
         AND p.is_blind = false 
         AND p.is_hidden = false
         AND p.created_at > :recentPeriod
-    )
-    SELECT * FROM RankedRecentPosts 
-    WHERE rn <= :limit
-    ORDER BY created_at DESC
-    """, nativeQuery = true)
-  List<Post> findRandomRecentPosts(
+        """, nativeQuery = true)
+  long countRandomRecentPosts(
       @Param("userId") Long userId,
-      @Param("recentPeriod") LocalDateTime recentPeriod,
-      @Param("limit") int limit,
-      @Param("excludePostIds") List<Long> excludePostIds
+      @Param("recentPeriod") LocalDateTime recentPeriod
   );
+
 }

@@ -46,7 +46,7 @@ public class UserAuthController {
   }
 
   @PostMapping("/local-login")
-  public ResponseEntity<Object> localLogin(
+  public ResponseEntity<String> localLogin(
       @Valid
       @RequestBody UserLoginRequestDto userLoginRequestDto,
       HttpServletRequest request
@@ -56,6 +56,7 @@ public class UserAuthController {
           userLoginRequestDto.getEmail(),
           userLoginRequestDto.getPassword()
       );
+      System.out.println("로그인 시도: " + userResponse.getEmail()); // 로그 찍기
 
       HttpSession session = request.getSession(true);
 
@@ -70,7 +71,8 @@ public class UserAuthController {
       userResponse.setRead(notificationService.hasUnreadNotifications(
           userResponse.getEmail()));
 
-      return ResponseEntity.ok(userResponse);
+      String loginSuccessMessage = "로그인 성공! 환영합니다, " + userResponse.getNickname() + " 님.";
+      return ResponseEntity.ok(loginSuccessMessage);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }

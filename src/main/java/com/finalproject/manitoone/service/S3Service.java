@@ -47,6 +47,12 @@ public class S3Service {
     User user = userRepository.findByEmail(email)
         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
+    String existingImageUrl = user.getProfileImage();
+    if (existingImageUrl != null) {
+      String existingFileName = existingImageUrl.substring(existingImageUrl.lastIndexOf("/") + 1);
+      amazonS3.deleteObject(bucket, existingFileName);
+    }
+
     String newFileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
     ObjectMetadata metadata = new ObjectMetadata();
     metadata.setContentType(image.getContentType());

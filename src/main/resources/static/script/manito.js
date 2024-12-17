@@ -79,13 +79,17 @@ class ManitoLetterModal extends BaseModal {
         return;
       }
 
-      const existingButton = document.createElement('button');
-      existingButton.className = 'reply-button';
-      existingButton.style.cssText = 'display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto;';
-      existingButton.textContent = '이미 편지를 작성하셨습니다';
-      existingButton.disabled = true;
-
-      sendButton.parentNode.replaceChild(existingButton, sendButton);
+      const actionButtons = sendButton.closest('.action-buttons');
+      if (actionButtons) {
+        actionButtons.innerHTML = `
+                <button class="reply-button"
+                    style="display: flex; padding: 0.5rem 1.7rem; font-size: 1.3rem; margin: 0 auto;"
+                    disabled>
+                    이미 편지를 작성하셨습니다
+                </button>
+                <div class="remaining-time" id="remainingTime"></div>
+            `;
+      }
     } catch (error) {
       console.error('Error updating button state:', error);
     }

@@ -199,7 +199,7 @@ function hidePost(postId) {
   }).then((response) => {
     if (response.ok) {
       alert("해당 게시글을 숨김 처리하셨습니다.");
-      window.location.href = "/";
+      window.history.back();
     } else {
       alert("해당 게시글 숨김 처리에 실패했습니다.");
     }
@@ -233,7 +233,7 @@ function deletePost(postId) {
   }).then((response) => {
     if (response.ok) {
       alert("해당 게시글을 삭제하셨습니다.");
-      window.location.href = "/";
+      window.history.back();
     } else {
       alert("해당 게시글을 삭제하지 못했습니다.");
     }

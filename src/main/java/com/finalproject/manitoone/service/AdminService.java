@@ -63,7 +63,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class AdminService {
 
-  private static final String PROFILE_IMAGE_DIR = "/home/profile/images/";
+  private static final String PROFILE_IMAGE_DIR = "/usr/local/images/profiles";
   private static final String TEST_DIR = "C:\\test_image\\";
 
   private final JPAQueryFactory queryFactory;
@@ -250,7 +250,7 @@ public class AdminService {
     if (profileImageFile == null) {
       user.updateDefaultImage();
     } else {
-      String uploadDir = TEST_DIR;
+      String uploadDir = PROFILE_IMAGE_DIR;
       File uploadDirectory = new File(uploadDir);
 
       if (!uploadDirectory.exists()) {

@@ -108,11 +108,11 @@ public class UserAuthController {
   public ResponseEntity<String> checkEmail(
       @RequestParam String email
   ) {
-    if (userAuthService.isEmailExist(email)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body(IllegalActionMessages.EMAIL_ALREADY_IN_USE.getMessage());
+    String message = userAuthService.isEmailExist(email);
+    if (message.equals(IllegalActionMessages.EMAIL_ALREADY_IN_USE.getMessage())) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
-    return ResponseEntity.ok("사용 가능한 이메일 입니다.");
+    return ResponseEntity.ok(message);
   }
 
   @GetMapping("/check-nickname")

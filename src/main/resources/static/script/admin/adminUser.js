@@ -62,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.json();
     })
     .then((data) => {
-      console.log(data)
       tableBody.innerHTML = data.content
       .map(
           (user) => `
@@ -355,7 +354,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${updatedUser.email}</td>
           <td>${updatedUser.birth}</td>
           <td>${updatedUser.role}</td>
-          <td>${formatDatetimeSecond(user.createdAt)}</td>
+          <td>${formatDatetimeSecond(updatedUser.createdAt)}</td>
           <td>${formatDatetime(updatedUser.unbannedAt)}</td>
           <td>${getStatusText(updatedUser.status)}</td>
       `;

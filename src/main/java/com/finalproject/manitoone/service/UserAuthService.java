@@ -6,6 +6,7 @@ import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -66,8 +67,16 @@ public class UserAuthService {
   @Transactional
   public UserLoginResponseDto localLogin(String email, String password) {
     User user = validateUserCredentials(email, password);
-    if (user.getStatus() != 1) {
-      throw new IllegalArgumentException("로그인할 수 없는 상태입니다. 관리자에게 문의하세요.");
+    if (user.getStatus() == 2) {
+      if (user.getUnbannedAt() != null && user.getUnbannedAt().isBefore(LocalDateTime.now())) {
+        user.updateStatus(1);
+        user.resetUnbannedAt();
+        userRepository.save(user);
+      } else {
+        throw new IllegalArgumentException(IllegalActionMessages.ACCESS_DENIED_PROHIBITED_USER.getMessage());
+      }
+    } else if (user.getStatus() == 3) {
+      throw new IllegalArgumentException(IllegalActionMessages.ACCESS_DENIED_EXPIRED_USER.getMessage());
     }
     return new UserLoginResponseDto(user);
   }

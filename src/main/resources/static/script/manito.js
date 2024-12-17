@@ -1147,6 +1147,7 @@ class ReportModal extends BaseModal {
 }
 
 async function requestMatch() {
+  const originalContent = document.querySelector('.pre-match-container').innerHTML;
   try {
     // 매칭 진행 중 상태 표시
     document.querySelector('.pre-match-container').innerHTML = `
@@ -1155,30 +1156,78 @@ async function requestMatch() {
             </div>
         `;
 
-    const response = await fetch('/api/manito/match', {
+    // 매칭 요청
+    const response = await fetch('/api/manito/match/request', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       }
     });
 
-    const data = await response.text();
+    const data = await response.json();
 
     if (!response.ok) {
-      console.log('에러 응답:', data);
-
-      if (data.includes('매칭 가능한 게시글이 없습니다')) {
-        CommonUtils.showWarningMessage('현재 마니또를 기다리고 있는 게시물이 없어요.');
-      } else {
-        CommonUtils.showWarningMessage(data || '매칭 요청 중 오류가 발생했습니다.');
-      }
-      return;
+      throw new Error(data.message || '매칭 요청 중 오류가 발생했습니다.');
     }
 
-    window.location.reload();
+    // 매칭이 시작되었음을 확인하기 위해 약간의 지연 후 상태 체크 시작
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // 매칭 상태 주기적 확인
+    const checkMatchStatus = async () => {
+      try {
+        const statusResponse = await fetch('/api/manito/match/status');
+        const statusData = await statusResponse.json();
+
+        if (!statusData) {
+          setTimeout(checkMatchStatus, 2000);
+          return;
+        }
+
+        // 매칭 진행 중인 경우
+        if (statusData.status === 'IN_PROGRESS') {
+          setTimeout(checkMatchStatus, 2000);
+          return;
+        }
+
+        // 매칭 실패한 경우
+        if (statusData.status === 'FAILED') {
+          if (statusData.message?.includes('매칭 가능한 게시글이 없습니다')) {
+            CommonUtils.showWarningMessage('현재 마니또를 기다리고 있는 게시물이 없어요.');
+            document.querySelector('.pre-match-container').innerHTML = originalContent;
+          } else {
+            CommonUtils.showWarningMessage(statusData.message);
+            document.querySelector('.pre-match-container').innerHTML = originalContent;
+          }
+          return;
+        }
+
+        // 매칭이 완료된 경우에만 페이지 리로드
+        if (statusData.status === 'COMPLETED') {
+          window.location.reload();
+          return;
+        }
+
+        // 그 외의 경우 계속 체크
+        setTimeout(checkMatchStatus, 2000);
+
+      } catch (error) {
+        console.error('매칭 상태 확인 중 오류:', error);
+        CommonUtils.showWarningMessage('매칭 상태 확인 중 오류가 발생했습니다.');
+        document.querySelector('.pre-match-container').innerHTML = originalContent;
+      }
+    };
+
+    checkMatchStatus();
+
   } catch (error) {
     console.error('매칭 요청 에러:', error);
-    CommonUtils.showWarningMessage('서버와의 통신 중 오류가 발생했습니다.');
+    if (error.message?.includes('매칭 가능한 게시글이 없습니다')) {
+      CommonUtils.showWarningMessage('현재 마니또를 기다리고 있는 게시물이 없어요.');
+    } else {
+      CommonUtils.showWarningMessage(error.message || '서버와의 통신 중 오류가 발생했습니다.');
+    }
+    document.querySelector('.pre-match-container').innerHTML = originalContent;
   }
 }
 

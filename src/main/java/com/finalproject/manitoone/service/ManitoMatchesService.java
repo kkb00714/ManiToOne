@@ -33,7 +33,8 @@ public class ManitoMatchesService {
   @Transactional(isolation = Isolation.SERIALIZABLE)
   public ManitoMatches createMatch(String nickname) {
     User user = userRepository.findUserByNickname(nickname)
-        .orElseThrow(() -> new EntityNotFoundException(ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
+        .orElseThrow(
+            () -> new EntityNotFoundException(ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
 
     // 24시간 이내 매칭 여부 확인
     LocalDateTime timeLimit = LocalDateTime.now().minusHours(24);
@@ -48,7 +49,8 @@ public class ManitoMatchesService {
     try {
       // 배정 가능한 게시글 찾기 (72시간 이내)
       LocalDateTime postTimeLimit = LocalDateTime.now().minusHours(72);
-      List<Post> assignablePosts = manitoMatchesRepository.findAssignablePosts(postTimeLimit, user.getUserId());
+      List<Post> assignablePosts = manitoMatchesRepository.findAssignablePosts(postTimeLimit,
+          user.getUserId());
 
       if (assignablePosts.isEmpty()) {
         processStatus.fail();
@@ -128,7 +130,8 @@ public class ManitoMatchesService {
   @Transactional(readOnly = true)
   public boolean hasRecentMatch(String nickname, LocalDateTime timeLimit) {
     User user = userRepository.findUserByNickname(nickname)
-        .orElseThrow(() -> new EntityNotFoundException(ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
+        .orElseThrow(
+            () -> new EntityNotFoundException(ManitoErrorMessages.USER_NOT_FOUND.getMessage()));
     return manitoMatchesRepository.hasRecentMatch(user, timeLimit);
   }
 }

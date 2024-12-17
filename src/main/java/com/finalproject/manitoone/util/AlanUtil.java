@@ -45,11 +45,11 @@ public class AlanUtil {
 
   private Integer index = 0;
   private List<String> client_ids = Arrays.asList(
-      "ENTER",
-      "YOUR",
-      "ALAN",
-      "CLIENT_IDS",
-      "HERE"
+      "0b5d05dd-8d34-407a-ba02-e177f20fef88",
+      "f698bcbe-2188-44c3-8e1a-212940906655",
+      "c7611407-a43e-49e2-b179-98d585bdeb5f",
+      "dcd1d53a-09cf-4e55-a02b-767d7cdb9f70",
+      "f7345fc5-7d4e-4004-8b6c-d9ce46e44d07"
   );
   private final String CALL_URL = "https://kdt-api-function.azurewebsites.net/api/v1/question";
   private final ObjectMapper objectMapper = new ObjectMapper();
@@ -96,7 +96,7 @@ public class AlanUtil {
             + "\n"
             + "부적절한 게시물 기준:\n"
             + "1. 답변이 어려운 내용: 단순 인사말, \"마니또 게시물입니다\"와 같은 형식적 문구, 내용이 모호하거나 불충분한 경우\n"
-            + "2. 답장하기 부담스러운 내용: 지나치게 상세한 고민, 특정인 언급, 제3자 험담, 과도한 친밀감, 답장 작성자를 유추할 수 있는 내용\n"
+            + "2. 답장하기 부담스러운 내용: 지나치게 상세한 고민, 특정인 언급, 제3자 험담, 과도한 친밀감, 답장 작성자를 유추할 수 있는 내용 등\n"
             + "3. 유해 콘텐츠: 폭력적/선정적 표현, 혐오/차별 발언, 불법 활동, 상업적 홍보\n"
             + "\n"
             + "JSON 형식으로만 답변: {\"isValid\": true/false}" + postContent;

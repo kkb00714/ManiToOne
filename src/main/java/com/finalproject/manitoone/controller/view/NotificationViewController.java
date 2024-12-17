@@ -21,6 +21,6 @@ public class NotificationViewController {
       return "redirect:/login";
     }
     model.addAttribute("notifications", notificationService.getAllUnReadNotifications(request.getSession()));
-    return "/pages/notifications";
+    return "pages/notifications";
   }
 }

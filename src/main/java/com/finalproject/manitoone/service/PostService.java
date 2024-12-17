@@ -32,9 +32,9 @@ import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import com.finalproject.manitoone.util.FileUtil;
-import java.nio.file.Paths;
 import com.finalproject.manitoone.util.NotificationUtil;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -61,7 +61,6 @@ public class PostService {
   private final NotificationRepository notificationRepository;
   private final UserService userService;
   private final FileUtil fileUtil;
-  // ManitoMatchesRepository 생성으로 인한 필드 추가
   private final ManitoMatchesRepository manitoMatchesRepository;
   private final NotificationUtil notificationUtil;
 
@@ -319,7 +318,7 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
-
+    
     Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
 
     if (existingLike.isPresent()) {
@@ -332,7 +331,8 @@ public class PostService {
     }
     
     try {
-      Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(post.getUser(), user,
+      Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(
+          post.getUser(), user,
           NotiType.LIKE_CLOVER, postId);
       // 이미 해당 게시글에 좋아요를 눌렀다면
       if (notification != null) {
@@ -341,14 +341,15 @@ public class PostService {
         notificationRepository.save(notification);
         notificationUtil.sendAlarm(post.getUser());
       } else {
-        notificationUtil.createNotification(post.getUser().getNickname(), user, NotiType.LIKE_CLOVER,
+        notificationUtil.createNotification(post.getUser().getNickname(), user,
+            NotiType.LIKE_CLOVER,
             postId);
       }
 
     } catch (IOException e) {
       log.error(e.getMessage());
     }
-    
+
     return PostResponseDto.builder()
         .postId(post.getPostId())
         .user(post.getUser())
@@ -484,24 +485,6 @@ public class PostService {
     return postResponses;
   }
 
-  // 타임라인 조회를 위한 메서드
-  public Page<PostViewResponseDto> getTimelinePosts(String nickname, Pageable pageable) {
-    User currentUser = userService.getCurrentUser(nickname);
-
-    Page<Post> posts = postRepository.findTimelinePostsByUserId(currentUser.getUserId(), pageable);
-    return posts.map(post -> {
-      PostViewResponseDto dto = new PostViewResponseDto(
-          post.getPostId(),
-          post.getUser().getProfileImage(),
-          post.getUser().getNickname(),
-          post.getContent(),
-          post.getCreatedAt(),
-          post.getUpdatedAt()
-      );
-      return addAdditionalDataToDto(List.of(dto)).get(0);
-    });
-  }
-
   // 단순 postId로 PostViewResponseDto를 가져오는 메서드 (마니또에서 씁니다)
   public PostViewResponseDto getPost(Long postId) {
     Post post = postRepository.findByPostId(postId)
@@ -517,7 +500,6 @@ public class PostService {
         post.getUpdatedAt()
     );
 
-    // addAdditionalDataToDto 메서드를 활용하여 추가 데이터(이미지, 좋아요 수, 답글) 설정
     return addAdditionalDataToDto(List.of(postResponse)).get(0);
   }
 }

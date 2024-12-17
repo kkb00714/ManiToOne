@@ -224,6 +224,7 @@ public class PostService {
     deleteReports(postId);
     deleteNotis(postId);
     deleteManitoLetters(postId);
+    deleteAiPostLogs(postId);
     postRepository.delete(post);
   }
 
@@ -261,17 +262,7 @@ public class PostService {
     userPostLikeRepository.deleteAll(postLikes);
   }
 
-//  // 마니또 편지 삭제
-//  private void deleteManitoLetters(Long postId) {
-//    List<ManitoLetter> manitoLetterList = manitoLetterRepository.findAllByPostIdPostId(postId)
-//        .orElseThrow(() -> new IllegalArgumentException(
-//            IllegalActionMessages.CANNOT_FIND_MANITO_LETTER_WITH_GIVEN_ID.getMessage()
-//        ));
-//
-//    manitoLetterRepository.deleteAll(manitoLetterList);
-//  }
-
-  // 마니또 편지 삭제 (수정된 버전)
+  // 마니또 편지 삭제
   private void deleteManitoLetters(Long postId) {
     // 해당 postId와 연결된 모든 매칭 찾기
     List<ManitoMatches> matches = manitoMatchesRepository.findAllByMatchedPostId_PostId(postId)
@@ -307,6 +298,16 @@ public class PostService {
     notificationRepository.deleteAll(notis);
   }
 
+  // AI 포스트 요약 삭제
+  private void deleteAiPostLogs(Long postId) {
+    List<AiPostLog> logs = aiPostLogRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_AI_POST_LOG.getMessage()
+        ));
+
+    aiPostLogRepository.deleteAll(logs);
+  }
+
   // 게시글 숨기기
   public void hidePost(Long postId, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
@@ -318,7 +319,7 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
     post.hidePost(!Boolean.TRUE.equals(post.getIsHidden()));
-    
+
     if (!user.equals(post.getUser())) {
       throw new IllegalArgumentException(IllegalActionMessages.CANNOT_HIDE_POST.getMessage());
     }
@@ -336,13 +337,14 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
-    
+
     userPostLikeRepository.save(UserPostLike.builder()
         .post(post)
         .user(user)
         .build());
-    
-    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
+
+    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(
+        user.getUserId(), post.getPostId());
 
     if (existingLike.isPresent()) {
       userPostLikeRepository.delete(existingLike.get());
@@ -352,7 +354,7 @@ public class PostService {
           .user(user)
           .build());
     }
-    
+
     try {
       Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(
           post.getUser(), user,

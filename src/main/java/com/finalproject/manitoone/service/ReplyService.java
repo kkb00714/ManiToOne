@@ -42,7 +42,7 @@ public class ReplyService {
   private final NotificationUtil notificationUtil;
 
   // 답글 생성
-  public ReplyResponseDto createReply(Long postId, AddReplyRequestDto request, String email) {
+  public ReplyResponseDto createReply(Long postId, String content, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
@@ -54,7 +54,7 @@ public class ReplyService {
     ReplyPost reply = replyPostRepository.save(ReplyPost.builder()
         .post(post)
         .user(user)
-        .content(request.getContent())
+        .content(content)
         .build());
 
     try {
@@ -75,7 +75,7 @@ public class ReplyService {
   }
 
   // 답글의 답글 생성
-  public ReplyResponseDto createReReply(Long replyId, AddReplyRequestDto request, String email) {
+  public ReplyResponseDto createReReply(Long replyId, String content, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
@@ -89,7 +89,7 @@ public class ReplyService {
     ReplyPost childReply = replyPostRepository.save(ReplyPost.builder()
         .post(parentReply.getPost())
         .user(user)
-        .content(request.getContent())
+        .content(content)
         .parentId(parentReply.getReplyPostId())
         .build());
 
@@ -112,7 +112,7 @@ public class ReplyService {
   }
 
   // 답글 수정
-  public ReplyResponseDto updateReply(Long replyId, UpdateReplyRequestDto request, String email) {
+  public ReplyResponseDto updateReply(Long replyId, String content, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
@@ -126,7 +126,7 @@ public class ReplyService {
       throw new IllegalArgumentException(IllegalActionMessages.DIFFERENT_USER.getMessage());
     }
 
-    reply.updateReply(request.getContent());
+    reply.updateReply(content);
 
     ReplyPost updatedReply = replyPostRepository.save(reply);
 
@@ -137,7 +137,6 @@ public class ReplyService {
         .replyPostId(updatedReply.getReplyPostId())
         .content(updatedReply.getContent())
         .createdAt(updatedReply.getCreatedAt())
-        .isBlind(updatedReply.getIsBlind())
         .build();
   }
 

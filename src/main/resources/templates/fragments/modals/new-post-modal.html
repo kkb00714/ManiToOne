@@ -1,19 +1,27 @@
 <!-- 새 게시물 작성 모달 시작-->
 <div
-    class="new-post-form-modal"
-    id="newPostFormModalBackground"
-    th:fragment="new-post-modal"
+  class="new-post-form-modal"
+  id="newPostFormModalBackground"
+  th:fragment="new-post-modal"
 >
-  <div class="new-post-form-modal-container" id="newPostFormModalContainer">
+  <form
+    class="new-post-form-modal-container"
+    id="newPostFormModalContainer"
+    th:action="@{/api/post}"
+    method="post"
+    th:onsubmit="'onPostSubmit(this)'"
+    enctype="multipart/form-data"
+  >
     <div class="new-post-title">
       <p>새 게시물 작성</p>
       <img
-          class="tiny-icons"
-          id="closePostFormModalBtn"
-          th:src="@{/images/icons/icon-cancel.png}"
-          alt="close icon"
+        class="tiny-icons"
+        id="closePostFormModalBtn"
+        th:src="@{/images/icons/icon-cancel.png}"
+        alt="close icon"
       />
     </div>
+
     <div class="new-post-content-container">
       <div class="new-post-content">
         <img
@@ -23,10 +31,10 @@
         />
         <div class="new-post-text-container">
           <textarea
-              name="content"
-              id="new-post-content"
-              class="new-post-text"
-              placeholder="나누고 싶은 글을 작성해주세요"
+            name="content"
+            id="new-post-content"
+            class="new-post-text"
+            placeholder="나누고 싶은 글을 작성해주세요"
           ></textarea>
           <p class="letter-count" id="count500">500/500</p>
         </div>
@@ -34,39 +42,52 @@
 
       <div
         class="manito-response-toggle"
-        onclick="toggleManito(this, 'response'); thisIsManito();"
+        onclick="togglesManito(this, 'response')"
       >
         <img
-            class="tiny-icons"
-            th:src="@{/images/icons/icon-check-empty.png}"
-            alt="check icon`"
-            data-checked-src="@{/images/icons/icon-check.png}"
-            data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+          class="tiny-icons"
+          th:src="@{/images/icons/icon-check-empty.png}"
+          alt="check icon"
+          data-checked-src="@{/images/icons/icon-check.png}"
+          data-unchecked-src="@{/images/icons/icon-check-empty.png}"
         />
         <p>이 게시물에 대해 마니또의 답변을 받습니다.</p>
       </div>
+
       <div
-          class="ai-response-toggle"
-          onclick="toggleAI(this)"
-          style="opacity: 0.3;"
+        class="ai-response-toggle"
+        onclick="toggleAI(this)"
+        style="opacity: 0.3"
       >
         <img
-            class="tiny-icons"
-            th:src="@{/images/icons/icon-check-empty.png}"
-            alt="check icon"
-            data-checked-src="@{/images/icons/icon-check.png}"
-            data-unchecked-src="@{/images/icons/icon-check-empty.png}"/>
+          class="tiny-icons"
+          th:src="@{/images/icons/icon-check-empty.png}"
+          alt="check icon"
+          data-checked-src="@{/images/icons/icon-check.png}"
+          data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+        />
         <p>이 게시물에 대해 AI의 피드백을 받습니다.</p>
       </div>
     </div>
+
     <div class="post-button-container">
-      <img
-          class="tiny-icons"
-          th:src="@{/images/icons/icon-image2.png}"
-          alt="add image icon"
+      <input
+        type="file"
+        id="image-upload-btn"
+        name="images"
+        accept="image/jpeg, image/png"
+        multiple
+        onchange="countImages(this)"
+        style="display: none"
       />
-      <button class="post-button" th:onclick="'submitPost()'">게시하기</button>
+      <img
+        class="tiny-icons"
+        th:src="@{/images/icons/icon-image2.png}"
+        alt="add image icon"
+        onclick="document.getElementById('image-upload-btn').click()"
+      />
+      <button class="post-button" type="submit">게시하기</button>
     </div>
-  </div>
+  </form>
 </div>
 <!-- 새 게시물 작성 모달 끝-->

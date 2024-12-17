@@ -1148,6 +1148,13 @@ class ReportModal extends BaseModal {
 
 async function requestMatch() {
   try {
+    // 매칭 진행 중 상태 표시
+    document.querySelector('.pre-match-container').innerHTML = `
+            <div class="pre-match-content">
+                <h2 class="pre-match-title">매칭이 진행 중입니다...</h2>
+            </div>
+        `;
+
     const response = await fetch('/api/manito/match', {
       method: 'POST',
       headers: {

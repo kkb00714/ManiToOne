@@ -3,7 +3,6 @@ package com.finalproject.manitoone.service;
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.domain.AiPostLog;
-import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.domain.PostImage;
@@ -31,6 +30,7 @@ import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -234,7 +234,7 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
-    post.hidePost(true);
+    post.hidePost(!Boolean.TRUE.equals(post.getIsHidden()));
 
     postRepository.save(post);
   }
@@ -250,10 +250,16 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
 
-    userPostLikeRepository.save(UserPostLike.builder()
-        .post(post)
-        .user(user)
-        .build());
+    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
+
+    if (existingLike.isPresent()) {
+      userPostLikeRepository.delete(existingLike.get());
+    } else {
+      userPostLikeRepository.save(UserPostLike.builder()
+          .post(post)
+          .user(user)
+          .build());
+    }
   }
 
   // 게시글 신고

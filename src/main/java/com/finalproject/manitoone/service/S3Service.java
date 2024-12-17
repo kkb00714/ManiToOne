@@ -58,6 +58,7 @@ public class S3Service {
 
     String newImageUrl = getPublicUrl(newFileName);
     user.updateProfileImage(newImageUrl);
+    userRepository.save(user);
     return newImageUrl;
   }
 }

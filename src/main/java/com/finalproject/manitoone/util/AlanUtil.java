@@ -45,11 +45,11 @@ public class AlanUtil {
 
   private Integer index = 0;
   private List<String> client_ids = Arrays.asList(
-      "0b5d05dd-8d34-407a-ba02-e177f20fef88",
-      "f698bcbe-2188-44c3-8e1a-212940906655",
-      "c7611407-a43e-49e2-b179-98d585bdeb5f",
-      "dcd1d53a-09cf-4e55-a02b-767d7cdb9f70",
-      "f7345fc5-7d4e-4004-8b6c-d9ce46e44d07"
+      "ENTER",
+      "YOUR",
+      "ALAN",
+      "CLIENT_IDS",
+      "HERE"
   );
   private final String CALL_URL = "https://kdt-api-function.azurewebsites.net/api/v1/question";
   private final ObjectMapper objectMapper = new ObjectMapper();

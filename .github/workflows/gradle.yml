@@ -11,7 +11,6 @@ env:
   AWS_REGION: ap-northeast-2
   CODEDEPLOY_NAME: app-deploy-application
   CODEDEPLOY_GROUP: app-deploy-group
-  JASYPT_ENCRYPTOR_PASSWORD: ${{ secrets.JASYPT_KEY }} 
     
 jobs:
   build:
@@ -30,6 +29,14 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew 
+
+      # AWS SSM에서 JASYPT_KEY 가져오기
+    - name: Fetch JASYPT_KEY from AWS SSM
+      run: |
+        echo "Fetching JASYPT_KEY from AWS SSM Parameter Store..."
+        export JASYPT_ENCRYPTOR_PASSWORD=$(aws ssm get-parameter --name "JASYPT_KEY" --with-decryption --region ap-northeast-2 --query "Parameter.Value" --output text)
+        echo "JASYPT_KEY fetched successfully"
+        echo "JASYPT_ENCRYPTOR_PASSWORD=${JASYPT_ENCRYPTOR_PASSWORD}" >> $GITHUB_ENV
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build -x test

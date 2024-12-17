@@ -37,13 +37,6 @@ public interface ManitoMatchesRepository extends JpaRepository<ManitoMatches, Lo
       @Param("timeLimit") LocalDateTime timeLimit,
       @Param("userId") Long userId);
 
-  // 편지 미작성된 MATCHED 상태 매칭 중 24시간 경과된 것 찾기
-  @Query("SELECT m FROM ManitoMatches m " +
-      "WHERE m.status = 'MATCHED' " +
-      "AND m.matchedTime < :timeLimit " +
-      "AND NOT EXISTS (SELECT l FROM ManitoLetter l WHERE l.manitoMatches = m)")
-  List<ManitoMatches> findExpiredMatchesWithoutLetter(@Param("timeLimit") LocalDateTime timeLimit);
-
   // 유저의 가장 최근 매칭 조회 (24시간 이내)
   @Query("SELECT m FROM ManitoMatches m " +
       "LEFT JOIN FETCH m.matchedPostId p " +

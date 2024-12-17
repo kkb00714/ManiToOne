@@ -105,6 +105,7 @@
                     type="button"
                     class="list-group-item list-group-item-action"
                     aria-current="true"
+                    th:if="${currentUser == post.user}"
                     th:onclick="'openUpdatePostModal()'"
                   >
                     수정하기
@@ -112,6 +113,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == post.user}"
                     th:onclick="'hidePost(' + ${post.postId} + ')'"
                   >
                     숨기기
@@ -119,6 +121,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == post.user}"
                     th:onclick="'deletePost(' + ${post.postId} + ')'"
                   >
                     삭제하기
@@ -350,6 +353,7 @@
                     type="button"
                     class="list-group-item list-group-item-action"
                     aria-current="true"
+                    th:if="${currentUser == reply.user}"
                     th:onclick="'openUpdateReplyModal()'"
                   >
                     수정하기
@@ -357,6 +361,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == reply.user}"
                     th:onclick="'hideReply(' + ${reply.replyPostId} + ')'"
                   >
                     숨기기
@@ -364,6 +369,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == reply.user}"
                     th:onclick="'deleteReply(' + ${reply.replyPostId} +')'"
                   >
                     삭제하기
@@ -664,6 +670,7 @@
                     type="button"
                     class="list-group-item list-group-item-action"
                     aria-current="true"
+                    th:if="${currentUser == rereply.user}"
                     th:onclick="'openUpdateRereplyModal()'"
                   >
                     수정하기
@@ -671,6 +678,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == rereply.user}"
                     th:onclick="'hideReply(' + ${rereply.replyPostId} + ')'"
                   >
                     숨기기
@@ -678,6 +686,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == rereply.user}"
                     th:onclick="'deleteReply(' + ${rereply.replyPostId} + ')'"
                   >
                     삭제하기

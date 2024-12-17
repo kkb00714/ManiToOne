@@ -10,6 +10,7 @@
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
   <link rel="stylesheet" th:href="@{/style/profile.css}">
   <link rel="stylesheet" th:href="@{/style/profile-password-view.css}"/>
+  <link rel="stylesheet" th:href="@{/style/fileModal.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -79,6 +80,7 @@
       <div th:replace="~{fragments/modals/profile-update-modal :: profile-update-modal}"></div>
       <div th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"></div>
       <div th:replace="~{fragments/modals/manito-confirm-message-modal :: manito-confirm-message-modal}"></div>
+      <div th:replace="~{fragments/modals/report-modal :: report-modal}"></div>
 
       <!--작성 시간, 답글 보이지 않는 가장 기본 게시글 덩어리-->
       <div id="postsContainer" class="posts-container">

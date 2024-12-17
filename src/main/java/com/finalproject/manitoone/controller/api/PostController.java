@@ -8,6 +8,7 @@ import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.service.PostService;
 import jakarta.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,13 +41,21 @@ public class PostController {
   // 게시글 생성
   // TODO: 이미지 업로드
   @PostMapping
-  public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
+  public ResponseEntity<PostResponseDto> createPost(@RequestParam("content") String content,
+      @RequestParam("isManito") Boolean isManito,
+      @RequestParam(value = "images", required = false) MultipartFile[] images,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 
-    System.out.println("email: " + email);
-    System.out.println("content: " + request.getContent());
-    System.out.println(request.getIsManito());
+    if (images != null && images.length > 4) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    AddPostRequestDto request = AddPostRequestDto.builder()
+        .content(content)
+        .isManito(isManito)
+        .images(images)
+        .build();
 
     return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, email));
   }
@@ -54,9 +64,13 @@ public class PostController {
   // TODO: 이미지 수정
   @PutMapping("/{postId}")
   public ResponseEntity<PostResponseDto> updatePost(@PathVariable("postId") Long postId,
-      @RequestBody UpdatePostRequestDto request,
+      @RequestParam("content") String content,
       HttpSession session) {
-    String email = session.getAttribute("email") + "";
+    String email = (String) session.getAttribute("email");
+
+    UpdatePostRequestDto request = UpdatePostRequestDto.builder()
+        .content(content)
+        .build();
 
     return ResponseEntity.ok(postService.updatePost(postId, request, email));
   }

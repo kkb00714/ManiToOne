@@ -101,6 +101,7 @@
                     type="button"
                     class="list-group-item list-group-item-action"
                     aria-current="true"
+                    th:onclick="'openUpdatePostModal()'"
                   >
                     수정하기
                   </button>
@@ -128,6 +129,95 @@
                 </div>
               </div>
 
+              <!-- 게시글 수정 모달 -->
+              <div class="new-post-form-modal" id="updatePostFormModal">
+                <div
+                  class="new-post-form-modal-container"
+                  id="updatePostFormModalContainer"
+                >
+                  <div class="new-post-title">
+                    <p>게시물 수정</p>
+                    <img
+                      class="tiny-icons"
+                      id="closePostFormModalBtn"
+                      th:src="@{/images/icons/icon-cancel.png}"
+                      alt="close icon"
+                      th:onclick="'closeUpdatePostModal()'"
+                    />
+                  </div>
+
+                  <div class="new-post-content-container">
+                    <div class="new-post-content">
+                      <img
+                        class="user-photo"
+                        th:src="@{${post.user.profileImage}}"
+                        alt="user icon"
+                      />
+                      <div class="new-post-text-container">
+                        <textarea
+                          name="content"
+                          id="new-post-content"
+                          class="new-post-text"
+                          placeholder="나누고 싶은 글을 작성해주세요"
+                        ></textarea>
+                        <p class="letter-count" id="count500">500/500</p>
+                      </div>
+                    </div>
+
+                    <div class="manito-response-toggle">
+                      <img
+                        class="tiny-icons"
+                        th:src="@{/images/icons/icon-check-empty.png}"
+                        alt="check icon"
+                        data-checked-src="@{/images/icons/icon-check.png}"
+                        data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+                      />
+                      <p>이 게시물에 대해 마니또의 답변을 받습니다.</p>
+                    </div>
+
+                    <div
+                      class="ai-response-toggle"
+                      onclick="toggleAI(this)"
+                      style="opacity: 0.3"
+                    >
+                      <img
+                        class="tiny-icons"
+                        th:src="@{/images/icons/icon-check-empty.png}"
+                        alt="check icon"
+                        data-checked-src="@{/images/icons/icon-check.png}"
+                        data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+                      />
+                      <p>이 게시물에 대해 AI의 피드백을 받습니다.</p>
+                    </div>
+                  </div>
+
+                  <div class="post-button-container">
+                    <input
+                      type="file"
+                      id="image-upload-btn"
+                      name="images"
+                      accept="image/jpeg, image/png"
+                      multiple
+                      onchange="countImages(this)"
+                      style="display: none"
+                    />
+                    <img
+                      class="tiny-icons"
+                      th:src="@{/images/icons/icon-image2.png}"
+                      alt="add image icon"
+                      onclick="document.getElementById('image-upload-btn').click()"
+                    />
+                    <button
+                      class="post-button"
+                      type="submit"
+                      th:onclick="'onUpdatePostSubmit(' + ${post.postId} + ')'"
+                    >
+                      수정하기
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <!-- 게시글 신고 모달 -->
               <div class="report-modal" id="postReportModal">
                 <form
@@ -135,6 +225,7 @@
                   id="postReportModalContainer"
                   th:action="@{/api/post/report/{postId}(postId=${post.postId})}"
                   method="post"
+                  th:onsubmit="'onPostReportSubmit(event)'"
                 >
                   <div class="report-title">
                     <p>신고하기</p>
@@ -185,8 +276,83 @@
               </div>
             </div>
 
-            <div id="reply-divider">
+            <div id="reply-divider" th:onclick="'openNewReplyModal()'">
               <p id="reply-divider-text">답글</p>
+            </div>
+
+            <!-- 답글 작성 모달 -->
+            <div class="new-post-form-modal" id="newReplyFormModal">
+              <div
+                class="new-post-form-modal-container"
+                id="newReplyFormModalContainer"
+              >
+                <div class="new-post-title">
+                  <p>답글 작성</p>
+                  <img
+                    class="tiny-icons"
+                    id="closeNewReplyFormModalBtn"
+                    th:src="@{/images/icons/icon-cancel.png}"
+                    alt="close icon"
+                    th:onclick="'closeNewReplyModal()'"
+                  />
+                </div>
+
+                <div class="new-post-content-container">
+                  <div class="new-post-content">
+                    <img
+                      class="user-photo"
+                      th:src="@{${currentUser.profileImage}}"
+                      alt="user icon"
+                    />
+                    <div class="new-post-text-container">
+                      <textarea
+                        name="content"
+                        id="new-reply-content"
+                        class="new-post-text"
+                        placeholder="나누고 싶은 글을 작성해주세요"
+                      ></textarea>
+                      <p class="letter-count" id="countTo500">500/500</p>
+                    </div>
+                  </div>
+
+                  <div class="manito-response-toggle">
+                    <img
+                      class="tiny-icons"
+                      th:src="@{/images/icons/icon-check-empty.png}"
+                      alt="check icon"
+                      data-checked-src="@{/images/icons/icon-check.png}"
+                      data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+                    />
+                    <p>이 게시물에 대해 마니또의 답변을 받습니다.</p>
+                  </div>
+
+                  <div class="ai-response-toggle" style="opacity: 0.3">
+                    <img
+                      class="tiny-icons"
+                      th:src="@{/images/icons/icon-check-empty.png}"
+                      alt="check icon"
+                      data-checked-src="@{/images/icons/icon-check.png}"
+                      data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+                    />
+                    <p>이 게시물에 대해 AI의 피드백을 받습니다.</p>
+                  </div>
+                </div>
+
+                <div class="post-button-container">
+                  <img
+                    class="tiny-icons"
+                    th:src="@{/images/icons/icon-image2.png}"
+                    alt="add image icon"
+                  />
+                  <button
+                    class="post-button"
+                    type="submit"
+                    th:onclick="'onNewReplySubmit(' + ${post.postId} + ')'"
+                  >
+                    작성하기
+                  </button>
+                </div>
+              </div>
             </div>
 
             <!-- 답글 -->
@@ -259,6 +425,7 @@
                     type="button"
                     class="list-group-item list-group-item-action"
                     aria-current="true"
+                    th:onclick="'openUpdateReplyModal()'"
                   >
                     수정하기
                   </button>
@@ -286,6 +453,85 @@
                 </div>
               </div>
 
+              <!-- 답글 수정 모달 -->
+              <div class="new-post-form-modal" id="updateReplyFormModal">
+                <div
+                  class="new-post-form-modal-container"
+                  id="updateReplyFormModalContainer"
+                >
+                  <div class="new-post-title">
+                    <p>답글 수정</p>
+                    <img
+                      class="tiny-icons"
+                      id="closeReplyFormModalBtn"
+                      th:src="@{/images/icons/icon-cancel.png}"
+                      alt="close icon"
+                      th:onclick="'closeUpdateReplyModal()'"
+                    />
+                  </div>
+
+                  <div class="new-post-content-container">
+                    <div class="new-post-content">
+                      <img
+                        class="user-photo"
+                        th:src="@{${reply.user.profileImage}}"
+                        alt="user icon"
+                      />
+                      <div class="new-post-text-container">
+                        <textarea
+                          name="content"
+                          id="update-reply-content"
+                          class="new-post-text"
+                          placeholder="나누고 싶은 글을 작성해주세요"
+                        ></textarea>
+                        <p class="letter-count" id="count-500">500/500</p>
+                      </div>
+                    </div>
+
+                    <div class="manito-response-toggle">
+                      <img
+                        class="tiny-icons"
+                        th:src="@{/images/icons/icon-check-empty.png}"
+                        alt="check icon"
+                        data-checked-src="@{/images/icons/icon-check.png}"
+                        data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+                      />
+                      <p>이 게시물에 대해 마니또의 답변을 받습니다.</p>
+                    </div>
+
+                    <div
+                      class="ai-response-toggle"
+                      onclick="toggleAI(this)"
+                      style="opacity: 0.3"
+                    >
+                      <img
+                        class="tiny-icons"
+                        th:src="@{/images/icons/icon-check-empty.png}"
+                        alt="check icon"
+                        data-checked-src="@{/images/icons/icon-check.png}"
+                        data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+                      />
+                      <p>이 게시물에 대해 AI의 피드백을 받습니다.</p>
+                    </div>
+                  </div>
+
+                  <div class="post-button-container">
+                    <img
+                      class="tiny-icons"
+                      th:src="@{/images/icons/icon-image2.png}"
+                      alt="add image icon"
+                    />
+                    <button
+                      class="post-button"
+                      type="submit"
+                      th:onclick="'onUpdateReplySubmit(' + ${reply.replyPostId} +')'"
+                    >
+                      수정하기
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <!-- 답글 신고 모달 -->
               <div class="report-modal" id="replyReportModal">
                 <form
@@ -293,6 +539,7 @@
                   id="replyReportModalContainer"
                   th:action="@{/api/reply/report/{replyId}(replyId=${reply.replyPostId})}"
                   method="post"
+                  th:onsubmit="'onReplyReportSubmit(event)'"
                 >
                   <div class="report-title">
                     <p>신고하기</p>

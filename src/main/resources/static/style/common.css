@@ -1,4 +1,7 @@
 /* 공용 서식 설정 */
+.ai-feedback-content {
+  font-size: 0.9rem !important;
+}
 
 body {
   background-color: #ebedeb;

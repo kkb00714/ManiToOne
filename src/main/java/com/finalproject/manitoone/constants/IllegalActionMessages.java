@@ -41,7 +41,9 @@ public enum IllegalActionMessages {
 
   ACCESS_DENIED_PROHIBITED_USER("정지된 계정입니다. 관리자에게 문의하세요."),
   ACCESS_DENIED_EXPIRED_USER("탈퇴된 계정입니다. 관리자에게 문의하세요."),
-  UNAUTORIZED("권한이 없습니다.");
+  UNAUTORIZED("권한이 없습니다."),
+
+  SESSION_REQUIRED("로그인이 필요합니다.");
 
   private final String message;
 }

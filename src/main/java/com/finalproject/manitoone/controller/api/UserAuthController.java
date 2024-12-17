@@ -8,10 +8,12 @@ import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
 import com.finalproject.manitoone.domain.dto.UserUpdateDto;
 import com.finalproject.manitoone.service.CustomOAuth2UserService;
 import com.finalproject.manitoone.service.NotificationService;
+import com.finalproject.manitoone.service.S3Service;
 import com.finalproject.manitoone.service.UserAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -133,26 +135,17 @@ public class UserAuthController {
 
   @PutMapping("/update")
   public ResponseEntity<String> updateUser(
-      @SessionAttribute(name = "email", required = false) String sessionEmail,
-      @RequestBody @Valid UserUpdateDto updateDto,
-      BindingResult bindingResult,
-      @RequestParam("file") MultipartFile file) {
-
-    if (sessionEmail == null) {
-      return ResponseEntity.status(401).body("로그인이 필요합니다.");
+      @Valid @RequestBody UserUpdateDto updateDto,
+      HttpServletRequest request
+  ) {
+    HttpSession session = request.getSession(false);
+    if (session == null || session.getAttribute("email") == null) {
+      throw new IllegalStateException("로그인 상태가 아닙니다. 다시 로그인해주세요.");
     }
 
-    if (!sessionEmail.equals(updateDto.getEmail())) {
-      return ResponseEntity.status(403).body("자신의 정보만 수정할 수 있습니다.");
-    }
+    String sessionEmail = (String) session.getAttribute("email");
 
-    // 유효성 검사 오류 체크
-    if (bindingResult.hasErrors()) {
-      return ResponseEntity.badRequest().body("입력값이 올바르지 않습니다.");
-    }
-
-    String responseMessage = userAuthService.updateUser(sessionEmail, updateDto);
-    return ResponseEntity.ok(responseMessage);
+    String result = userAuthService.updateUser(sessionEmail, updateDto);
+    return ResponseEntity.ok(result);
   }
-
 }

@@ -355,6 +355,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${updatedUser.email}</td>
           <td>${updatedUser.birth}</td>
           <td>${updatedUser.role}</td>
+          <td>${formatDatetimeSecond(user.createdAt)}</td>
           <td>${formatDatetime(updatedUser.unbannedAt)}</td>
           <td>${getStatusText(updatedUser.status)}</td>
       `;

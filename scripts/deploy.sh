@@ -19,8 +19,8 @@ else
   echo "## kill -15 $CURRENT_PID"
   kill -15 $CURRENT_PID
   sleep 5
-fi
 
+fi
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
 echo "## deploy JAR file"   >> /home/ec2-user/action/spring-deploy.log
 nohup java -jar $DEPLOY_JAR >> /home/ec2-user/action/spring-deploy.log 2> /home/ec2-user/action/spring-deploy_err.log &

@@ -33,6 +33,7 @@ import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import com.finalproject.manitoone.util.FileUtil;
+import jakarta.transaction.Transactional;
 import java.nio.file.Paths;
 import com.finalproject.manitoone.util.NotificationUtil;
 import java.io.IOException;
@@ -67,26 +68,20 @@ public class PostService {
 
   // 게시글 생성 (미완성)
   // TODO: 이미지 업로드
-  @Async
+  @Transactional
   public PostResponseDto createPost(AddPostRequestDto request, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
     ));
 
-    Boolean isManito = false;
-
-    if (request.getIsManito().equals("true")) {
-      isManito = true;
-    }
-
     Post post = postRepository.save(Post.builder()
         .content(request.getContent())
         .user(user)
-        .isManito(isManito)
+        .isManito(request.getIsManito())
         .build());
 
-    AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
-    aiPostLogRepository.save(aiPost);
+//    AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
+//    aiPostLogRepository.save(aiPost);
 
     return PostResponseDto.builder()
         .postId(post.getPostId())
@@ -324,9 +319,10 @@ public class PostService {
         .post(post)
         .user(user)
         .build());
-    
+
     try {
-      Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(post.getUser(), user,
+      Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(
+          post.getUser(), user,
           NotiType.LIKE_CLOVER, postId);
       // 이미 해당 게시글에 좋아요를 눌렀다면
       if (notification != null) {
@@ -335,14 +331,15 @@ public class PostService {
         notificationRepository.save(notification);
         notificationUtil.sendAlarm(post.getUser());
       } else {
-        notificationUtil.createNotification(post.getUser().getNickname(), user, NotiType.LIKE_CLOVER,
+        notificationUtil.createNotification(post.getUser().getNickname(), user,
+            NotiType.LIKE_CLOVER,
             postId);
       }
 
     } catch (IOException e) {
       log.error(e.getMessage());
     }
-    
+
     return PostResponseDto.builder()
         .postId(post.getPostId())
         .user(post.getUser())

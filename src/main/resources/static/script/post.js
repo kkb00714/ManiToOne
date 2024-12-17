@@ -53,36 +53,74 @@ function directToPost(postId) {
 // 마니또 여부 확인
 let isManito = false;
 
-async function thisIsManito() {
-  isManito = true;
+function togglesManito(element, responseType) {
+  const imgElement = element.querySelector("img");
+
+  if (!imgElement) {
+    return;
+  }
+
+  const isChecked = imgElement.src.includes("icon-check.png");
+
+  if (isChecked) {
+    imgElement.src = imgElement
+      .getAttribute("data-unchecked-src")
+      .replace("@{", "")
+      .replace("}", "");
+    element.style.opacity = "0.3";
+    isManito = false;
+  } else {
+    imgElement.src = imgElement
+      .getAttribute("data-checked-src")
+      .replace("@{", "")
+      .replace("}", "");
+    element.style.opacity = "1";
+    isManito = true;
+  }
+
+  console.log(`isManito: ${isManito}`);
 }
 
-console.log(isManito);
-
 // 게시글 작성
-function submitPost() {
-  const content = document.getElementById("new-post-content").value.trim();
-  console.log(content);
+async function onPostSubmit(event) {
+  event.preventDefault();
 
-  const formData = new FormData();
+  const form = event.target;
+  const baseUrl = form.action;
+
+  const content = document.getElementById("new-post-content").value.trim();
+
+  console.log("content: ", content);
+
+  if (!content) {
+    alert("내용을 입력해주세요.");
+    return;
+  }
+
+  const formData = new URLSearchParams();
   formData.append("content", content);
   formData.append("isManito", isManito);
 
-  for (let [key, value] of formData.entries()) {
-    console.log(`${key} : ${value}`);
-  }
+  console.log("Data: ", formData);
 
-  fetch("/api/post", {
-    method: "POST",
-    body: formData,
-  }).then((response) => {
+  try {
+    const response = await fetch(baseUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formData.toString()
+    });
+
     if (response.ok) {
-      alert("게시글 작성을 완료했습니다.");
-      window.location.reload();
+      alert("게시글을 작성하셨습니다.");
     } else {
-      alert("게시글 작성에 실패했습니다.");
+      alert("게시글 작성에 실패하셨습니다.");
     }
-  });
+  } catch (error) {
+    alert("오류가 발생했습니다.");
+    console.log("게시글 작성 오류: ", error);
+  }
 }
 
 // 게시글 추가 기능 모달

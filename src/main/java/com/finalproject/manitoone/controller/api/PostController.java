@@ -39,13 +39,13 @@ public class PostController {
   // 게시글 생성
   // TODO: 이미지 업로드
   @PostMapping
-  public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
+  public ResponseEntity<PostResponseDto> createPost(@RequestParam("content") String content,
+      @RequestParam("isManito") Boolean isManito,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 
-    System.out.println("email: " + email);
-    System.out.println("content: " + request.getContent());
-    System.out.println(request.getIsManito());
+    AddPostRequestDto request = AddPostRequestDto.builder().content(content).isManito(isManito)
+        .build();
 
     return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, email));
   }

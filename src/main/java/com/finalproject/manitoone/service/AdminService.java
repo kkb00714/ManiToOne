@@ -241,6 +241,9 @@ public class AdminService {
             IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
 
     if (profileImageFile == null) {
+      if (!user.isDefaultImage()) {
+        s3Service.deleteImage(user.getProfileImage());
+      }
       user.updateDefaultImage();
     } else {
       try {

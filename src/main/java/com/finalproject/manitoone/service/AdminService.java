@@ -44,14 +44,13 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -65,6 +64,8 @@ public class AdminService {
 
   private static final String PROFILE_IMAGE_DIR = "/usr/local/images/profiles";
   private static final String TEST_DIR = "C:\\test_image\\";
+
+  private final S3Service s3Service;
 
   private final JPAQueryFactory queryFactory;
 
@@ -233,35 +234,20 @@ public class AdminService {
     return userRepository.existsByNickname(nickname);
   }
 
-  public UserProfileResponseDto updateProfileImage(Long userId, MultipartFile profileImageFile) {
+  public UserProfileResponseDto updateProfileImage(Long userId, MultipartFile profileImageFile)
+      throws IOException {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()));
 
-    if (user.getProfileImage() != null && !user.isDefaultImage()) {
-      String existingImagePath = user.getProfileImage(); // 기존 이미지의 절대 경로를 구성
-      File existingImageFile = new File(existingImagePath);
-
-      if (existingImageFile.exists()) {
-        fileUtil.cleanUp(Paths.get(existingImagePath));
-      }
-    }
-
     if (profileImageFile == null) {
       user.updateDefaultImage();
     } else {
-      String uploadDir = PROFILE_IMAGE_DIR;
-      File uploadDirectory = new File(uploadDir);
-
-      if (!uploadDirectory.exists()) {
-        fileUtil.createDir(Paths.get(uploadDir));
+      try {
+        s3Service.updateProfileImage(user.getEmail(), profileImageFile);
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException("이미지 변경을 실패했습니다.");
       }
-
-      String uniqueFileName = UUID.randomUUID() + "_" + profileImageFile.getOriginalFilename();
-      String finalFilePath = uploadDir + uniqueFileName;
-
-      fileUtil.save(Paths.get(finalFilePath), profileImageFile);
-      user.updateProfileImage(finalFilePath);
     }
     return toUserProfileResponseDto(userRepository.save(user));
   }

@@ -34,14 +34,13 @@ jobs:
     - name: Fetch JASYPT_KEY from AWS SSM
       run: |
         echo "Fetching JASYPT_KEY from AWS SSM Parameter Store..."
-        export JASYPT_ENCRYPTOR_PASSWORD=$(aws ssm get-parameter --name "JASYPT_KEY" --with-decryption --region ap-northeast-2 --query "Parameter.Value" --output text)
-        echo "JASYPT_KEY fetched successfully"
-        echo "JASYPT_ENCRYPTOR_PASSWORD=${JASYPT_ENCRYPTOR_PASSWORD}" >> $GITHUB_ENV
+        JASYPT_KEY=$(aws ssm get-parameter --name "/config/application/JASYPT_KEY" --with-decryption --region ap-northeast-2 --query "Parameter.Value" --output text)
+        echo "JASYPT_ENCRYPTOR_PASSWORD=$JASYPT_KEY" >> $GITHUB_ENV
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build -x test
       env:
-        JASYPT_ENCRYPTOR_PASSWORD: ${{ secrets.JASYPT_KEY }} 
+        JASYPT_ENCRYPTOR_PASSWORD: ${{ env.JASYPT_ENCRYPTOR_PASSWORD }}
 
 
     - name: Make zip file

@@ -133,27 +133,19 @@ public class UserAuthController {
   }
 
   @PutMapping("/update")
-  public ResponseEntity<String> updateUser(
-      @SessionAttribute(name = "email", required = false) String sessionEmail,
-      @RequestBody @Valid UserUpdateDto updateDto,
-      BindingResult bindingResult,
-      @RequestParam("file") MultipartFile file) {
-
-    if (sessionEmail == null) {
-      return ResponseEntity.status(401).body("로그인이 필요합니다.");
+  public ResponseEntity<String> updateUser(@Valid @RequestBody UserUpdateDto updateDto, HttpServletRequest request) {
+    HttpSession session = request.getSession(false);
+    if (session == null || session.getAttribute("email") == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 세션이 만료되었습니다.");
     }
 
-    if (!sessionEmail.equals(updateDto.getEmail())) {
-      return ResponseEntity.status(403).body("자신의 정보만 수정할 수 있습니다.");
+    String currentUserEmail = (String) session.getAttribute("email");
+
+    if (!currentUserEmail.equals(updateDto.getEmail())) {
+      throw new IllegalArgumentException("수정할 이메일이 현재 로그인한 사용자와 일치하지 않습니다.");
     }
 
-    // 유효성 검사 오류 체크
-    if (bindingResult.hasErrors()) {
-      return ResponseEntity.badRequest().body("입력값이 올바르지 않습니다.");
-    }
-
-    String responseMessage = userAuthService.updateUser(sessionEmail, updateDto);
-    return ResponseEntity.ok(responseMessage);
+    String result = userAuthService.updateUser(currentUserEmail, updateDto);
+    return ResponseEntity.ok(result);
   }
-
 }

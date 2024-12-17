@@ -30,20 +30,30 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew 
 
-    - name: Build with Gradle Wrapper
-      run: ./gradlew build -x test
-
-
-    - name: Make zip file
-      run: zip -r ./$GITHUB_SHA.zip .
-      shell: bash
-    
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+
+    # AWS SSM에서 JASYPT_KEY 가져오기
+    - name: Fetch JASYPT_KEY from AWS SSM
+      run: |
+        echo "Fetching JASYPT_KEY from AWS SSM Parameter Store..."
+        JASYPT_KEY=$(aws ssm get-parameter --name "/config/application/JASYPT_KEY" --with-decryption --region $AWS_REGION --query "Parameter.Value" --output text)
+        echo "JASYPT_ENCRYPTOR_PASSWORD=$JASYPT_KEY" >> $GITHUB_ENV
+        echo "JASYPT_KEY fetched successfully."
+
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build -x test
+      env:
+        JASYPT_ENCRYPTOR_PASSWORD: ${{ env.JASYPT_ENCRYPTOR_PASSWORD }}
+
+
+    - name: Make zip file
+      run: zip -r ./$GITHUB_SHA.zip .
+      shell: bash
     
     - name: Upload to S3
       run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip

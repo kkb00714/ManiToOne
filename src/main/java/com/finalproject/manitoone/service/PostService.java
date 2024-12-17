@@ -5,7 +5,6 @@ import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.domain.AiPostLog;
-import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.Post;
@@ -40,10 +39,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import com.finalproject.manitoone.util.NotificationUtil;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -68,7 +69,6 @@ public class PostService {
   private final NotificationRepository notificationRepository;
   private final UserService userService;
   private final FileUtil fileUtil;
-  // ManitoMatchesRepository 생성으로 인한 필드 추가
   private final ManitoMatchesRepository manitoMatchesRepository;
   private final NotificationUtil notificationUtil;
 
@@ -317,11 +317,11 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
+    post.hidePost(!Boolean.TRUE.equals(post.getIsHidden()));
+    
     if (!user.equals(post.getUser())) {
       throw new IllegalArgumentException(IllegalActionMessages.CANNOT_HIDE_POST.getMessage());
     }
-
-    post.hidePost(true);
 
     postRepository.save(post);
   }
@@ -336,12 +336,23 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
-
+    
     userPostLikeRepository.save(UserPostLike.builder()
         .post(post)
         .user(user)
         .build());
+    
+    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
 
+    if (existingLike.isPresent()) {
+      userPostLikeRepository.delete(existingLike.get());
+    } else {
+      userPostLikeRepository.save(UserPostLike.builder()
+          .post(post)
+          .user(user)
+          .build());
+    }
+    
     try {
       Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(
           post.getUser(), user,
@@ -497,24 +508,6 @@ public class PostService {
     return postResponses;
   }
 
-  // 타임라인 조회를 위한 메서드
-  public Page<PostViewResponseDto> getTimelinePosts(String nickname, Pageable pageable) {
-    User currentUser = userService.getCurrentUser(nickname);
-
-    Page<Post> posts = postRepository.findTimelinePostsByUserId(currentUser.getUserId(), pageable);
-    return posts.map(post -> {
-      PostViewResponseDto dto = new PostViewResponseDto(
-          post.getPostId(),
-          post.getUser().getProfileImage(),
-          post.getUser().getNickname(),
-          post.getContent(),
-          post.getCreatedAt(),
-          post.getUpdatedAt()
-      );
-      return addAdditionalDataToDto(List.of(dto)).get(0);
-    });
-  }
-
   // 단순 postId로 PostViewResponseDto를 가져오는 메서드 (마니또에서 씁니다)
   public PostViewResponseDto getPost(Long postId) {
     Post post = postRepository.findByPostId(postId)
@@ -530,7 +523,6 @@ public class PostService {
         post.getUpdatedAt()
     );
 
-    // addAdditionalDataToDto 메서드를 활용하여 추가 데이터(이미지, 좋아요 수, 답글) 설정
     return addAdditionalDataToDto(List.of(postResponse)).get(0);
   }
 }

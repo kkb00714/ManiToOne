@@ -106,6 +106,10 @@ public class User implements OAuth2User {
     this.status = status;
   }
 
+  public void setIntroduce(String introduce) {
+    this.introduce = introduce;
+  }
+
   public void resetUnbannedAt() {
     this.unbannedAt = null;
   }

@@ -93,31 +93,31 @@ function countImages(input) {
 }
 
 // 게시글 작성
-async function onPostSubmit(event) {
-  event.preventDefault();
-
-  const form = event.target;
-  const baseUrl = form.action;
-
+async function onPostSubmit() {
   const content = document.getElementById("new-post-content").value.trim();
   const images = document.getElementById("image-upload-btn").files;
-
-  console.log("content: ", content);
-  console.log("images: ", images);
 
   if (!content) {
     alert("내용을 입력해주세요.");
     return;
   }
 
+  console.log("content: ", content);
+
   if (images.length > 4) {
     alert("이미지는 최대 4장까지만 업로드 가능합니다.");
     return;
   }
 
-  const formData = new URLSearchParams();
-  formData.append("content", content);
-  formData.append("isManito", isManito);
+  console.log("images: ", images);
+
+  const url = `/api/post?content=${encodeURIComponent(
+    content
+  )}&isManito=${encodeURIComponent(isManito)}`;
+
+  console.log("URL: ", url);
+
+  const formData = new FormData();
   // formData.append("images", images);
 
   for (let i = 0; i < images.length; i++) {
@@ -127,7 +127,7 @@ async function onPostSubmit(event) {
   console.log("Data: ", formData);
 
   try {
-    const response = await fetch(baseUrl, {
+    const response = await fetch(url, {
       method: "POST",
       body: formData,
     });
@@ -136,10 +136,10 @@ async function onPostSubmit(event) {
       alert("게시글을 작성하셨습니다.");
       window.location.reload();
     } else {
-      alert("게시글 작성에 실패하셨습니다.");
+      alert("게시글 작성에 실패했습니다.");
     }
   } catch (error) {
-    alert("오류가 발생했습니다.");
+    alert("게시글 작성 중 오류가 발생했습니다.");
     console.log("게시글 작성 오류: ", error);
   }
 }

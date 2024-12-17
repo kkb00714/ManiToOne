@@ -45,7 +45,7 @@ public class PostController {
       @RequestParam("isManito") Boolean isManito,
       @RequestParam(value = "images", required = false) MultipartFile[] images,
       HttpSession session) {
-    String email = session.getAttribute("email") + "";
+    String email = (String) session.getAttribute("email");
 
     if (images != null && images.length > 4) {
       return ResponseEntity.badRequest().build();

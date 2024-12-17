@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
-  <link rel="stylesheet" th:href="@{/style/email-auth.css}"/>
+  <link rel="stylesheet" th:href="@{/style/oauth-login-failure.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -21,14 +21,20 @@
     <img th:src="@{/images/logo/long-logo.png}" alt="ManiToOne logo"/>
   </div>
 
-  <div class="sign-in-link-container">
-    <p>이미 존재하는 이메일 입니다. 다시 시도해 주십시오.</p>
-    <p class="sign-in-link"><a th:href="@{/login}">로그인 페이지로 이동</a></p>
+  <h2>접근이 거부되었습니다.</h2>
+  <div id="sign-in-link-container">
+    <p id="errorMessage" th:if="${session.errorMessage != null}" th:text="${session.errorMessage}"></p>
   </div>
-</section>
-<script>
-  alert("이미 존재하는 이메일 입니다. 다시 시도해 주십시오.");
-</script>
+  <div class="sign-in-link-container">
+    <p class="sign-in-link"><a th:href="@{/login}">로그인 페이지로 돌아가기</a></p>
+  </div>
 
+  <script>
+    const errorMessageElement = document.getElementById('errorMessage');
+    if (errorMessageElement && errorMessageElement.textContent.trim() !== '') {
+      alert(errorMessageElement.textContent);
+    }
+  </script>
+</section>
 </body>
 </html>

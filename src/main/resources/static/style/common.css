@@ -620,6 +620,8 @@ h1 {
   flex-direction: column;
   margin-right: auto;
   gap: 0.7rem;
+  width: 100%;
+  cursor: pointer;
 }
 
 .passed-time {

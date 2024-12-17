@@ -8,6 +8,7 @@ import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +44,27 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         .map(existingUser -> updateUser(existingUser, provider, loginId))
         .orElseGet(() -> createUser(email, password, name, provider, loginId));
 
+    validateUserStatus(user);
+
     saveUserInfoToSession(user, isNewUser);
 
     return new PrincipalDetails(user, oAuth2User.getAttributes());
+  }
+
+  private void validateUserStatus(User user) {
+    if (user.getStatus() == 2) {
+      if (user.getUnbannedAt() != null && user.getUnbannedAt().isBefore(LocalDateTime.now())) {
+        user.updateStatus(1);
+        user.resetUnbannedAt();
+        userRepository.save(user);
+      } else {
+        session.setAttribute("errorMessage", IllegalActionMessages.ACCESS_DENIED_PROHIBITED_USER.getMessage());
+        throw new OAuth2AuthenticationException(IllegalActionMessages.ACCESS_DENIED_PROHIBITED_USER.getMessage());
+      }
+    } else if (user.getStatus() == 3) {
+      session.setAttribute("errorMessage", IllegalActionMessages.ACCESS_DENIED_EXPIRED_USER.getMessage());
+      throw new OAuth2AuthenticationException(IllegalActionMessages.ACCESS_DENIED_EXPIRED_USER.getMessage());
+    }
   }
 
   private User updateUser(User user, String provider, String loginId) {

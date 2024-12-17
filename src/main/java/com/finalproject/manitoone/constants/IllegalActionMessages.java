@@ -38,6 +38,8 @@ public enum IllegalActionMessages {
   FAILED_LOGIN("로그인에 실패했습니다."),
   FAILED_LOGOUT("로그아웃에 실패했습니다."),
 
+  ACCESS_DENIED_PROHIBITED_USER("정지된 계정입니다. 관리자에게 문의하세요."),
+  ACCESS_DENIED_EXPIRED_USER("탈퇴된 계정입니다. 관리자에게 문의하세요."),
   UNAUTORIZED("권한이 없습니다.");
 
   private final String message;

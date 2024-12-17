@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -298,11 +299,11 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
+    post.hidePost(!Boolean.TRUE.equals(post.getIsHidden()));
+    
     if (!user.equals(post.getUser())) {
       throw new IllegalArgumentException(IllegalActionMessages.CANNOT_HIDE_POST.getMessage());
     }
-
-    post.hidePost(true);
 
     postRepository.save(post);
   }
@@ -317,12 +318,18 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
+    
+    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
 
-    userPostLikeRepository.save(UserPostLike.builder()
-        .post(post)
-        .user(user)
-        .build());
-
+    if (existingLike.isPresent()) {
+      userPostLikeRepository.delete(existingLike.get());
+    } else {
+      userPostLikeRepository.save(UserPostLike.builder()
+          .post(post)
+          .user(user)
+          .build());
+    }
+    
     try {
       Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(
           post.getUser(), user,

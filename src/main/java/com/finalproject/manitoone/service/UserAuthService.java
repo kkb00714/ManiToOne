@@ -116,10 +116,6 @@ public class UserAuthService {
       user.setPassword(passwordEncoder.encode(updateDto.getPassword()));
     }
 
-    if (updateDto.getProfileImage() != null && !updateDto.getProfileImage().isBlank()) {
-      user.updateProfileImage(updateDto.getProfileImage());
-    }
-
     if (updateDto.getIntroduce() != null) {
       user.setIntroduce(updateDto.getIntroduce());
     }

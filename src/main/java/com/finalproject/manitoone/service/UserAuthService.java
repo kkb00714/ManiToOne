@@ -4,12 +4,14 @@ import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
+import com.finalproject.manitoone.domain.dto.UserUpdateDto;
 import com.finalproject.manitoone.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
@@ -73,10 +75,12 @@ public class UserAuthService {
         user.resetUnbannedAt();
         userRepository.save(user);
       } else {
-        throw new IllegalArgumentException(IllegalActionMessages.ACCESS_DENIED_PROHIBITED_USER.getMessage());
+        throw new IllegalArgumentException(
+            IllegalActionMessages.ACCESS_DENIED_PROHIBITED_USER.getMessage());
       }
     } else if (user.getStatus() == 3) {
-      throw new IllegalArgumentException(IllegalActionMessages.ACCESS_DENIED_EXPIRED_USER.getMessage());
+      throw new IllegalArgumentException(
+          IllegalActionMessages.ACCESS_DENIED_EXPIRED_USER.getMessage());
     }
     return new UserLoginResponseDto(user);
   }
@@ -98,4 +102,27 @@ public class UserAuthService {
     return userRepository.existsByNickname(nickname);
   }
 
+  @Transactional
+  public String updateUser(String email, UserUpdateDto updateDto) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+    if (!user.getNickname().equals(updateDto.getNickname()) &&
+        userRepository.existsByNickname(updateDto.getNickname())) {
+      throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+    }
+
+    if (updateDto.getPassword() != null && !updateDto.getPassword().isBlank()) {
+      user.setPassword(passwordEncoder.encode(updateDto.getPassword()));
+    }
+
+    if (updateDto.getProfileImage() != null && !updateDto.getProfileImage().isBlank()) {
+      user.updateProfileImage(updateDto.getProfileImage());
+    }
+
+    if (updateDto.getIntroduce() != null) {
+      user.setIntroduce(updateDto.getIntroduce());
+    }
+    return "유저 정보를 수정했습니다.";
+  }
 }

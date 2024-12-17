@@ -1,14 +1,7 @@
 #!/bin/bash
 # AWS SSM에서 JASYPT_KEY 가져오기
 echo "## Fetching JASYPT_KEY from AWS SSM..." >> /home/ec2-user/action/spring-deploy.log
-JASYPT_KEY=$(aws ssm get-parameter --name "/config/application/JASYPT_KEY" --with-decryption --region ap-northeast-2 --query "Parameter.Value" --output text)
-
-if [ -z "$JASYPT_KEY" ]; then
-  echo "## Failed to fetch JASYPT_KEY. Exiting deployment." >> /home/ec2-user/action/spring-deploy.log
-  exit 1
-fi
-
-echo "## JASYPT_KEY fetched successfully" >> /home/ec2-user/action/spring-deploy.log
+export JASYPT_KEY=$(aws ssm get-parameter --name "/config/application/JASYPT_KEY" --with-decryption --region ap-northeast-2 --query "Parameter.Value" --output text)
 
 BUILD_JAR=$(ls /home/ec2-user/action/build/libs/*SNAPSHOT.jar)
 JAR_NAME=$(basename $BUILD_JAR)
@@ -30,8 +23,8 @@ else
   echo "## kill -15 $CURRENT_PID"
   kill -15 $CURRENT_PID
   sleep 5
+fi
 
-# JAR 파일 실행 (변수를 명시적으로 전달)
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
-echo "## Deploying JAR file: $DEPLOY_JAR" >> /home/ec2-user/action/spring-deploy.log
-nohup java -jar -DJASYPT_ENCRYPTOR_PASSWORD="$JASYPT_KEY" "$DEPLOY_JAR" >> /home/ec2-user/action/spring-deploy.log 2>> /home/ec2-user/action/spring-deploy_err.log &
+echo "## deploy JAR file"   >> /home/ec2-user/action/spring-deploy.log
+nohup java -jar $DEPLOY_JAR >> /home/ec2-user/action/spring-deploy.log 2> /home/ec2-user/action/spring-deploy_err.log &

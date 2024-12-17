@@ -87,8 +87,11 @@ public class UserAuthService {
     user.setStatus(3);
   }
 
-  public boolean isEmailExist(String email) {
-    return userRepository.existsByEmail(email);
+  public String isEmailExist(String email) {
+    if (userRepository.existsByEmail(email)) {
+      return IllegalActionMessages.EMAIL_ALREADY_IN_USE.getMessage();
+    }
+    return "사용 가능한 이메일 입니다.";
   }
 
   public boolean isNicknameExist(String nickname) {

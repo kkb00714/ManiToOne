@@ -21,6 +21,7 @@ public class UserLoginResponseDto {
   private String profileImage;
   private String introduce;
   private boolean isRead;
+  private String role;
 
   public UserLoginResponseDto(User user) {
     this.userId = user.getUserId();
@@ -29,5 +30,6 @@ public class UserLoginResponseDto {
     this.nickname = user.getNickname();
     this.profileImage = user.getProfileImage();
     this.introduce = user.getIntroduce();
+    this.role = user.getRole();
   }
 }

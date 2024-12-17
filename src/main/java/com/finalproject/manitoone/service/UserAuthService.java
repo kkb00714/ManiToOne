@@ -105,24 +105,24 @@ public class UserAuthService {
   @Transactional
   public String updateUser(String email, UserUpdateDto updateDto) {
     User user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        .orElseThrow(
+            () -> new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
 
-    if (!user.getNickname().equals(updateDto.getNickname()) &&
-        userRepository.existsByNickname(updateDto.getNickname())) {
-      throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+    if (updateDto.getNickname() != null && !user.getNickname().equals(updateDto.getNickname())) {
+      if (userRepository.existsByNickname(updateDto.getNickname())) {
+        throw new IllegalArgumentException(IllegalActionMessages.NICKNAME_ALREADY_IN_USE.getMessage());
+      }
+      user.setNickname(updateDto.getNickname());
     }
 
     if (updateDto.getPassword() != null && !updateDto.getPassword().isBlank()) {
       user.setPassword(passwordEncoder.encode(updateDto.getPassword()));
     }
 
-    if (updateDto.getProfileImage() != null && !updateDto.getProfileImage().isBlank()) {
-      user.updateProfileImage(updateDto.getProfileImage());
-    }
-
     if (updateDto.getIntroduce() != null) {
       user.setIntroduce(updateDto.getIntroduce());
     }
+    userRepository.save(user);
     return "유저 정보를 수정했습니다.";
   }
 }

@@ -30,26 +30,18 @@ import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
-import com.finalproject.manitoone.util.AlanUtil;
 import com.finalproject.manitoone.util.FileUtil;
 import jakarta.transaction.Transactional;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import com.finalproject.manitoone.util.NotificationUtil;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,10 +59,10 @@ public class PostService {
   private final AiPostLogRepository aiPostLogRepository;
   private final UserRepository userRepository;
   private final NotificationRepository notificationRepository;
-  private final UserService userService;
   private final FileUtil fileUtil;
   private final ManitoMatchesRepository manitoMatchesRepository;
   private final NotificationUtil notificationUtil;
+  private final S3Service s3Service;
 
   // 게시글 생성 (미완성)
   // TODO: 이미지 업로드
@@ -86,23 +78,20 @@ public class PostService {
         .isManito(request.getIsManito())
         .build());
 
-    List<String> imagePaths = new ArrayList<>();
     if (request.getImages() != null) {
-      for (MultipartFile image : request.getImages()) {
-        String imagePath = saveImage(image);
-        imagePaths.add(imagePath);
-      }
-
-      for (String imagePath : imagePaths) {
-        postImageRepository.save(PostImage.builder()
-            .post(post)
-            .fileName(imagePath)
-            .build());
+      try {
+        for (MultipartFile image : request.getImages()) {
+          String fileName = s3Service.uploadImage(image);
+          postImageRepository.save(PostImage.builder()
+              .post(post)
+              .fileName(fileName)
+              .build());
+        }
+      } catch (IOException e) {
+        throw new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage() + ": " + e.getMessage());
       }
     }
-
-//    AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
-//    aiPostLogRepository.save(aiPost);
 
     return PostResponseDto.builder()
         .postId(post.getPostId())
@@ -112,28 +101,6 @@ public class PostService {
         .updatedAt(post.getUpdatedAt())
         .isManito(post.getIsManito())
         .build();
-  }
-
-  // 이미지 저장
-  private String saveImage(MultipartFile image) {
-    String uploadDir = "/usr/local/images/posts";
-    File uploadPath = new File(uploadDir);
-
-    if (!uploadPath.exists()) {
-      uploadPath.mkdirs();
-    }
-
-    String imageName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
-    File savedImage = new File(uploadPath, imageName);
-
-    try {
-      image.transferTo(savedImage);
-    } catch (IOException e) {
-      throw new IllegalArgumentException(
-          IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage() + ": " + e.getMessage());
-    }
-
-    return savedImage.getAbsolutePath();
   }
 
   // 게시글 수정

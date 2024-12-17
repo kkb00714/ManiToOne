@@ -26,12 +26,16 @@ public interface ManitoMatchesRepository extends JpaRepository<ManitoMatches, Lo
   boolean hasRecentMatch(@Param("user") User user,
       @Param("timeLimit") LocalDateTime timeLimit);
 
-  // 배정 가능한 게시글 목록 조회
+  // 배정 가능한 포스트 조회
   @Query("SELECT DISTINCT p FROM Post p " +
       "WHERE p.isManito = true " +
       "AND p.createdAt > :timeLimit " +
       "AND p.user.userId != :userId " +
-      "AND NOT EXISTS (SELECT 1 FROM ManitoMatches m WHERE m.matchedPostId = p AND m.status = 'MATCHED') " +
+      "AND (NOT EXISTS (SELECT 1 FROM ManitoMatches m WHERE m.matchedPostId = p) " +
+      "OR EXISTS (SELECT 1 FROM ManitoMatches m " +
+      "          WHERE m.matchedPostId = p " +
+      "          AND m.matchedTime = (SELECT MAX(m2.matchedTime) FROM ManitoMatches m2 WHERE m2.matchedPostId = p) " +
+      "          AND m.status IN ('REPORTED', 'EXPIRED', 'PASSED'))) " +
       "ORDER BY p.createdAt ASC")
   List<Post> findAssignablePosts(
       @Param("timeLimit") LocalDateTime timeLimit,

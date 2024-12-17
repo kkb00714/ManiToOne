@@ -73,4 +73,8 @@ public class Post {
   public void updateBlind() {
     this.isBlind = !this.isBlind;
   }
+
+  public void updateManitoStatus(Boolean isManito) {
+    this.isManito = isManito;
+  }
 }

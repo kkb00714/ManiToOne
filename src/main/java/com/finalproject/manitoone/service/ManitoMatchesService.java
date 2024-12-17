@@ -25,6 +25,7 @@ public class ManitoMatchesService {
 
   private final ManitoMatchesRepository manitoMatchesRepository;
   private final UserRepository userRepository;
+  private final AiValidationService aiValidationService;
 
   // 유저에게 게시글 배정
   @Transactional(isolation = Isolation.SERIALIZABLE)
@@ -41,7 +42,8 @@ public class ManitoMatchesService {
 
     // 배정 가능한 게시글 찾기 (72시간 이내)
     LocalDateTime postTimeLimit = LocalDateTime.now().minusHours(72);
-    List<Post> assignablePosts = manitoMatchesRepository.findAssignablePosts(postTimeLimit, user.getUserId());
+    List<Post> assignablePosts = manitoMatchesRepository.findAssignablePosts(postTimeLimit,
+        user.getUserId());
 
     if (assignablePosts.isEmpty()) {
       throw new IllegalStateException(ManitoErrorMessages.NO_AVAILABLE_POSTS.getMessage());
@@ -53,14 +55,23 @@ public class ManitoMatchesService {
             .existsByMatchedPostIdAndStatus(post, MatchStatus.MATCHED);
 
         if (!isAlreadyMatched) {
-          ManitoMatches match = ManitoMatches.builder()
-              .matchedPostId(post)
-              .matchedUserId(user)
-              .status(MatchStatus.MATCHED)
-              .build();
+          boolean isAppropriate = aiValidationService.validatePostContent(post);
 
-          return manitoMatchesRepository.save(match);
+          if (isAppropriate) {
+            ManitoMatches match = ManitoMatches.builder()
+                .matchedPostId(post)
+                .matchedUserId(user)
+                .status(MatchStatus.MATCHED)
+                .build();
+
+            return manitoMatchesRepository.save(match);
+          }
+
+          // AI가 부적절하다고 판단한 경우
+          post.updateManitoStatus(false);
+          log.warn("Post ID {} has been marked as inappropriate by AI", post.getPostId());
         }
+
       } catch (Exception e) {
         log.error("Failed to create match for post: {}", post.getPostId(), e);
       }

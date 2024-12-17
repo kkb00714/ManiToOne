@@ -161,7 +161,7 @@
                           name="content"
                           id="new-post-content"
                           class="new-post-text"
-                          placeholder="나누고 싶은 글을 작성해주세요"
+                          th:text="${post.content}"
                         ></textarea>
                         <p class="letter-count" id="count500">500/500</p>
                       </div>
@@ -488,7 +488,7 @@
                           name="content"
                           id="update-reply-content"
                           class="new-post-text"
-                          placeholder="나누고 싶은 글을 작성해주세요"
+                          th:text="${reply.content}"
                         ></textarea>
                         <p class="letter-count" id="count-500">500/500</p>
                       </div>

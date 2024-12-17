@@ -1,8 +1,11 @@
 package com.finalproject.manitoone.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finalproject.manitoone.domain.AiPostLog;
 import com.finalproject.manitoone.domain.Post;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
+import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -15,36 +18,64 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AiValidationService {
   private final AiPostLogRepository aiPostLogRepository;
+  private final PostRepository postRepository;
 
   @Transactional
   public boolean validatePostContent(Post post) {
-    // 이미 검증된 게시물인지 확인
     Optional<AiPostLog> existingLog = aiPostLogRepository.findByPostPostId(post.getPostId());
     if (existingLog.isPresent()) {
-      return post.getIsManito(); // 이미 검증된 게시물은 현재 상태 반환
+      log.info("Using cached AI validation result for post ID: {}", post.getPostId());
+      return post.getIsManito();
     }
 
     try {
-      // AI 검증 요청
-      String aiResponse = AlanUtil.getAlanAnswer(
-          "다음 게시물이 마니또 서비스에서 다른 유저에게 전달되어 답신을 받기 적절한 내용인지 true 또는 false로만 답변해주세요. " +
-              "보편적인 사용자가 답변을 하기 어려울 정도로 무의미한 내용만으로 이루어져 있거나, 폭력적이거나 선정적인 내용, 혐오 표현, 차별적 내용이 있다면 false를 반환하세요: " +
-              post.getContent()
-      );
+      String aiResponse = AlanUtil.getValidationAnswer(post.getContent());
 
-      // AI 응답 저장
-      boolean isAppropriate = aiResponse.toLowerCase().contains("true");
+      aiResponse = aiResponse.replaceAll("```json\\s*", "")
+          .replaceAll("```\\s*$", "")
+          .trim();
+
+      log.debug("AI Response after cleanup: {}", aiResponse);
+
+      ObjectMapper objectMapper = new ObjectMapper();
+      JsonNode responseNode = objectMapper.readTree(aiResponse);
+      boolean isAppropriate = responseNode.get("isValid").asBoolean();
+
+      // AI 검증 결과 저장
       aiPostLogRepository.save(AiPostLog.builder()
           .post(post)
           .aiContent(aiResponse)
           .build());
 
+      // 게시물 상태 업데이트 및 저장
+      post.updateManitoStatus(isAppropriate);
+      postRepository.save(post);
+
+      log.info("AI validation completed for post ID: {}, result: {}, updating isManito to: {}",
+          post.getPostId(), isAppropriate, isAppropriate);
+
       return isAppropriate;
 
     } catch (Exception e) {
       log.error("AI validation failed for post ID: {}", post.getPostId(), e);
-      return true; // AI 검증 실패 시 기본적으로 허용
+
+      try {
+        aiPostLogRepository.save(AiPostLog.builder()
+            .post(post)
+            .aiContent("Validation failed: " + e.getMessage())
+            .build());
+
+        // 실패 시 게시물을 부적절로 표시하고 저장
+        post.updateManitoStatus(false);
+        postRepository.save(post);
+
+        log.info("AI validation failed, setting isManito to false for post ID: {}", post.getPostId());
+      } catch (Exception saveError) {
+        log.error("Failed to save AI validation log for post ID: {}",
+            post.getPostId(), saveError);
+      }
+
+      return false;
     }
   }
-
 }

@@ -1,8 +1,4 @@
 #!/bin/bash
-# AWS SSM에서 JASYPT_KEY
-echo "## Fetching JASYPT_KEY from AWS SSM..." >> /home/ec2-user/action/spring-deploy.log
-export JASYPT_ENCRYPTOR_PASSWORD=$(aws ssm get-parameter --name "/config/application/JASYPT_KEY" --with-decryption --region ap-northeast-2 --query "Parameter.Value" --output text)
-
 BUILD_JAR=$(ls /home/ec2-user/action/build/libs/*SNAPSHOT.jar)
 JAR_NAME=$(basename $BUILD_JAR)
 

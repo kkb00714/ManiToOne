@@ -32,8 +32,6 @@ public class UserUpdateDto {
   @Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,10}$", message = "닉네임은 알파벳 대소문자와 숫자만 포함할 수 있습니다.")
   private String nickname;
 
-  private String profileImage;
-
   @Size(min = 1, max = 100)
   private String introduce;
 

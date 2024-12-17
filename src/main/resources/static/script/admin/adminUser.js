@@ -432,19 +432,11 @@ document.addEventListener("DOMContentLoaded", function () {
   profileImageInput.addEventListener("change", (event) => {
     const file = event.target.files[0];
     if (file) {
-      if (!file.type.startsWith("image/")) {
-        alert("이미지 파일만 선택할 수 있습니다.");
+      if (!file.type.match(/^image\/(png|jpe?g)$/)) {
+        alert("PNG, JPG, JPEG 파일만 선택할 수 있습니다.");
         profileImageInput.value = "";
         return;
       }
-
-      // const reader = new FileReader();
-      //
-      // reader.onload = (e) => {
-      //   profileImage.src = e.target.result;
-      // };
-
-      // reader.readAsDataURL(file);
       updateProfileImage(file);
     }
   });

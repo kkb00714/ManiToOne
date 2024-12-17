@@ -31,3 +31,19 @@
   width: 300px;
   text-align: center;
 }
+
+/* 답글 수정 모달 textarea */
+#update-reply-content,
+#update-rereply-content,
+#new-reply-content,
+#new-rereply-content {
+  all: unset;
+  font-weight: normal;
+  width: 100%;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  resize: none;
+  min-height: 4rem;
+}

@@ -25,13 +25,14 @@ public class MatchProcessStatus {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name="id", nullable = false)
   private Long id;
 
-  @Column(nullable = false)
+  @Column(name="nickname", nullable = false)
   private String nickname;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @Column(name="status", nullable = false)
   private ProcessStatus status;
 
   @Column(name = "created_at", nullable = false)

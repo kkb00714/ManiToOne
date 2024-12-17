@@ -14,6 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class AddPostRequestDto {
 
   private String content;
-  private String isManito;
-  // List<MultipartFile> images;
+  private Boolean isManito;
+  MultipartFile[] images;
 }

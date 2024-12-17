@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MatchProcessStatusRepository extends JpaRepository<MatchProcessStatus, Long> {
+
   Optional<MatchProcessStatus> findFirstByNicknameAndStatusOrderByCreatedAtDesc(
       String nickname,
       ProcessStatus status

@@ -34,7 +34,9 @@
 
 /* 답글 수정 모달 textarea */
 #update-reply-content,
-#update-rereply-content {
+#update-rereply-content,
+#new-reply-content,
+#new-rereply-content {
   all: unset;
   font-weight: normal;
   width: 100%;

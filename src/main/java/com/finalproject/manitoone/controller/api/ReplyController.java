@@ -37,8 +37,7 @@ public class ReplyController {
   public ResponseEntity<ReplyResponseDto> createReply(@PathVariable("postId") Long postId,
       @RequestParam("content") String content,
       HttpSession session) {
-    String email = session.getAttribute("email") + "";
-
+    String email = (String) session.getAttribute("email");
     ReplyResponseDto reply = replyService.createReply(postId, content, email);
     return ResponseEntity.status(HttpStatus.CREATED).body(reply);
   }

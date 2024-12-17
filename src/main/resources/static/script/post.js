@@ -483,7 +483,9 @@ async function onUpdateReplySubmit(replyId) {
 
 // 답글의 답글 수정
 async function onUpdateRereplySubmit(replyId) {
-  const content = document.getElementById("update-rereply-content").value.trim();
+  const content = document
+    .getElementById("update-rereply-content")
+    .value.trim();
 
   if (!content) {
     alert("내용을 입력해주세요.");
@@ -516,12 +518,87 @@ async function onUpdateRereplySubmit(replyId) {
 // 답글 작성 모달
 function openNewReplyModal() {
   document.getElementById("newReplyFormModal").style.display = "block";
-  document.getElementById("newReplyFormModalContainer").style.display =
-      "block";
+  document.getElementById("newReplyFormModalContainer").style.display = "block";
 }
 
 function closeNewReplyModal() {
   document.getElementById("newReplyFormModal").style.display = "none";
-  document.getElementById("newReplyFormModalContainer").style.display =
-      "none";
+  document.getElementById("newReplyFormModalContainer").style.display = "none";
+}
+
+// 답글 작성
+async function onNewReplySubmit(postId) {
+  const content = document.getElementById("new-reply-content").value.trim();
+
+  if (!content) {
+    alert("내용을 입력해주세요.");
+    return;
+  }
+
+  console.log("Content: ", content);
+
+  const url = `/api/reply/${postId}?content=${encodeURIComponent(content)}`;
+
+  console.log("URL: ", url);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+    });
+
+    if (response.ok) {
+      alert("답글을 작성하셨습니다.");
+      window.location.reload();
+    } else {
+      alert("답글 작성에 실패했습니다.");
+    }
+  } catch (error) {
+    alert("답글 작성 중 오류가 발생했습니다.");
+    console.log("답글 작성 오류: ", error);
+  }
+}
+
+// 답글의 답글 작성 모달
+function openNewRereplyModal() {
+  document.getElementById("newRereplyFormModal").style.display = "block";
+  document.getElementById("newRereplyFormModalContainer").style.display =
+    "block";
+}
+
+function closeNewRereplyModal() {
+  document.getElementById("newRereplyFormModal").style.display = "none";
+  document.getElementById("newRereplyFormModalContainer").style.display =
+    "none";
+}
+
+// 답글의 답글 작성
+async function onNewRereplySubmit(replyId) {
+  const content = document.getElementById("new-rereply-content").value.trim();
+
+  if (!content) {
+    alert("내용을 입력해주세요.");
+    return;
+  }
+
+  console.log("Content: ", content);
+
+  const url = `/api/rereply/${replyId}?content=${encodeURIComponent(content)}`;
+
+  console.log("URL: ", url);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+    });
+
+    if (response.ok) {
+      alert("답글을 작성하셨습니다.");
+      window.location.reload();
+    } else {
+      alert("답글 작성에 실패했습니다.");
+    }
+  } catch (error) {
+    alert("답글 작성 중 오류가 발생했습니다.");
+    console.log("답글 작성 오류: ", error);
+  }
 }

@@ -125,7 +125,7 @@ async function onPostSubmit(event) {
   }
 
   console.log("Data: ", formData);
-  
+
   try {
     const response = await fetch(baseUrl, {
       method: "POST",
@@ -373,4 +373,46 @@ function onRereplyReportSubmit(event) {
       alert("해당 게시글 신고에 실패했습니다.");
     }
   });
+}
+
+// 게시글 수정 모달
+function openUpdatePostModal() {
+  document.getElementById("post-options-modal").style.display = "none";
+  document.getElementById("updatePostFormModal").style.display = "block";
+  document.getElementById("updatePostFormModalContainer").style.display =
+    "block";
+}
+
+function closeUpdatePostModal() {
+  document.getElementById("updatePostFormModal").style.display = "none";
+  document.getElementById("updatePostFormModalContainer").style.display =
+    "none";
+}
+
+// 답글 수정 모달
+function openUpdateReplyModal() {
+  document.getElementById("reply-options-modal").style.display = "none";
+  document.getElementById("updateReplyFormModal").style.display = "block";
+  document.getElementById("updateReplyFormModalContainer").style.display =
+    "block";
+}
+
+function closeUpdateReplyModal() {
+  document.getElementById("updateReplyFormModal").style.display = "none";
+  document.getElementById("updateReplyFormModalContainer").style.display =
+    "none";
+}
+
+// 답글의 답글 수정 모달
+function openUpdateRereplyModal() {
+  document.getElementById("rereply-options-modal").style.display = "none";
+  document.getElementById("updateRereplyFormModal").style.display = "block";
+  document.getElementById("updateRereplyFormModalContainer").style.display =
+      "block";
+}
+
+function closeUpdateRereplyModal() {
+  document.getElementById("updateRereplyFormModal").style.display = "none";
+  document.getElementById("updateRereplyFormModalContainer").style.display =
+      "none";
 }

@@ -31,6 +31,11 @@ else
   kill -15 $CURRENT_PID
   sleep 5
 
+# JASYPT_KEY 환경 변수 설정
+export JASYPT_ENCRYPTOR_PASSWORD=$JASYPT_KEY
+echo "## JASYPT_ENCRYPTOR_PASSWORD exported" >> /home/ec2-user/action/spring-deploy.log
+
+# JAR 파일 실행
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
-echo "## deploy JAR file"   >> /home/ec2-user/action/spring-deploy.log
-nohup java -jar -DJASYPT_ENCRYPTOR_PASSWORD=$JASYPT_KEY $DEPLOY_JAR >> /home/ec2-user/action/spring-deploy.log 2> /home/ec2-user/action/spring-deploy_err.log &
+echo "## Deploying JAR file: $DEPLOY_JAR" >> /home/ec2-user/action/spring-deploy.log
+nohup java -jar -DJASYPT_ENCRYPTOR_PASSWORD=$JASYPT_ENCRYPTOR_PASSWORD $DEPLOY_JAR >> /home/ec2-user/action/spring-deploy.log 2> /home/ec2-user/action/spring-deploy_err.log &

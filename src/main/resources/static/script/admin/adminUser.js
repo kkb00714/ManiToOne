@@ -355,6 +355,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${updatedUser.email}</td>
           <td>${updatedUser.birth}</td>
           <td>${updatedUser.role}</td>
+          <td>${formatDatetimeSecond(user.createdAt)}</td>
           <td>${formatDatetime(updatedUser.unbannedAt)}</td>
           <td>${getStatusText(updatedUser.status)}</td>
       `;
@@ -396,6 +397,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .then((updatedUser) => {
       alert("프로필 이미지가 성공적으로 업데이트되었습니다.");
       profileImage.src = updatedUser.profileImage;
+      clickedRow.dataset.user = JSON.stringify(updatedUser);
     })
     .catch((error) => {
       alert(`프로필 이미지 업데이트에 실패했습니다: ${error.message}`);
@@ -431,19 +433,11 @@ document.addEventListener("DOMContentLoaded", function () {
   profileImageInput.addEventListener("change", (event) => {
     const file = event.target.files[0];
     if (file) {
-      if (!file.type.startsWith("image/")) {
-        alert("이미지 파일만 선택할 수 있습니다.");
+      if (!file.type.match(/^image\/(png|jpe?g)$/)) {
+        alert("PNG, JPG, JPEG 파일만 선택할 수 있습니다.");
         profileImageInput.value = "";
         return;
       }
-
-      // const reader = new FileReader();
-      //
-      // reader.onload = (e) => {
-      //   profileImage.src = e.target.result;
-      // };
-
-      // reader.readAsDataURL(file);
       updateProfileImage(file);
     }
   });

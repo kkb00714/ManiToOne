@@ -6,6 +6,7 @@ import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
 import com.finalproject.manitoone.service.AdminService;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -45,7 +46,7 @@ public class AdminApiController {
 
   @PutMapping("/users/{userId}")
   public ResponseEntity<Object> updateUserProfileImage(@PathVariable Long userId,
-      @RequestPart(required = false) MultipartFile profileImageFile) {
+      @RequestPart(required = false) MultipartFile profileImageFile) throws IOException {
     return ResponseEntity.ok(adminService.updateProfileImage(userId, profileImageFile));
   }
 

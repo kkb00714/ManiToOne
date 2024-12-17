@@ -20,18 +20,18 @@ public class SecurityConfig {
     return http
         .authorizeHttpRequests(custom -> custom
                 // .antMatchers("/admin/"**).hasRole("ADMIN") // 어드민 페이지 생성 및 롤 생성 시 활성화
-                .requestMatchers("/login-fail", "/access-deny", "/api/local-login",
-                    "/api/email-validate", "/api/email-check", "/api/password-reset",
-                    "/api/check-email", "/api/check-nickname", "/api/upload", "/api/update")
-                .permitAll()
-                .requestMatchers("/register", "/register-info", "/login", "/additional-info",
-                    "/find-password", "/find-password-confirm", "/oauth2/authorization/google")
-                .anonymous()  // 익명 사용자만 접근 가능
-                .requestMatchers("/", "/style/**", "/script/**", "/js/**", "/images/**",
-                    "/img/**")  // 정적 리소스
-                .permitAll()
-                .anyRequest().authenticated()
-            // .anyRequest().permitAll()
+//                .requestMatchers("/login-fail", "/access-deny", "/api/local-login",
+//                    "/api/email-validate", "/api/email-check", "/api/password-reset",
+//                    "/api/check-email", "/api/check-nickname", "/api/upload", "/api/update")
+//                .permitAll()
+//                .requestMatchers("/register", "/register-info", "/login", "/additional-info",
+//                    "/find-password", "/find-password-confirm", "/oauth2/authorization/google")
+//                .anonymous()  // 익명 사용자만 접근 가능
+//                .requestMatchers("/", "/style/**", "/script/**", "/js/**", "/images/**",
+//                    "/img/**")  // 정적 리소스
+//                .permitAll()
+//                .anyRequest().authenticated()
+             .anyRequest().permitAll()
         )
         .exceptionHandling(exceptions -> exceptions
             .accessDeniedPage("/access-deny")  // 403 에러 발생 시 /access-deny로 리디렉션

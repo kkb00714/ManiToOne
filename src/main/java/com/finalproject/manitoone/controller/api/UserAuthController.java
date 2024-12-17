@@ -133,19 +133,18 @@ public class UserAuthController {
   }
 
   @PutMapping("/update")
-  public ResponseEntity<String> updateUser(@Valid @RequestBody UserUpdateDto updateDto, HttpServletRequest request) {
+  public ResponseEntity<String> updateUser(
+      @Valid @RequestBody UserUpdateDto updateDto,
+      HttpServletRequest request
+  ) {
     HttpSession session = request.getSession(false);
     if (session == null || session.getAttribute("email") == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 세션이 만료되었습니다.");
+      throw new IllegalStateException("로그인 상태가 아닙니다. 다시 로그인해주세요.");
     }
 
-    String currentUserEmail = (String) session.getAttribute("email");
+    String sessionEmail = (String) session.getAttribute("email");
 
-    if (!currentUserEmail.equals(updateDto.getEmail())) {
-      throw new IllegalArgumentException("수정할 이메일이 현재 로그인한 사용자와 일치하지 않습니다.");
-    }
-
-    String result = userAuthService.updateUser(currentUserEmail, updateDto);
+    String result = userAuthService.updateUser(sessionEmail, updateDto);
     return ResponseEntity.ok(result);
   }
 }

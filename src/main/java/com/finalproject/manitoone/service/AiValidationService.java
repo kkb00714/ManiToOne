@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 public class AiValidationService {
+
   private final AiPostLogRepository aiPostLogRepository;
   private final PostRepository postRepository;
 
@@ -69,7 +70,8 @@ public class AiValidationService {
         post.updateManitoStatus(false);
         postRepository.save(post);
 
-        log.info("AI validation failed, setting isManito to false for post ID: {}", post.getPostId());
+        log.info("AI validation failed, setting isManito to false for post ID: {}",
+            post.getPostId());
       } catch (Exception saveError) {
         log.error("Failed to save AI validation log for post ID: {}",
             post.getPostId(), saveError);

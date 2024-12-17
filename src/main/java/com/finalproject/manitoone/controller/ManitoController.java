@@ -2,15 +2,12 @@ package com.finalproject.manitoone.controller;
 
 import com.finalproject.manitoone.constants.ManitoErrorMessages;
 import com.finalproject.manitoone.constants.ReportObjectType;
-import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.dto.ReportRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.ReportStatusResponseDto;
 import com.finalproject.manitoone.dto.manito.ManitoAnswerRequestDto;
 import com.finalproject.manitoone.dto.manito.ManitoLetterRequestDto;
 import com.finalproject.manitoone.dto.manito.ManitoLetterResponseDto;
-import com.finalproject.manitoone.dto.manito.ManitoMatchResponseDto;
 import com.finalproject.manitoone.dto.manito.ManitoPageResponseDto;
-import com.finalproject.manitoone.service.ManitoMatchesService;
 import com.finalproject.manitoone.service.ManitoService;
 import com.finalproject.manitoone.service.ReportService;
 import jakarta.persistence.EntityNotFoundException;
@@ -42,8 +39,6 @@ public class ManitoController {
 
   private final ManitoService manitoService;
   private final ReportService reportService;
-  private final ManitoMatchesService manitoMatchesService;
-
 
   private String validateSession(HttpSession session) {
     String nickname = (String) session.getAttribute("nickname");
@@ -79,25 +74,6 @@ public class ManitoController {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
           "편지 작성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }
-  }
-
-  // 마니또 매칭
-  @PostMapping("/manito/match")
-  public ResponseEntity<ManitoMatchResponseDto> createMatch(HttpSession session) {
-    String nickname = validateSession(session);
-    ManitoMatches match = manitoMatchesService.createMatch(nickname);
-    return ResponseEntity.ok(ManitoMatchResponseDto.from(match));
-  }
-
-  // Pass 기능
-  @PutMapping("/manito/pass/{manitoMatchesId}")
-  public ResponseEntity<Void> passManitoMatch(
-      @PathVariable Long manitoMatchesId,
-      HttpSession session
-  ) {
-    String nickname = validateSession(session);
-    manitoMatchesService.passMatch(manitoMatchesId, nickname);
-    return ResponseEntity.ok().build();
   }
 
   // 편지에 대한 답장

@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="user-nickname" th:content="${nickname}">
   <link rel="stylesheet" th:href="@{/style/reset.css}"/>
   <link rel="stylesheet" th:href="@{/style/common.css}"/>
-  <link rel="stylesheet" th:href="@{/style/notification.css}"/>
+  <link rel="stylesheet" th:href="@{/style/email-auth.css}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link
@@ -17,15 +16,19 @@
   <title>ManiToOne</title>
 </head>
 <body>
-<header th:replace="~{fragments/common/header :: header}"></header>
-<main class="main-container">
-  <section class="middle-section" id="middleSection">
-    <!--여기에 중앙 컨텐츠가 들어갑니다-->
-    <div th:replace="~{fragments/content/notification :: notification}"></div>
-  </section>
-  <article th:replace="~{fragments/common/right-section :: right-section}"></article>
-</main>
-<script th:src="@{/script/common.js}"></script>
-<script th:src="@{/script/notification.js}"></script>
+<section class="email-auth-section">
+  <div class="logo-box">
+    <img th:src="@{/images/logo/long-logo.png}" alt="ManiToOne logo"/>
+  </div>
+
+  <div class="sign-in-link-container">
+    <p>해당 페이지는 접근할 수 없습니다.</p>
+
+    <p class="sign-in-link">
+      <a href="javascript:history.back()">돌아가기</a>
+    </p>
+  </div>
+</section>
+
 </body>
 </html>

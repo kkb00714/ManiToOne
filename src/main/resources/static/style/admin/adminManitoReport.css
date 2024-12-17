@@ -1,51 +1,69 @@
-.caption-header {
-  margin-right: 580px !important;
-}
-
-.admin-post-image {
+.admin-manito-report-image {
   opacity: 100% !important;
 }
 
-.blind-status {
+.type {
   font-size: 12px;
 }
 
-.blind-status a {
+.type a {
   color: #A5A5A5;
   margin-right: 10px;
   cursor: pointer;
 }
 
-.blind-status a.active {
+.type a.active {
   color: black;
   pointer-events: none;
 }
 
-.blind-status a:hover {
-  text-decoration: underline;
+.type a:hover {
+  text-decoration: underline; /* 마우스 오버 시 강조 */
 }
 
-.change-status {
+.form-select {
+  width: 125px !important;
+}
+
+.reportType-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  padding: 5px 10px;
+  background-color: #F5F5F5;
+  border-radius: 10px;
+  width: 125px;
+  text-align: center;
+  font-size: 12px;
+  height: 30px;
+}
+
+.caption-header {
+  margin-right: 415px !important;
+}
+
+.delete-manito {
   position: relative;
   z-index: 2;
 }
 
-.change-status:hover {
+.delete-manito:hover {
   text-decoration: underline;
 }
 
-.delete-post {
-  position: relative;
-  z-index: 2;
-}
-
-.delete-post:hover {
-  text-decoration: underline;
-}
-
-.post-table-body tr {
+.manito-report-table-body tr {
   position: relative;
   z-index: 1;
+}
+
+.delete-report {
+  position: relative;
+  z-index: 2;
+}
+
+.delete-report:hover {
+  text-decoration: underline;
 }
 
 .post-modal {
@@ -120,7 +138,8 @@
 }
 
 /* 프로필 컨텐츠 전체 스타일 */
-.profile-content-container {
+.profile-content-container ,
+.reply-container{
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -131,7 +150,8 @@
 }
 
 /* 프로필 이미지 스타일 */
-.profile-image {
+.profile-image,
+.reply-profile-image {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -153,21 +173,24 @@
 }
 
 /* 아이디 스타일 */
-.user-id {
+.user-id,
+.reply-user-id {
   font-weight: bold;
   font-size: 1rem;
   color: #333;
 }
 
 /* 시간 스타일 */
-.post-time {
+.post-time,
+.reply-post-time {
   width: 50px;
   font-size: 0.875rem;
   color: #888;
 }
 
 /* 내용 스타일 */
-.post-content {
+.post-content,
+.reply-content {
   font-size: 0.9rem;
   color: #555;
   line-height: 1.4;
@@ -176,4 +199,23 @@
 
 .modal-overlay {
   z-index: 1 !important;
+}
+
+.reply-box {
+  margin-top: 30px;
+  display: block; !important;
+}
+
+.reply {
+  display: block;
+}
+
+.reply-header {
+  margin: 0 auto;
+  font-size: 30px;
+  max-width: 500px;
+}
+
+hr {
+  max-width: 500px;
 }

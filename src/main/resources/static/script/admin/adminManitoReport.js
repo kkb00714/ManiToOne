@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const tableBody = document.querySelector("#post-table-body");
+  const tableBody = document.querySelector("#manito-report-table-body");
   const pagination = document.querySelector(".pagination");
   const searchButton = document.querySelector("#searchButton");
   const searchQuery = document.querySelector("#searchQuery");
@@ -56,9 +56,9 @@ document.addEventListener("DOMContentLoaded", function () {
     currentPage = page;
     syncSearchFields();
 
-    tableBody.innerHTML = '<tr><td colspan="9">Loading...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
 
-    fetch(`/admin/posts?page=${page - 1}`, {
+    fetch(`/admin/manito/reports?page=${page - 1}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -72,26 +72,34 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.json();
     })
     .then((data) => {
-      tableBody.innerHTML = data.content
-      .map(
-          (post) => `
-<tr data-post='${JSON.stringify(post)}'>
-          <td>${post.postId}</td>
-          <td>${post.user.name}</td>
-          <td>${post.user.nickname}</td>
-          <td>${post.user.email}</td>
-          <td>${post.content.length > 15 ? post.content.substring(0, 15) + '...'
-              : post.content}</td>
-          <td>${formatDatetimeSecond(post.createdAt)}</td>
-          <td class="blind-status">${post.isBlind ? 'O' : 'X'}</td>
-          <td><a href="#" class="change-status" data-id="${post.postId}">변경</a></td>
-          <td><a href="#" class="delete-post" data-id="${post.postId}">삭제</a></td>
-        </tr>
-                      `
-      )
-      .join("");
-
-      renderPagination(page, data.totalPages);
+      if (!data.content || data.content.length === 0) {
+        tableBody.innerHTML = `
+    <tr>
+      <td colspan="8" class="text-center">데이터가 없습니다</td>
+    </tr>
+  `;
+      } else {
+        tableBody.innerHTML = data.content
+        .map((report) => {
+          return `
+                <tr data-report='${JSON.stringify(report)}'>
+                    <td>${report.reportId}</td>
+                    <td data-value="${report.type.data}">${report.type.label}</td> 
+                    <td data-value="${report.reportType.data}">${report.reportType.label
+          > 5 ? report.reportType.label.substring(0, 5) + '...'
+              : report.reportType.label}</td>
+                    <td>${report.content.length > 6 ? report.content.substring(
+              0, 6) + '...' : report.content}</td>
+                    <td>${report.reportedByUser.nickname}</td> 
+                    <td>
+                        ${report.reportedToUser.nickname}
+                    </td>
+                    <td>${formatDatetimeSecond(report.createdAt)}</td>
+            `;
+        })
+        .join("");
+        renderPagination(page, data.totalPages);
+      }
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -174,119 +182,49 @@ document.addEventListener("DOMContentLoaded", function () {
         });
   }
 
-  // 엔터 키를 눌렀을 때 검색 버튼 클릭
   searchQuery.addEventListener("keydown", function (event) {
     if (event.key === "Enter") {
-      event.preventDefault(); // 기본 동작 방지
-      searchButton.click();   // 검색 버튼 클릭 트리거
+      event.preventDefault();
+      searchButton.click();
     }
   });
 
-  let statusLinkItems = document.querySelectorAll('.status-filter');
+  // 마니또 답변 , 감사인사 필터
+  let typeLinkItems = document.querySelectorAll('.type-filter');
 
-  statusLinkItems.forEach((link) => {
+  typeLinkItems.forEach((link) => {
     link.addEventListener("click", function (event) {
       event.preventDefault();
 
-      document.querySelectorAll(".status-filter").forEach(
+      document.querySelectorAll(".type-filter").forEach(
           (link) => link.classList.remove("active"));
       this.classList.add("active");
-
       const currentStatus = this.dataset.status;
-
-      if (currentStatus === "0") {
-        requestBody.isBlind = false;
-      } else if (currentStatus === "1") {
-        requestBody.isBlind = true;
+      if (currentStatus !== "") {
+        requestBody.type = this.dataset.status;
       } else {
-        requestBody.isBlind = null;
+        requestBody.type = null;
       }
-
       loadPage(1);
     });
   });
 
-  // 게시글 블라인드 처리
-  // document.addEventListener("click", function (event) {
-  //   if (event.target.classList.contains("change-status")) {
-  //     event.preventDefault();
-  //
-  //     const postId = event.target.dataset.id;
-  //     const currentRow = event.target.closest('tr');
-  //     const blindStatusCell = currentRow.querySelector('.blind-status');
-  //
-  //     fetch(`/admin/blind/post/${postId}`, {
-  //       method: "PUT",
-  //     })
-  //     .then((response) => {
-  //       if (!response.ok) {
-  //         throw new Error("Failed to fetch data");
-  //       }
-  //       return response.json();
-  //     })
-  //     .then((data) => {
-  //       blindStatusCell.textContent = data.isBlind ? 'O' : 'X';
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error:", error);
-  //     });
-  //   }
-  // });
+  // 신고 사유 필터
+  const reportTypeSelect = document.querySelector("#reportTypeSelect");
 
-  // 게시글 삭제 처리
-  // document.addEventListener("click", function (event) {
-  //   if (event.target.classList.contains("delete-post")) {
-  //     event.preventDefault();
-  //
-  //     const postId = event.target.dataset.id;
-  //
-  //     if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
-  //       fetch(`/admin/report/post/${postId}`, {
-  //         method: "GET",
-  //       })
-  //       .then((response) => {
-  //         if (!response.ok) {
-  //           throw new Error("Failed to delete post");
-  //         }
-  //         return response.json();
-  //       })
-  //       .then((isReportedPost) => {
-  //         if (isReportedPost) {
-  //           if (confirm("해당 게시글은 신고된 게시글입니다. 정말 삭제하시겠습니까? (신고 목록도 삭제)")) {
-  //             deletePost(postId);
-  //           }
-  //         } else {
-  //           deletePost(postId);
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error:", error);
-  //         alert("게시글 삭제 중 오류가 발생했습니다.");
-  //       });
-  //     }
-  //   }
-  // });
+  reportTypeSelect.addEventListener("change", function () {
+    const selectedValue = this.value;
 
-  function deletePost(postId) {
-    fetch(`/admin/post/${postId}`, {
-      method: "DELETE",
-    })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Failed to delete post");
-      }
-      return response.text();
-    })
-    .then(() => {
-      loadPage(currentPage); // 현재 페이지 새로 로드
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      alert("게시글 삭제 중 오류가 발생했습니다.");
-    });
-  }
+    if (selectedValue === "") {
+      requestBody.reportType = null;
+    } else {
+      requestBody.reportType = selectedValue;
+    }
 
-  function initializeSlider(postData, imageUrls) {
+    loadPage(1);
+  });
+
+  function initializeSlider(reportData, imageUrls) {
     // DOM 요소 가져오기
     const imageSlider = document.querySelector(".image-slider");
     const imageContainer = document.getElementById("imageContainer");
@@ -340,7 +278,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // 버튼 상태 업데이트
     function updateButtons() {
       prevBtn.style.display = currentIndex > 0 ? "block" : "none";
-      nextBtn.style.display = currentIndex < imageUrls.length - 1 ? "block" : "none";
+      nextBtn.style.display = currentIndex < imageUrls.length - 1 ? "block"
+          : "none";
     }
 
     // 초기 버튼 상태 및 슬라이더 위치 설정
@@ -348,22 +287,38 @@ document.addEventListener("DOMContentLoaded", function () {
     updateSlider();
   }
 
-  function openProfileModal(postData, imageData) {
+  function openProfileModal(reportData, imageData) {
     // 첫 번째 데이터 - postData
     const profileImageElement = document.querySelector(".profile-image");
     const userIdElement = document.querySelector(".user-id");
     const postTimeElement = document.querySelector(".post-time");
     const postContentElement = document.querySelector(".post-content");
 
-    profileImageElement.src = postData.user.profileImage || "/images/icons/UI-user2.png";
-    userIdElement.textContent = postData.user.name;
-    postTimeElement.textContent = postData.timeDifference;
-    postContentElement.textContent = postData.content;
+    const replyProfileImageElement = document.querySelector(
+        ".reply-profile-image");
+    const replyUserIdElement = document.querySelector(".reply-user-id");
+    const replyContentElement = document.querySelector(".reply-content");
+    const replyHeader = document.querySelector(".reply-header");
+
+    profileImageElement.src = reportData.post.user.profileImage
+        || "/images/icons/UI-user2.png";
+    userIdElement.textContent = reportData.post.user.nickname;
+    postContentElement.textContent = reportData.post.content;
+    postTimeElement.textContent = reportData.post.timeDifference;
+
+    if (reportData.type.data === "MANITO_LETTER") {
+      replyHeader.textContent = "신고된 편지";
+    } else if (reportData.type.data === "MANITO_ANSWER") {
+      replyHeader.textContent = "신고된 답변";
+    }
+    replyProfileImageElement.src = reportData.reportedToUser.profileImage || "/images/icons/UI-user2.png";
+    replyUserIdElement.textContent = reportData.reportedToUser.nickname;
+    replyContentElement.textContent = reportData.content;
 
     const imageUrls = imageData.map(image => image.fileName);
 
     // 이미지 슬라이더 초기화
-    initializeSlider(postData, imageUrls);
+    initializeSlider(reportData, imageUrls);
 
     modalContainer.style.display = "block";
     modalBackground.style.display = "block";
@@ -383,79 +338,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
   tableBody.addEventListener("click", function (event) {
     const row = event.target.closest("tr");
-
-    // 변경 버튼 클릭 처리
-    if (event.target.classList.contains("change-status")) {
-      event.preventDefault(); // 기본 동작 방지
-      event.stopPropagation(); // 이벤트 전파 방지
-
-      const postId = event.target.dataset.id;
-      const currentRow = event.target.closest('tr');
-      const blindStatusCell = currentRow.querySelector('.blind-status');
-
-      fetch(`/admin/blind/post/${postId}`, {
-        method: "PUT",
-      })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        blindStatusCell.textContent = data.isBlind ? 'O' : 'X';
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-      return; // 버튼 클릭 이후 나머지 로직 실행 방지
-    }
-
-    // 삭제 버튼 클릭 처리
-    if (event.target.classList.contains("delete-post")) {
-      event.preventDefault(); // 기본 동작 방지
-      event.stopPropagation(); // 이벤트 전파 방지
-
-      const postId = event.target.dataset.id;
-
-      if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
-        fetch(`/admin/report/post/${postId}`, {
-          method: "GET",
-        })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to delete post");
-          }
-          return response.json();
-        })
-        .then((isReportedPost) => {
-          if (isReportedPost) {
-            if (confirm("해당 게시글은 신고된 게시글입니다. 정말 삭제하시겠습니까? (신고 목록도 삭제)")) {
-              deletePost(postId);
-            }
-          } else {
-            deletePost(postId);
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("게시글 삭제 중 오류가 발생했습니다.");
-        });
-      }
-      return; // 버튼 클릭 이후 나머지 로직 실행 방지
-    }
-
-    // Row 클릭 시 모달 열기
     if (row) {
-      const postData = JSON.parse(row.dataset.post); // 이미 바인딩된 데이터
-      const postId = postData.postId;
+      const reportData = JSON.parse(row.dataset.report);  // 이미 바인딩된 데이터
+      console.log(reportData);
+
+      // type에 따라 postId 설정
+      let postId = reportData.post.postId;
 
       fetch(`/admin/post/${postId}/image`)
-      .then((response) => response.json())
-      .then((imageData) => {
-        openProfileModal(postData, imageData);
+      .then(response => response.json())
+      .then(imageData => {
+        console.log("성공");
+        console.log(imageData);
+        openProfileModal(reportData, imageData);
       })
-      .catch((error) => {
+      .catch(error => {
         console.error("이미지 로드 오류:", error);
       });
     }

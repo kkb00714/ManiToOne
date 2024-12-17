@@ -19,12 +19,14 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -40,6 +42,10 @@ public class PostController {
   public ResponseEntity<PostResponseDto> createPost(@RequestBody AddPostRequestDto request,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
+
+    System.out.println("email: " + email);
+    System.out.println("content: " + request.getContent());
+    System.out.println(request.getIsManito());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, email));
   }
@@ -81,25 +87,28 @@ public class PostController {
 
   // 게시글 삭제
   @DeleteMapping("/{postId}")
-  public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId) {
-    postService.deletePost(postId);
+  public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId, HttpSession session) {
+    String email = (String) session.getAttribute("email");
+    postService.deletePost(postId, email);
     return ResponseEntity.ok().build();
   }
 
   // 게시글 숨기기
   @PutMapping("/hidden/{postId}")
-  public ResponseEntity<Void> hidePost(@PathVariable("postId") Long postId) {
-    postService.hidePost(postId);
+  public ResponseEntity<Void> hidePost(@PathVariable("postId") Long postId, HttpSession session) {
+    String email = (String) session.getAttribute("email");
+    postService.hidePost(postId, email);
     return ResponseEntity.ok().build();
   }
 
   // 게시글 좋아요
   @PostMapping("/like/{postId}")
-  public ResponseEntity<Void> likePost(@PathVariable("postId") Long postId, HttpSession session) {
+  public ResponseEntity<PostResponseDto> likePost(@PathVariable("postId") Long postId,
+      HttpSession session) {
     String email = session.getAttribute("email") + "";
 
-    postService.likePost(postId, email);
-    return ResponseEntity.ok().build();
+    PostResponseDto post = postService.likePost(postId, email);
+    return ResponseEntity.ok(post);
   }
 
   // 게시글 좋아요 개수 조회
@@ -110,14 +119,14 @@ public class PostController {
   }
 
   // 게시글 신고
-  @PutMapping("/report/{postId}")
+  @PostMapping("/report/{postId}")
   public ResponseEntity<ReportResponseDto> reportPost(@PathVariable("postId") Long postId,
-      @RequestBody AddReportRequestDto request,
+      @RequestParam("reportType") String reportType,
       HttpSession session) {
     String email = session.getAttribute("email") + "";
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(postService.reportPost(postId, request, email));
+        .body(postService.reportPost(postId, reportType, email));
   }
 
   @GetMapping("/by/{nickName}")
@@ -135,7 +144,9 @@ public class PostController {
 
   @GetMapping("/hidden")
   public ResponseEntity<List<PostViewResponseDto>> getPostById(
-      @PageableDefault(sort = "postId", direction = Sort.Direction.DESC) Pageable pageable, HttpSession session) {
-    return ResponseEntity.ok(postService.getMyHiddenPosts((String)session.getAttribute("nickname"), pageable));
+      @PageableDefault(sort = "postId", direction = Sort.Direction.DESC) Pageable pageable,
+      HttpSession session) {
+    return ResponseEntity.ok(
+        postService.getMyHiddenPosts((String) session.getAttribute("nickname"), pageable));
   }
 }

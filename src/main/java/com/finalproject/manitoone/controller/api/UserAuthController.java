@@ -41,7 +41,7 @@ public class UserAuthController {
       userAuthService.registerUser(userSignUpDTO);
       return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료됐습니다.");
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
 
@@ -72,8 +72,7 @@ public class UserAuthController {
 
       return ResponseEntity.ok(userResponse);
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest()
-          .body(new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage()));
+      return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
 

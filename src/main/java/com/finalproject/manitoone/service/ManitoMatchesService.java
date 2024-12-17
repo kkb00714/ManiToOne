@@ -41,7 +41,7 @@ public class ManitoMatchesService {
 
     // 배정 가능한 게시글 찾기 (72시간 이내)
     LocalDateTime postTimeLimit = LocalDateTime.now().minusHours(72);
-    List<Post> assignablePosts = manitoMatchesRepository.findAssignablePosts(postTimeLimit);
+    List<Post> assignablePosts = manitoMatchesRepository.findAssignablePosts(postTimeLimit, user.getUserId());
 
     if (assignablePosts.isEmpty()) {
       throw new IllegalStateException(ManitoErrorMessages.NO_AVAILABLE_POSTS.getMessage());

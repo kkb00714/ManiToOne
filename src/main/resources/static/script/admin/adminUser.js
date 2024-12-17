@@ -40,11 +40,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  searchButton.addEventListener("click", handleSearchClick);
   loadPage(1);
 
   function loadPage(page) {
-    searchButton.removeEventListener("click", handleSearchClick);
-    searchButton.addEventListener("click", handleSearchClick);
     syncSearchFields();
 
     tableBody.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
@@ -63,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.json();
     })
     .then((data) => {
+      console.log(data)
       tableBody.innerHTML = data.content
       .map(
           (user) => `
@@ -153,13 +153,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     pagination.innerHTML = html;
 
-    searchQuery.addEventListener("keydown", function (event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        searchButton.click();
-      }
-    });
-
     document.querySelectorAll(".page-link, .page-link-number").forEach(
         (button) => {
           if (!button.classList.contains("disabled")) {
@@ -170,6 +163,13 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         });
   }
+
+  searchQuery.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      searchButton.click();
+    }
+  });
 
   let statusLinkItems = document.querySelectorAll('.status-filter');
 
@@ -330,7 +330,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     changedData["userId"] = originalData["userId"];
-    console.log(changedData);
 
     fetch("/admin/users", {
       method: "PUT",

@@ -1,0 +1,51 @@
+<div class="post-modal" id="postModal" th:fragment="post-report-modal">
+  <div class="profile-content-container">
+    <!-- 프로필 이미지 -->
+    <img class="profile-image" src="" alt="프로필 이미지"/>
+    <div class="profile-text-container">
+      <!-- 아이디와 시간 -->
+      <div class="profile-header">
+        <div class="nickname-time-box">
+          <span class="user-id"></span>
+          <span class="post-time"></span>
+        </div>
+        <img
+            class="tiny-icons"
+            id="closeProfileUpdateBtn"
+            th:src="@{/images/icons/icon-cancel.png}"
+            alt="close icon"
+        />
+      </div>
+      <!-- 내용 -->
+      <div class="post-content">
+      </div>
+    </div>
+  </div>
+  <div class="image-slider">
+    <button class="slider-btn prev-btn" id="prevBtn" style="display: none;">&lt;</button>
+    <div class="image-container" id="imageContainer"></div>
+    <button class="slider-btn next-btn" id="nextBtn" style="display: none;">&gt;</button>
+  </div>
+  <div class="reply-box">
+    <hr>
+    <div class="reply-header">
+      신고된 답글
+    </div>
+    <hr>
+    <div class="reply-container">
+      <img class="reply-profile-image" src="" alt="프로필 이미지"/>
+      <!-- 아이디와 시간 -->
+      <div class="profile-text-container">
+        <div class="profile-header">
+          <div class="nickname-time-box">
+            <span class="reply-user-id"></span>
+            <span class="reply-post-time"></span>
+          </div>
+        </div>
+        <!-- 내용 -->
+        <div class="reply-content">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -11,8 +11,8 @@ function handleNotificationClick(notiType, relatedObjectId, nickname) {
       url = `/profile/${nickname}`;
       break;
     case 'RECEIVE_MANITO':
-    case 'MANITO_COMMENT':
-    case 'MANITO_THANK_COMMENT':
+    case 'MANITO_LETTER':
+    case 'MANITO_ANSWER_LETTER':
       url = `/manito?letterId=` + relatedObjectId + '$tab=received';
       break;
     default:

@@ -786,9 +786,23 @@ const ManitoPage = {
     }
   },
 
+
+  initializePostNavigation() {
+    const postContent = document.querySelector('.todays-manito-post .content-text');
+    if (postContent) {
+      postContent.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        if (postId) {
+          location.href = `/post/${postId}`;
+        }
+      });
+    }
+  },
+
   init() {
     this.letterBox.init();
     this.modals.init();
+    this.initializePostNavigation();
   }
 };
 
@@ -1331,3 +1345,4 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
   ManitoPage.init();
 });
+

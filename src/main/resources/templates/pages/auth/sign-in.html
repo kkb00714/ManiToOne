@@ -26,21 +26,25 @@
         <input
             class="sign-in-input"
             type="text"
-            name="user-id"
+            name="username"
             id="user-id"
             placeholder="사용자 아이디"
             aria-label="사용자 아이디"
+            required
         />
         <input
             class="sign-in-input"
             type="password"
-            name="user-password"
+            name="password"
             id="user-password"
             placeholder="비밀번호"
             aria-label="비밀번호"
+            required
         />
-        <span><button type="button" id="toggle-password-sign-in" aria-label="비밀번호 표시/숨기기">표시️</button></span>
-        <button class="sign-in-button">로그인</button>
+        <span>
+          <button type="button" id="toggle-password-sign-in" aria-label="비밀번호 표시/숨기기">표시</button>
+        </span>
+        <button type="submit" class="sign-in-button">로그인</button>
       </div>
     </form>
   </div>
@@ -55,12 +59,6 @@
     <hr class="sign-in-devider-line"/>
   </div>
   <div class="external-login-container">
-    <!--    <button class="kakao-login">-->
-    <!--      <img-->
-    <!--          th:src="@{/images/logo/external-login-logo/google-login.png}"-->
-    <!--          alt=""-->
-    <!--      />-->
-    <!--    </button>-->
     <button class="google-login">
       <a th:href="@{/oauth2/authorization/google}" class="google-login">
         <img th:src="@{/images/logo/external-login-logo/google-login.png}" alt="Google 로그인"/>
@@ -100,26 +98,19 @@
       credentials: "include",
     })
     .then(response => {
-      if (response.ok) {
-        return response.text();  // 정상적인 응답은 JSON으로 처리
-      } else {
-        return response.text().then(errorResponse => {
-          // 오류가 JSON 형태로 반환되면 여기에 처리
-          throw new Error(errorResponse.error || "알 수 없는 오류");
-        });
-      }
+      return response.text().then(message => {
+        if (!response.ok) {
+          throw new Error(message);
+        }
+        return message;
+      });
     })
-    .then(user => {
-      if (user && user.nickname) {
-        localStorage.setItem("isRead", user.read);
-        alert(`로그인 성공! 환영합니다, ${user.nickname} 님.`);
-        window.location.href = "/";
-      } else {
-        throw new Error("user를 찾을 수 없습니다.");
-      }
+    .then(message => {
+      alert(message);
+      window.location.href = "/";
     })
     .catch(error => {
-      alert("로그인 실패: " + error.message);
+      alert(`로그인 실패: ${error.message}`);
     });
   });
 

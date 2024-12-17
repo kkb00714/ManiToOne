@@ -72,6 +72,7 @@ public class UserAuthController {
       session.setAttribute("profileImage", userResponse.getProfileImage());
       session.setAttribute("introduce", userResponse.getIntroduce());
       session.setAttribute("isNewUser", false);
+      session.setAttribute("role", userResponse.getRole());
 
       // 알림
       userResponse.setRead(notificationService.hasUnreadNotifications(

@@ -33,7 +33,8 @@
 }
 
 /* 답글 수정 모달 textarea */
-#update-reply-content {
+#update-reply-content,
+#update-rereply-content {
   all: unset;
   font-weight: normal;
   width: 100%;

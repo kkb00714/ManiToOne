@@ -131,13 +131,9 @@
 
               <!-- 게시글 수정 모달 -->
               <div class="new-post-form-modal" id="updatePostFormModal">
-                <form
+                <div
                   class="new-post-form-modal-container"
                   id="updatePostFormModalContainer"
-                  th:action="@{/api/post/{postId}(postId=${post.postId})}"
-                  th:method="put"
-                  th:onsubmit=""
-                  enctype="multipart/form-data"
                 >
                   <div class="new-post-title">
                     <p>게시물 수정</p>
@@ -168,10 +164,7 @@
                       </div>
                     </div>
 
-                    <div
-                      class="manito-response-toggle"
-                      onclick="togglesManito(this, 'response')"
-                    >
+                    <div class="manito-response-toggle">
                       <img
                         class="tiny-icons"
                         th:src="@{/images/icons/icon-check-empty.png}"
@@ -214,9 +207,15 @@
                       alt="add image icon"
                       onclick="document.getElementById('image-upload-btn').click()"
                     />
-                    <button class="post-button" type="submit">수정하기</button>
+                    <button
+                      class="post-button"
+                      type="submit"
+                      th:onclick="'onUpdatePostSubmit(' + ${post.postId} + ')'"
+                    >
+                      수정하기
+                    </button>
                   </div>
-                </form>
+                </div>
               </div>
 
               <!-- 게시글 신고 모달 -->
@@ -381,12 +380,9 @@
 
               <!-- 답글 수정 모달 -->
               <div class="new-post-form-modal" id="updateReplyFormModal">
-                <form
+                <div
                   class="new-post-form-modal-container"
                   id="updateReplyFormModalContainer"
-                  th:action="@{/api/reply/{replyId}(replyId=${reply.replyPostId})}"
-                  th:method="put"
-                  th:onsubmit=""
                 >
                   <div class="new-post-title">
                     <p>답글 수정</p>
@@ -417,9 +413,7 @@
                       </div>
                     </div>
 
-                    <div
-                      class="manito-response-toggle"
-                    >
+                    <div class="manito-response-toggle">
                       <img
                         class="tiny-icons"
                         th:src="@{/images/icons/icon-check-empty.png}"
@@ -454,7 +448,7 @@
                     />
                     <button class="post-button" type="submit">수정하기</button>
                   </div>
-                </form>
+                </div>
               </div>
 
               <!-- 답글 신고 모달 -->

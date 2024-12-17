@@ -66,9 +66,11 @@ public class PostController {
   public ResponseEntity<PostResponseDto> updatePost(@PathVariable("postId") Long postId,
       @RequestParam("content") String content,
       HttpSession session) {
-    String email = session.getAttribute("email") + "";
+    String email = (String) session.getAttribute("email");
 
-    UpdatePostRequestDto request = UpdatePostRequestDto.builder().content(content).build();
+    UpdatePostRequestDto request = UpdatePostRequestDto.builder()
+        .content(content)
+        .build();
 
     return ResponseEntity.ok(postService.updatePost(postId, request, email));
   }

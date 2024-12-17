@@ -397,6 +397,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .then((updatedUser) => {
       alert("프로필 이미지가 성공적으로 업데이트되었습니다.");
       profileImage.src = updatedUser.profileImage;
+      clickedRow.dataset.user = JSON.stringify(updatedUser);
     })
     .catch((error) => {
       alert(`프로필 이미지 업데이트에 실패했습니다: ${error.message}`);

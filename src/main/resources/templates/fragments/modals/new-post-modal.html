@@ -10,6 +10,7 @@
     th:action="@{/api/post}"
     method="post"
     th:onsubmit="'onPostSubmit(event)'"
+    enctype="multipart/form-data"
   >
     <div class="new-post-title">
       <p>새 게시물 작성</p>
@@ -70,10 +71,20 @@
     </div>
 
     <div class="post-button-container">
+      <input
+        type="file"
+        id="image-upload-btn"
+        name="images"
+        accept="image/jpeg, image/png"
+        multiple
+        onchange="countImages(this)"
+        style="display: none"
+      />
       <img
         class="tiny-icons"
         th:src="@{/images/icons/icon-image2.png}"
         alt="add image icon"
+        onclick="document.getElementById('image-upload-btn').click()"
       />
       <button class="post-button" type="submit">게시하기</button>
     </div>

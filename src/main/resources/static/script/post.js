@@ -81,6 +81,17 @@ function togglesManito(element, responseType) {
   console.log(`isManito: ${isManito}`);
 }
 
+// 이미지 개수 확인
+function countImages(input) {
+  const maxImages = 4;
+  const imageCount = input.files.length;
+
+  if (imageCount > maxImages) {
+    alert(`사진은 최대 ${maxImages}장까지만 업로드 가능합니다.`);
+    return;
+  }
+}
+
 // 게시글 작성
 async function onPostSubmit(event) {
   event.preventDefault();
@@ -89,31 +100,41 @@ async function onPostSubmit(event) {
   const baseUrl = form.action;
 
   const content = document.getElementById("new-post-content").value.trim();
+  const images = document.getElementById("image-upload-btn").files;
 
   console.log("content: ", content);
+  console.log("images: ", images);
 
   if (!content) {
     alert("내용을 입력해주세요.");
     return;
   }
 
+  if (images.length > 4) {
+    alert("이미지는 최대 4장까지만 업로드 가능합니다.");
+    return;
+  }
+
   const formData = new URLSearchParams();
   formData.append("content", content);
   formData.append("isManito", isManito);
+  // formData.append("images", images);
+
+  for (let i = 0; i < images.length; i++) {
+    formData.append("images", images[i]);
+  }
 
   console.log("Data: ", formData);
-
+  
   try {
     const response = await fetch(baseUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: formData.toString()
+      body: formData,
     });
 
     if (response.ok) {
       alert("게시글을 작성하셨습니다.");
+      window.location.reload();
     } else {
       alert("게시글 작성에 실패하셨습니다.");
     }

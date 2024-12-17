@@ -34,6 +34,7 @@ import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import com.finalproject.manitoone.util.FileUtil;
 import jakarta.transaction.Transactional;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -85,9 +86,18 @@ public class PostService {
         .isManito(request.getIsManito())
         .build());
 
+    List<String> imagePaths = new ArrayList<>();
     if (request.getImages() != null) {
       for (MultipartFile image : request.getImages()) {
-        saveImage(image, post);
+        String imagePath = saveImage(image);
+        imagePaths.add(imagePath);
+      }
+
+      for (String imagePath : imagePaths) {
+        postImageRepository.save(PostImage.builder()
+            .post(post)
+            .fileName(imagePath)
+            .build());
       }
     }
 
@@ -105,20 +115,25 @@ public class PostService {
   }
 
   // 이미지 저장
-  private void saveImage(MultipartFile image, Post post) {
-    String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
-    Path filePath = Paths.get("/usr/local/images/posts", fileName);
+  private String saveImage(MultipartFile image) {
+    String uploadDir = "/usr/local/images/posts";
+    File uploadPath = new File(uploadDir);
+
+    if (!uploadPath.exists()) {
+      uploadPath.mkdirs();
+    }
+
+    String imageName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+    File savedImage = new File(uploadPath, imageName);
 
     try {
-      Files.copy(image.getInputStream(), filePath);
-      postImageRepository.save(
-          PostImage.builder()
-              .post(post)
-              .fileName(filePath.toString())
-              .build());
+      image.transferTo(savedImage);
     } catch (IOException e) {
-      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage());
+      throw new IllegalArgumentException(
+          IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage() + ": " + e.getMessage());
     }
+
+    return savedImage.getAbsolutePath();
   }
 
   // 게시글 수정

@@ -259,19 +259,6 @@ document.addEventListener("DOMContentLoaded", function () {
     event.stopPropagation();
   }
 
-  function addDocumentClickEventListener() {
-    document.addEventListener('click', function(event) {
-      const isClickInsideMenu = event.target.closest('.more-options-menu');
-      const isClickInsideButton = event.target.closest('.tiny-icons[alt="more options"]');
-
-      if (!isClickInsideMenu && !isClickInsideButton) {
-        document.querySelectorAll('.more-options-menu').forEach(menu => {
-          menu.classList.remove('visible');
-          menu.classList.add('hidden');
-        });
-      }
-    });
-  }
 
   function showLoader() {
     const existingLoader = document.querySelector('.timeline-loader');

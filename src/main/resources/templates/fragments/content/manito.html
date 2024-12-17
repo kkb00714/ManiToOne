@@ -33,13 +33,11 @@
           />
           <div class="post-content">
             <div class="user-info">
-              <span class="user-name" th:text="${todaysPost.nickName}">beer_lover</span>
+              <a th:href="@{'/profile/' + ${todaysPost.nickName}}" class="user-name" th:text="${todaysPost.nickName}">beer_lover</a>
               <span class="passed-time" th:text="${todaysPost.formattedTime}">3분</span>
             </div>
-            <p class="content-text" th:text="${todaysPost.content}">
-              오늘 일 완전 힘들었다... 스트레스 받아서 귀가하는 길에 지친
-              심신을 달래줄 맥주 한 캔 샀음~ <br/>
-              아쉽지만 치킨은 없다ㅋㅋ 이번달 돈 아껴야 해~~
+            <p class="content-text" th:text="${todaysPost.content}" th:data-post-id="${todaysPost.postId}" style="cursor: pointer">
+            </p>
             </p>
             <img
                 class="post-image"
@@ -65,18 +63,6 @@
               <span class="reply-count"
                     th:text="${todaysPost.replies != null ? todaysPost.replies.size() : 0}">3</span>
             </div>
-          </div>
-          <div class="option-icons">
-            <img
-                class="tiny-icons"
-                th:src="@{/images/icons/UI-more2.png}"
-                alt="more options"
-            />
-            <img
-                class="tiny-icons"
-                th:src="@{/images/icons/icon-add-friend.png}"
-                alt="add friend"
-            />
           </div>
         </div>
       </div>

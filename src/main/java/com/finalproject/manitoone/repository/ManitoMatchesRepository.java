@@ -29,13 +29,14 @@ public interface ManitoMatchesRepository extends JpaRepository<ManitoMatches, Lo
   // 배정 가능한 포스트 조회
   @Query("SELECT DISTINCT p FROM Post p " +
       "WHERE p.isManito = true " +
+      "AND p.isHidden = false " +  // 사용자가 숨기지 않은 포스트만
+      "AND p.isBlind = false " +   // 관리자가 블라인드 처리하지 않은 포스트만
       "AND p.createdAt > :timeLimit " +
       "AND p.user.userId != :userId " +
       "AND (NOT EXISTS (SELECT 1 FROM ManitoMatches m WHERE m.matchedPostId = p) " +
       "OR EXISTS (SELECT 1 FROM ManitoMatches m " +
       "          WHERE m.matchedPostId = p " +
-      "          AND m.matchedTime = (SELECT MAX(m2.matchedTime) FROM ManitoMatches m2 WHERE m2.matchedPostId = p) "
-      +
+      "          AND m.matchedTime = (SELECT MAX(m2.matchedTime) FROM ManitoMatches m2 WHERE m2.matchedPostId = p) " +
       "          AND m.status IN (com.finalproject.manitoone.constants.MatchStatus.REPORTED, " +
       "                          com.finalproject.manitoone.constants.MatchStatus.EXPIRED, " +
       "                          com.finalproject.manitoone.constants.MatchStatus.PASSED))) " +

@@ -8,13 +8,19 @@
             th:src="@{/images/icons/icon-search.png}"
             alt="search icon"
         />
-        <input
-            type="text"
-            name=""
-            id="search-input"
-            placeholder="찾고 싶은 내용이 있나요?"
-            aria-label="검색"
-        />
+        <div class="user-search-box">
+          <input
+              type="text"
+              name=""
+              id="search-input"
+              placeholder="새로운 인연을 찾아보세요!"
+              aria-label="검색"
+          />
+          <div id="search-results" class="search-results">
+
+            <div id="loading" class="loading" style="display: none;">로딩 중...</div>
+          </div>
+        </div>
       </div>
     </form>
   </section>
@@ -75,4 +81,6 @@
       </div>
     </div>
   </section>
+  <link rel="stylesheet" th:href="@{/style/userSearch.css}"/>
+  <script th:src="@{/script/userSearch.js}"></script>
 </article>

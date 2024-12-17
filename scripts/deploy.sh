@@ -1,4 +1,14 @@
 #!/bin/bash
+
+# 파라미터 가져오기 (SecureString 타입)
+JASYPT_KEY=$(aws ssm get-parameters --names "/config/application/JASYPT_KEY" --with-decryption --query "Parameters[0].Value" --output text)
+
+# 가져온 값 확인 (디버깅용)
+echo "JASYPT_KEY: $JASYPT_KEY" >> /home/ec2-user/action/spring-deploy.log
+
+# 환경변수에 설정
+export JASYPT_KEY
+
 BUILD_JAR=$(ls /home/ec2-user/action/build/libs/*SNAPSHOT.jar)
 JAR_NAME=$(basename $BUILD_JAR)
 
@@ -23,4 +33,4 @@ else
 fi
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
 echo "## deploy JAR file"   >> /home/ec2-user/action/spring-deploy.log
-nohup java -jar $DEPLOY_JAR >> /home/ec2-user/action/spring-deploy.log 2> /home/ec2-user/action/spring-deploy_err.log &
+nohup java -jar $DEPLOY_JAR --jasypt.encryptor.password=$JASYPT_KEY >> /home/ec2-user/action/spring-deploy.log 2> /home/ec2-user/action/spring-deploy_err.log &

@@ -1,6 +1,5 @@
 package com.finalproject.manitoone.controller.view;
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 

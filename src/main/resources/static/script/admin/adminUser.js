@@ -469,6 +469,14 @@ document.addEventListener("DOMContentLoaded", function () {
         profileImageInput.value = "";
         return;
       }
+
+      const maxSizeMB = 5;
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        alert(`파일 크기는 ${maxSizeMB}MB 이하로만 선택할 수 있습니다.`);
+        profileImageInput.value = ""; // 입력값 초기화
+        return;
+      }
+
       updateProfileImage(file);
     }
   });

@@ -57,8 +57,6 @@ public class UserAuthController {
           userLoginRequestDto.getEmail(),
           userLoginRequestDto.getPassword()
       );
-      System.out.println("로그인 시도: " + userResponse.getEmail()); // 로그 찍기
-
       HttpSession session = request.getSession(true);
 
       session.setAttribute("email", userResponse.getEmail());

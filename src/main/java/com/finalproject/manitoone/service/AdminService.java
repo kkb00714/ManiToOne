@@ -41,7 +41,6 @@ import com.finalproject.manitoone.util.DataUtil;
 import com.finalproject.manitoone.util.FileUtil;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -806,16 +805,7 @@ public class AdminService {
       }
     }
 
-    JPQLQuery<Report> query = queryFactory
-        .selectFrom(report)
-        .where(builder)
-        .offset(pageable.getOffset())
-        .limit(pageable.getPageSize())
-        .orderBy(report.reportId.asc());
-
-    System.out.println("Generated Query: " + query); // 디버깅용 쿼리 출력
-
-    List<Report> reports = null;
+    List<Report> reports;
 
     reports = queryFactory
         .selectFrom(report)

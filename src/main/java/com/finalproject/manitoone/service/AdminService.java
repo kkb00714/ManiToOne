@@ -5,6 +5,7 @@ import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.constants.SearchType;
+import com.finalproject.manitoone.domain.AiValidationLog;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Notification;
@@ -28,6 +29,7 @@ import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchResponseDto;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
+import com.finalproject.manitoone.repository.AiValidationLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.ManitoMatchesRepository;
 import com.finalproject.manitoone.repository.NotificationRepository;
@@ -76,6 +78,7 @@ public class AdminService {
   private final ManitoMatchesRepository manitoMatchesRepository;
   private final ReportRepository reportRepository;
   private final NotificationRepository notificationRepository;
+  private final AiValidationLogRepository aiValidationLogRepository;
 
   private final FileUtil fileUtil;
   private final DataUtil dataUtil;
@@ -369,6 +372,12 @@ public class AdminService {
 
     // 게시글 AI 피드백 삭제
     aiPostLogRepository.findByPostPostId(postId).ifPresent(aiPostLogRepository::delete);
+
+    // 게시글 AI 벨리데이션 삭제
+    List<AiValidationLog> aiValidationLogs = aiValidationLogRepository.findAllByPostPostId(postId).orElse(new ArrayList<>());
+    if (!aiValidationLogs.isEmpty()) {
+      aiValidationLogRepository.deleteAll(aiValidationLogs);
+    }
 
     // 좋아요 삭제
     List<UserPostLike> userPostLikes = userPostLikeRepository.findAllByPostPostId(postId)

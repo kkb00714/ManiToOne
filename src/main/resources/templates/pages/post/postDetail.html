@@ -41,11 +41,13 @@
                   ></span>
                 </div>
                 <p class="content-text" th:text="${post.content}"></p>
-                <img
-                  class="post-image"
-                  th:src="@{/images/image-beer.webp}"
-                  alt="beer image"
-                />
+                <div class="image-container" th:if="${postImages != null}">
+                  <img
+                    th:each="image : ${postImages}"
+                    th:src="@{${image.fileName}}"
+                    alt="uploaded-image"
+                  />
+                </div>
                 <p
                   class="post-time"
                   th:text="${post.updatedAt != null ? #temporals.format(post.updatedAt, 'yyyy년 MM월 dd일 a hh시 mm분') : #temporals.format(post.createdAt, 'yyyy년 MM월 dd일 a hh시 mm분')}"
@@ -57,7 +59,11 @@
                     alt="I like this"
                     th:onclick="'likePost(' + ${post.postId} + ')'"
                   />
-                  <span class="like-count" th:text="${post.likesNumber}"></span>
+                  <span
+                    class="like-count"
+                    id="post-like-count"
+                    th:text="${post.likesNumber}"
+                  ></span>
                   <img
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-comment2.png}"
@@ -75,10 +81,12 @@
                 />
                 <img
                   class="tiny-icons"
+                  th:if="${currentUser != post.user && !#lists.contains(followings, post.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
               </div>
+
               <!-- 게시글 수정 모달 -->
               <div class="new-post-form-modal" id="updatePostFormModal">
                 <div
@@ -108,7 +116,7 @@
                           name="content"
                           id="new-post-content"
                           class="new-post-text"
-                          placeholder="나누고 싶은 글을 작성해주세요"
+                          th:text="${post.content}"
                         ></textarea>
                         <p class="letter-count" id="count500">500/500</p>
                       </div>
@@ -359,6 +367,7 @@
                 />
                 <img
                   class="tiny-icons"
+                  th:if="${currentUser != reply.user && !#lists.contains(followings, reply.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
@@ -375,6 +384,7 @@
                     type="button"
                     class="list-group-item list-group-item-action"
                     aria-current="true"
+                    th:if="${currentUser == reply.user}"
                     th:onclick="'openUpdateReplyModal()'"
                   >
                     수정하기
@@ -382,6 +392,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == reply.user}"
                     th:onclick="'hideReply(' + ${reply.replyPostId} + ')'"
                   >
                     숨기기
@@ -389,6 +400,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == reply.user}"
                     th:onclick="'deleteReply(' + ${reply.replyPostId} + ')'"
                   >
                     삭제하기
@@ -432,7 +444,7 @@
                           name="content"
                           id="update-reply-content"
                           class="new-post-text"
-                          placeholder="나누고 싶은 글을 작성해주세요"
+                          th:text="${reply.content}"
                         ></textarea>
                         <p class="letter-count" id="count-500">500/500</p>
                       </div>

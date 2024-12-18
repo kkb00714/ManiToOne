@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.controller.view;
 
 import com.finalproject.manitoone.domain.dto.ReplyResponseDto;
+import com.finalproject.manitoone.service.FollowService;
 import com.finalproject.manitoone.service.PostService;
 import com.finalproject.manitoone.service.ReplyService;
 import com.finalproject.manitoone.service.UserService;
@@ -21,6 +22,7 @@ public class PostViewController {
   private final PostService postService;
   private final ReplyService replyService;
   private final UserService userService;
+  private final FollowService followService;
 
   // 게시글 상세 조회
   @GetMapping("/post/{postId}")
@@ -30,7 +32,11 @@ public class PostViewController {
       Model model) {
     String nickname = (String) session.getAttribute("nickname");
     model.addAttribute("currentUser", userService.getCurrentUser(nickname));
+    model.addAttribute("followings", followService.getFollowings(
+        userService.getCurrentUser(nickname).getUserId()
+    ));
     model.addAttribute("post", postService.getPostDetail(postId));
+    model.addAttribute("postImages", postService.getImages(postId));
     model.addAttribute("postRepliesNum", replyService.getRepliesNum(postId));
     model.addAttribute("replies", replyService.getReplies(postId, pageable));
     return "pages/post/postDetail";
@@ -45,7 +51,11 @@ public class PostViewController {
     ReplyResponseDto reply = replyService.getReply(replyId);
     String nickname = (String) session.getAttribute("nickname");
     model.addAttribute("currentUser", userService.getCurrentUser(nickname));
+    model.addAttribute("followings", followService.getFollowings(
+        userService.getCurrentUser(nickname).getUserId()
+    ));
     model.addAttribute("post", reply.getPost());
+    model.addAttribute("postImages", postService.getImages(reply.getPost().getPostId()));
     model.addAttribute("postLikesNum", postService.getPostLikesNum(reply.getPost().getPostId()));
     model.addAttribute("postRepliesNum", replyService.getRepliesNum(reply.getPost().getPostId()));
     model.addAttribute("reply", reply);

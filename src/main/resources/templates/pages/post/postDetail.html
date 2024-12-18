@@ -87,6 +87,48 @@
                 />
               </div>
 
+              <!-- 게시글 추가 기능 모달 -->
+              <div
+                class="list-group post-options-modal"
+                id="post-options-modal"
+                style="display: none"
+              >
+                <div class="options-modal-content">
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    aria-current="true"
+                    th:if="${currentUser == post.user}"
+                    th:onclick="'openUpdatePostModal()'"
+                  >
+                    수정하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:if="${currentUser == post.user}"
+                    th:onclick="'hidePost(' + ${post.postId} + ')'"
+                  >
+                    숨기기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:if="${currentUser == post.user}"
+                    th:onclick="'deletePost(' + ${post.postId} + ')'"
+                  >
+                    삭제하기
+                  </button>
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'openPostReportModal()'"
+                  >
+                    신고하기
+                  </button>
+                </div>
+              </div>
+
               <!-- 게시글 수정 모달 -->
               <div class="new-post-form-modal" id="updatePostFormModal">
                 <div
@@ -558,44 +600,6 @@
         th:replace="~{fragments/common/right-section :: right-section}"
       ></article>
     </main>
-    <!-- 게시글 추가 기능 모달 -->
-    <div
-        class="list-group post-options-modal"
-        id="post-options-modal"
-        style="display: none"
-    >
-      <div class="options-modal-content">
-        <button
-            type="button"
-            class="list-group-item list-group-item-action"
-            aria-current="true"
-            th:onclick="'openUpdatePostModal()'"
-        >
-          수정하기
-        </button>
-        <button
-            type="button"
-            class="list-group-item list-group-item-action"
-            th:onclick="'hidePost(' + ${post.postId} + ')'"
-        >
-          숨기기
-        </button>
-        <button
-            type="button"
-            class="list-group-item list-group-item-action"
-            th:onclick="'deletePost(' + ${post.postId} + ')'"
-        >
-          삭제하기
-        </button>
-        <button
-            type="button"
-            class="list-group-item list-group-item-action"
-            th:onclick="'openPostReportModal()'"
-        >
-          신고하기
-        </button>
-      </div>
-    </div>
     <script th:src="@{/script/common.js}"></script>
     <script th:src="@{/script/post.js}"></script>
   </body>

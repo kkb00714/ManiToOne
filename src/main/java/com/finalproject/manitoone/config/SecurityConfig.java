@@ -52,18 +52,13 @@ public class SecurityConfig {
                 .requestMatchers("/login-fail", "/access-deny", "/api/local-login",
                     "/api/email-validate", "/api/email-check", "/api/password-reset",
                     "/api/check-email", "/api/check-nickname", "/api/upload", "/api/update",
-                    "/api/signup", "/oauth2/authorization/google", "/additional-info")
+                    "/api/signup", "/oauth2/authorization/google")
                 .permitAll()
 
                 // 익명 사용자 전용 페이지 접근 제어
                 .requestMatchers("/login", "/register", "/register-info", "/additional-info",
                     "/find-password", "/find-password-confirm")
-                .access((authentication, context) -> {
-                  HttpServletRequest request = context.getRequest();
-                  HttpSession session = request.getSession(false);
-                  // 세션에 롤이 없으면 익명 사용자로 접근 허용
-                  return new AuthorizationDecision(session == null || session.getAttribute("role") == null);
-                })
+                .anonymous()
 
                 // 인증된 사용자 페이지 접근 제어
                 .anyRequest().access((authentication, context) -> {
@@ -79,8 +74,8 @@ public class SecurityConfig {
                   return new AuthorizationDecision("ROLE_USER".equals(role) || "ROLE_ADMIN".equals(role));
                 })
         )
-        .addFilterBefore(new RedirectIfAuthenticatedFilter(),
-            org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+//        .addFilterBefore(new RedirectIfAuthenticatedFilter(),
+//            org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(exceptions -> exceptions
             .accessDeniedPage("/access-deny")  // 403 에러 발생 시 /access-deny로 리디렉션
         )

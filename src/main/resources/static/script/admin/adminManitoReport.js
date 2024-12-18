@@ -10,6 +10,19 @@ document.addEventListener("DOMContentLoaded", function () {
   let requestBody = {}
   let currentPage = 1;
 
+  const toEnumValue = (filter) => {
+    switch (filter) {
+      case "reportedBy":
+        return "REPORTED_BY";
+      case "reportedTo":
+        return "REPORTED_TO";
+      case "content":
+        return "CONTENT";
+      default:
+        return null;
+    }
+  };
+
   function formatDatetimeSecond(input) {
     if (!input) {
       return "없음";
@@ -19,19 +32,19 @@ document.addEventListener("DOMContentLoaded", function () {
     return `${date} ${time}`;
   }
 
-  function syncSearchFields() {
-    const filterSelect = document.querySelector("#filterSelect");
-    const searchQuery = document.querySelector("#searchQuery");
-
-    const [key] = Object.keys(requestBody);
-    if (key) {
-      filterSelect.value = key;
-      searchQuery.value = requestBody[key];
-    } else {
-      const defaultFilter = filterSelect.options[0].value;
-      requestBody = {[defaultFilter]: ""};
-    }
-  }
+  // function syncSearchFields() {
+  //   const filterSelect = document.querySelector("#filterSelect");
+  //   const searchQuery = document.querySelector("#searchQuery");
+  //
+  //   const [key] = Object.keys(requestBody);
+  //   if (key) {
+  //     filterSelect.value = key;
+  //     searchQuery.value = requestBody[key];
+  //   } else {
+  //     const defaultFilter = filterSelect.options[0].value;
+  //     requestBody = {[defaultFilter]: ""};
+  //   }
+  // }
 
   const handleSearchClick = () => {
     const filterSelect = document.querySelector("#filterSelect").value;
@@ -44,7 +57,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (filterSelect && searchQuery) {
-      requestBody = {[filterSelect]: searchQuery};
+      const type = toEnumValue(filterSelect);
+      const content = searchQuery;
+      requestBody['type'] = type;
+      requestBody['content'] = content;
       loadPage(1);
     }
   }
@@ -54,16 +70,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function loadPage(page) {
     currentPage = page;
-    syncSearchFields();
+    // syncSearchFields();
 
     tableBody.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
 
-    fetch(`/admin/manito/reports?page=${page - 1}`, {
-      method: "POST",
+    const params = new URLSearchParams({
+      page: page - 1,
+      type: requestBody.type || "",
+      content: requestBody.content || "",
+      reportObjectType: requestBody.reportObjectType || "",
+      reportType: requestBody.reportType || "",
+    });
+
+    fetch(`/admin/api/manito/reports?${params.toString()}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestBody)
     })
     .then((response) => {
       if (!response.ok) {
@@ -98,8 +121,8 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         })
         .join("");
-        renderPagination(page, data.totalPages);
       }
+      renderPagination(page, data.totalPages);
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -107,6 +130,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function renderPagination(currentPage, totalPages) {
+    // 데이터가 없을 경우 페이지네이션 숨김 처리
+    if (!totalPages || totalPages === 0) {
+      pagination.innerHTML = ""; // 페이지네이션 영역 비우기
+      return;
+    }
+
     const maxVisiblePages = 3;
     const startPage = Math.floor((currentPage - 1) / maxVisiblePages)
         * maxVisiblePages + 1;
@@ -201,9 +230,9 @@ document.addEventListener("DOMContentLoaded", function () {
       this.classList.add("active");
       const currentStatus = this.dataset.status;
       if (currentStatus !== "") {
-        requestBody.type = this.dataset.status;
+        requestBody.reportObjectType = this.dataset.status;
       } else {
-        requestBody.type = null;
+        requestBody.reportObjectType = null;
       }
       loadPage(1);
     });
@@ -294,6 +323,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const postTimeElement = document.querySelector(".post-time");
     const postContentElement = document.querySelector(".post-content");
 
+    const letterBox = document.querySelector(
+        ".letter-box");
+    const letterProfileImageElement = document.querySelector(
+        ".letter-profile-image");
+    const letterUserIdElement = document.querySelector(".letter-user-id");
+    const letterContentElement = document.querySelector(".letter-content");
+    const letterHeader = document.querySelector(".letter-header");
+
     const replyProfileImageElement = document.querySelector(
         ".reply-profile-image");
     const replyUserIdElement = document.querySelector(".reply-user-id");
@@ -308,8 +345,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (reportData.type.data === "MANITO_LETTER") {
       replyHeader.textContent = "신고된 편지";
+      letterHeader.textContent = "";
+      letterProfileImageElement.src = "";
+      letterUserIdElement.textContent = "";
+      letterContentElement.textContent = "";
+      letterBox.style.display = "none";
     } else if (reportData.type.data === "MANITO_ANSWER") {
       replyHeader.textContent = "신고된 답변";
+      letterHeader.textContent = "답장한 편지";
+      letterProfileImageElement.src = reportData.reportedByUser.profileImage || "/images/icons/UI-user2.png";
+      letterUserIdElement.textContent = reportData.reportedByUser.nickname;
+      letterContentElement.textContent = reportData.content;
+      letterBox.style.display = "block";
     }
     replyProfileImageElement.src = reportData.reportedToUser.profileImage || "/images/icons/UI-user2.png";
     replyUserIdElement.textContent = reportData.reportedToUser.nickname;
@@ -345,7 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // type에 따라 postId 설정
       let postId = reportData.post.postId;
 
-      fetch(`/admin/post/${postId}/image`)
+      fetch(`/admin/api/post/${postId}/image`)
       .then(response => response.json())
       .then(imageData => {
         console.log("성공");

@@ -3,7 +3,6 @@ package com.finalproject.manitoone.controller.api;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.constants.SearchType;
-import com.finalproject.manitoone.domain.dto.admin.ReportSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.service.AdminService;
 import java.io.IOException;
@@ -90,7 +89,7 @@ public class AdminApiController {
 
   @PostMapping("/reports")
   public ResponseEntity<Object> getReports (
-      @PageableDefault(size = 2, sort = "reportId", direction = Sort.Direction.ASC) Pageable pageable,
+      @PageableDefault(size = 5, sort = "reportId", direction = Sort.Direction.ASC) Pageable pageable,
       @RequestParam(defaultValue = "") SearchType type,
       @RequestParam(defaultValue = "") String content,
       @RequestParam(defaultValue = "") ReportObjectType reportObjectType,
@@ -114,10 +113,13 @@ public class AdminApiController {
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/manito/reports")
+  @GetMapping("/manito/reports")
   public ResponseEntity<Object> getManitoReports (
       @PageableDefault(size = 2, sort = "reportId", direction = Sort.Direction.ASC) Pageable pageable,
-      @RequestBody ReportSearchRequestDto reportSearchRequestDto) {
-    return ResponseEntity.ok(adminService.searchManitoReports(reportSearchRequestDto, pageable));
+      @RequestParam(defaultValue = "") SearchType type,
+      @RequestParam(defaultValue = "") String content,
+      @RequestParam(defaultValue = "") ReportObjectType reportObjectType,
+      @RequestParam(defaultValue = "") ReportType reportType) {
+    return ResponseEntity.ok(adminService.searchManitoReports(type, content, reportObjectType, reportType , pageable));
   }
 }

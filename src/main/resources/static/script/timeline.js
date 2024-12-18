@@ -200,23 +200,52 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch(`/api/follow/${targetId}`)
     .then(response => {
       if (response.status === 201 || response.status === 200) {
-        // 팔로우 버튼을 숨기고 성공 메시지 표시
-        this.style.display = 'none';
-        alert('팔로우가 완료되었습니다.');
+        const allFollowButtonsForUser = document.querySelectorAll(
+            `img[alt="add friend"][data-target-id="${targetId}"]`
+        );
+        allFollowButtonsForUser.forEach(button => {
+          button.style.display = 'none';
+        });
+
+        const allPostsForUser = document.querySelectorAll(
+            `.post-container .user-info a[href="/profile/${targetId}"]`
+        );
+        allPostsForUser.forEach(userLink => {
+          const postContainer = userLink.closest('.post-container');
+          if (postContainer) {
+            const optionIcons = postContainer.querySelector('.option-icons');
+            if (optionIcons) {
+              const followButton = optionIcons.querySelector(`img[data-target-id="${targetId}"]`);
+              if (followButton) {
+                followButton.style.display = 'none';
+              }
+            }
+          }
+        });
+
+        const feedbackToast = document.createElement('div');
+        feedbackToast.className = 'feedback-toast';
+        feedbackToast.textContent = '팔로우가 완료되었습니다.';
+        document.body.appendChild(feedbackToast);
+
+        feedbackToast.style.position = 'fixed';
+        feedbackToast.style.bottom = '20px';
+        feedbackToast.style.left = '50%';
+        feedbackToast.style.transform = 'translateX(-50%)';
+        feedbackToast.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        feedbackToast.style.color = 'white';
+        feedbackToast.style.padding = '10px 20px';
+        feedbackToast.style.borderRadius = '4px';
+        feedbackToast.style.zIndex = '1000';
+
+        setTimeout(() => {
+          feedbackToast.remove();
+        }, 3000);
       } else {
         alert("오류가 발생했습니다.");
       }
     })
     .catch(error => console.error("API 호출 중 오류 발생:", error));
-  }
-
-  function handleFollowResponse(response, button) {
-    if (response.status === 201 || response.status === 200) {
-      location.reload();
-      button.alt = response.status === 201 ? "remove friend" : "add friend";
-    } else {
-      alert("오류가 발생했습니다.");
-    }
   }
 
   function postContentEventListener() {

@@ -54,7 +54,7 @@ public class AdminApiController {
 
   @GetMapping("/posts")
   public ResponseEntity<Object> getAllPosts(
-      @PageableDefault(size = 2, sort = "postId", direction = Sort.Direction.ASC) Pageable pageable,
+      @PageableDefault(size = 5, sort = "postId", direction = Sort.Direction.ASC) Pageable pageable,
       @RequestParam(defaultValue = "") SearchType type,
       @RequestParam(defaultValue = "") String content,
       @RequestParam(defaultValue = "") Boolean isBlind) {

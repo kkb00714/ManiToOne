@@ -97,24 +97,28 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.json();
     })
     .then((data) => {
-      tableBody.innerHTML = data.content
-      .map(
-          (post) => `
-<tr data-post='${JSON.stringify(post)}'>
+      if (!data.content || data.content.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="9">데이터가 없습니다</td></tr>';
+      } else {
+        tableBody.innerHTML = data.content
+        .map(
+            (post) => `
+        <tr data-post='${JSON.stringify(post)}'>
           <td>${post.postId}</td>
           <td>${post.user.name}</td>
           <td>${post.user.nickname}</td>
           <td>${post.user.email}</td>
           <td>${post.content.length > 15 ? post.content.substring(0, 15) + '...'
-              : post.content}</td>
+                : post.content}</td>
           <td>${formatDatetimeSecond(post.createdAt)}</td>
           <td class="blind-status">${post.isBlind ? 'O' : 'X'}</td>
           <td><a href="#" class="change-status" data-id="${post.postId}">변경</a></td>
           <td><a href="#" class="delete-post" data-id="${post.postId}">삭제</a></td>
         </tr>
                       `
-      )
-      .join("");
+        )
+        .join("");
+      }
 
       renderPagination(page, data.totalPages);
     })
@@ -124,6 +128,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function renderPagination(currentPage, totalPages) {
+    // 데이터가 없을 경우 페이지네이션 숨김 처리
+    if (!totalPages || totalPages === 0) {
+      pagination.innerHTML = ""; // 페이지네이션 영역 비우기
+      return;
+    }
+
     const maxVisiblePages = 3;
     const startPage = Math.floor((currentPage - 1) / maxVisiblePages)
         * maxVisiblePages + 1;

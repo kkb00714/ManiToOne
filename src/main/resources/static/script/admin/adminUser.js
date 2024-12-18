@@ -84,10 +84,12 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.json();
     })
     .then((data) => {
-      tableBody.innerHTML = data.content
-      .map(
-          (user) => `
-<tr data-user='${JSON.stringify(user)}'>
+      if (!data.content || data.content.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="9">데이터가 없습니다</td></tr>';
+      } else {
+        tableBody.innerHTML = data.content.map(
+            (user) => `
+        <tr data-user='${JSON.stringify(user)}'>
           <td>${user.userId}</td>
           <td>${user.name}</td>
           <td>${user.nickname}</td>
@@ -99,9 +101,10 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${getStatusText(user.status)}</td>
         </tr>
                       `
-      )
-      .join("");
+        )
+        .join("");
 
+      }
       renderPagination(page, data.totalPages);
     })
     .catch((error) => {
@@ -110,6 +113,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function renderPagination(currentPage, totalPages) {
+
+    // 데이터가 없을 경우 페이지네이션 숨김 처리
+    if (!totalPages || totalPages === 0) {
+      pagination.innerHTML = ""; // 페이지네이션 영역 비우기
+      return;
+    }
+
     const maxVisiblePages = 3;
     const startPage = Math.floor((currentPage - 1) / maxVisiblePages)
         * maxVisiblePages + 1;

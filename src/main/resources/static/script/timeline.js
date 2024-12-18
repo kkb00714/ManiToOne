@@ -475,10 +475,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       isReportButtonClicked = true;
 
-      // URL에 reportType을 쿼리 파라미터로 추가
       fetch(`/api/post/report/${postId}?reportType=${selectedReportType}`, {
-        method: 'POST',  // PUT에서 POST로 변경
-        headers: {
+        method: 'POST',         headers: {
           'Content-Type': 'application/json',
         }
       })

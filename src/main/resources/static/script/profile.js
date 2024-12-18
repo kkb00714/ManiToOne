@@ -49,14 +49,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function loadPosts(pageNum) {
     const apiUrl = getApiUrl(pageNum);
+    const menuSwitch = document.querySelector('.mypage-menu-switch');
+    const postsContainer = document.getElementById("postsContainer");
     try {
       const posts = await fetchPosts(apiUrl);
       if (posts && posts.length > 0) {
-        for (const post of posts) {
-          const postElement = await createPostElement(post);
-          postsContainer.appendChild(postElement);
-        }
+          menuSwitch.style.borderBottom = '3px solid rgba(171, 171, 171, 0.25)';
+          postsContainer.innerHTML = '';
+
+          for (const post of posts) {
+            const postElement = await createPostElement(post);
+            postsContainer.appendChild(postElement);
+          }
       } else {
+        let emptyMessage;
+        if (currentCategory === 1) {
+          emptyMessage = '아직 작성한 게시물이 없어요';
+        } else if (currentCategory === 2) {
+          emptyMessage = '아직 좋아요를 누른 게시물이 없어요';
+        } else if (currentCategory === 3) {
+          emptyMessage = '숨긴 게시물이 없어요';
+        }
+
+        postsContainer.innerHTML = `
+                <div class="empty-post-container">
+                    <img src="/images/icons/UI-clover2.png" alt="empty post icon">
+                    <div class="empty-post-message">${emptyMessage}</div>
+                </div>
+            `;
         hasMorePosts = false;
       }
     } catch (error) {

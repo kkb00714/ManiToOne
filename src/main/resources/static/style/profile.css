@@ -15,3 +15,25 @@
 .visible {
   display: block;
 }
+
+.empty-post-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.empty-post-container img {
+  width: 4rem;
+  height: 4rem;
+  opacity: 0.7;
+  margin-bottom: 1.5rem;
+}
+
+.empty-post-message {
+  font-size: 1.3rem;
+  line-height: 1.5;
+  font-weight: bold;
+}

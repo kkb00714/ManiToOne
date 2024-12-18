@@ -91,6 +91,7 @@
                 />
                 <img
                   class="tiny-icons"
+                  th:if="${currentUser != post.user}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
@@ -339,6 +340,7 @@
                 />
                 <img
                   class="tiny-icons"
+                  th:if="${currentUser != reply.user}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
@@ -656,6 +658,7 @@
                 />
                 <img
                   class="tiny-icons"
+                  th:if="${currentUser != rereply.user}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />

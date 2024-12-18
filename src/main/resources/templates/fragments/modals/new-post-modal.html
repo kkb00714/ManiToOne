@@ -7,9 +7,8 @@
   <form
     class="new-post-form-modal-container"
     id="newPostFormModalContainer"
-    th:action="@{/api/post}"
+    action="/api/post"
     method="post"
-    th:onsubmit="'onPostSubmit(this)'"
     enctype="multipart/form-data"
   >
     <div class="new-post-title">
@@ -56,7 +55,7 @@
 
       <div
         class="ai-response-toggle"
-        onclick="toggleAI(this)"
+        onclick="togglesAIFeedback(this, 'response')"
         style="opacity: 0.3"
       >
         <img
@@ -86,7 +85,7 @@
         alt="add image icon"
         onclick="document.getElementById('image-upload-btn').click()"
       />
-      <button class="post-button" type="submit">게시하기</button>
+      <button class="post-button" type="button" onclick="onPostSubmit()">게시하기</button>
     </div>
   </form>
 </div>

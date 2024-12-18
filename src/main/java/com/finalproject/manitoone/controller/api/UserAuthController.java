@@ -146,6 +146,15 @@ public class UserAuthController {
     String sessionEmail = (String) session.getAttribute("email");
 
     String result = userAuthService.updateUser(sessionEmail, updateDto);
+
+    // 세션 값 업데이트
+    if (updateDto.getNickname() != null) {
+      session.setAttribute("nickname", updateDto.getNickname());
+    }
+    if (updateDto.getIntroduce() != null) {
+      session.setAttribute("introduce", updateDto.getIntroduce());
+    }
+
     return ResponseEntity.ok(result);
   }
 }

@@ -33,7 +33,7 @@ public class AdminApiController {
 
   @GetMapping("/users")
   public ResponseEntity<Object> getAllUsers(
-      @PageableDefault(size = 2, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
+      @PageableDefault(size = 5, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
       @RequestParam(defaultValue = "") SearchType type,
       @RequestParam(defaultValue = "") Integer status,
       @RequestParam(defaultValue = "") String content) {

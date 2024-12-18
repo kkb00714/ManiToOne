@@ -268,6 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
   const profileImage = document.querySelector("#user-photo");
+  const currentUserProfile = document.querySelector(".user-photo");
   const profileImageInput = document.querySelector("#profile-image-input");
   const modal = document.querySelector("#image-action-modal");
   const deletePhotoBtn = document.querySelector("#delete-photo-btn");
@@ -277,10 +278,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateProfileImage(file) {
     const formData = new FormData();
-    formData.append("profileImageFile", file);
+    formData.append("file", file);
 
-    fetch(`/api/user`, {
-      method: "PUT",
+    fetch(`/api/update-profile-image`, {
+      method: "POST",
       body: formData,
     })
     .then((response) => {
@@ -289,11 +290,12 @@ document.addEventListener("DOMContentLoaded", function () {
           throw new Error(message);
         });
       }
-      return response.json();
+      return response.text();
     })
-    .then((updatedUser) => {
+    .then((profileImageUrl) => {
       alert("프로필 이미지가 성공적으로 업데이트되었습니다.");
-      profileImage.src = updatedUser.profileImage;
+      // profileImage.src = profileImageUrl;
+      location.reload();
     })
     .catch((error) => {
       alert(`프로필 이미지 업데이트에 실패했습니다: ${error.message}`);
@@ -591,14 +593,11 @@ function addReportPostEventListener() {
 
     isReportButtonClicked = true;
 
-    fetch(`/api/post/report/${postId}`, {
-      method: 'PUT',
+    fetch(`/api/post/report/${postId}?reportType=${selectedReportType}`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        reportType: selectedReportType,
-      }),
+      }
     })
     .then(response => {
       if (response.ok) {

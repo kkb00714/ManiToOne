@@ -9,7 +9,7 @@
 
 |[김근아 (조장 및 발표)](https://github.com/listoria)|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[위영석](https://github.com/WeeYoungSeok)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[김경빈](https://github.com/kkb00714)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[전원용](https://github.com/sqrt3)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[장윤종](https://github.com/yoonjong-j)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
 |---|---|---|---|---|
-|프론트 CSS, fragments<br/>타임라인 조회<br/>마니또 편지 CRUD|마니또 편지 스케줄<br/>관리자 페이지 전체</br>알림 서비스|유저 CRUD</br>OAuth2 ( Google )|프로필 페이지</br>(내 프로필, 타 유저)</br>유저 팔로우</br>게시물 목록, </br>좋아요 한 게시물 </br>목록 가져오기|게시물 CRUD</br>게시물 좋아요 기능</br>게시물 숨기기 기능</br>답글 CRUD</br>답글 신고</br>답글 숨기기|
+|프론트 HTML, CSS, JS<br/>타임라인 조회<br/>마니또 편지 CRUD|마니또 편지<br/>스케줄링<br/><br/>관리자 페이지</br>및 유저 관리<br/></br>알림 서비스|유저 CRUD</br>OAuth2 ( Google )|프로필 페이지</br>(내 프로필, 타 유저)<br/></br>유저 팔로우<br/></br>게시물 목록, </br>좋아요 한 게시물 </br>목록 가져오기|게시물 CRUD</br>게시물 좋아요 기능</br>게시물 숨기기 기능</br>답글 CRUD</br>답글 신고</br>답글 숨기기|
 
 ## 사용된 기술 스택
 ### Backend

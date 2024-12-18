@@ -26,6 +26,6 @@ public class ProfileViewController {
         followService.isFollowed((String) session.getAttribute("nickname"), nickname));
     model.addAttribute("nickname", session.getAttribute("nickname"));
     model.addAttribute("user", userService.getUserByNickname(nickname));
-    return "profile";
+    return "pages/profile";
   }
 }

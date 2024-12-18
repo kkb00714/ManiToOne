@@ -82,6 +82,7 @@
       <div th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"></div>
       <div th:replace="~{fragments/modals/manito-confirm-message-modal :: manito-confirm-message-modal}"></div>
       <div th:replace="~{fragments/modals/report-modal :: report-modal}"></div>
+      <div th:replace="~{fragments/modals/reply-post-modal :: reply-post-modal}"></div>
 
       <!--작성 시간, 답글 보이지 않는 가장 기본 게시글 덩어리-->
       <div id="postsContainer" class="posts-container">
@@ -94,5 +95,6 @@
   ></article>
 </main>
 <script th:src="@{/script/common.js}"></script>
+<script th:src="@{/script/post.js}"></script>
 </body>
 </html>

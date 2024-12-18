@@ -168,15 +168,15 @@
                       </div>
                     </div>
 
-                    <div class="manito-response-toggle">
+                    <div
+                      class="more-image-container"
+                      th:if="${postImages != null}"
+                    >
                       <img
-                        class="tiny-icons"
-                        th:src="@{/images/icons/icon-check-empty.png}"
-                        alt="check icon"
-                        data-checked-src="@{/images/icons/icon-check.png}"
-                        data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+                        th:each="image : ${postImages}"
+                        th:src="@{${image.fileName}}"
+                        alt="uploaded-image"
                       />
-                      <p>이 게시물에 대해 마니또의 답변을 받습니다.</p>
                     </div>
 
                     <div
@@ -202,8 +202,8 @@
                       name="images"
                       accept="image/jpeg, image/png"
                       multiple
-                      onchange="countImages(this)"
                       style="display: none"
+                      th:if="${postImagesNum < 4}"
                     />
                     <img
                       class="tiny-icons"
@@ -214,7 +214,7 @@
                     <button
                       class="post-button"
                       type="submit"
-                      th:onclick="'onUpdatePostSubmit(' + ${post.postId} + ')'"
+                      th:onclick="'onUpdatePostSubmit(' + ${post.postId} + ', ' + ${postImagesNum} + ')'"
                     >
                       수정하기
                     </button>

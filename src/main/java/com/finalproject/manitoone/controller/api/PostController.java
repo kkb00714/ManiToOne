@@ -99,14 +99,6 @@ public class PostController {
     return ResponseEntity.ok(post);
   }
 
-//  public CompletableFuture<ResponseEntity<PostResponseDto>> createPost(
-//      @RequestBody AddPostRequestDto request,
-//      @AuthenticationPrincipal User user) {
-//    PostResponseDto post = postService.createPost(request, user);
-//    return CompletableFuture.supplyAsync(
-//        () -> ResponseEntity.status(HttpStatus.CREATED).body(post));
-//  }
-
   // 게시글 삭제
   @DeleteMapping("/{postId}")
   public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId, HttpSession session) {

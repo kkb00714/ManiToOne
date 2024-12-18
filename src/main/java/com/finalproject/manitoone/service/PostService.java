@@ -5,6 +5,7 @@ import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.domain.AiPostLog;
+import com.finalproject.manitoone.domain.AiValidationLog;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.Post;
@@ -22,6 +23,7 @@ import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
 import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
+import com.finalproject.manitoone.repository.AiValidationLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.ManitoMatchesRepository;
 import com.finalproject.manitoone.repository.NotificationRepository;
@@ -63,6 +65,7 @@ public class PostService {
   private final UserRepository userRepository;
   private final NotificationRepository notificationRepository;
   private final ManitoMatchesRepository manitoMatchesRepository;
+  private final AiValidationLogRepository aiValidationLogRepository;
   private final S3Service s3Service;
   private final FileUtil fileUtil;
   private final NotificationUtil notificationUtil;
@@ -235,6 +238,7 @@ public class PostService {
     deleteNotis(postId);
     deleteManitoLetters(postId);
     deleteAiPostLogs(postId);
+    deleteAiValidationLogs(postId);
     postRepository.delete(post);
   }
 
@@ -316,6 +320,16 @@ public class PostService {
         ));
 
     aiPostLogRepository.deleteAll(logs);
+  }
+
+  // AI Validation Log 삭제
+  private void deleteAiValidationLogs(Long postId) {
+    List<AiValidationLog> logs = aiValidationLogRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_AI_POST_LOG.getMessage()
+        ));
+
+    aiValidationLogRepository.deleteAll(logs);
   }
 
   // 게시글 숨기기

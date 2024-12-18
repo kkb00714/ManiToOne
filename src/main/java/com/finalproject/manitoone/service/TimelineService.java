@@ -37,6 +37,7 @@ public class TimelineService {
   public Page<PostViewResponseDto> getTimelinePosts(String nickname, Pageable pageable, int recentDays) {
     User currentUser = userService.getCurrentUser(nickname);
     int pageSize = pageable.getPageSize();
+    int pageNumber = pageable.getPageNumber();
 
     // 팔로우 게시물 개수 계산
     int followingPostsCount = (int) (pageSize * FOLLOWING_RATIO);
@@ -45,44 +46,35 @@ public class TimelineService {
     // 팔로우 게시물 조회
     Page<Post> followingPosts = postRepository.findTimelinePostsByUserId(
         currentUser.getUserId(),
-        PageRequest.of(pageable.getPageNumber(), followingPostsCount, pageable.getSort())
+        PageRequest.of(pageNumber, followingPostsCount, pageable.getSort())
     );
 
-    // 랜덤 게시물 조회 (최적화된 쿼리)
-    List<Post> randomPosts = postRepository.findRandomRecentPosts(
+    List<Post> randomPosts = postRepository.findRandomRecentPostsWithSeed(
         currentUser.getUserId(),
         LocalDateTime.now().minusDays(recentDays),
         randomPostsCount,
-        followingPosts.getContent().stream().map(Post::getPostId).collect(Collectors.toList())
+        followingPosts.getContent().stream().map(Post::getPostId).collect(Collectors.toList()),
+        pageNumber  // 페이지 번호를 시드값으로 사용
     );
 
-    return mergeAndPaginatePosts(followingPosts, randomPosts, pageable);
-  }
-
-  private Page<PostViewResponseDto> mergeAndPaginatePosts(
-      Page<Post> followingPosts,
-      List<Post> randomPosts,
-      Pageable pageable) {
-    List<Post> mergedPosts = Stream.concat(
+    // 결과 병합 및 변환
+    List<PostViewResponseDto> mergedContent = Stream.concat(
             followingPosts.getContent().stream(),
-            randomPosts.stream())
+            randomPosts.stream()
+        )
         .distinct()
         .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
-        .collect(Collectors.toList());
-
-    int start = (int) pageable.getOffset();
-    int end = Math.min(start + pageable.getPageSize(), mergedPosts.size());
-
-    if (start >= mergedPosts.size()) {
-      return Page.empty(pageable);
-    }
-
-    List<PostViewResponseDto> content = mergedPosts.subList(start, end)
-        .stream()
         .map(this::convertToDto)
         .collect(Collectors.toList());
 
-    return new PageImpl<>(content, pageable, mergedPosts.size());
+    // 전체 데이터 개수 계산 (페이징을 위해)
+    long totalElements = followingPosts.getTotalElements() +
+        postRepository.countRandomRecentPosts(
+            currentUser.getUserId(),
+            LocalDateTime.now().minusDays(recentDays)
+        );
+
+    return new PageImpl<>(mergedContent, pageable, totalElements);
   }
 
   private PostViewResponseDto convertToDto(Post post) {

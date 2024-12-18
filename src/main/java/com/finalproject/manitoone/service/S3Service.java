@@ -67,4 +67,11 @@ public class S3Service {
     userRepository.save(user);
     return newImageUrl;
   }
+
+  public void deleteImage(String imageUrl) {
+    if (imageUrl != null) {
+      String existingFileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+      amazonS3.deleteObject(bucket, existingFileName);
+    }
+  }
 }

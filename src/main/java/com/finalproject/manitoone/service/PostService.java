@@ -329,9 +329,8 @@ public class PostService {
         .post(post)
         .user(user)
         .build());
-
-    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(
-        user.getUserId(), post.getPostId());
+    
+    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
 
     if (existingLike.isPresent()) {
       userPostLikeRepository.delete(existingLike.get());

@@ -4,7 +4,13 @@
   id="newPostFormModalBackground"
   th:fragment="new-post-modal"
 >
-  <div class="new-post-form-modal-container" id="newPostFormModalContainer">
+  <form
+    class="new-post-form-modal-container"
+    id="newPostFormModalContainer"
+    action="/api/post"
+    method="post"
+    enctype="multipart/form-data"
+  >
     <div class="new-post-title">
       <p>새 게시물 작성</p>
       <img
@@ -55,7 +61,7 @@
 
       <div
         class="ai-response-toggle"
-        onclick="togglesAi(this)"
+        onclick="togglesAIFeedback(this, 'response')"
         style="opacity: 0.3"
       >
         <img
@@ -85,9 +91,7 @@
         alt="add image icon"
         onclick="document.getElementById('image-upload-btn').click()"
       />
-      <button class="post-button" th:onclick="'onPostSubmit()'">
-        게시하기
-      </button>
+      <button class="post-button" type="button" onclick="onPostSubmit()">게시하기</button>
     </div>
   </div>
 </div>

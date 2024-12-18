@@ -30,6 +30,19 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 300px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap:0.5rem;
+}
+
+.list-group-item {
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.list-group-item:hover {
+  background-color: #f5f5f5;
 }
 
 /* 답글 수정 모달 textarea */

@@ -52,7 +52,7 @@
           <div class="profile-user-photo">
             <img
                 class="user-photo"
-                th:src="@{/images/icons/UI-user2.png}"
+                th:src="${user.getProfileImage()}"
                 alt="user icon"
             />
           </div>
@@ -71,7 +71,7 @@
       <div class="new-post-form" th:if="${user.getNickname().equals(nickname)}">
         <img
             class="user-photo"
-            th:src="@{/images/icons/UI-user2.png}"
+            th:src="${user.getProfileImage()}"
             alt="user icon"
         />
         <p id="openPostFormModalBtn">함께 나누고픈 감정이 있나요?</p>
@@ -82,6 +82,7 @@
       <div th:replace="~{fragments/modals/new-post-modal :: new-post-modal}"></div>
       <div th:replace="~{fragments/modals/manito-confirm-message-modal :: manito-confirm-message-modal}"></div>
       <div th:replace="~{fragments/modals/report-modal :: report-modal}"></div>
+      <div th:replace="~{fragments/modals/reply-post-modal :: reply-post-modal}"></div>
 
       <!--작성 시간, 답글 보이지 않는 가장 기본 게시글 덩어리-->
       <div id="postsContainer" class="posts-container">
@@ -94,5 +95,6 @@
   ></article>
 </main>
 <script th:src="@{/script/common.js}"></script>
+<script th:src="@{/script/post.js}"></script>
 </body>
 </html>

@@ -44,6 +44,7 @@ public class PostController {
   @PostMapping
   public ResponseEntity<PostResponseDto> createPost(@RequestParam("content") String content,
       @RequestParam("isManito") Boolean isManito,
+      @RequestParam("isFeedbackReq") Boolean isFeedbackReq,
       @RequestParam(value = "images", required = false) MultipartFile[] images,
       HttpSession session) {
     String email = (String) session.getAttribute("email");

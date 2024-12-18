@@ -8,16 +8,13 @@ import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
 import com.finalproject.manitoone.domain.dto.UserUpdateDto;
 import com.finalproject.manitoone.service.CustomOAuth2UserService;
 import com.finalproject.manitoone.service.NotificationService;
-import com.finalproject.manitoone.service.S3Service;
 import com.finalproject.manitoone.service.UserAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -72,6 +67,7 @@ public class UserAuthController {
       session.setAttribute("profileImage", userResponse.getProfileImage());
       session.setAttribute("introduce", userResponse.getIntroduce());
       session.setAttribute("isNewUser", false);
+      session.setAttribute("role", userResponse.getRole());
 
       // 알림
       userResponse.setRead(notificationService.hasUnreadNotifications(
@@ -145,6 +141,15 @@ public class UserAuthController {
     String sessionEmail = (String) session.getAttribute("email");
 
     String result = userAuthService.updateUser(sessionEmail, updateDto);
+
+    // 세션 값 업데이트
+    if (updateDto.getNickname() != null) {
+      session.setAttribute("nickname", updateDto.getNickname());
+    }
+    if (updateDto.getIntroduce() != null) {
+      session.setAttribute("introduce", updateDto.getIntroduce());
+    }
+
     return ResponseEntity.ok(result);
   }
 }

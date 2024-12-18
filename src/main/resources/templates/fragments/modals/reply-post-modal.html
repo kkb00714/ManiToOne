@@ -1,0 +1,49 @@
+<div class="new-post-form-modal" id="newReplyFormModal"
+     th:fragment="reply-post-modal">
+  <div
+      class="new-post-form-modal-container"
+      id="newReplyFormModalContainer"
+  >
+    <div class="new-post-title">
+      <p>답글 작성</p>
+      <img
+          class="tiny-icons"
+          id="closeNewReplyFormModalBtn"
+          th:src="@{/images/icons/icon-cancel.png}"
+          alt="close icon"
+          th:onclick=""
+      />
+    </div>
+
+    <div class="new-post-content-container">
+      <div class="new-post-content">
+        <img
+            class="user-photo"
+            th:src="@{${session.profileImage}}"
+            alt="user icon"
+        />
+        <div class="manito-letter-text-container">
+                      <textarea
+                          name="content"
+                          id="new-reply-content"
+                          class="manito-letter-text"
+                          placeholder="나누고 싶은 글을 작성해주세요"
+                          style="min-height: 4rem;"
+                      ></textarea>
+          <p class="letter-count" id="countTo500">500/500</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-button-container">
+      <button
+          class="post-button"
+          type="submit"
+          id="replyAddBtn"
+          th:onclick=""
+      >
+        작성하기
+      </button>
+    </div>
+  </div>
+</div>

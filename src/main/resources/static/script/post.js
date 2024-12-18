@@ -153,15 +153,6 @@ async function onPostSubmit() {
 
   console.log("images: ", images);
 
-  const url = `/api/post?content=${encodeURIComponent(
-    content
-  )}&isManito=${encodeURIComponent(isManito)}`;
-
-  console.log("URL: ", url);
-
-  const formData = new FormData();
-  // formData.append("images", images);
-
   let url = `${baseUrl}?content=${encodeURIComponent(content)}&isManito=${isManito ? "true" : "false"}&isFeedbackReq=${isFeedbackReq ? "true" : "false"}`;
   console.log(url);
   alert('adg');

@@ -20,7 +20,6 @@ import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.PostImageResponseDto;
-import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.PostSearchResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.ReplyPostSearchResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.ReportSearchRequestDto;
@@ -45,7 +44,6 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -256,36 +254,37 @@ public class AdminService {
     return toUserProfileResponseDto(userRepository.save(user));
   }
 
-  public Page<PostSearchResponseDto> searchPosts(PostSearchRequestDto postSearchRequestDto,
+  public Page<PostSearchResponseDto> searchPosts(SearchType type, String content, Boolean isBlind,
       Pageable pageable) {
     QPost post = QPost.post;
 
     BooleanBuilder builder = new BooleanBuilder();
 
-    // nickname 조건 (User 기반 검색)
-    if (postSearchRequestDto.getNickname() != null && !postSearchRequestDto.getNickname()
-        .isEmpty()) {
-      builder.and(post.user.nickname.containsIgnoreCase(postSearchRequestDto.getNickname()));
-    }
+    if (!content.isEmpty()) {
+      // nickname 조건 (User 기반 검색)
+      if (type == SearchType.NICKNAME) {
+        builder.and(post.user.nickname.containsIgnoreCase(content));
+      }
 
-    // name 조건 (User 기반 검색)
-    if (postSearchRequestDto.getName() != null && !postSearchRequestDto.getName().isEmpty()) {
-      builder.and(post.user.name.containsIgnoreCase(postSearchRequestDto.getName()));
-    }
+      // name 조건 (User 기반 검색)
+      if (type == SearchType.NAME) {
+        builder.and(post.user.name.containsIgnoreCase(content));
+      }
 
-    // email 조건 (User 기반 검색)
-    if (postSearchRequestDto.getEmail() != null && !postSearchRequestDto.getEmail().isEmpty()) {
-      builder.and(post.user.email.containsIgnoreCase(postSearchRequestDto.getEmail()));
-    }
+      // email 조건 (User 기반 검색)
+      if (type == SearchType.EMAIL) {
+        builder.and(post.user.email.containsIgnoreCase(content));
+      }
 
-    // content 조건 (Post 기반 검색)
-    if (postSearchRequestDto.getContent() != null && !postSearchRequestDto.getContent().isEmpty()) {
-      builder.and(post.content.containsIgnoreCase(postSearchRequestDto.getContent()));
+      // content 조건 (Post 기반 검색)
+      if (type == SearchType.CONTENT) {
+        builder.and(post.content.containsIgnoreCase(content));
+      }
     }
 
     // isBlind 조건 (Post 기반 검색)
-    if (postSearchRequestDto.getIsBlind() != null) {
-      builder.and(post.isBlind.eq(postSearchRequestDto.getIsBlind()));
+    if (isBlind != null) {
+      builder.and(post.isBlind.eq(isBlind));
     }
 
     // QueryDSL로 페이징 처리
@@ -357,7 +356,7 @@ public class AdminService {
     if (!postImages.isEmpty()) {
       // 이미지 실제 삭제
       for (PostImage postImage : postImages) {
-        fileUtil.cleanUp(Paths.get(postImage.getFileName()));
+        s3Service.deleteImage(postImage.getFileName());
       }
       postImageRepository.deleteAll(postImages);
     }

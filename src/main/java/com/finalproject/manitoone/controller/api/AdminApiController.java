@@ -1,7 +1,6 @@
 package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.constants.SearchType;
-import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.ReportSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
@@ -53,11 +52,13 @@ public class AdminApiController {
     return ResponseEntity.ok(adminService.updateProfileImage(userId, profileImageFile));
   }
 
-  @PostMapping("/posts")
+  @GetMapping("/posts")
   public ResponseEntity<Object> getAllPosts(
       @PageableDefault(size = 2, sort = "postId", direction = Sort.Direction.ASC) Pageable pageable,
-      @RequestBody PostSearchRequestDto postSearchRequestDto) {
-    return ResponseEntity.ok(adminService.searchPosts(postSearchRequestDto, pageable));
+      @RequestParam(defaultValue = "") SearchType type,
+      @RequestParam(defaultValue = "") String content,
+      @RequestParam(defaultValue = "") Boolean isBlind) {
+    return ResponseEntity.ok(adminService.searchPosts(type, content, isBlind, pageable));
   }
 
   @GetMapping("/post/{postId}/image")

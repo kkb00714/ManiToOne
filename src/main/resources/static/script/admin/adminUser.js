@@ -352,7 +352,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     changedData["userId"] = originalData["userId"];
 
-    fetch("/admin/users", {
+    fetch("/admin/api/users", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -403,7 +403,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const userId = originalData.userId;
 
-    fetch(`/admin/users/${userId}`, {
+    fetch(`/admin/api/users/${userId}`, {
       method: "PUT",
       body: formData,
     })

@@ -19,19 +19,34 @@ document.addEventListener("DOMContentLoaded", function () {
     return `${date} ${time}`;
   }
 
-  function syncSearchFields() {
-    const filterSelect = document.querySelector("#filterSelect");
-    const searchQuery = document.querySelector("#searchQuery");
-
-    const [key] = Object.keys(requestBody);
-    if (key) {
-      filterSelect.value = key;
-      searchQuery.value = requestBody[key];
-    } else {
-      const defaultFilter = filterSelect.options[0].value;
-      requestBody = {[defaultFilter]: ""};
+  const toEnumValue = (filter) => {
+    switch (filter) {
+      case "nickname":
+        return "NICKNAME";
+      case "name":
+        return "NAME";
+      case "email":
+        return "EMAIL";
+      case "content":
+        return "CONTENT";
+      default:
+        return null;
     }
-  }
+  };
+
+  // function syncSearchFields() {
+  //   const filterSelect = document.querySelector("#filterSelect");
+  //   const searchQuery = document.querySelector("#searchQuery");
+  //
+  //   const [key] = Object.keys(requestBody);
+  //   if (key) {
+  //     filterSelect.value = key;
+  //     searchQuery.value = requestBody[key];
+  //   } else {
+  //     const defaultFilter = filterSelect.options[0].value;
+  //     requestBody = {[defaultFilter]: ""};
+  //   }
+  // }
 
   const handleSearchClick = () => {
     const filterSelect = document.querySelector("#filterSelect").value;
@@ -44,7 +59,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (filterSelect && searchQuery) {
-      requestBody = {[filterSelect]: searchQuery};
+      const type = toEnumValue(filterSelect); // 대문자로 변환된 ENUM 값
+      const content = searchQuery;
+      requestBody['type'] = type;
+      requestBody['content'] = content;
       loadPage(1);
     }
   }
@@ -54,16 +72,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function loadPage(page) {
     currentPage = page;
-    syncSearchFields();
+    // syncSearchFields();
 
     tableBody.innerHTML = '<tr><td colspan="9">Loading...</td></tr>';
 
-    fetch(`/admin/posts?page=${page - 1}`, {
-      method: "POST",
+    const params = new URLSearchParams({
+      page: page - 1,
+      type: requestBody.type || "",
+      content: requestBody.content || "",
+      isBlind: (requestBody.isBlind === "" || requestBody.isBlind === null
+          || requestBody.isBlind === undefined) ? "" : requestBody.isBlind
+    });
+
+    fetch(`/admin/api/posts?${params.toString()}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestBody)
     })
     .then((response) => {
       if (!response.ok) {
@@ -194,8 +219,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const currentStatus = this.dataset.status;
 
+      console.log(currentStatus);
       if (currentStatus === "0") {
         requestBody.isBlind = false;
+        console.log(requestBody);
       } else if (currentStatus === "1") {
         requestBody.isBlind = true;
       } else {
@@ -268,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // });
 
   function deletePost(postId) {
-    fetch(`/admin/post/${postId}`, {
+    fetch(`/admin/api/post/${postId}`, {
       method: "DELETE",
     })
     .then((response) => {
@@ -340,7 +367,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // 버튼 상태 업데이트
     function updateButtons() {
       prevBtn.style.display = currentIndex > 0 ? "block" : "none";
-      nextBtn.style.display = currentIndex < imageUrls.length - 1 ? "block" : "none";
+      nextBtn.style.display = currentIndex < imageUrls.length - 1 ? "block"
+          : "none";
     }
 
     // 초기 버튼 상태 및 슬라이더 위치 설정
@@ -355,7 +383,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const postTimeElement = document.querySelector(".post-time");
     const postContentElement = document.querySelector(".post-content");
 
-    profileImageElement.src = postData.user.profileImage || "/images/icons/UI-user2.png";
+    profileImageElement.src = postData.user.profileImage
+        || "/images/icons/UI-user2.png";
     userIdElement.textContent = postData.user.name;
     postTimeElement.textContent = postData.timeDifference;
     postContentElement.textContent = postData.content;
@@ -383,6 +412,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   tableBody.addEventListener("click", function (event) {
     const row = event.target.closest("tr");
+    console.log("들어왔냐?");
+    console.log("event.target.classList")
 
     // 변경 버튼 클릭 처리
     if (event.target.classList.contains("change-status")) {
@@ -393,7 +424,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const currentRow = event.target.closest('tr');
       const blindStatusCell = currentRow.querySelector('.blind-status');
 
-      fetch(`/admin/blind/post/${postId}`, {
+      fetch(`/admin/api/blind/post/${postId}`, {
         method: "PUT",
       })
       .then((response) => {
@@ -419,7 +450,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const postId = event.target.dataset.id;
 
       if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
-        fetch(`/admin/report/post/${postId}`, {
+        fetch(`/admin/api/report/post/${postId}`, {
           method: "GET",
         })
         .then((response) => {
@@ -450,7 +481,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const postData = JSON.parse(row.dataset.post); // 이미 바인딩된 데이터
       const postId = postData.postId;
 
-      fetch(`/admin/post/${postId}/image`)
+      fetch(`/admin/api/post/${postId}/image`)
       .then((response) => response.json())
       .then((imageData) => {
         openProfileModal(postData, imageData);

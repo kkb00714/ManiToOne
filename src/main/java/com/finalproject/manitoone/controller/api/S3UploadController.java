@@ -43,7 +43,9 @@ public class S3UploadController {
 
       String newImageUrl = s3Service.updateProfileImage(loggedInEmail, file);
 
-      return ResponseEntity.ok("프로필 사진이 업데이트되었습니다: " + newImageUrl);
+      session.setAttribute("profileImage", newImageUrl);
+
+      return ResponseEntity.ok(newImageUrl);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     } catch (Exception e) {

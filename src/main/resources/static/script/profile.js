@@ -102,7 +102,8 @@ document.addEventListener("DOMContentLoaded", function () {
         : timeForToday(post.createdAt);
 
     postElement.innerHTML = `
-        <a href="/profile/${post.nickName}"><img class="user-photo" src="${post.profileImage || '/images/icons/UI-user2.png'}" alt="user icon" /></a>
+        <a href="/profile/${post.nickName}"><img class="user-photo" src="${post.profileImage
+    || '/images/icons/UI-user2.png'}" alt="user icon" /></a>
         <div class="post-content">
           <div class="user-info">
             <a href="/profile/${post.nickName}" class="user-name">${post.nickName}</a>
@@ -232,12 +233,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function postContentEventListener() {
     const postContents = document.querySelectorAll('.content-text');
-    postContents.forEach(click => click.addEventListener("click", handlePostContentClick));
+    postContents.forEach(
+        click => click.addEventListener("click", handlePostContentClick));
   }
 
   function handlePostContentClick() {
     const postId = this.dataset.postId;
-    location.href="/post/" + postId;
+    location.href = "/post/" + postId;
   }
 
   postsContainer.addEventListener('click', function (event) {
@@ -251,20 +253,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
   addDocumentClickEventListener();
 
-  document.getElementById("toggle-password-sign-in").addEventListener("click", function () {
-    const passwordInput = document.getElementById("user-password");
-    const toggleButton = this;
+  document.getElementById("toggle-password-sign-in").addEventListener("click",
+      function () {
+        const passwordInput = document.getElementById("user-password");
+        const toggleButton = this;
 
-    if (passwordInput.type === "password") {
-      passwordInput.type = "text";
-      toggleButton.textContent = "숨기기";
-    } else {
-      passwordInput.type = "password";
-      toggleButton.textContent = "표시";
-    }
-  });
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          toggleButton.textContent = "숨기기";
+        } else {
+          passwordInput.type = "password";
+          toggleButton.textContent = "표시";
+        }
+      });
 
   const profileImage = document.querySelector("#user-photo");
+  const currentUserProfile = document.querySelector(".user-photo");
   const profileImageInput = document.querySelector("#profile-image-input");
   const modal = document.querySelector("#image-action-modal");
   const deletePhotoBtn = document.querySelector("#delete-photo-btn");
@@ -274,10 +278,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateProfileImage(file) {
     const formData = new FormData();
-    formData.append("profileImageFile", file);
+    formData.append("file", file);
 
-    fetch(`/api/user`, {
-      method: "PUT",
+    fetch(`/api/update-profile-image`, {
+      method: "POST",
       body: formData,
     })
     .then((response) => {
@@ -286,11 +290,12 @@ document.addEventListener("DOMContentLoaded", function () {
           throw new Error(message);
         });
       }
-      return response.json();
+      return response.text();
     })
-    .then((updatedUser) => {
+    .then((profileImageUrl) => {
       alert("프로필 이미지가 성공적으로 업데이트되었습니다.");
-      profileImage.src = updatedUser.profileImage;
+      // profileImage.src = profileImageUrl;
+      location.reload();
     })
     .catch((error) => {
       alert(`프로필 이미지 업데이트에 실패했습니다: ${error.message}`);
@@ -346,22 +351,31 @@ document.addEventListener("DOMContentLoaded", function () {
   const updateProfileButton = document.getElementById('update_profile_button');
 
   updateProfileButton.addEventListener('click', function () {
-    const nickname = document.getElementById('user-nickname').value;
-    const introduce = document.getElementById('user-introduce').value;
-    const password = document.getElementById('user-password').value;
+    const nicknameInput = document.getElementById('user-nickname');
+    const introduceInput = document.getElementById('user-introduce');
+    const passwordInput = document.getElementById('user-password');
 
-    if (!nickname || !introduce || !password) {
-      alert("모든 필드를 입력해주세요.");
+    const currentNickname = nicknameInput.value.trim();
+    const currentIntroduce = introduceInput.value.trim();
+    const currentPassword = passwordInput.value.trim();
+
+    const userData = {};
+    if (currentNickname !== nicknameInput.defaultValue && currentNickname) {
+      userData.nickname = currentNickname;
+    }
+    if (currentIntroduce !== introduceInput.defaultValue && currentIntroduce) {
+      userData.introduce = currentIntroduce;
+    }
+    if (currentPassword && currentPassword !== "") {
+      userData.password = currentPassword;
+    }
+
+    if (Object.keys(userData).length === 0) {
+      alert("변경된 내용이 없습니다.");
       return;
     }
 
-    const userData = {
-      nickname: nickname,
-      introduce: introduce,
-      password: password
-    };
-
-    fetch('/api/user', {
+    fetch('/api/update', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -370,6 +384,7 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .then(response => {
       if (response.ok) {
+        // const nickname = userData.nickname === null ? currentNickname : userData.nickname;
         location.reload();
         closeProfileUpdateModal();
       } else {
@@ -382,8 +397,12 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function closeProfileUpdateModal() {
-    const profileUpdateModal = document.getElementById('profileUpdateModalBackground');
+    const profileUpdateModal = document.getElementById(
+        'profileUpdateModalBackground');
     profileUpdateModal.style.display = 'none';
+
+    const userNickname = document.getElementById('user-nickname').value.trim();
+    window.location.href = `/profile/${userNickname}`;
   }
 
 });
@@ -482,7 +501,8 @@ function addPostLikeEventListener() {
         })
         .then(response => {
           if (response.status === 200) {
-            const likeCountElement = button.closest('div').querySelector('.like-count');
+            const likeCountElement = button.closest('div').querySelector(
+                '.like-count');
 
             if (likeCountElement) {
               fetch('/api/post/like/number/' + postId)
@@ -573,14 +593,11 @@ function addReportPostEventListener() {
 
     isReportButtonClicked = true;
 
-    fetch(`/api/post/report/${postId}`, {
-      method: 'PUT',
+    fetch(`/api/post/report/${postId}?reportType=${selectedReportType}`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        reportType: selectedReportType,
-      }),
+      }
     })
     .then(response => {
       if (response.ok) {
@@ -616,7 +633,6 @@ function addReportPostEventListener() {
   });
 }
 
-
 function openModal(followers) {
   const followerList = document.getElementById("followerList");
 
@@ -646,7 +662,6 @@ function openModal(followers) {
   const myModal = new bootstrap.Modal(document.getElementById('followerModal'));
   myModal.show();
 }
-
 
 function getFollowers() {
   const followerApiUrl = `/api/user/${userNickName}`;

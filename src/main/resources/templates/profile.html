@@ -52,7 +52,7 @@
           <div class="profile-user-photo">
             <img
                 class="user-photo"
-                th:src="@{/images/icons/UI-user2.png}"
+                th:src="${user.getProfileImage()}"
                 alt="user icon"
             />
           </div>
@@ -71,7 +71,7 @@
       <div class="new-post-form" th:if="${user.getNickname().equals(nickname)}">
         <img
             class="user-photo"
-            th:src="@{/images/icons/UI-user2.png}"
+            th:src="${user.getProfileImage()}"
             alt="user icon"
         />
         <p id="openPostFormModalBtn">함께 나누고픈 감정이 있나요?</p>

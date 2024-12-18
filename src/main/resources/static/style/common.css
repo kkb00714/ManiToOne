@@ -64,6 +64,8 @@ body {
 .user-photo {
   height: 3rem;
   width: 3rem;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .user-photo:hover {
@@ -1474,6 +1476,8 @@ textarea::placeholder,
 .profile-user-photo img {
   width: 4rem;
   height: 4rem;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .profile-update-button {
@@ -1609,6 +1613,8 @@ textarea::placeholder,
   height: 4rem;
   display: block;
   margin-left: 1rem;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .user-name-container {

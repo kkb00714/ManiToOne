@@ -96,6 +96,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     session.setAttribute("profileImage", user.getProfileImage());
     session.setAttribute("introduce", user.getIntroduce());
     session.setAttribute("isNewUser", isNewUser); // 최초 가입 여부 저장
+    session.setAttribute("role", user.getRole());
   }
 
   @Transactional

@@ -15,3 +15,13 @@
 .visible {
   display: block;
 }
+
+#new-reply-content {
+  min-height: 4rem;
+  border: none;
+  resize: none;
+}
+
+#new-reply-content:focus {
+  outline: none;
+}

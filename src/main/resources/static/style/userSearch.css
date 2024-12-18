@@ -1,6 +1,7 @@
 .search-results {
   position: absolute;
   width: 100%;
+  height: auto;
   max-height: 200px; /* 필요에 따라 조정 */
   overflow-y: auto; /* 스크롤 가능 */
   border: none;
@@ -36,4 +37,19 @@
 .no-results {
   padding: 10px;
   padding-left: 18px;
+}
+
+.search-loading {
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.no-data-message {
+  height: 80px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

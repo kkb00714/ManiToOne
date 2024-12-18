@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const aiFeedbackContent = document.getElementById("ai-feedback-content");
+  const aiFeedbackContent = document.getElementById("ai-feedback-text");
   const musicTitle = document.getElementById("music-title");
   const musicLink = document.getElementById("music-link");
   const musicSection = document.getElementById("ai-music-section");

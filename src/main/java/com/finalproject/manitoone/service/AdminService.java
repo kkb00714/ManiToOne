@@ -3,6 +3,7 @@ package com.finalproject.manitoone.service;
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.constants.SearchType;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.ManitoMatches;
@@ -439,7 +440,10 @@ public class AdminService {
     replyPostRepository.delete(replyPost);
   }
 
-  public Page<ReportSearchResponseDto> searchReports(ReportSearchRequestDto reportSearchRequestDto,
+  public Page<ReportSearchResponseDto> searchReports(SearchType type,
+      String content,
+      ReportObjectType reportObjectType,
+      ReportType reportType,
       Pageable pageable) {
     QReport report = QReport.report;
     QPost post = QPost.post;
@@ -449,14 +453,14 @@ public class AdminService {
     BooleanBuilder builder = new BooleanBuilder();
 
     // 신고 타입 필터링 (ReportType)
-    if (reportSearchRequestDto.getReportType() != null) {
-      builder.and(report.reportType.eq(reportSearchRequestDto.getReportType()));
+    if (reportType != null) {
+      builder.and(report.reportType.eq(reportType));
     }
 
     // 신고 대상 타입 필터링 (ReportObjectType)
-    if (reportSearchRequestDto.getType() != null) {
+    if (reportObjectType != null) {
       // 특정 타입이 지정된 경우 해당 타입만 필터링
-      builder.and(report.type.eq(reportSearchRequestDto.getType()));
+      builder.and(report.type.eq(reportObjectType));
     } else {
       // 타입이 null인 경우 MANITO_LETTER와 MANITO_ANSWER 모두 포함
       builder.and(
@@ -464,60 +468,18 @@ public class AdminService {
       );
     }
 
-    // 신고한 사람 닉네임 검색 (reportedBy)
-    if (reportSearchRequestDto.getReportedBy() != null && !reportSearchRequestDto.getReportedBy()
-        .isEmpty()) {
-      builder.and(report.userId.in(
-          JPAExpressions.select(user.userId)
-              .from(user)
-              .where(user.nickname.containsIgnoreCase(reportSearchRequestDto.getReportedBy()))
-      ));
-    }
+    if (!content.isEmpty()) {
+      // 신고한 사람 닉네임 검색 (reportedBy)
+      if (type == SearchType.REPORTED_BY) {
+        builder.and(report.userId.in(
+            JPAExpressions.select(user.userId)
+                .from(user)
+                .where(user.nickname.containsIgnoreCase(content))
+        ));
+      }
 
-    // 신고당한 사람 닉네임 검색 (reportedTo)
-    if (reportSearchRequestDto.getReportedTo() != null && !reportSearchRequestDto.getReportedTo()
-        .isEmpty()) {
-      BooleanBuilder postCondition = new BooleanBuilder();
-      BooleanBuilder replyCondition = new BooleanBuilder();
-
-      postCondition.and(report.type.eq(ReportObjectType.POST))
-          .and(report.reportObjectId.in(
-              JPAExpressions.select(post.postId)
-                  .from(post)
-                  .where(
-                      post.user.nickname.containsIgnoreCase(reportSearchRequestDto.getReportedTo()))
-          ));
-
-      replyCondition.and(report.type.eq(ReportObjectType.REPLY))
-          .and(report.reportObjectId.in(
-              JPAExpressions.select(replyPost.replyPostId)
-                  .from(replyPost)
-                  .where(replyPost.user.nickname.containsIgnoreCase(
-                      reportSearchRequestDto.getReportedTo()))
-          ));
-
-      builder.and(postCondition.or(replyCondition));
-    }
-
-    // 키워드 검색 조건
-    if (reportSearchRequestDto.getContent() != null && !reportSearchRequestDto.getContent()
-        .isEmpty()) {
-      if (reportSearchRequestDto.getType() == ReportObjectType.POST) {
-        builder.and(report.type.eq(ReportObjectType.POST))
-            .and(report.reportObjectId.in(
-                JPAExpressions.select(post.postId)
-                    .from(post)
-                    .where(post.content.containsIgnoreCase(reportSearchRequestDto.getContent()))
-            ));
-      } else if (reportSearchRequestDto.getType() == ReportObjectType.REPLY) {
-        builder.and(report.type.eq(ReportObjectType.REPLY))
-            .and(report.reportObjectId.in(
-                JPAExpressions.select(replyPost.replyPostId)
-                    .from(replyPost)
-                    .where(
-                        replyPost.content.containsIgnoreCase(reportSearchRequestDto.getContent()))
-            ));
-      } else {
+      // 신고당한 사람 닉네임 검색 (reportedTo)
+      if (type == SearchType.REPORTED_TO) {
         BooleanBuilder postCondition = new BooleanBuilder();
         BooleanBuilder replyCondition = new BooleanBuilder();
 
@@ -525,18 +487,59 @@ public class AdminService {
             .and(report.reportObjectId.in(
                 JPAExpressions.select(post.postId)
                     .from(post)
-                    .where(post.content.containsIgnoreCase(reportSearchRequestDto.getContent()))
+                    .where(
+                        post.user.nickname.containsIgnoreCase(content))
             ));
 
         replyCondition.and(report.type.eq(ReportObjectType.REPLY))
             .and(report.reportObjectId.in(
                 JPAExpressions.select(replyPost.replyPostId)
                     .from(replyPost)
-                    .where(
-                        replyPost.content.containsIgnoreCase(reportSearchRequestDto.getContent()))
+                    .where(replyPost.user.nickname.containsIgnoreCase(
+                        content))
             ));
 
         builder.and(postCondition.or(replyCondition));
+      }
+
+      // 키워드 검색 조건
+      if (type == SearchType.CONTENT) {
+        if (reportObjectType == ReportObjectType.POST) {
+          builder.and(report.type.eq(ReportObjectType.POST))
+              .and(report.reportObjectId.in(
+                  JPAExpressions.select(post.postId)
+                      .from(post)
+                      .where(post.content.containsIgnoreCase(content))
+              ));
+        } else if (reportObjectType == ReportObjectType.REPLY) {
+          builder.and(report.type.eq(ReportObjectType.REPLY))
+              .and(report.reportObjectId.in(
+                  JPAExpressions.select(replyPost.replyPostId)
+                      .from(replyPost)
+                      .where(
+                          replyPost.content.containsIgnoreCase(content))
+              ));
+        } else {
+          BooleanBuilder postCondition = new BooleanBuilder();
+          BooleanBuilder replyCondition = new BooleanBuilder();
+
+          postCondition.and(report.type.eq(ReportObjectType.POST))
+              .and(report.reportObjectId.in(
+                  JPAExpressions.select(post.postId)
+                      .from(post)
+                      .where(post.content.containsIgnoreCase(content))
+              ));
+
+          replyCondition.and(report.type.eq(ReportObjectType.REPLY))
+              .and(report.reportObjectId.in(
+                  JPAExpressions.select(replyPost.replyPostId)
+                      .from(replyPost)
+                      .where(
+                          replyPost.content.containsIgnoreCase(content))
+              ));
+
+          builder.and(postCondition.or(replyCondition));
+        }
       }
     }
 

@@ -5,5 +5,7 @@ public enum SearchType {
   NICKNAME,
   CONTENT,
   TITLE,
-  EMAIL
+  EMAIL,
+  REPORTED_BY,
+  REPORTED_TO
 }

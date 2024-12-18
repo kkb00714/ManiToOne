@@ -154,8 +154,6 @@ async function onPostSubmit() {
   console.log("images: ", images);
 
   let url = `${baseUrl}?content=${encodeURIComponent(content)}&isManito=${isManito ? "true" : "false"}&isFeedbackReq=${isFeedbackReq ? "true" : "false"}`;
-  console.log(url);
-  alert('adg');
 
   const formData = new FormData();
   for (let i = 0; i < images.length; i++) {

@@ -20,4 +20,5 @@ public class ManitoLetterResponseDto {
   private boolean isOwner;
   private LocalDateTime createdAt;
   private String formattedCreatedAt;
+  private Long postId;
 }

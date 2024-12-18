@@ -249,10 +249,6 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_POST_IMAGE_WITH_GIVEN_ID.getMessage()
         ));
 
-    for (PostImage postImage : postImages) {
-      fileUtil.cleanUp(Paths.get(postImage.getFileName()));
-    }
-
     postImageRepository.deleteAll(postImages);
   }
 

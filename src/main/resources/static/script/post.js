@@ -52,6 +52,7 @@ function directToPost(postId) {
 
 // 마니또 여부 확인
 let isManito = false;
+let isFeedbackReq = false;
 
 function togglesManito(element, responseType) {
   const imgElement = element.querySelector("img");
@@ -81,6 +82,27 @@ function togglesManito(element, responseType) {
   console.log(`isManito: ${isManito}`);
 }
 
+function togglesAIFeedback(element, responseType) {
+  const imgElement = element.querySelector('img');
+  const currentSrc = imgElement.getAttribute('src');
+
+  if (currentSrc.includes('icon-check.png')) {
+    imgElement.src = imgElement
+    .getAttribute("data-unchecked-src")
+    .replace("@{", "")
+    .replace("}", "");
+    element.style.opacity = "0.3";
+    isFeedbackReq = false;
+  } else {
+    imgElement.src = imgElement
+    .getAttribute("data-checked-src")
+    .replace("@{", "")
+    .replace("}", "");
+    element.style.opacity = "1";
+    isFeedbackReq = true;
+  }
+}
+
 // 이미지 개수 확인
 function countImages(input) {
   const maxImages = 4;
@@ -93,11 +115,8 @@ function countImages(input) {
 }
 
 // 게시글 작성
-async function onPostSubmit(event) {
-  event.preventDefault();
-
-  const form = event.target;
-  const baseUrl = form.action;
+async function onPostSubmit() {
+  const baseUrl = '/api/post';
 
   const content = document.getElementById("new-post-content").value.trim();
   const images = document.getElementById("image-upload-btn").files;
@@ -115,19 +134,17 @@ async function onPostSubmit(event) {
     return;
   }
 
-  const formData = new URLSearchParams();
-  formData.append("content", content);
-  formData.append("isManito", isManito);
-  // formData.append("images", images);
+  let url = `${baseUrl}?content=${encodeURIComponent(content)}&isManito=${isManito ? "true" : "false"}&isFeedbackReq=${isFeedbackReq ? "true" : "false"}`;
+  console.log(url);
+  alert('adg');
 
+  const formData = new FormData();
   for (let i = 0; i < images.length; i++) {
     formData.append("images", images[i]);
   }
 
-  console.log("Data: ", formData);
-
   try {
-    const response = await fetch(baseUrl, {
+    const response = await fetch(url, {
       method: "POST",
       body: formData,
     });

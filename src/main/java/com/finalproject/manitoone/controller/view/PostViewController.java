@@ -31,6 +31,7 @@ public class PostViewController {
     String nickname = (String) session.getAttribute("nickname");
     model.addAttribute("currentUser", userService.getCurrentUser(nickname));
     model.addAttribute("post", postService.getPostDetail(postId));
+    model.addAttribute("postImages", postService.getImages(postId));
     model.addAttribute("postRepliesNum", replyService.getRepliesNum(postId));
     model.addAttribute("replies", replyService.getReplies(postId, pageable));
     return "pages/post/postDetail";
@@ -46,6 +47,7 @@ public class PostViewController {
     String nickname = (String) session.getAttribute("nickname");
     model.addAttribute("currentUser", userService.getCurrentUser(nickname));
     model.addAttribute("post", reply.getPost());
+    model.addAttribute("postImages", postService.getImages(reply.getPost().getPostId()));
     model.addAttribute("postLikesNum", postService.getPostLikesNum(reply.getPost().getPostId()));
     model.addAttribute("postRepliesNum", replyService.getRepliesNum(reply.getPost().getPostId()));
     model.addAttribute("reply", reply);

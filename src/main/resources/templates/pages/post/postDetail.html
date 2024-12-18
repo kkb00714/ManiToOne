@@ -51,11 +51,13 @@
                   ></span>
                 </div>
                 <p class="content-text" th:text="${post.content}"></p>
-                <img
-                  class="post-image"
-                  th:src="@{/images/image-beer.webp}"
-                  alt="beer image"
-                />
+                <div class="image-container" th:if="${postImages != null}">
+                  <img
+                    th:each="image : ${postImages}"
+                    th:src="@{${image.fileName}}"
+                    alt="uploaded-image"
+                  />
+                </div>
                 <p
                   class="post-time"
                   th:text="${post.updatedAt != null ? #temporals.format(post.updatedAt, 'yyyy년 MM월 dd일 a hh시 mm분') : #temporals.format(post.createdAt, 'yyyy년 MM월 dd일 a hh시 mm분')}"
@@ -67,7 +69,11 @@
                     alt="I like this"
                     th:onclick="'likePost(' + ${post.postId} + ')'"
                   />
-                  <span class="like-count" th:text="${post.likesNumber}"></span>
+                  <span
+                    class="like-count"
+                    id="post-like-count"
+                    th:text="${post.likesNumber}"
+                  ></span>
                   <img
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-comment2.png}"

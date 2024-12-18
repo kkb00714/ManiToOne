@@ -162,7 +162,6 @@ public class PostService {
   }
 
   // 게시글 상세 조회
-  // TODO: 이미지 조회
   public PostResponseDto getPostDetail(Long postId) {
     Post post = postRepository.findByPostIdAndIsHiddenFalseAndIsBlindFalse(postId)
         .orElseThrow(() -> new IllegalArgumentException(
@@ -178,6 +177,17 @@ public class PostService {
         post.getIsManito(),
         getPostLikesNum(post.getPostId())
     );
+  }
+
+  // 게시글 이미지 조회
+  public List<PostImageResponseDto> getImages(Long postId) {
+    List<PostImage> images = postImageRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_IMAGE_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return images.stream().map(image -> new PostImageResponseDto(
+        image.getFileName())).toList();
   }
 
   // 게시글 삭제

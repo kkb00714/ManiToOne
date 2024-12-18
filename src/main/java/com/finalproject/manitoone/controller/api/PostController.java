@@ -92,7 +92,6 @@ public class PostController {
   }
 
   // 게시글 상세 조회
-  // TODO: 이미지 조회
   @GetMapping("/{postId}")
   public ResponseEntity<PostResponseDto> getPostDetail(@PathVariable("postId") Long postId) {
     PostResponseDto post = postService.getPostDetail(postId);
@@ -127,7 +126,7 @@ public class PostController {
   @PostMapping("/like/{postId}")
   public ResponseEntity<PostResponseDto> likePost(@PathVariable("postId") Long postId,
       HttpSession session) {
-    String email = session.getAttribute("email") + "";
+    String email = (String) session.getAttribute("email");
 
     PostResponseDto post = postService.likePost(postId, email);
     return ResponseEntity.ok(post);

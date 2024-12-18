@@ -16,10 +16,4 @@ public class PostImageResponseDto {
   private Long postImageId;
   private Post post;
   private String fileName;
-
-  public PostImageResponseDto(PostImage postImage) {
-    this.postImageId = postImage.getPostImageId();
-    this.post = postImage.getPost();
-    this.fileName = postImage.getFileName();
-  }
 }

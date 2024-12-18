@@ -1,5 +1,7 @@
 // 게시글 좋아요
 async function likePost(postId) {
+  const likeCount = document.getElementById("post-like-count");
+
   try {
     const response = await fetch(`/api/post/like/${postId}`, {
       method: "POST",
@@ -10,6 +12,8 @@ async function likePost(postId) {
 
     if (response.ok) {
       alert("해당 게시글에 좋아요를 누르셨습니다.");
+      const data = await response.json();
+      likeCount.value = data.likesNumber;
     } else {
       alert("좋아요 요청에 실패하셨습니다.");
     }
@@ -96,6 +100,7 @@ function countImages(input) {
 async function onPostSubmit() {
   const content = document.getElementById("new-post-content").value.trim();
   const images = document.getElementById("image-upload-btn").files;
+  const imageContainer = document.getElementById("upload-image-container");
 
   if (!content) {
     alert("내용을 입력해주세요.");
@@ -107,6 +112,19 @@ async function onPostSubmit() {
   if (images.length > 4) {
     alert("이미지는 최대 4장까지만 업로드 가능합니다.");
     return;
+  }
+
+  if (images.length > 0) {
+    for (const image of images) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = document.createElement("img");
+        img.src = event.target.result;
+        img.alt = "image-upload";
+        imageContainer.appendChild(img);
+      };
+      reader.readAsDataURL(image);
+    }
   }
 
   console.log("images: ", images);
@@ -141,6 +159,76 @@ async function onPostSubmit() {
   } catch (error) {
     alert("게시글 작성 중 오류가 발생했습니다.");
     console.log("게시글 작성 오류: ", error);
+  }
+}
+
+// AI 피드백 받기
+let aiFeedback;
+
+function togglesAi(element) {
+  const imgElement = element.querySelector("img");
+
+  if (!imgElement) {
+    return;
+  }
+
+  const isChecked = imgElement.src.includes("icon-check.png");
+
+  if (isChecked) {
+    imgElement.src = imgElement
+      .getAttribute("data-unchecked-src")
+      .replace("@{", "")
+      .replace("}", "");
+    element.style.opacity = "0.3";
+    aiFeedback = false;
+  } else {
+    imgElement.src = imgElement
+      .getAttribute("data-checked-src")
+      .replace("@{", "")
+      .replace("}", "");
+    element.style.opacity = "1";
+    aiFeedback = true;
+    getFeedback();
+  }
+
+  console.log("AI: ", aiFeedback);
+}
+
+async function getFeedback() {
+  if (aiFeedback === false) {
+    return;
+  }
+
+  const content = document.getElementById("new-post-content").value.trim();
+  const container = document.getElementById("ai-feedback-container");
+  const displayText = document.getElementById("ai-feedback-content");
+
+  if (!content) {
+    alert("내용을 입력해주세요.");
+    return;
+  }
+
+  console.log("Content: ", content);
+
+  const url = `/api/post/ai-feedback?content=${encodeURIComponent(content)}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      alert("AI 피드백 받기에 실패했습니다.");
+      return;
+    }
+
+    const data = await response.json();
+
+    container.style.display = "flex";
+    displayText.value = `AI: ${data.feedback}`;
+  } catch (error) {
+    alert("AI 피드백 받는 도중에 오류가 발생했습니다.");
+    console.log("AI 피드백 오류: ", error);
   }
 }
 

@@ -4,9 +4,9 @@ import com.finalproject.manitoone.service.TimelineService;
 import com.finalproject.manitoone.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +20,9 @@ public class WebViewController {
   private static final int DEFAULT_RECENT_DAYS = 7;
 
   @GetMapping("/")
-  public String getIndex(Model model, HttpSession session) {
+  public String getIndex(Model model,
+      HttpSession session,
+      @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
     Boolean isNewUser = (Boolean) session.getAttribute("isNewUser");
 
     if (Boolean.TRUE.equals(isNewUser)) {
@@ -34,7 +36,7 @@ public class WebViewController {
     model.addAttribute("userNickname", nickname);
     model.addAttribute("posts", timelineService.getTimelinePosts(
         nickname,
-        PageRequest.of(0, 20, Sort.by(Direction.DESC, "createdAt")),
+        pageable,
         DEFAULT_RECENT_DAYS
     ));
     model.addAttribute("user", userService.getCurrentUser(nickname));

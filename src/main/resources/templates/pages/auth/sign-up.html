@@ -46,7 +46,6 @@
               id="user-password"
               placeholder="비밀번호(영문 대-소문자, 숫자, 특수문자 포함 8~16자)"
               aria-label="비밀번호 입력"
-              required
           />
           <button type="button" id="toggle-password-sign-up" aria-label="비밀번호 표시/숨기기">표시</button>
         </div>
@@ -59,7 +58,6 @@
             id="user-name"
             placeholder="이름 입력"
             aria-label="이름 입력"
-            required
         />
         <p><span id="name-error" class="error-message"></span></p>
 
@@ -70,7 +68,6 @@
             id="user-nickname"
             placeholder="닉네임 입력"
             aria-label="닉네임 입력"
-            required
         />
         <p><span id="nickname-error" class="error-message"></span></p>
 
@@ -80,7 +77,6 @@
             name="user-birthday"
             id="user-birthday"
             aria-label="생년월일 입력"
-            required
         />
         <p><span id="birth-error" class="error-message"></span></p>
 
@@ -121,12 +117,35 @@
       }
     });
   });
+  const emailError = document.getElementById("email-error");
+  const passwordError = document.getElementById("password-error");
+  const nameError = document.getElementById("name-error");
+  const nicknameError = document.getElementById("nickname-error");
+  const birthError = document.getElementById("birth-error");
 
-  document.getElementById("user-nickname").addEventListener("input", function () {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+  const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,10}$/;
+
+  document.getElementById("user-password").addEventListener("keyup", function () {
+    const password = this.value;
+
+    if (!passwordRegex.test(password)) {
+      passwordError.textContent = "비밀번호는 영어, 숫자, 특수문자를 포함하여 8~16자리여야 합니다.";
+      passwordError.style.color = 'red';
+    } else if (password === null || password ==="") {
+      passwordError.textContent = "비밀번호는 필수 입력값입니다.";
+      passwordError.style.color = 'red';
+    } else {
+      passwordError.textContent = "";
+      passwordError.style.color = '';
+    }
+  });
+
+  document.getElementById("user-nickname").addEventListener("keyup", function () {
     const nickname = this.value;
-    const nicknameError = document.getElementById("nickname-error");
 
-    if (nickname.length > 0) {
+    if (nicknameRegex.test(nickname)) {
       fetch(`/api/check-nickname?nickname=${nickname}`)
       .then(response => {
         if (response.ok) {
@@ -143,8 +162,39 @@
         nicknameError.textContent = '서버 오류가 발생했습니다. 다시 시도해주세요.';
         nicknameError.style.color = 'red';
       });
+    } else if (nickname === null || nickname === "") {
+      nicknameError.textContent = "닉네임은 필수 입력값입니다.";
+      nicknameError.style.color = 'red';
     } else {
-      nicknameError.textContent = '이미 존재하는 닉네임 입니다.';
+      nicknameError.textContent = "닉네임은 특수문자를 제외한 2~10자리로 설정해야 합니다.";
+      nicknameError.style.color = 'red';
+    }
+  });
+
+  document.getElementById("user-name").addEventListener("keyup", function () {
+    const name = this.value;
+
+    if (name === null || name === "") {
+      nameError.textContent = "이름은 필수 입력값입니다.";
+      nameError.style.color = 'red';
+    } else if (name.length < 2 || name.length > 10) {
+      nameError.textContent = "이름은 2~10자리로 설정해야 합니다.";
+      nameError.style.color = 'red';
+    } else {
+      nameError.textContent = "";
+      nameError.style.color = '';
+    }
+  });
+
+  document.getElementById("user-birthday").addEventListener("change", function () {
+    const birth = this.value;
+
+    if (birth === null || birth === "") {
+      birthError.textContent = "생일은 필수 입력값입니다.";
+      birthError.style.color = 'red';
+    } else {
+      birthError.textContent = "";
+      birthError.style.color = '';
     }
   });
 
@@ -156,22 +206,6 @@
     const name = document.getElementById("user-name").value;
     const nickname = document.getElementById("user-nickname").value;
     const birth = document.getElementById("user-birthday").value;
-
-    const emailError = document.getElementById("email-error");
-    const passwordError = document.getElementById("password-error");
-    const nameError = document.getElementById("name-error");
-    const nicknameError = document.getElementById("nickname-error");
-    const birthError = document.getElementById("birth-error");
-
-    emailError.textContent = "";
-    passwordError.textContent = "";
-    nameError.textContent = "";
-    nicknameError.textContent = "";
-    birthError.textContent = "";
-
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
-    const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,10}$/;
 
     let isValid = true;
     let firstErrorField = null;
@@ -187,6 +221,7 @@
     if (!passwordRegex.test(password)) {
       passwordError.textContent =
           "비밀번호는 영어, 숫자, 특수문자를 포함하여 8~16자리여야 합니다.";
+      passwordError.style.color = 'red';
       if (!firstErrorField) {
         firstErrorField = document.getElementById("user-password");
       }
@@ -195,6 +230,14 @@
 
     if (name === "") {
       nameError.textContent = "이름은 필수 입력값입니다.";
+      nameError.style.color = 'red';
+      if (!firstErrorField) {
+        firstErrorField = document.getElementById("user-name");
+      }
+      isValid = false;
+    } else if (name.length < 2 || name.length > 10) {
+      nameError.textContent = "이름은 2~10자리로 설정해야 합니다.";
+      nameError.style.color = 'red';
       if (!firstErrorField) {
         firstErrorField = document.getElementById("user-name");
       }
@@ -203,6 +246,7 @@
 
     if (!nicknameRegex.test(nickname)) {
       nicknameError.textContent = "닉네임은 특수문자를 제외한 2~10자리로 설정해야 합니다.";
+      nicknameError.style.color = 'red';
       if (!firstErrorField) {
         firstErrorField = document.getElementById("user-nickname");
       }
@@ -211,6 +255,14 @@
 
     if (new Date(birth) > new Date()) {
       birthError.textContent = "미래 날짜는 입력할 수 없습니다.";
+      birthError.style.color = 'red';
+      if (!firstErrorField) {
+        firstErrorField = document.getElementById("user-birthday");
+      }
+      isValid = false;
+    } else if (birth === null || birth === "" || birth === undefined) {
+      birthError.textContent = "생일은 필수 입력값입니다.";
+      birthError.style.color = 'red';
       if (!firstErrorField) {
         firstErrorField = document.getElementById("user-birthday");
       }
@@ -237,6 +289,8 @@
     const loadingSpinner = signUpButton.querySelector('#loading-spinner');
     buttonText.style.display = 'none';
     loadingSpinner.style.display = 'inline-block';
+
+    console.log("가기전");
 
     fetch('/api/signup', {
       method: "POST",

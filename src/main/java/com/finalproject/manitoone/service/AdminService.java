@@ -3,6 +3,7 @@ package com.finalproject.manitoone.service;
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.constants.SearchType;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Notification;
@@ -26,7 +27,6 @@ import com.finalproject.manitoone.domain.dto.admin.ReportSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.ReportSearchResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
-import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchResponseDto;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
@@ -83,27 +83,28 @@ public class AdminService {
   private final FileUtil fileUtil;
   private final DataUtil dataUtil;
 
-  public Page<UserSearchResponseDto> searchUsers(UserSearchRequestDto userSearchRequestDto,
+  public Page<UserSearchResponseDto> searchUsers(SearchType type, String content, Integer status,
       Pageable pageable) {
     QUser user = QUser.user;
 
     BooleanBuilder builder = new BooleanBuilder();
 
-    if (userSearchRequestDto.getNickname() != null && !userSearchRequestDto.getNickname()
-        .isEmpty()) {
-      builder.and(user.nickname.containsIgnoreCase(userSearchRequestDto.getNickname()));
+    if (!content.isEmpty()) {
+      if (type == SearchType.NICKNAME) {
+        builder.and(user.nickname.containsIgnoreCase(content));
+      }
+
+      if (type == SearchType.EMAIL) {
+        builder.and(user.email.containsIgnoreCase(content));
+      }
+
+      if (type == SearchType.NAME) {
+        builder.and(user.name.containsIgnoreCase(content));
+      }
     }
 
-    if (userSearchRequestDto.getEmail() != null && !userSearchRequestDto.getEmail().isEmpty()) {
-      builder.and(user.email.containsIgnoreCase(userSearchRequestDto.getEmail()));
-    }
-
-    if (userSearchRequestDto.getName() != null && !userSearchRequestDto.getName().isEmpty()) {
-      builder.and(user.name.containsIgnoreCase(userSearchRequestDto.getName()));
-    }
-
-    if (userSearchRequestDto.getStatus() != null) {
-      builder.and(user.status.eq(userSearchRequestDto.getStatus()));
+    if (status != null) {
+      builder.and(user.status.eq(status));
     }
 
     // QueryDSL로 페이징 처리
@@ -379,12 +380,14 @@ public class AdminService {
     }
 
     // 마니또 연결 삭제
-    List<ManitoMatches> manitoMatches = manitoMatchesRepository.findByMatchedPostId(post).orElse(new ArrayList<>());
+    List<ManitoMatches> manitoMatches = manitoMatchesRepository.findByMatchedPostId(post)
+        .orElse(new ArrayList<>());
 
     if (!manitoMatches.isEmpty()) {
       for (ManitoMatches match : manitoMatches) {
         // 매취스 아이디로 ManitoLetter 찾기
-        Optional<ManitoLetter> manitoLetterOptional = manitoLetterRepository.findByManitoMatches_ManitoMatchesId(match.getManitoMatchesId());
+        Optional<ManitoLetter> manitoLetterOptional = manitoLetterRepository.findByManitoMatches_ManitoMatchesId(
+            match.getManitoMatchesId());
         if (manitoLetterOptional.isPresent()) {
           // ManitoLetter가 존재하면 삭제
           ManitoLetter manitoLetter = manitoLetterOptional.get();
@@ -395,7 +398,6 @@ public class AdminService {
       }
     }
 
-
     // 게시글 신고 목록 삭제
     List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(ReportObjectType.POST,
         postId).orElse(new ArrayList<>());
@@ -404,8 +406,10 @@ public class AdminService {
     }
 
     // 알림 삭제
-    List<Notification> notifications = notificationRepository.findByTypeInAndRelatedObjectId(List.of(
-        NotiType.LIKE_CLOVER, NotiType.POST_REPLY, NotiType.POST_RE_REPLY), postId).orElse(new ArrayList<>());
+    List<Notification> notifications = notificationRepository.findByTypeInAndRelatedObjectId(
+            List.of(
+                NotiType.LIKE_CLOVER, NotiType.POST_REPLY, NotiType.POST_RE_REPLY), postId)
+        .orElse(new ArrayList<>());
     if (!notifications.isEmpty()) {
       notificationRepository.deleteAll(notifications);
     }

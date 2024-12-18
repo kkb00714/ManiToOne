@@ -9,6 +9,19 @@ document.addEventListener("DOMContentLoaded", function () {
   let requestBody = {}
   let currentStatus = "";
 
+  const toEnumValue = (filter) => {
+    switch (filter) {
+      case "nickname":
+        return "NICKNAME";
+      case "name":
+        return "NAME";
+      case "email":
+        return "EMAIL";
+      default:
+        return null;
+    }
+  };
+
   function formatDatetime(input) {
     if (!input) return "없음";
 
@@ -35,7 +48,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (filterSelect && searchQuery) {
-      requestBody = {[filterSelect]: searchQuery};
+      const type = toEnumValue(filterSelect); // 대문자로 변환된 ENUM 값
+      const content = searchQuery;
+      requestBody['type'] = type;
+      requestBody['content'] = content;
       loadPage(1);
     }
   }
@@ -44,16 +60,22 @@ document.addEventListener("DOMContentLoaded", function () {
   loadPage(1);
 
   function loadPage(page) {
-    syncSearchFields();
+    // syncSearchFields();
 
-    tableBody.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="9">Loading...</td></tr>';
 
-    fetch(`/admin/users?page=${page - 1}`, {
-      method: "POST",
+    const params = new URLSearchParams({
+      page: page - 1,
+      type: requestBody.type || "",
+      content: requestBody.content || "",
+      status: requestBody.status || ""
+    });
+
+    fetch(`/admin/api/users?${params.toString()}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestBody)
     })
     .then((response) => {
       if (!response.ok) {
@@ -199,19 +221,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function syncSearchFields() {
-    const filterSelect = document.querySelector("#filterSelect");
-    const searchQuery = document.querySelector("#searchQuery");
-
-    const [key] = Object.keys(requestBody);
-    if (key) {
-      filterSelect.value = key;
-      searchQuery.value = requestBody[key];
-    } else {
-      const defaultFilter = filterSelect.options[0].value;
-      requestBody = {[defaultFilter]: ""};
-    }
-  }
+  // function syncSearchFields() {
+  //   const filterSelect = document.querySelector("#filterSelect");
+  //   const searchQuery = document.querySelector("#searchQuery");
+  //
+  //   const [key] = Object.keys(requestBody);
+  //   if (key) {
+  //     filterSelect.value = key;
+  //     searchQuery.value = requestBody[key];
+  //   } else {
+  //     const defaultFilter = filterSelect.options[0].value;
+  //     requestBody = {[defaultFilter]: ""};
+  //   }
+  // }
 
   let originalData = {}
   let clickedRow = null;

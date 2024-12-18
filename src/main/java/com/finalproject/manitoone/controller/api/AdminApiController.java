@@ -1,10 +1,10 @@
 package com.finalproject.manitoone.controller.api;
 
+import com.finalproject.manitoone.constants.SearchType;
 import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.ReportSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
-import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
 import com.finalproject.manitoone.service.AdminService;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -19,22 +19,25 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/admin/api")
 @RequiredArgsConstructor
 public class AdminApiController {
 
   private final AdminService adminService;
 
-  @PostMapping("/users")
+  @GetMapping("/users")
   public ResponseEntity<Object> getAllUsers(
       @PageableDefault(size = 2, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
-      @RequestBody UserSearchRequestDto userSearchRequestDto) {
-    return ResponseEntity.ok(adminService.searchUsers(userSearchRequestDto, pageable));
+      @RequestParam(defaultValue = "") SearchType type,
+      @RequestParam(defaultValue = "") Integer status,
+      @RequestParam(defaultValue = "") String content) {
+    return ResponseEntity.ok(adminService.searchUsers(type, content, status, pageable));
   }
 
   @PutMapping("/users")

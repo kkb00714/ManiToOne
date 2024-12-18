@@ -325,12 +325,8 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
 
-    userPostLikeRepository.save(UserPostLike.builder()
-        .post(post)
-        .user(user)
-        .build());
-    
-    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
+    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(
+        user.getUserId(), post.getPostId());
 
     if (existingLike.isPresent()) {
       userPostLikeRepository.delete(existingLike.get());
@@ -356,7 +352,6 @@ public class PostService {
             NotiType.LIKE_CLOVER,
             postId);
       }
-
     } catch (IOException e) {
       log.error(e.getMessage());
     }
@@ -406,7 +401,7 @@ public class PostService {
 
   // 게시글 좋아요 개수 조회
   public Integer getPostLikesNum(Long postId) {
-    List<UserPostLike> likes = userPostLikeRepository.findAllByPostPostId(postId)
+    List<UserPostLike> likes = userPostLikeRepository.findAllByPostPostIdAndReplyPostIdNull(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
         ));

@@ -1,19 +1,19 @@
 // 게시글 좋아요
 async function likePost(postId) {
-  const likeCount = document.getElementById("post-like-count");
+  const likeCount = document.querySelector("#post-like-count");
+
+  console.log("Post ID: ", postId);
 
   try {
     const response = await fetch(`/api/post/like/${postId}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
+
+    const data = await response.json();
 
     if (response.ok) {
       alert("해당 게시글에 좋아요를 누르셨습니다.");
-      const data = await response.json();
-      likeCount.value = data.likesNumber;
+      likeCount.textContent = data.likesNumber;
     } else {
       alert("좋아요 요청에 실패하셨습니다.");
     }

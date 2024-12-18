@@ -1,8 +1,7 @@
-package com.finalproject.manitoone.controller;
+package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.dto.user.UserInformationResponseDto;
 import com.finalproject.manitoone.service.UserService;
-import com.finalproject.manitoone.util.AlanUtil;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

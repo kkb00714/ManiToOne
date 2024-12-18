@@ -803,6 +803,16 @@ const ManitoPage = {
     this.letterBox.init();
     this.modals.init();
     this.initializePostNavigation();
+    this.initializeLetterContentClick();
+  },
+
+  initializeLetterContentClick() {
+    document.addEventListener('click', (e) => {
+      const content = e.target.closest('.manito-content-text');
+      if (content && content.dataset.postId) {
+        window.location.href = `/post/${content.dataset.postId}`;
+      }
+    });
   }
 };
 
@@ -847,8 +857,9 @@ class ManitoLetterRenderer {
             <span class="manito-user-name">익명의 마니또</span>
             <span class="passed-time">${letter.timeDiff}</span>
           </div>
-          <p class="manito-content-text">${letter.letterContent?.replace(/\n/g,
-        '<br>') || ''}</p>
+          <p class="manito-content-text ${letter.postId ? 'clickable-content' : ''}" 
+   ${letter.postId ? `data-post-id="${letter.postId}"` : ''}
+   style="${letter.postId ? 'cursor: pointer;' : ''}">${letter.letterContent?.replace(/\n/g, '<br>') || ''}</p>
           <div class="manito-recommend-music">
             <div class="recommend-music">
               <img class="tiny-icons-linkless" src="/images/icons/icon-music.png" alt="music icon" />
@@ -1164,15 +1175,29 @@ class ReportModal extends BaseModal {
   }
 }
 
+
+let isRequestingMatch = false;
+let originalContent = null;
+
 async function requestMatch() {
-  const originalContent = document.querySelector('.pre-match-container').innerHTML;
+  if (isRequestingMatch) return;
+
   try {
+    isRequestingMatch = true;
+
+    // 원본 컨텐츠 저장
+    if (!originalContent) {
+      originalContent = document.querySelector('.pre-match-container').innerHTML;
+    }
+
     // 매칭 진행 중 상태 표시
-    document.querySelector('.pre-match-container').innerHTML = `
+    const container = document.querySelector('.pre-match-container');
+    const matchingHTML = `
             <div class="pre-match-content">
                 <h2 class="pre-match-title">매칭이 진행 중입니다...</h2>
             </div>
         `;
+    container.innerHTML = matchingHTML;
 
     // 매칭 요청
     const response = await fetch('/api/manito/match/request', {
@@ -1183,71 +1208,87 @@ async function requestMatch() {
     });
 
     const data = await response.json();
-
     if (!response.ok) {
       throw new Error(data.message || '매칭 요청 중 오류가 발생했습니다.');
     }
 
-    // 매칭이 시작되었음을 확인하기 위해 약간의 지연 후 상태 체크 시작
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    let retryCount = 0;
+    const maxRetries = 30; // 60초 타임아웃으로 증가
 
-    // 매칭 상태 주기적 확인
     const checkMatchStatus = async () => {
       try {
         const statusResponse = await fetch('/api/manito/match/status');
         const statusData = await statusResponse.json();
+        console.log('Match status:', statusData);
 
-        if (!statusData) {
-          setTimeout(checkMatchStatus, 2000);
-          return;
+        if (!statusResponse.ok) {
+          throw new Error('매칭 상태 확인에 실패했습니다.');
         }
 
-        // 매칭 진행 중인 경우
-        if (statusData.status === 'IN_PROGRESS') {
-          setTimeout(checkMatchStatus, 2000);
-          return;
-        }
-
-        // 매칭 실패한 경우
-        if (statusData.status === 'FAILED') {
-          if (statusData.message?.includes('매칭 가능한 게시글이 없습니다')) {
-            CommonUtils.showWarningMessage('현재 마니또를 기다리고 있는 게시물이 없어요.');
-            document.querySelector('.pre-match-container').innerHTML = originalContent;
-          } else {
-            CommonUtils.showWarningMessage(statusData.message);
-            document.querySelector('.pre-match-container').innerHTML = originalContent;
-          }
-          return;
-        }
-
-        // 매칭이 완료된 경우에만 페이지 리로드
+        // 매칭 완료
         if (statusData.status === 'COMPLETED') {
+          await new Promise(resolve => setTimeout(resolve, 500)); // 잠시 대기
           window.location.reload();
           return;
         }
 
-        // 그 외의 경우 계속 체크
-        setTimeout(checkMatchStatus, 2000);
+        // 매칭 실패
+        if (statusData.status === 'FAILED') {
+          console.log('Match failed:', statusData.message);
+          handleMatchFailure(statusData.message);
+          return;
+        }
+
+        // 매칭 진행 중이거나 NO_PROCESS 상태
+        if (retryCount >= maxRetries) {
+          handleMatchFailure('매칭 시간이 초과되었습니다.');
+          return;
+        }
+
+        console.log('Match in progress, retry:', retryCount);
+        retryCount++;
+        container.innerHTML = matchingHTML;
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await checkMatchStatus();
 
       } catch (error) {
-        console.error('매칭 상태 확인 중 오류:', error);
-        CommonUtils.showWarningMessage('매칭 상태 확인 중 오류가 발생했습니다.');
-        document.querySelector('.pre-match-container').innerHTML = originalContent;
+        console.error('Status check error:', error);
+        handleMatchError(error);
       }
     };
 
-    checkMatchStatus();
+    await checkMatchStatus();
 
   } catch (error) {
-    console.error('매칭 요청 에러:', error);
-    if (error.message?.includes('매칭 가능한 게시글이 없습니다')) {
-      CommonUtils.showWarningMessage('현재 마니또를 기다리고 있는 게시물이 없어요.');
-    } else {
-      CommonUtils.showWarningMessage(error.message || '서버와의 통신 중 오류가 발생했습니다.');
-    }
-    document.querySelector('.pre-match-container').innerHTML = originalContent;
+    handleMatchError(error);
   }
 }
+
+function handleMatchFailure(message) {
+  console.log('Match failure:', message); // 디버깅용 로그
+  isRequestingMatch = false;
+  CommonUtils.showWarningMessage(message);
+  restoreOriginalContent();
+}
+
+function handleMatchError(error) {
+  console.error('Match error:', error); // 디버깅용 로그
+  isRequestingMatch = false;
+  CommonUtils.showWarningMessage(error.message || '매칭 처리 중 오류가 발생했습니다.');
+  restoreOriginalContent();
+}
+
+function restoreOriginalContent() {
+  const container = document.querySelector('.pre-match-container');
+  if (container && originalContent) {
+    container.innerHTML = originalContent;
+  }
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', () => {
+  originalContent = document.querySelector('.pre-match-container')?.innerHTML;
+});
 
 function passMatch() {
   const confirmationPopup = document.getElementById('passPostConfirmPopup');

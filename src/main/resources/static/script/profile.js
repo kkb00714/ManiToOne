@@ -49,15 +49,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function loadPosts(pageNum) {
     const apiUrl = getApiUrl(pageNum);
+    const menuSwitch = document.querySelector('.mypage-menu-switch');
+    const postsContainer = document.getElementById("postsContainer");
     try {
       const posts = await fetchPosts(apiUrl);
       if (posts && posts.length > 0) {
+        menuSwitch.style.borderBottom = '3px solid rgba(171, 171, 171, 0.25)';
+
+        if (pageNum === 0) {
+          postsContainer.innerHTML = '';
+        }
+
         for (const post of posts) {
           const postElement = await createPostElement(post);
           postsContainer.appendChild(postElement);
         }
       } else {
         hasMorePosts = false;
+
+        if (pageNum === 0) {
+          let emptyMessage;
+          if (currentCategory === 1) {
+            emptyMessage = '아직 작성한 게시물이 없어요';
+          } else if (currentCategory === 2) {
+            emptyMessage = '아직 좋아요를 누른 게시물이 없어요';
+          } else if (currentCategory === 3) {
+            emptyMessage = '숨긴 게시물이 없어요';
+          }
+
+          postsContainer.innerHTML = `
+                    <div class="empty-post-container">
+                        <img src="/images/icons/UI-clover2.png" alt="empty post icon">
+                        <div class="empty-post-message">${emptyMessage}</div>
+                    </div>
+                `;
+        }
       }
     } catch (error) {
       console.error('게시물을 불러오지 못했습니다.:', error);
@@ -110,8 +136,15 @@ document.addEventListener("DOMContentLoaded", function () {
             <a href="/profile/${post.nickName}" class="user-name">${post.nickName}</a>
             <span class="passed-time" data-created-at="${post.createdAt}" data-updated-at="${post.updatedAt}">${timeText}</span>
           </div>
-          <p class="content-text" data-post-id="${post.postId}">${post.content}</p>
-          <div class="reaction-icons">
+        <p class="content-text" data-post-id="${post.postId}">${post.content}</p>
+        ${post.postImages && post.postImages.length > 0 ? `
+          <div class="image-container">
+            ${post.postImages.map(image => `
+              <img class="post-image" src="${image.fileName}" alt="post image"/>
+            `).join('')}
+          </div>
+        ` : ''}
+        <div class="reaction-icons">
             ${myNickName !== post.nickName
         ? `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="I like this" data-post-id="${post.postId}"/>`
         : `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="my post"/>`}
@@ -301,6 +334,25 @@ document.addEventListener("DOMContentLoaded", function () {
       alert(`프로필 이미지 업데이트에 실패했습니다: ${error.message}`);
     });
   }
+
+  profileImageInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (!file.type.match(/^image\/(png|jpe?g)$/)) {
+        alert("PNG, JPG, JPEG 파일만 선택할 수 있습니다.");
+        profileImageInput.value = "";
+        return;
+      }
+      const maxSizeMB = 5;
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        alert(`파일 크기는 ${maxSizeMB}MB 이하로만 선택할 수 있습니다.`);
+        profileImageInput.value = "";
+
+        return;
+      }
+      updateProfileImage(file);
+    }
+  });
 
   profileImage.addEventListener("click", () => {
     modal.style.display = "block";

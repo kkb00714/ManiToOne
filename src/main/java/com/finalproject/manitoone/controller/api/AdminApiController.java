@@ -1,10 +1,9 @@
 package com.finalproject.manitoone.controller.api;
 
-import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
-import com.finalproject.manitoone.domain.dto.admin.ReportSearchRequestDto;
+import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.constants.ReportType;
+import com.finalproject.manitoone.constants.SearchType;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
-import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
-import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
 import com.finalproject.manitoone.service.AdminService;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -19,29 +18,31 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/admin/api")
 @RequiredArgsConstructor
 public class AdminApiController {
 
   private final AdminService adminService;
 
-  @PostMapping("/users")
+  @GetMapping("/users")
   public ResponseEntity<Object> getAllUsers(
-      @PageableDefault(size = 2, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
-      @RequestBody UserSearchRequestDto userSearchRequestDto) {
-    return ResponseEntity.ok(adminService.searchUsers(userSearchRequestDto, pageable));
+      @PageableDefault(size = 5, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
+      @RequestParam(defaultValue = "") SearchType type,
+      @RequestParam(defaultValue = "") Integer status,
+      @RequestParam(defaultValue = "") String content) {
+    return ResponseEntity.ok(adminService.searchUsers(type, content, status, pageable));
   }
 
   @PutMapping("/users")
   public ResponseEntity<Object> updateUsers(
       @RequestBody UserProfileRequestDto userProfileRequestDto) {
-    UserProfileResponseDto updatedUser = adminService.updateUser(userProfileRequestDto);
-    return ResponseEntity.ok(updatedUser);
+    return ResponseEntity.ok(adminService.updateUser(userProfileRequestDto));
   }
 
   @PutMapping("/users/{userId}")
@@ -50,11 +51,13 @@ public class AdminApiController {
     return ResponseEntity.ok(adminService.updateProfileImage(userId, profileImageFile));
   }
 
-  @PostMapping("/posts")
+  @GetMapping("/posts")
   public ResponseEntity<Object> getAllPosts(
-      @PageableDefault(size = 2, sort = "postId", direction = Sort.Direction.ASC) Pageable pageable,
-      @RequestBody PostSearchRequestDto postSearchRequestDto) {
-    return ResponseEntity.ok(adminService.searchPosts(postSearchRequestDto, pageable));
+      @PageableDefault(size = 5, sort = "postId", direction = Sort.Direction.ASC) Pageable pageable,
+      @RequestParam(defaultValue = "") SearchType type,
+      @RequestParam(defaultValue = "") String content,
+      @RequestParam(defaultValue = "") Boolean isBlind) {
+    return ResponseEntity.ok(adminService.searchPosts(type, content, isBlind, pageable));
   }
 
   @GetMapping("/post/{postId}/image")
@@ -86,9 +89,12 @@ public class AdminApiController {
 
   @PostMapping("/reports")
   public ResponseEntity<Object> getReports (
-      @PageableDefault(size = 2, sort = "reportId", direction = Sort.Direction.ASC) Pageable pageable,
-      @RequestBody ReportSearchRequestDto reportSearchRequestDto) {
-    return ResponseEntity.ok(adminService.searchReports(reportSearchRequestDto, pageable));
+      @PageableDefault(size = 5, sort = "reportId", direction = Sort.Direction.ASC) Pageable pageable,
+      @RequestParam(defaultValue = "") SearchType type,
+      @RequestParam(defaultValue = "") String content,
+      @RequestParam(defaultValue = "") ReportObjectType reportObjectType,
+      @RequestParam(defaultValue = "") ReportType reportType) {
+    return ResponseEntity.ok(adminService.searchReports(type, content, reportObjectType, reportType, pageable));
   }
 
   @GetMapping("/report/post/{postId}")
@@ -107,10 +113,13 @@ public class AdminApiController {
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/manito/reports")
+  @GetMapping("/manito/reports")
   public ResponseEntity<Object> getManitoReports (
       @PageableDefault(size = 2, sort = "reportId", direction = Sort.Direction.ASC) Pageable pageable,
-      @RequestBody ReportSearchRequestDto reportSearchRequestDto) {
-    return ResponseEntity.ok(adminService.searchManitoReports(reportSearchRequestDto, pageable));
+      @RequestParam(defaultValue = "") SearchType type,
+      @RequestParam(defaultValue = "") String content,
+      @RequestParam(defaultValue = "") ReportObjectType reportObjectType,
+      @RequestParam(defaultValue = "") ReportType reportType) {
+    return ResponseEntity.ok(adminService.searchManitoReports(type, content, reportObjectType, reportType , pageable));
   }
 }

@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchInput = document.getElementById("search-input");
   const searchResults = document.getElementById("search-results");
   const searchSection = document.querySelector(".search-section");
-  const loading = document.querySelector(".loading");
+  const loading = document.querySelector(".search-loading");
 
   let isFetching = false; // 서버 요청 상태
   let currentPage = 0;    // 현재 페이지
@@ -24,7 +24,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // 서버로부터 데이터를 가져오는 함수
   async function fetchUserData(query, page) {
     isFetching = true;
-    loading.style.display = "block";
+    loading.textContent = "로딩 중..."
+    loading.style.display = "flex";
 
     try {
       const response = await fetch(
@@ -75,14 +76,25 @@ document.addEventListener("DOMContentLoaded", function () {
     const query = searchInput.value.trim();
 
     if (query !== "") {
-      searchResults.style.display = "flex"; // 결과창 보여주기
-      searchSection.style.borderRadius = "20px 20px 0 0"; // 위쪽 둥글게
+      if (searchResults.style.display !== "flex") {
+        searchResults.style.display = "flex"; // 결과창 보여주기
+        searchSection.style.borderRadius = "20px 20px 0 0"; // 위쪽 둥글게
+      }
 
       searchResults.innerHTML = ""; // 이전 결과 초기화
       currentPage = 0;
 
       const users = await fetchUserData(query, currentPage);
-      renderUsers(users);
+      if (users.length > 0) {
+        renderUsers(users);
+      } else {
+        // '데이터가 없습니다' 메시지를 동적으로 생성
+        const noDataMessage = document.createElement("div");
+        noDataMessage.classList.add("no-data-message");
+        noDataMessage.textContent = "해당 유저가 없습니다.";
+
+        searchResults.appendChild(noDataMessage);
+      }
     } else {
       searchResults.style.display = "none"; // 결과창 숨기기
       searchSection.style.borderRadius = "20px"; // 전체 둥글게

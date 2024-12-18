@@ -1,5 +1,6 @@
 /* 공용 서식 설정 */
-.ai-feedback-content {
+.ai-feedback-content,
+.ai-feedback-text {
   font-size: 0.9rem !important;
 }
 
@@ -14,6 +15,8 @@ body {
 
 .previous-button {
   margin-bottom: 1rem;
+  width: fit-content;
+  cursor: pointer;
 }
 
 .previous-icon {
@@ -522,6 +525,21 @@ h1 {
   font-size: 0.9rem;
   font-weight: bold;
   max-width: fit-content;
+  margin-left: auto;
+}
+
+/* 답장 작성 모달 */
+#new-reply-content {
+  all: unset;
+  font-weight: normal;
+  width: 100%;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  resize: none;
+  min-height: 4rem;
+  padding-top:0.1rem;
 }
 
 /* 타임라인 섹션 */

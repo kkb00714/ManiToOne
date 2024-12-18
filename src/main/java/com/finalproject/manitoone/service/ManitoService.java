@@ -130,6 +130,7 @@ public class ManitoService {
         .isOwner(letter.isOwnedBy(currentUser))
         .createdAt(letter.getCreatedAt())
         .formattedCreatedAt(TimeFormatter.formatDateTime(letter.getCreatedAt()))
+        .postId(letter.getManitoMatches().getMatchedPostId().getPostId())
         .build();
   }
 

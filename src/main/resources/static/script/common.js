@@ -1,5 +1,20 @@
 //common.js
 
+window.toggleAI = function(element) {
+  CommonUtils.toggleElement(element);
+};
+
+window.toggleManito = function (element, type) {
+  CommonUtils.toggleElement(element, type);
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  CommonUtils.initializePageModals();
+  CommonUtils.initializeAllTextareas();
+  CommonUtils.initializeCharacterCounters();
+  CommonUtils.initializeRightSectionManito();
+});
+
 class BaseModal {
   constructor(modalId, backgroundId, openBtnId, closeBtnId) {
     this.modal = document.getElementById(modalId);
@@ -443,6 +458,36 @@ const CommonUtils = {
     container.appendChild(loadingMessage);
   },
 
+  initializePreviousButton() {
+    const previousButton = document.querySelector('.previous-button');
+    if (previousButton) {
+      previousButton.addEventListener('click', () => {
+        // 브라우저 히스토리가 있는 경우
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          // 히스토리가 없는 경우 (직접 URL로 접근한 경우) 기본 페이지로 이동
+          window.location.href = '/';
+        }
+      });
+    }
+  },
+
+  initializePageModals() {
+    try {
+      if (document.getElementById("newPostFormModalContainer")) {
+        new PostFormModal();
+      }
+      if (document.getElementById("profileUpdateModalContainer")) {
+        new ProfileUpdateModal();
+      }
+      // 이전 버튼 초기화 추가
+      this.initializePreviousButton();
+    } catch (error) {
+      console.error('모달 초기화 중 오류 발생:', error);
+    }
+  },
+
   initializeLetterEventListeners(elements) {
 
     elements.receivedList?.addEventListener('click', (e) => {
@@ -488,18 +533,3 @@ const CommonUtils = {
     }
   }
 };
-
-document.addEventListener('DOMContentLoaded', () => {
-  CommonUtils.initializePageModals();
-  CommonUtils.initializeAllTextareas();
-  CommonUtils.initializeCharacterCounters();
-  CommonUtils.initializeRightSectionManito();
-
-  window.toggleAI = function(element) {
-    CommonUtils.toggleElement(element);
-  };
-
-  window.toggleManito = function (element, type) {
-    CommonUtils.toggleElement(element, type);
-  };
-});

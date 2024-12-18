@@ -3,6 +3,8 @@ package com.finalproject.manitoone.service;
 import com.finalproject.manitoone.constants.IllegalActionMessages;
 import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
+import com.finalproject.manitoone.constants.ReportType;
+import com.finalproject.manitoone.constants.SearchType;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Notification;
@@ -19,14 +21,11 @@ import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.PostImageResponseDto;
-import com.finalproject.manitoone.domain.dto.admin.PostSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.PostSearchResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.ReplyPostSearchResponseDto;
-import com.finalproject.manitoone.domain.dto.admin.ReportSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.ReportSearchResponseDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserProfileResponseDto;
-import com.finalproject.manitoone.domain.dto.admin.UserSearchRequestDto;
 import com.finalproject.manitoone.domain.dto.admin.UserSearchResponseDto;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
@@ -42,10 +41,8 @@ import com.finalproject.manitoone.util.DataUtil;
 import com.finalproject.manitoone.util.FileUtil;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -83,27 +80,28 @@ public class AdminService {
   private final FileUtil fileUtil;
   private final DataUtil dataUtil;
 
-  public Page<UserSearchResponseDto> searchUsers(UserSearchRequestDto userSearchRequestDto,
+  public Page<UserSearchResponseDto> searchUsers(SearchType type, String content, Integer status,
       Pageable pageable) {
     QUser user = QUser.user;
 
     BooleanBuilder builder = new BooleanBuilder();
 
-    if (userSearchRequestDto.getNickname() != null && !userSearchRequestDto.getNickname()
-        .isEmpty()) {
-      builder.and(user.nickname.containsIgnoreCase(userSearchRequestDto.getNickname()));
+    if (!content.isEmpty()) {
+      if (type == SearchType.NICKNAME) {
+        builder.and(user.nickname.containsIgnoreCase(content));
+      }
+
+      if (type == SearchType.EMAIL) {
+        builder.and(user.email.containsIgnoreCase(content));
+      }
+
+      if (type == SearchType.NAME) {
+        builder.and(user.name.containsIgnoreCase(content));
+      }
     }
 
-    if (userSearchRequestDto.getEmail() != null && !userSearchRequestDto.getEmail().isEmpty()) {
-      builder.and(user.email.containsIgnoreCase(userSearchRequestDto.getEmail()));
-    }
-
-    if (userSearchRequestDto.getName() != null && !userSearchRequestDto.getName().isEmpty()) {
-      builder.and(user.name.containsIgnoreCase(userSearchRequestDto.getName()));
-    }
-
-    if (userSearchRequestDto.getStatus() != null) {
-      builder.and(user.status.eq(userSearchRequestDto.getStatus()));
+    if (status != null) {
+      builder.and(user.status.eq(status));
     }
 
     // QueryDSL로 페이징 처리
@@ -255,36 +253,37 @@ public class AdminService {
     return toUserProfileResponseDto(userRepository.save(user));
   }
 
-  public Page<PostSearchResponseDto> searchPosts(PostSearchRequestDto postSearchRequestDto,
+  public Page<PostSearchResponseDto> searchPosts(SearchType type, String content, Boolean isBlind,
       Pageable pageable) {
     QPost post = QPost.post;
 
     BooleanBuilder builder = new BooleanBuilder();
 
-    // nickname 조건 (User 기반 검색)
-    if (postSearchRequestDto.getNickname() != null && !postSearchRequestDto.getNickname()
-        .isEmpty()) {
-      builder.and(post.user.nickname.containsIgnoreCase(postSearchRequestDto.getNickname()));
-    }
+    if (!content.isEmpty()) {
+      // nickname 조건 (User 기반 검색)
+      if (type == SearchType.NICKNAME) {
+        builder.and(post.user.nickname.containsIgnoreCase(content));
+      }
 
-    // name 조건 (User 기반 검색)
-    if (postSearchRequestDto.getName() != null && !postSearchRequestDto.getName().isEmpty()) {
-      builder.and(post.user.name.containsIgnoreCase(postSearchRequestDto.getName()));
-    }
+      // name 조건 (User 기반 검색)
+      if (type == SearchType.NAME) {
+        builder.and(post.user.name.containsIgnoreCase(content));
+      }
 
-    // email 조건 (User 기반 검색)
-    if (postSearchRequestDto.getEmail() != null && !postSearchRequestDto.getEmail().isEmpty()) {
-      builder.and(post.user.email.containsIgnoreCase(postSearchRequestDto.getEmail()));
-    }
+      // email 조건 (User 기반 검색)
+      if (type == SearchType.EMAIL) {
+        builder.and(post.user.email.containsIgnoreCase(content));
+      }
 
-    // content 조건 (Post 기반 검색)
-    if (postSearchRequestDto.getContent() != null && !postSearchRequestDto.getContent().isEmpty()) {
-      builder.and(post.content.containsIgnoreCase(postSearchRequestDto.getContent()));
+      // content 조건 (Post 기반 검색)
+      if (type == SearchType.CONTENT) {
+        builder.and(post.content.containsIgnoreCase(content));
+      }
     }
 
     // isBlind 조건 (Post 기반 검색)
-    if (postSearchRequestDto.getIsBlind() != null) {
-      builder.and(post.isBlind.eq(postSearchRequestDto.getIsBlind()));
+    if (isBlind != null) {
+      builder.and(post.isBlind.eq(isBlind));
     }
 
     // QueryDSL로 페이징 처리
@@ -356,7 +355,7 @@ public class AdminService {
     if (!postImages.isEmpty()) {
       // 이미지 실제 삭제
       for (PostImage postImage : postImages) {
-        fileUtil.cleanUp(Paths.get(postImage.getFileName()));
+        s3Service.deleteImage(postImage.getFileName());
       }
       postImageRepository.deleteAll(postImages);
     }
@@ -379,12 +378,14 @@ public class AdminService {
     }
 
     // 마니또 연결 삭제
-    List<ManitoMatches> manitoMatches = manitoMatchesRepository.findByMatchedPostId(post).orElse(new ArrayList<>());
+    List<ManitoMatches> manitoMatches = manitoMatchesRepository.findByMatchedPostId(post)
+        .orElse(new ArrayList<>());
 
     if (!manitoMatches.isEmpty()) {
       for (ManitoMatches match : manitoMatches) {
         // 매취스 아이디로 ManitoLetter 찾기
-        Optional<ManitoLetter> manitoLetterOptional = manitoLetterRepository.findByManitoMatches_ManitoMatchesId(match.getManitoMatchesId());
+        Optional<ManitoLetter> manitoLetterOptional = manitoLetterRepository.findByManitoMatches_ManitoMatchesId(
+            match.getManitoMatchesId());
         if (manitoLetterOptional.isPresent()) {
           // ManitoLetter가 존재하면 삭제
           ManitoLetter manitoLetter = manitoLetterOptional.get();
@@ -395,7 +396,6 @@ public class AdminService {
       }
     }
 
-
     // 게시글 신고 목록 삭제
     List<Report> reports = reportRepository.findAllByTypeAndReportObjectId(ReportObjectType.POST,
         postId).orElse(new ArrayList<>());
@@ -404,8 +404,10 @@ public class AdminService {
     }
 
     // 알림 삭제
-    List<Notification> notifications = notificationRepository.findByTypeInAndRelatedObjectId(List.of(
-        NotiType.LIKE_CLOVER, NotiType.POST_REPLY, NotiType.POST_RE_REPLY), postId).orElse(new ArrayList<>());
+    List<Notification> notifications = notificationRepository.findByTypeInAndRelatedObjectId(
+            List.of(
+                NotiType.LIKE_CLOVER, NotiType.POST_REPLY, NotiType.POST_RE_REPLY), postId)
+        .orElse(new ArrayList<>());
     if (!notifications.isEmpty()) {
       notificationRepository.deleteAll(notifications);
     }
@@ -436,7 +438,10 @@ public class AdminService {
     replyPostRepository.delete(replyPost);
   }
 
-  public Page<ReportSearchResponseDto> searchReports(ReportSearchRequestDto reportSearchRequestDto,
+  public Page<ReportSearchResponseDto> searchReports(SearchType type,
+      String content,
+      ReportObjectType reportObjectType,
+      ReportType reportType,
       Pageable pageable) {
     QReport report = QReport.report;
     QPost post = QPost.post;
@@ -446,14 +451,14 @@ public class AdminService {
     BooleanBuilder builder = new BooleanBuilder();
 
     // 신고 타입 필터링 (ReportType)
-    if (reportSearchRequestDto.getReportType() != null) {
-      builder.and(report.reportType.eq(reportSearchRequestDto.getReportType()));
+    if (reportType != null) {
+      builder.and(report.reportType.eq(reportType));
     }
 
     // 신고 대상 타입 필터링 (ReportObjectType)
-    if (reportSearchRequestDto.getType() != null) {
+    if (reportObjectType != null) {
       // 특정 타입이 지정된 경우 해당 타입만 필터링
-      builder.and(report.type.eq(reportSearchRequestDto.getType()));
+      builder.and(report.type.eq(reportObjectType));
     } else {
       // 타입이 null인 경우 MANITO_LETTER와 MANITO_ANSWER 모두 포함
       builder.and(
@@ -461,60 +466,18 @@ public class AdminService {
       );
     }
 
-    // 신고한 사람 닉네임 검색 (reportedBy)
-    if (reportSearchRequestDto.getReportedBy() != null && !reportSearchRequestDto.getReportedBy()
-        .isEmpty()) {
-      builder.and(report.userId.in(
-          JPAExpressions.select(user.userId)
-              .from(user)
-              .where(user.nickname.containsIgnoreCase(reportSearchRequestDto.getReportedBy()))
-      ));
-    }
+    if (!content.isEmpty()) {
+      // 신고한 사람 닉네임 검색 (reportedBy)
+      if (type == SearchType.REPORTED_BY) {
+        builder.and(report.userId.in(
+            JPAExpressions.select(user.userId)
+                .from(user)
+                .where(user.nickname.containsIgnoreCase(content))
+        ));
+      }
 
-    // 신고당한 사람 닉네임 검색 (reportedTo)
-    if (reportSearchRequestDto.getReportedTo() != null && !reportSearchRequestDto.getReportedTo()
-        .isEmpty()) {
-      BooleanBuilder postCondition = new BooleanBuilder();
-      BooleanBuilder replyCondition = new BooleanBuilder();
-
-      postCondition.and(report.type.eq(ReportObjectType.POST))
-          .and(report.reportObjectId.in(
-              JPAExpressions.select(post.postId)
-                  .from(post)
-                  .where(
-                      post.user.nickname.containsIgnoreCase(reportSearchRequestDto.getReportedTo()))
-          ));
-
-      replyCondition.and(report.type.eq(ReportObjectType.REPLY))
-          .and(report.reportObjectId.in(
-              JPAExpressions.select(replyPost.replyPostId)
-                  .from(replyPost)
-                  .where(replyPost.user.nickname.containsIgnoreCase(
-                      reportSearchRequestDto.getReportedTo()))
-          ));
-
-      builder.and(postCondition.or(replyCondition));
-    }
-
-    // 키워드 검색 조건
-    if (reportSearchRequestDto.getContent() != null && !reportSearchRequestDto.getContent()
-        .isEmpty()) {
-      if (reportSearchRequestDto.getType() == ReportObjectType.POST) {
-        builder.and(report.type.eq(ReportObjectType.POST))
-            .and(report.reportObjectId.in(
-                JPAExpressions.select(post.postId)
-                    .from(post)
-                    .where(post.content.containsIgnoreCase(reportSearchRequestDto.getContent()))
-            ));
-      } else if (reportSearchRequestDto.getType() == ReportObjectType.REPLY) {
-        builder.and(report.type.eq(ReportObjectType.REPLY))
-            .and(report.reportObjectId.in(
-                JPAExpressions.select(replyPost.replyPostId)
-                    .from(replyPost)
-                    .where(
-                        replyPost.content.containsIgnoreCase(reportSearchRequestDto.getContent()))
-            ));
-      } else {
+      // 신고당한 사람 닉네임 검색 (reportedTo)
+      if (type == SearchType.REPORTED_TO) {
         BooleanBuilder postCondition = new BooleanBuilder();
         BooleanBuilder replyCondition = new BooleanBuilder();
 
@@ -522,18 +485,59 @@ public class AdminService {
             .and(report.reportObjectId.in(
                 JPAExpressions.select(post.postId)
                     .from(post)
-                    .where(post.content.containsIgnoreCase(reportSearchRequestDto.getContent()))
+                    .where(
+                        post.user.nickname.containsIgnoreCase(content))
             ));
 
         replyCondition.and(report.type.eq(ReportObjectType.REPLY))
             .and(report.reportObjectId.in(
                 JPAExpressions.select(replyPost.replyPostId)
                     .from(replyPost)
-                    .where(
-                        replyPost.content.containsIgnoreCase(reportSearchRequestDto.getContent()))
+                    .where(replyPost.user.nickname.containsIgnoreCase(
+                        content))
             ));
 
         builder.and(postCondition.or(replyCondition));
+      }
+
+      // 키워드 검색 조건
+      if (type == SearchType.CONTENT) {
+        if (reportObjectType == ReportObjectType.POST) {
+          builder.and(report.type.eq(ReportObjectType.POST))
+              .and(report.reportObjectId.in(
+                  JPAExpressions.select(post.postId)
+                      .from(post)
+                      .where(post.content.containsIgnoreCase(content))
+              ));
+        } else if (reportObjectType == ReportObjectType.REPLY) {
+          builder.and(report.type.eq(ReportObjectType.REPLY))
+              .and(report.reportObjectId.in(
+                  JPAExpressions.select(replyPost.replyPostId)
+                      .from(replyPost)
+                      .where(
+                          replyPost.content.containsIgnoreCase(content))
+              ));
+        } else {
+          BooleanBuilder postCondition = new BooleanBuilder();
+          BooleanBuilder replyCondition = new BooleanBuilder();
+
+          postCondition.and(report.type.eq(ReportObjectType.POST))
+              .and(report.reportObjectId.in(
+                  JPAExpressions.select(post.postId)
+                      .from(post)
+                      .where(post.content.containsIgnoreCase(content))
+              ));
+
+          replyCondition.and(report.type.eq(ReportObjectType.REPLY))
+              .and(report.reportObjectId.in(
+                  JPAExpressions.select(replyPost.replyPostId)
+                      .from(replyPost)
+                      .where(
+                          replyPost.content.containsIgnoreCase(content))
+              ));
+
+          builder.and(postCondition.or(replyCondition));
+        }
       }
     }
 
@@ -636,8 +640,8 @@ public class AdminService {
   }
 
 
-  public Page<ReportSearchResponseDto> searchManitoReports(
-      ReportSearchRequestDto reportSearchRequestDto,
+  public Page<ReportSearchResponseDto> searchManitoReports(SearchType type, String content,
+      ReportObjectType reportObjectType, ReportType reportType,
       Pageable pageable) {
     QReport report = QReport.report;
     QPost post = QPost.post;
@@ -648,14 +652,14 @@ public class AdminService {
     BooleanBuilder builder = new BooleanBuilder();
 
     // 신고 타입 필터링 (ReportType)
-    if (reportSearchRequestDto.getReportType() != null) {
-      builder.and(report.reportType.eq(reportSearchRequestDto.getReportType()));
+    if (reportType != null) {
+      builder.and(report.reportType.eq(reportType));
     }
 
     // 신고 대상 타입 필터링 (ReportObjectType)
-    if (reportSearchRequestDto.getType() != null) {
+    if (reportObjectType != null) {
       // 특정 타입이 지정된 경우 해당 타입만 필터링
-      builder.and(report.type.eq(reportSearchRequestDto.getType()));
+      builder.and(report.type.eq(reportObjectType));
     } else {
       // 타입이 null인 경우 MANITO_LETTER와 MANITO_ANSWER 모두 포함
       builder.and(
@@ -663,157 +667,145 @@ public class AdminService {
       );
     }
 
-    // 신고한 사람 닉네임 검색 (reportedBy)
-    if (reportSearchRequestDto.getReportedBy() != null && !reportSearchRequestDto.getReportedBy()
-        .isEmpty()) {
-      builder.and(report.userId.in(
-          JPAExpressions.select(user.userId)
-              .from(user)
-              .where(user.nickname.containsIgnoreCase(reportSearchRequestDto.getReportedBy()))
-      ));
-    }
-
-    // 신고당한 사람 닉네임 검색 (reportedTo)
-    if (reportSearchRequestDto.getReportedTo() != null && !reportSearchRequestDto.getReportedTo()
-        .isEmpty()) {
-      BooleanBuilder reportedToBuilder = new BooleanBuilder();
-
-      if (reportSearchRequestDto.getType() == ReportObjectType.MANITO_LETTER) {
-        // MANITO_LETTER 신고 상황
-        reportedToBuilder.or(
-            report.type.eq(ReportObjectType.MANITO_LETTER)
-                .and(
-                    JPAExpressions.select(manitoMatches.matchedUserId.userId) // 매취스의 유저 (피신고자)
-                        .from(manitoLetter)
-                        .join(manitoLetter.manitoMatches, manitoMatches)
-                        .join(manitoMatches.matchedUserId, user) // User 조인 추가
-                        .where(
-                            manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
-                                .and(user.nickname.containsIgnoreCase(
-                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
-                        )
-                        .exists()
-                )
-        );
-      } else if (reportSearchRequestDto.getType() == ReportObjectType.MANITO_ANSWER) {
-        // MANITO_ANSWER 신고 상황
-        reportedToBuilder.or(
-            report.type.eq(ReportObjectType.MANITO_ANSWER)
-                .and(
-                    JPAExpressions.select(post.user.userId) // 게시글 작성자 (피신고자)
-                        .from(manitoLetter)
-                        .join(manitoLetter.manitoMatches, manitoMatches)
-                        .join(manitoMatches.matchedPostId, post) // 매취스와 게시글 연결
-                        .join(post.user, user) // User 조인 추가
-                        .where(
-                            manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
-                                .and(user.nickname.containsIgnoreCase(
-                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
-                        )
-                        .exists()
-                )
-        );
-      } else {
-        // 전체 검색 (MANITO_LETTER + MANITO_ANSWER)
-        reportedToBuilder.or(
-            report.type.eq(ReportObjectType.MANITO_LETTER)
-                .and(
-                    JPAExpressions.select(manitoMatches.matchedUserId.userId) // 매취스의 유저 (피신고자)
-                        .from(manitoLetter)
-                        .join(manitoLetter.manitoMatches, manitoMatches)
-                        .join(manitoMatches.matchedUserId, user) // User 조인 추가
-                        .where(
-                            manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
-                                .and(user.nickname.containsIgnoreCase(
-                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
-                        )
-                        .exists()
-                )
-        );
-
-        reportedToBuilder.or(
-            report.type.eq(ReportObjectType.MANITO_ANSWER)
-                .and(
-                    JPAExpressions.select(post.user.userId) // 게시글 작성자 (피신고자)
-                        .from(manitoLetter)
-                        .join(manitoLetter.manitoMatches, manitoMatches)
-                        .join(manitoMatches.matchedPostId, post) // 매취스와 게시글 연결
-                        .join(post.user, user) // User 조인 추가
-                        .where(
-                            manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
-                                .and(user.nickname.containsIgnoreCase(
-                                    reportSearchRequestDto.getReportedTo())) // 닉네임 필터링
-                        )
-                        .exists()
-                )
-        );
+    if (!content.isEmpty()) {
+      // 신고한 사람 닉네임 검색 (reportedBy)
+      if (type == SearchType.REPORTED_BY) {
+        builder.and(report.userId.in(
+            JPAExpressions.select(user.userId)
+                .from(user)
+                .where(user.nickname.containsIgnoreCase(content))
+        ));
       }
 
-      builder.and(reportedToBuilder);
-    }
+      // 신고당한 사람 닉네임 검색 (reportedTo)
+      if (type == SearchType.REPORTED_TO) {
+        BooleanBuilder reportedToBuilder = new BooleanBuilder();
 
-    // 키워드 검색 (content)
-    if (reportSearchRequestDto.getContent() != null && !reportSearchRequestDto.getContent()
-        .isEmpty()) {
-      BooleanBuilder contentSearchBuilder = new BooleanBuilder();
+        if (reportObjectType == ReportObjectType.MANITO_LETTER) {
+          // MANITO_LETTER 신고 상황
+          reportedToBuilder.or(
+              report.type.eq(ReportObjectType.MANITO_LETTER)
+                  .and(
+                      JPAExpressions.select(manitoMatches.matchedUserId.userId) // 매취스의 유저 (피신고자)
+                          .from(manitoLetter)
+                          .join(manitoLetter.manitoMatches, manitoMatches)
+                          .join(manitoMatches.matchedUserId, user) // User 조인 추가
+                          .where(
+                              manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
+                                  .and(user.nickname.containsIgnoreCase(
+                                      content)) // 닉네임 필터링
+                          )
+                          .exists()
+                  )
+          );
+        } else if (reportObjectType == ReportObjectType.MANITO_ANSWER) {
+          // MANITO_ANSWER 신고 상황
+          reportedToBuilder.or(
+              report.type.eq(ReportObjectType.MANITO_ANSWER)
+                  .and(
+                      JPAExpressions.select(post.user.userId) // 게시글 작성자 (피신고자)
+                          .from(manitoLetter)
+                          .join(manitoLetter.manitoMatches, manitoMatches)
+                          .join(manitoMatches.matchedPostId, post) // 매취스와 게시글 연결
+                          .join(post.user, user) // User 조인 추가
+                          .where(
+                              manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
+                                  .and(user.nickname.containsIgnoreCase(
+                                      content)) // 닉네임 필터링
+                          )
+                          .exists()
+                  )
+          );
+        } else {
+          // 전체 검색 (MANITO_LETTER + MANITO_ANSWER)
+          reportedToBuilder.or(
+              report.type.eq(ReportObjectType.MANITO_LETTER)
+                  .and(
+                      JPAExpressions.select(manitoMatches.matchedUserId.userId) // 매취스의 유저 (피신고자)
+                          .from(manitoLetter)
+                          .join(manitoLetter.manitoMatches, manitoMatches)
+                          .join(manitoMatches.matchedUserId, user) // User 조인 추가
+                          .where(
+                              manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
+                                  .and(user.nickname.containsIgnoreCase(
+                                      content)) // 닉네임 필터링
+                          )
+                          .exists()
+                  )
+          );
 
-      String keyword = reportSearchRequestDto.getContent().toLowerCase();
+          reportedToBuilder.or(
+              report.type.eq(ReportObjectType.MANITO_ANSWER)
+                  .and(
+                      JPAExpressions.select(post.user.userId) // 게시글 작성자 (피신고자)
+                          .from(manitoLetter)
+                          .join(manitoLetter.manitoMatches, manitoMatches)
+                          .join(manitoMatches.matchedPostId, post) // 매취스와 게시글 연결
+                          .join(post.user, user) // User 조인 추가
+                          .where(
+                              manitoLetter.manitoLetterId.eq(report.reportObjectId) // 마니또 PK
+                                  .and(user.nickname.containsIgnoreCase(
+                                      content)) // 닉네임 필터링
+                          )
+                          .exists()
+                  )
+          );
+        }
 
-      if (reportSearchRequestDto.getType() == ReportObjectType.MANITO_LETTER) {
-        // 마니또 답변 내용으로 검색 (letterContent)
-        contentSearchBuilder.or(
-            JPAExpressions.selectOne()
-                .from(manitoLetter)
-                .where(
-                    manitoLetter.letterContent.containsIgnoreCase(keyword)
-                        .and(manitoLetter.manitoLetterId.eq(report.reportObjectId))
-                )
-                .exists()
-        );
-      } else if (reportSearchRequestDto.getType() == ReportObjectType.MANITO_ANSWER) {
-        // 마니또 감사 인사 내용으로 검색 (answerLetter)
-        contentSearchBuilder.or(
-            JPAExpressions.selectOne()
-                .from(manitoLetter)
-                .where(
-                    manitoLetter.answerLetter.containsIgnoreCase(keyword)
-                        .and(manitoLetter.manitoLetterId.eq(report.reportObjectId))
-                )
-                .exists()
-        );
-      } else {
-        // 전체 검색
-        contentSearchBuilder.and(
-            JPAExpressions.selectOne()
-                .from(manitoLetter)
-                .where(
-                    manitoLetter.manitoLetterId.eq(report.reportObjectId)
-                        .and(
-                            report.type.eq(ReportObjectType.MANITO_LETTER)
-                                .and(manitoLetter.letterContent.containsIgnoreCase(keyword))
-                                .or(
-                                    report.type.eq(ReportObjectType.MANITO_ANSWER)
-                                        .and(manitoLetter.answerLetter.containsIgnoreCase(keyword))
-                                )
-                        )
-                )
-                .exists()
-        );
+        builder.and(reportedToBuilder);
       }
 
-      builder.and(contentSearchBuilder);
+      // 키워드 검색 (content)
+      if (type == SearchType.CONTENT) {
+        BooleanBuilder contentSearchBuilder = new BooleanBuilder();
+
+        if (reportObjectType == ReportObjectType.MANITO_LETTER) {
+          // 마니또 답변 내용으로 검색 (letterContent)
+          contentSearchBuilder.or(
+              JPAExpressions.selectOne()
+                  .from(manitoLetter)
+                  .where(
+                      manitoLetter.letterContent.containsIgnoreCase(content)
+                          .and(manitoLetter.manitoLetterId.eq(report.reportObjectId))
+                  )
+                  .exists()
+          );
+        } else if (reportObjectType == ReportObjectType.MANITO_ANSWER) {
+          // 마니또 감사 인사 내용으로 검색 (answerLetter)
+          contentSearchBuilder.or(
+              JPAExpressions.selectOne()
+                  .from(manitoLetter)
+                  .where(
+                      manitoLetter.answerLetter.containsIgnoreCase(content)
+                          .and(manitoLetter.manitoLetterId.eq(report.reportObjectId))
+                  )
+                  .exists()
+          );
+        } else {
+          // 전체 검색
+          contentSearchBuilder.and(
+              JPAExpressions.selectOne()
+                  .from(manitoLetter)
+                  .where(
+                      manitoLetter.manitoLetterId.eq(report.reportObjectId)
+                          .and(
+                              report.type.eq(ReportObjectType.MANITO_LETTER)
+                                  .and(manitoLetter.letterContent.containsIgnoreCase(content))
+                                  .or(
+                                      report.type.eq(ReportObjectType.MANITO_ANSWER)
+                                          .and(manitoLetter.answerLetter.containsIgnoreCase(content))
+                                  )
+                          )
+                  )
+                  .exists()
+          );
+        }
+
+        builder.and(contentSearchBuilder);
+      }
     }
 
-    JPQLQuery<Report> query = queryFactory
-        .selectFrom(report)
-        .where(builder)
-        .offset(pageable.getOffset())
-        .limit(pageable.getPageSize())
-        .orderBy(report.reportId.asc());
-
-    System.out.println("Generated Query: " + query); // 디버깅용 쿼리 출력
-
-    List<Report> reports = null;
+    List<Report> reports;
 
     reports = queryFactory
         .selectFrom(report)
@@ -865,6 +857,7 @@ public class AdminService {
         .reportType(Map.of("data", report.getReportType().name(), "label",
             report.getReportType().getType()))
         .content(getReportContent(report, manitoLetter)) // 신고 타입에 따라 컨텐츠 결정
+        .letter(report.getType() == ReportObjectType.MANITO_ANSWER ? manitoLetter.getLetterContent() : "")
         .reportedByUser(reportedByUser)
         .reportObjectId(report.getReportObjectId())
         .createdAt(report.getCreatedAt())

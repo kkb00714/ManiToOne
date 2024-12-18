@@ -1,5 +1,6 @@
 /* 공용 서식 설정 */
-.ai-feedback-content {
+.ai-feedback-content,
+.ai-feedback-text {
   font-size: 0.9rem !important;
 }
 

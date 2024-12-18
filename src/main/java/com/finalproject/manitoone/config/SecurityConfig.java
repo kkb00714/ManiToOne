@@ -52,18 +52,13 @@ public class SecurityConfig {
                 .requestMatchers("/login-fail", "/access-deny", "/api/local-login",
                     "/api/email-validate", "/api/email-check", "/api/password-reset",
                     "/api/check-email", "/api/check-nickname", "/api/upload", "/api/update",
-                    "/api/signup")
+                    "/api/signup", "/oauth2/authorization/google")
                 .permitAll()
 
                 // 익명 사용자 전용 페이지 접근 제어
                 .requestMatchers("/login", "/register", "/register-info", "/additional-info",
-                    "/find-password", "/find-password-confirm", "/oauth2/authorization/google")
-                .access((authentication, context) -> {
-                  HttpServletRequest request = context.getRequest();
-                  HttpSession session = request.getSession(false);
-                  // 세션에 롤이 없으면 익명 사용자로 접근 허용
-                  return new AuthorizationDecision(session == null || session.getAttribute("role") == null);
-                })
+                    "/find-password", "/find-password-confirm")
+                .anonymous()
 
                 // 인증된 사용자 페이지 접근 제어
                 .anyRequest().access((authentication, context) -> {
@@ -79,8 +74,8 @@ public class SecurityConfig {
                   return new AuthorizationDecision("ROLE_USER".equals(role) || "ROLE_ADMIN".equals(role));
                 })
         )
-        .addFilterBefore(new RedirectIfAuthenticatedFilter(),
-            org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+//        .addFilterBefore(new RedirectIfAuthenticatedFilter(),
+//            org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(exceptions -> exceptions
             .accessDeniedPage("/access-deny")  // 403 에러 발생 시 /access-deny로 리디렉션
         )
@@ -117,8 +112,7 @@ public class SecurityConfig {
       // 익명 사용자만 접근 가능한 페이지
       boolean isAnonymousPage = requestURI.equals("/login") || requestURI.equals("/register")
           || requestURI.equals("/register-info") || requestURI.equals("/additional-info")
-          || requestURI.equals("/find-password") || requestURI.equals("/find-password-confirm")
-          || requestURI.equals("/oauth2/authorization/google");
+          || requestURI.equals("/find-password") || requestURI.equals("/find-password-confirm");
 
       HttpSession session = request.getSession(false);
 

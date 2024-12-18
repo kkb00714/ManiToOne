@@ -67,6 +67,8 @@
 }
 
 .post-modal {
+  overflow-y: auto;
+  max-height: 750px;
   background-color: #f3f3f3;
   border-radius: 20px;
   box-shadow: 0 0 2px 2px rgba(171, 171, 171, 0.25);
@@ -139,7 +141,8 @@
 
 /* 프로필 컨텐츠 전체 스타일 */
 .profile-content-container ,
-.reply-container{
+.reply-container,
+.letter-container {
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -151,7 +154,8 @@
 
 /* 프로필 이미지 스타일 */
 .profile-image,
-.reply-profile-image {
+.reply-profile-image,
+.letter-profile-image {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -159,14 +163,16 @@
 }
 
 /* 텍스트 컨테이너 */
-.profile-text-container {
+.profile-text-container,
+.letter-profile-text-container {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
 /* 아이디와 시간 컨테이너 */
-.profile-header {
+.profile-header,
+.letter-profile-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -174,7 +180,8 @@
 
 /* 아이디 스타일 */
 .user-id,
-.reply-user-id {
+.reply-user-id,
+.letter-user-id {
   font-weight: bold;
   font-size: 1rem;
   color: #333;
@@ -182,7 +189,8 @@
 
 /* 시간 스타일 */
 .post-time,
-.reply-post-time {
+.reply-post-time,
+.letter-post-time {
   width: 50px;
   font-size: 0.875rem;
   color: #888;
@@ -190,7 +198,8 @@
 
 /* 내용 스타일 */
 .post-content,
-.reply-content {
+.reply-content,
+.letter-content {
   font-size: 0.9rem;
   color: #555;
   line-height: 1.4;
@@ -201,7 +210,12 @@
   z-index: 1 !important;
 }
 
-.reply-box {
+.letter-box {
+  display: none;
+}
+
+.reply-box,
+.letter-box {
   margin-top: 30px;
   display: block; !important;
 }
@@ -210,7 +224,8 @@
   display: block;
 }
 
-.reply-header {
+.reply-header,
+.letter-header {
   margin: 0 auto;
   font-size: 30px;
   max-width: 500px;

@@ -18,6 +18,7 @@ public class ReportSearchResponseDto {
   private Map<String, String> type;
   private Map<String, String> reportType;
   private String content;
+  private String letter;
   private UserSearchResponseDto reportedByUser;
   private Long reportObjectId;
   private LocalDateTime createdAt;

@@ -55,11 +55,13 @@
                   th:text="${post.content}"
                   th:onclick="'directToPost(' + ${post.postId} + ')'"
                 ></p>
-                <img
-                  class="post-image"
-                  th:src="@{/images/image-beer.webp}"
-                  alt="beer image"
-                />
+                <div class="image-container" th:if="${postImages != null}">
+                  <img
+                    th:each="image : ${postImages}"
+                    th:src="@{${image.fileName}}"
+                    alt="uploaded-image"
+                  />
+                </div>
                 <p
                   class="post-time"
                   th:text="${post.updatedAt != null ? #temporals.format(post.updatedAt, 'yyyy년 MM월 dd일 a hh시 mm분') : #temporals.format(post.createdAt, 'yyyy년 MM월 dd일 a hh시 mm분')}"
@@ -89,6 +91,7 @@
                 />
                 <img
                   class="tiny-icons"
+                  th:if="${currentUser != post.user && !#lists.contains(followings, post.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
@@ -105,6 +108,7 @@
                     type="button"
                     class="list-group-item list-group-item-action"
                     aria-current="true"
+                    th:if="${currentUser == post.user}"
                     th:onclick="'openUpdatePostModal()'"
                   >
                     수정하기
@@ -112,6 +116,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == post.user}"
                     th:onclick="'hidePost(' + ${post.postId} + ')'"
                   >
                     숨기기
@@ -119,6 +124,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == post.user}"
                     th:onclick="'deletePost(' + ${post.postId} + ')'"
                   >
                     삭제하기
@@ -162,7 +168,7 @@
                           name="content"
                           id="new-post-content"
                           class="new-post-text"
-                          placeholder="나누고 싶은 글을 작성해주세요"
+                          th:text="${post.content}"
                         ></textarea>
                         <p class="letter-count" id="count500">500/500</p>
                       </div>
@@ -334,6 +340,7 @@
                 />
                 <img
                   class="tiny-icons"
+                  th:if="${currentUser != reply.user && !#lists.contains(followings, reply.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
@@ -350,6 +357,7 @@
                     type="button"
                     class="list-group-item list-group-item-action"
                     aria-current="true"
+                    th:if="${currentUser == reply.user}"
                     th:onclick="'openUpdateReplyModal()'"
                   >
                     수정하기
@@ -357,6 +365,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == reply.user}"
                     th:onclick="'hideReply(' + ${reply.replyPostId} + ')'"
                   >
                     숨기기
@@ -364,6 +373,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == reply.user}"
                     th:onclick="'deleteReply(' + ${reply.replyPostId} +')'"
                   >
                     삭제하기
@@ -407,7 +417,7 @@
                           name="content"
                           id="update-reply-content"
                           class="new-post-text"
-                          placeholder="나누고 싶은 글을 작성해주세요"
+                          th:text="${reply.content}"
                         ></textarea>
                         <p class="letter-count" id="count-500">500/500</p>
                       </div>
@@ -648,6 +658,7 @@
                 />
                 <img
                   class="tiny-icons"
+                  th:if="${currentUser != rereply.user && !#lists.contains(followings, rereply.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
@@ -664,6 +675,7 @@
                     type="button"
                     class="list-group-item list-group-item-action"
                     aria-current="true"
+                    th:if="${currentUser == rereply.user}"
                     th:onclick="'openUpdateRereplyModal()'"
                   >
                     수정하기
@@ -671,6 +683,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == rereply.user}"
                     th:onclick="'hideReply(' + ${rereply.replyPostId} + ')'"
                   >
                     숨기기
@@ -678,6 +691,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
+                    th:if="${currentUser == rereply.user}"
                     th:onclick="'deleteReply(' + ${rereply.replyPostId} + ')'"
                   >
                     삭제하기
@@ -721,7 +735,7 @@
                           name="content"
                           id="update-rereply-content"
                           class="new-post-text"
-                          placeholder="나누고 싶은 글을 작성해주세요"
+                          th:text="${rereply.content}"
                         ></textarea>
                         <p class="letter-count" id="countTo500">500/500</p>
                       </div>

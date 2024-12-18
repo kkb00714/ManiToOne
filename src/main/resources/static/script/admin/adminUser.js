@@ -9,6 +9,19 @@ document.addEventListener("DOMContentLoaded", function () {
   let requestBody = {}
   let currentStatus = "";
 
+  const toEnumValue = (filter) => {
+    switch (filter) {
+      case "nickname":
+        return "NICKNAME";
+      case "name":
+        return "NAME";
+      case "email":
+        return "EMAIL";
+      default:
+        return null;
+    }
+  };
+
   function formatDatetime(input) {
     if (!input) return "없음";
 
@@ -35,7 +48,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (filterSelect && searchQuery) {
-      requestBody = {[filterSelect]: searchQuery};
+      const type = toEnumValue(filterSelect); // 대문자로 변환된 ENUM 값
+      const content = searchQuery;
+      requestBody['type'] = type;
+      requestBody['content'] = content;
       loadPage(1);
     }
   }
@@ -44,16 +60,22 @@ document.addEventListener("DOMContentLoaded", function () {
   loadPage(1);
 
   function loadPage(page) {
-    syncSearchFields();
+    // syncSearchFields();
 
-    tableBody.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="9">Loading...</td></tr>';
 
-    fetch(`/admin/users?page=${page - 1}`, {
-      method: "POST",
+    const params = new URLSearchParams({
+      page: page - 1,
+      type: requestBody.type || "",
+      content: requestBody.content || "",
+      status: requestBody.status || ""
+    });
+
+    fetch(`/admin/api/users?${params.toString()}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestBody)
     })
     .then((response) => {
       if (!response.ok) {
@@ -62,10 +84,12 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.json();
     })
     .then((data) => {
-      tableBody.innerHTML = data.content
-      .map(
-          (user) => `
-<tr data-user='${JSON.stringify(user)}'>
+      if (!data.content || data.content.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="9">데이터가 없습니다</td></tr>';
+      } else {
+        tableBody.innerHTML = data.content.map(
+            (user) => `
+        <tr data-user='${JSON.stringify(user)}'>
           <td>${user.userId}</td>
           <td>${user.name}</td>
           <td>${user.nickname}</td>
@@ -77,9 +101,10 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${getStatusText(user.status)}</td>
         </tr>
                       `
-      )
-      .join("");
+        )
+        .join("");
 
+      }
       renderPagination(page, data.totalPages);
     })
     .catch((error) => {
@@ -88,6 +113,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function renderPagination(currentPage, totalPages) {
+
+    // 데이터가 없을 경우 페이지네이션 숨김 처리
+    if (!totalPages || totalPages === 0) {
+      pagination.innerHTML = ""; // 페이지네이션 영역 비우기
+      return;
+    }
+
     const maxVisiblePages = 3;
     const startPage = Math.floor((currentPage - 1) / maxVisiblePages)
         * maxVisiblePages + 1;
@@ -199,19 +231,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function syncSearchFields() {
-    const filterSelect = document.querySelector("#filterSelect");
-    const searchQuery = document.querySelector("#searchQuery");
-
-    const [key] = Object.keys(requestBody);
-    if (key) {
-      filterSelect.value = key;
-      searchQuery.value = requestBody[key];
-    } else {
-      const defaultFilter = filterSelect.options[0].value;
-      requestBody = {[defaultFilter]: ""};
-    }
-  }
+  // function syncSearchFields() {
+  //   const filterSelect = document.querySelector("#filterSelect");
+  //   const searchQuery = document.querySelector("#searchQuery");
+  //
+  //   const [key] = Object.keys(requestBody);
+  //   if (key) {
+  //     filterSelect.value = key;
+  //     searchQuery.value = requestBody[key];
+  //   } else {
+  //     const defaultFilter = filterSelect.options[0].value;
+  //     requestBody = {[defaultFilter]: ""};
+  //   }
+  // }
 
   let originalData = {}
   let clickedRow = null;
@@ -330,7 +362,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     changedData["userId"] = originalData["userId"];
 
-    fetch("/admin/users", {
+    fetch("/admin/api/users", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -381,7 +413,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const userId = originalData.userId;
 
-    fetch(`/admin/users/${userId}`, {
+    fetch(`/admin/api/users/${userId}`, {
       method: "PUT",
       body: formData,
     })

@@ -14,6 +14,7 @@ import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
+import com.finalproject.manitoone.domain.dto.AiFeedbackDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
@@ -33,17 +34,11 @@ import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import com.finalproject.manitoone.util.FileUtil;
 import jakarta.transaction.Transactional;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import com.finalproject.manitoone.util.NotificationUtil;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,13 +62,12 @@ public class PostService {
   private final AiPostLogRepository aiPostLogRepository;
   private final UserRepository userRepository;
   private final NotificationRepository notificationRepository;
-  private final UserService userService;
-  private final FileUtil fileUtil;
   private final ManitoMatchesRepository manitoMatchesRepository;
+  private final S3Service s3Service;
+  private final FileUtil fileUtil;
   private final NotificationUtil notificationUtil;
 
-  // 게시글 생성 (미완성)
-  // TODO: 이미지 업로드
+  // 게시글 생성
   @Transactional
   public PostResponseDto createPost(AddPostRequestDto request, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
@@ -86,27 +80,23 @@ public class PostService {
         .isManito(request.getIsManito())
         .build());
 
-    List<String> imagePaths = new ArrayList<>();
     if (request.getImages() != null) {
-      for (MultipartFile image : request.getImages()) {
-        String imagePath = saveImage(image);
-        imagePaths.add(imagePath);
-      }
-
-      for (String imagePath : imagePaths) {
-        postImageRepository.save(PostImage.builder()
-            .post(post)
-            .fileName(imagePath)
-            .build());
+      try {
+        for (MultipartFile image : request.getImages()) {
+          String fileName = s3Service.uploadImage(image);
+          postImageRepository.save(PostImage.builder()
+              .post(post)
+              .fileName(fileName)
+              .build());
+        }
+      } catch (IOException e) {
+        throw new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage() + ": " + e.getMessage());
       }
     }
 
-//    AiPostLog aiPost = new AiPostLog(null, post, AlanUtil.getAlanAnswer(request.getContent()));
-//    aiPostLogRepository.save(aiPost);
-
     return PostResponseDto.builder()
         .postId(post.getPostId())
-        .user(post.getUser())
         .content(post.getContent())
         .createdAt(post.getCreatedAt())
         .updatedAt(post.getUpdatedAt())
@@ -114,26 +104,13 @@ public class PostService {
         .build();
   }
 
-  // 이미지 저장
-  private String saveImage(MultipartFile image) {
-    String uploadDir = "/usr/local/images/posts";
-    File uploadPath = new File(uploadDir);
-
-    if (!uploadPath.exists()) {
-      uploadPath.mkdirs();
-    }
-
-    String imageName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
-    File savedImage = new File(uploadPath, imageName);
-
-    try {
-      image.transferTo(savedImage);
-    } catch (IOException e) {
-      throw new IllegalArgumentException(
-          IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage() + ": " + e.getMessage());
-    }
-
-    return savedImage.getAbsolutePath();
+  // AI 피드백
+  @Async
+  public AiFeedbackDto getFeedback(String content) {
+    String feedback = AlanUtil.getValidationAnswer(content);
+    return AiFeedbackDto.builder()
+        .feedback(feedback)
+        .build();
   }
 
   // 게시글 수정
@@ -185,7 +162,6 @@ public class PostService {
   }
 
   // 게시글 상세 조회
-  // TODO: 이미지 조회
   public PostResponseDto getPostDetail(Long postId) {
     Post post = postRepository.findByPostIdAndIsHiddenFalseAndIsBlindFalse(postId)
         .orElseThrow(() -> new IllegalArgumentException(
@@ -201,6 +177,17 @@ public class PostService {
         post.getIsManito(),
         getPostLikesNum(post.getPostId())
     );
+  }
+
+  // 게시글 이미지 조회
+  public List<PostImageResponseDto> getImages(Long postId) {
+    List<PostImage> images = postImageRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_POST_IMAGE_WITH_GIVEN_ID.getMessage()
+        ));
+
+    return images.stream().map(image -> new PostImageResponseDto(
+        image.getFileName())).toList();
   }
 
   // 게시글 삭제
@@ -224,6 +211,7 @@ public class PostService {
     deleteReports(postId);
     deleteNotis(postId);
     deleteManitoLetters(postId);
+    deleteAiPostLogs(postId);
     postRepository.delete(post);
   }
 
@@ -261,17 +249,7 @@ public class PostService {
     userPostLikeRepository.deleteAll(postLikes);
   }
 
-//  // 마니또 편지 삭제
-//  private void deleteManitoLetters(Long postId) {
-//    List<ManitoLetter> manitoLetterList = manitoLetterRepository.findAllByPostIdPostId(postId)
-//        .orElseThrow(() -> new IllegalArgumentException(
-//            IllegalActionMessages.CANNOT_FIND_MANITO_LETTER_WITH_GIVEN_ID.getMessage()
-//        ));
-//
-//    manitoLetterRepository.deleteAll(manitoLetterList);
-//  }
-
-  // 마니또 편지 삭제 (수정된 버전)
+  // 마니또 편지 삭제
   private void deleteManitoLetters(Long postId) {
     // 해당 postId와 연결된 모든 매칭 찾기
     List<ManitoMatches> matches = manitoMatchesRepository.findAllByMatchedPostId_PostId(postId)
@@ -307,6 +285,16 @@ public class PostService {
     notificationRepository.deleteAll(notis);
   }
 
+  // AI 포스트 요약 삭제
+  private void deleteAiPostLogs(Long postId) {
+    List<AiPostLog> logs = aiPostLogRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_AI_POST_LOG.getMessage()
+        ));
+
+    aiPostLogRepository.deleteAll(logs);
+  }
+
   // 게시글 숨기기
   public void hidePost(Long postId, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
@@ -318,7 +306,7 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()));
 
     post.hidePost(!Boolean.TRUE.equals(post.getIsHidden()));
-    
+
     if (!user.equals(post.getUser())) {
       throw new IllegalArgumentException(IllegalActionMessages.CANNOT_HIDE_POST.getMessage());
     }
@@ -336,6 +324,11 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
+
+    userPostLikeRepository.save(UserPostLike.builder()
+        .post(post)
+        .user(user)
+        .build());
     
     Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
 
@@ -347,7 +340,7 @@ public class PostService {
           .user(user)
           .build());
     }
-    
+
     try {
       Notification notification = notificationRepository.findByUserAndSenderUserAndTypeAndRelatedObjectId(
           post.getUser(), user,

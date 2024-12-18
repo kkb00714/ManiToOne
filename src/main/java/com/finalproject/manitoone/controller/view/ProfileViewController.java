@@ -1,4 +1,4 @@
-package com.finalproject.manitoone.controller;
+package com.finalproject.manitoone.controller.view;
 
 import com.finalproject.manitoone.service.FollowService;
 import com.finalproject.manitoone.service.UserService;

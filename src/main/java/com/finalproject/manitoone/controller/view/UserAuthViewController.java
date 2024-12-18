@@ -35,4 +35,9 @@ public class UserAuthViewController {
   public String getAccessDenyPage() {
     return "pages/auth/access-deny";
   }
+
+  @GetMapping("/cancel-account")
+  public String getCancelAccountPage() {
+    return "pages/auth/cancel-account";
+  }
 }

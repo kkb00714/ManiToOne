@@ -27,7 +27,7 @@
     두근두근~ 마니또를 확인하려면 가입하세요!
   </p>
   <div class="sign-up-container">
-    <form id="sign-up-form" th:action="@{/api/signup}" method="post">
+    <form id="sign-up-form" th:action="@{/api/additional-info}" method="post">
       <p id="desc" class="desc">비밀번호, 닉네임, 생년월일을 입력하여 주십시오.</p>
       <div class="sign-up-input-container">
         <br/>
@@ -74,6 +74,7 @@
       </button>
     </form>
   </div>
+  <br/>
   <div class="sign-in-link-container">
     <p>계정이 있으신가요?</p>
     <p class="sign-in-link"><a th:href="@{/login}">로그인</a></p>
@@ -81,15 +82,51 @@
 </section>
 
 <script>
-  document.getElementById("user-nickname").addEventListener("input", function () {
-    const nickname = this.value;
-    const nicknameError = document.getElementById("nickname-error");
+  document.addEventListener("DOMContentLoaded", function () {
+    const togglePasswordButton = document.getElementById("toggle-password-sign-up");
+    const passwordInput = document.getElementById("user-password");
 
-    if (nickname.length > 0) {
+    togglePasswordButton.addEventListener("click", function () {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        togglePasswordButton.textContent = "숨기기";
+      } else {
+        passwordInput.type = "password";
+        togglePasswordButton.textContent = "표시";
+      }
+    });
+  });
+
+  const nicknameError = document.getElementById("nickname-error");
+  const passwordError = document.getElementById("password-error");
+  const birthError = document.getElementById("birth-error");
+
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+  const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,10}$/;
+
+  document.getElementById("user-password").addEventListener("keyup", function () {
+    const password = this.value;
+
+    if (!passwordRegex.test(password)) {
+      passwordError.textContent = "비밀번호는 영어, 숫자, 특수문자를 포함하여 8~16자리여야 합니다.";
+      passwordError.style.color = 'red';
+    } else if (password === null || password === "") {
+      passwordError.textContent = "비밀번호는 필수 입력값입니다.";
+      passwordError.style.color = 'red';
+    } else {
+      passwordError.textContent = "";
+      passwordError.style.color = '';
+    }
+  });
+
+  document.getElementById("user-nickname").addEventListener("keyup", function () {
+    const nickname = this.value;
+
+    if (nicknameRegex.test(nickname)) {
       fetch(`/api/check-nickname?nickname=${nickname}`)
       .then(response => {
         if (response.ok) {
-          nicknameError.textContent = '사용 가능한 닉네임입니다.';
+          nicknameError.textContent = '사용 가능한 닉네임입니다.'
           nicknameError.style.color = 'green';
         } else {
           return response.text().then(errorText => {
@@ -102,8 +139,24 @@
         nicknameError.textContent = '서버 오류가 발생했습니다. 다시 시도해주세요.';
         nicknameError.style.color = 'red';
       });
+    } else if (nickname === null || nickname === "") {
+      nicknameError.textContent = "닉네임은 필수 입력값입니다.";
+      nicknameError.style.color = 'red';
     } else {
-      nicknameError.textContent = '이미 존재하는 닉네임 입니다.';
+      nicknameError.textContent = "닉네임은 특수문자를 제외한 2~10자리로 설정해야 합니다.";
+      nicknameError.style.color = 'red';
+    }
+  });
+
+  document.getElementById("user-birthday").addEventListener("change", function () {
+    const birth = this.value;
+
+    if (birth === null || birth === "") {
+      birthError.textContent = "생일은 필수 입력값입니다.";
+      birthError.style.color = 'red';
+    } else {
+      birthError.textContent = "";
+      birthError.style.color = '';
     }
   });
 
@@ -114,50 +167,30 @@
     const nickname = document.getElementById("user-nickname").value;
     const birth = document.getElementById("user-birthday").value;
 
-    const passwordError = document.getElementById("password-error");
-    const nicknameError = document.getElementById("nickname-error");
-    const birthError = document.getElementById("birth-error");
-
-    passwordError.textContent = "";
-    nicknameError.textContent = "";
-    birthError.textContent = "";
-
-    const signUpButton = document.getElementById("sign-up-button");
-    const buttonText = signUpButton.querySelector('.button-text');
-    const loadingSpinner = signUpButton.querySelector('#loading-spinner');
-    buttonText.style.display = 'none';
-    loadingSpinner.style.display = 'inline-block';
-
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
-    const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,10}$/;
-
     let isValid = true;
     let firstErrorField = null;
 
-    if (!passwordRegex.test(password)) {
-      passwordError.textContent = "비밀번호는 영어, 숫자, 특수문자를 포함하여 8~16자리여야 합니다.";
-      if (!firstErrorField) {
-        firstErrorField = document.getElementById("user-password");
-      }
-      isValid = false;
-    }
-
     if (!nicknameRegex.test(nickname)) {
       nicknameError.textContent = "닉네임은 특수문자를 제외한 2~10자리로 설정해야 합니다.";
+      nicknameError.style.color = 'red';
       if (!firstErrorField) {
         firstErrorField = document.getElementById("user-nickname");
       }
       isValid = false;
+    } else {
+      nicknameError.textContent = "";
     }
 
-    if (!birth) {
-      birthError.textContent = "생년월일은 필수 입력값입니다.";
+    if (new Date(birth) > new Date()) {
+      birthError.textContent = "미래 날짜는 입력할 수 없습니다.";
+      birthError.style.color = 'red';
       if (!firstErrorField) {
         firstErrorField = document.getElementById("user-birthday");
       }
       isValid = false;
-    } else if (new Date(birth) > new Date()) {
-      birthError.textContent = "미래 날짜는 입력할 수 없습니다.";
+    } else if (birth === null || birth === "" || birth === undefined) {
+      birthError.textContent = "생일은 필수 입력값입니다.";
+      birthError.style.color = 'red';
       if (!firstErrorField) {
         firstErrorField = document.getElementById("user-birthday");
       }
@@ -168,7 +201,6 @@
       if (firstErrorField) {
         firstErrorField.focus();
       }
-      resetButtonState();
       return;
     }
 
@@ -177,6 +209,12 @@
       nickname: nickname,
       birth: birth,
     };
+
+    const signUpButton = document.getElementById('sign-up-button');
+    const buttonText = signUpButton.querySelector('.button-text');
+    const loadingSpinner = signUpButton.querySelector('#loading-spinner');
+    buttonText.style.display = 'none';
+    loadingSpinner.style.display = 'inline-block';
 
     fetch('/api/additional-info', {
       method: "PUT",
@@ -199,12 +237,13 @@
       window.location.href = "/";
     })
     .catch(error => {
-      alert('추가 정보 전송에 실패했습니다. 에러 메시지를 확인해주세요.');
+      alert('추가 정보 전송에 실패했습니다. 에러 메시지를 확인해주세요.' + error);
     })
     .finally(() => {
       resetButtonState();
-    })
-  });
+    });
+  })
+  ;
 
   function resetButtonState() {
     const signUpButton = document.getElementById('sign-up-button');
@@ -214,20 +253,6 @@
     buttonText.style.display = 'inline';
     loadingSpinner.style.display = 'none';
   }
-
-  const togglePasswordButton = document.getElementById("toggle-password-sign-up");
-  const passwordInput = document.getElementById("user-password");
-
-  togglePasswordButton.addEventListener("click", function () {
-    if (passwordInput.type === "password") {
-      passwordInput.type = "text";
-      togglePasswordButton.textContent = "숨기기";
-    } else {
-      passwordInput.type = "password";
-      togglePasswordButton.textContent = "표시";
-    }
-  });
-
 </script>
 </body>
 </html>

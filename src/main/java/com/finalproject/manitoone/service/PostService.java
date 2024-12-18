@@ -337,11 +337,6 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
     
-    userPostLikeRepository.save(UserPostLike.builder()
-        .post(post)
-        .user(user)
-        .build());
-    
     Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
 
     if (existingLike.isPresent()) {

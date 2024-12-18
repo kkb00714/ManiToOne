@@ -74,19 +74,3 @@
   object-fit: cover;
   border-radius: 8px;
 }
-
-/* 게시글 작성 모달 이미지 */
-.upload-image-container {
-  display: none;
-  gap: 8px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-
-.upload-image-container img {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}

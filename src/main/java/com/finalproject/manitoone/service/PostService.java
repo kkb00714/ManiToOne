@@ -351,7 +351,6 @@ public class PostService {
             NotiType.LIKE_CLOVER,
             postId);
       }
-
     } catch (IOException e) {
       log.error(e.getMessage());
     }
@@ -401,7 +400,7 @@ public class PostService {
 
   // 게시글 좋아요 개수 조회
   public Integer getPostLikesNum(Long postId) {
-    List<UserPostLike> likes = userPostLikeRepository.findAllByPostPostId(postId)
+    List<UserPostLike> likes = userPostLikeRepository.findAllByPostPostIdAndReplyPostIdNull(postId)
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_USER_POST_LIKE_WITH_GIVEN_ID.getMessage()
         ));

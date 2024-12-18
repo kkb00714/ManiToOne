@@ -7,15 +7,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
   loadPosts();
   window.addEventListener('scroll', handleScroll);
-  postsContainer.addEventListener('click', function(event) {
-    const moreOptionsButton = event.target.closest('.tiny-icons[alt="more options"]');
+  postsContainer.addEventListener('click', function (event) {
+    const moreOptionsButton = event.target.closest(
+        '.tiny-icons[alt="more options"]');
     if (moreOptionsButton) {
       handleMoreOptionsClick(event, moreOptionsButton);
     }
   });
 
   function handleScroll() {
-    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 100) {
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight
+        - 100) {
       if (!isLoading && hasMorePosts) {
         pageNum++;
         loadPosts();
@@ -24,10 +26,14 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function loadPosts() {
-    if (isLoading) return;
+    if (isLoading) {
+      return;
+    }
 
     isLoading = true;
-    if (pageNum === 0) showLoader();
+    if (pageNum === 0) {
+      showLoader();
+    }
 
     try {
       const response = await fetch(`/api/timeline?page=${pageNum}&size=20`);
@@ -41,7 +47,6 @@ document.addEventListener("DOMContentLoaded", function () {
           postsContainer.appendChild(postElement);
           hasAddedPosts = true;
 
-          // 첫 번째 포스트가 추가되면 로딩 인디케이터 제거
           if (hasAddedPosts && pageNum === 0) {
             hideLoader();
           }
@@ -64,9 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-
   function attachEventListeners() {
-    // 기존의 이벤트 리스너들을 제거
     removeExistingEventListeners();
 
     addFriendButtonsEventListener();
@@ -75,6 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
     addPostLikeEventListener();
     addPostDeleteEventHandler();
     postContentEventListener();
+    addReplyPostEventListener();
   }
 
   function removeExistingEventListeners() {
@@ -98,7 +102,6 @@ document.addEventListener("DOMContentLoaded", function () {
   async function createPostElement(post) {
     const isFollowed = await getIsFollowed(post.nickName);
     const isMyPost = post.nickName === nickname;
-
     const postElement = document.createElement("div");
     postElement.classList.add("post-container");
 
@@ -108,7 +111,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     postElement.innerHTML = `
       <a href="/profile/${post.nickName}">
-        <img class="user-photo" src="${post.profileImage || '/images/icons/UI-user2.png'}" alt="user icon" />
+        <img class="user-photo" src="${post.profileImage
+    || '/images/icons/UI-user2.png'}" alt="user icon" />
       </a>
       <div class="post-content">
         <div class="user-info">
@@ -149,7 +153,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function createImagesHTML(images) {
-    if (!images || images.length === 0) return '';
+    if (!images || images.length === 0) {
+      return '';
+    }
     return `<img class="post-image" src="/images/upload/${images[0].fileName}" alt="post image"/>`;
   }
 
@@ -173,20 +179,29 @@ document.addEventListener("DOMContentLoaded", function () {
   function timeForToday(value) {
     const today = new Date();
     const timeValue = new Date(value);
-    const betweenTime = Math.floor(
-        (today.getTime() - timeValue.getTime()) / 1000 / 60);
+    const betweenTime = Math.floor((today.getTime() - timeValue.getTime()) / 1000 / 60);
 
-    if (betweenTime < 1) return '방금전';
-    if (betweenTime < 60) return `${betweenTime}분전`;
+    if (betweenTime < 1) {
+      return '지금';
+    }
+    if (betweenTime < 60) {
+      return `${betweenTime}분 전`;
+    }
 
     const betweenTimeHour = Math.floor(betweenTime / 60);
-    if (betweenTimeHour < 24) return `${betweenTimeHour}시간전`;
+    if (betweenTimeHour < 24) {
+      return `${betweenTimeHour}시간 전`;
+    }
 
     const betweenTimeDay = Math.floor(betweenTime / 60 / 24);
-    if (betweenTimeDay < 30) return `${betweenTimeDay}일전`;
-    if (betweenTimeDay < 365) return `${Math.floor(betweenTimeDay / 30)}개월전`;
+    if (betweenTimeDay < 30) {
+      return `${betweenTimeDay}일 전`;
+    }
+    if (betweenTimeDay < 365) {
+      return `${Math.floor(betweenTimeDay / 30)}달 전`;
+    }
 
-    return `${Math.floor(betweenTimeDay / 365)}년전`;
+    return `${Math.floor(betweenTimeDay / 365)}년 전`;
   }
 
   function addFriendButtonsEventListener() {
@@ -215,7 +230,8 @@ document.addEventListener("DOMContentLoaded", function () {
           if (postContainer) {
             const optionIcons = postContainer.querySelector('.option-icons');
             if (optionIcons) {
-              const followButton = optionIcons.querySelector(`img[data-target-id="${targetId}"]`);
+              const followButton = optionIcons.querySelector(
+                  `img[data-target-id="${targetId}"]`);
               if (followButton) {
                 followButton.style.display = 'none';
               }
@@ -260,8 +276,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function handleMoreOptionsClick(event, moreOptionsButton) {
-    const optionsMenu = moreOptionsButton.closest('.option-icons').querySelector('.more-options-menu');
-    if (!optionsMenu) return;
+    const optionsMenu = moreOptionsButton.closest(
+        '.option-icons').querySelector('.more-options-menu');
+    if (!optionsMenu) {
+      return;
+    }
 
     const offsetX = event.clientX;
     const offsetY = event.clientY;
@@ -288,6 +307,15 @@ document.addEventListener("DOMContentLoaded", function () {
     event.stopPropagation();
   }
 
+  document.addEventListener('click', function (event) {
+    if (!event.target.closest('.more-options-menu') &&
+        !event.target.matches('.tiny-icons[alt="more options"]')) {
+      document.querySelectorAll('.more-options-menu').forEach(menu => {
+        menu.classList.remove('visible');
+        menu.classList.add('hidden');
+      });
+    }
+  });
 
   function showLoader() {
     const existingLoader = document.querySelector('.timeline-loader');
@@ -346,7 +374,6 @@ document.addEventListener("DOMContentLoaded", function () {
           .then(response => {
             if (response.ok) {
               alert('게시글 숨기기가 완료되었습니다.');
-              // 숨기기 성공 시 해당 게시글 요소 제거
               const postContainer = button.closest('.post-container');
               postContainer.remove();
             } else {
@@ -366,10 +393,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function addPostLikeEventListener() {
     const likePostButtons = document.querySelectorAll('img[alt="I like this"]');
+
     likePostButtons.forEach(button => {
-      button.addEventListener('click', async function () {
+      button.addEventListener('click', async function() {
         const postId = this.dataset.postId;
-        if (!postId) return;
+        if (!postId) {
+          return;
+        }
 
         try {
           const likeResponse = await fetch('/api/post/like/' + postId, {
@@ -377,14 +407,13 @@ document.addEventListener("DOMContentLoaded", function () {
           });
 
           if (likeResponse.ok) {
-            const numberResponse = await fetch('/api/post/like/number/' + postId);
-            const countText = await numberResponse.text();
+            const countResponse = await fetch('/api/post/like/number/' + postId);
+            const countText = await countResponse.text();
             const currentLikes = parseInt(countText, 10);
-
             const likeCountElement = button.closest('div').querySelector('.like-count');
             if (likeCountElement) {
               likeCountElement.textContent = currentLikes;
-              button.classList.toggle('liked');
+              button.classList.add('liked');
             }
           }
         } catch (error) {
@@ -421,8 +450,10 @@ document.addEventListener("DOMContentLoaded", function () {
   function addReportPostEventListener() {
     const reportPostButtons = document.querySelectorAll('.report-post');
     const reportModal = document.getElementById('reportModal');
-    const reportModalContainer = document.getElementById('reportModalContainer');
-    const closeReportModalButton = document.getElementById('closeReportModalBtn');
+    const reportModalContainer = document.getElementById(
+        'reportModalContainer');
+    const closeReportModalButton = document.getElementById(
+        'closeReportModalBtn');
     const reportSendButton = document.getElementById('reportSendBtn');
     const reportTypeSelect = document.getElementById('report-type-select');
 
@@ -475,10 +506,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       isReportButtonClicked = true;
 
-      // URL에 reportType을 쿼리 파라미터로 추가
       fetch(`/api/post/report/${postId}?reportType=${selectedReportType}`, {
-        method: 'POST',  // PUT에서 POST로 변경
-        headers: {
+        method: 'POST', headers: {
           'Content-Type': 'application/json',
         }
       })
@@ -497,5 +526,91 @@ document.addEventListener("DOMContentLoaded", function () {
         alert('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
       });
     }
+  }
+
+  function addReplyPostEventListener() {
+    const replyButtons = document.querySelectorAll('img[alt="add reply"]');
+    const replyModal = document.getElementById('newReplyFormModal');
+    const replyModalContainer = document.getElementById('newReplyFormModalContainer');
+    const closeReplyModalButton = document.getElementById('closeNewReplyFormModalBtn');
+    const replySendButton = document.getElementById('replyAddBtn');
+
+    let isAddReplyButtonClicked = false;
+
+    replyButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const postId = button.closest('.post-content').querySelector('.content-text').dataset.postId;
+        replyModalContainer.setAttribute('data-post-id', postId);
+
+        replyModal.style.display = 'block';
+        replyModalContainer.style.display = 'block';
+
+        isAddReplyButtonClicked = false;
+      });
+    });
+
+    function handleReplySubmit(event) {
+      event.preventDefault();
+
+      if (isAddReplyButtonClicked) {
+        return;
+      }
+
+      const postId = replyModalContainer.getAttribute('data-post-id');
+      const content = document.getElementById('new-reply-content').value;
+
+      if (!content) {
+        alert('답글 내용을 입력해주세요.');
+        return;
+      }
+
+      if (!postId) {
+        alert('잘못된 게시글 ID입니다.');
+        return;
+      }
+
+      isAddReplyButtonClicked = true;
+      const url = `/api/reply/${postId}?content=${encodeURIComponent(content)}`;
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          alert('답글이 작성되었습니다.');
+          location.reload();
+        } else {
+          return response.json().then(errorData => {
+            alert(`답글 작성 실패: ${errorData.message || '알 수 없는 오류 발생'}`);
+          });
+        }
+      })
+      .catch(error => {
+        alert('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
+      })
+      .finally(() => {
+        isAddReplyButtonClicked = false;
+      });
+    }
+
+    if (!replySendButton.hasEventListener) {
+      replySendButton.addEventListener('click', handleReplySubmit);
+      replySendButton.hasEventListener = true;
+    }
+
+    closeReplyModalButton.addEventListener('click', function() {
+      replyModal.style.display = 'none';
+      replyModalContainer.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+      if (event.target === replyModal) {
+        replyModal.style.display = 'none';
+        replyModalContainer.style.display = 'none';
+      }
+    });
   }
 });

@@ -22,15 +22,14 @@
             th:src="@{${session.profileImage}}"
             alt="user icon"
         />
-        <div class="manito-letter-text-container">
-                      <textarea
-                          name="content"
-                          id="new-reply-content"
-                          class="manito-letter-text"
-                          placeholder="나누고 싶은 글을 작성해주세요"
-                          style="min-height: 4rem;"
-                      ></textarea>
-          <p class="letter-count" id="countTo500">500/500</p>
+        <div class="new-post-text-container">
+          <textarea
+              name="content"
+              id="new-reply-content"
+              class="new-post-text"
+              placeholder="나누고 싶은 글을 작성해주세요"
+          ></textarea>
+          <p class="letter-count" id="count500">500/500</p>
         </div>
       </div>
     </div>

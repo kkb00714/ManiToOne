@@ -48,21 +48,6 @@
             <p class="post-time"
                th:text="${#temporals.format(todaysPost.createdAt, 'yyyy년 MM월 dd일 a hh시 mm분')}">2024년
               11월 27일 오후 11시 33분</p>
-            <div class="reaction-icons">
-              <img
-                  class="tiny-icons"
-                  th:src="@{/images/icons/icon-clover2.png}"
-                  alt="I like this"
-              />
-              <span class="like-count" th:text="${todaysPost.likeCount}">22</span>
-              <img
-                  class="tiny-icons"
-                  th:src="@{/images/icons/icon-comment2.png}"
-                  alt="add reply"
-              />
-              <span class="reply-count"
-                    th:text="${todaysPost.replies != null ? todaysPost.replies.size() : 0}">3</span>
-            </div>
           </div>
         </div>
       </div>

@@ -69,56 +69,56 @@ public class ManitoMatchController {
 
   @GetMapping("/match/status")
   public ResponseEntity<?> getMatchStatus(@SessionAttribute("nickname") String nickname) {
-    Optional<MatchProcessStatus> status = statusRepository
-        .findFirstByNicknameAndStatusOrderByCreatedAtDesc(
-            nickname,
-            MatchProcessStatus.ProcessStatus.IN_PROGRESS
-        );
-
-    if (status.isEmpty()) {
-      // 진행 중인 프로세스가 없는 경우, 완료된 프로세스가 있는지 확인
-      Optional<MatchProcessStatus> completedStatus = statusRepository
+    try {
+      Optional<MatchProcessStatus> status = statusRepository
           .findFirstByNicknameAndStatusOrderByCreatedAtDesc(
               nickname,
-              MatchProcessStatus.ProcessStatus.COMPLETED
+              MatchProcessStatus.ProcessStatus.IN_PROGRESS
           );
 
-      if (completedStatus.isPresent()) {
-        // 완료된 프로세스가 있다면 리로드
+      if (status.isEmpty()) {
+        // 실제로 매칭이 완료되었는지 확인
+        Optional<ManitoMatches> currentMatch = manitoMatchesService.getCurrentValidMatch(nickname);
+        if (currentMatch.isPresent()) {
+          return ResponseEntity.ok()
+              .body(Map.of(
+                  "status", "COMPLETED",
+                  "message", "매칭이 완료되었습니다."
+              ));
+        }
+
         return ResponseEntity.ok()
             .body(Map.of(
-                "status", "COMPLETED",
-                "message", "매칭이 완료되었습니다.",
-                "shouldReload", true
+                "status", "IN_PROGRESS",  // NO_PROCESS 대신 IN_PROGRESS 반환
+                "message", "매칭 프로세스가 진행 중입니다."
+            ));
+      }
+
+      MatchProcessStatus processStatus = status.get();
+      if (processStatus.isTimedOut()) {
+        processStatus.fail();
+        statusRepository.save(processStatus);
+        return ResponseEntity.ok()
+            .body(Map.of(
+                "status", "FAILED",
+                "message", "매칭 프로세스가 시간 초과되었습니다."
             ));
       }
 
       return ResponseEntity.ok()
           .body(Map.of(
-              "status", "NO_PROCESS",
-              "message", "진행 중인 매칭 프로세스가 없습니다.",
-              "shouldReload", false
+              "status", "IN_PROGRESS",
+              "message", "매칭 프로세스가 진행 중입니다."
           ));
-    }
 
-    MatchProcessStatus processStatus = status.get();
-    if (processStatus.isTimedOut()) {
-      processStatus.fail();
-      statusRepository.save(processStatus);
-      return ResponseEntity.ok()
+    } catch (Exception e) {
+      log.error("Error checking match status for user: {}", nickname, e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(Map.of(
               "status", "FAILED",
-              "message", "매칭 프로세스가 시간 초과되었습니다.",
-              "shouldReload", false
+              "message", "매칭 상태 확인 중 오류가 발생했습니다."
           ));
     }
-
-    return ResponseEntity.ok()
-        .body(Map.of(
-            "status", "IN_PROGRESS",
-            "message", "매칭 프로세스가 진행 중입니다.",
-            "shouldReload", false
-        ));
   }
 
   // Pass 처리

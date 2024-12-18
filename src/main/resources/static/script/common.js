@@ -1,5 +1,20 @@
 //common.js
 
+window.toggleAI = function(element) {
+  CommonUtils.toggleElement(element);
+};
+
+window.toggleManito = function (element, type) {
+  CommonUtils.toggleElement(element, type);
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  CommonUtils.initializePageModals();
+  CommonUtils.initializeAllTextareas();
+  CommonUtils.initializeCharacterCounters();
+  CommonUtils.initializeRightSectionManito();
+});
+
 class BaseModal {
   constructor(modalId, backgroundId, openBtnId, closeBtnId) {
     this.modal = document.getElementById(modalId);
@@ -488,18 +503,3 @@ const CommonUtils = {
     }
   }
 };
-
-document.addEventListener('DOMContentLoaded', () => {
-  CommonUtils.initializePageModals();
-  CommonUtils.initializeAllTextareas();
-  CommonUtils.initializeCharacterCounters();
-  CommonUtils.initializeRightSectionManito();
-
-  window.toggleAI = function(element) {
-    CommonUtils.toggleElement(element);
-  };
-
-  window.toggleManito = function (element, type) {
-    CommonUtils.toggleElement(element, type);
-  };
-});

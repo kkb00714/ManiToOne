@@ -120,7 +120,13 @@ document.addEventListener("DOMContentLoaded", function () {
           <span class="passed-time" data-created-at="${post.createdAt}" data-updated-at="${post.updatedAt}">${timeText}</span>
         </div>
         <p class="content-text" data-post-id="${post.postId}">${post.content}</p>
-        ${post.postImages ? createImagesHTML(post.postImages) : ''}
+        ${post.postImages && post.postImages.length > 0 ? `
+          <div class="image-container">
+            ${post.postImages.map(image => `
+              <img class="post-image" src="${image.fileName}" alt="post image"/>
+            `).join('')}
+          </div>
+        ` : ''}
         <div class="reaction-icons">
           ${isMyPost
         ? `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="my post"/>`
@@ -156,7 +162,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!images || images.length === 0) {
       return '';
     }
-    return `<img class="post-image" src="/images/upload/${images[0].fileName}" alt="post image"/>`;
+    return `
+    <div class="image-container">
+      ${images.map(image => `
+        <img class="post-image" src="/images/upload/${image.fileName}" alt="post image"/>
+      `).join('')}
+    </div>
+  `;
   }
 
   async function getIsFollowed(nickName) {

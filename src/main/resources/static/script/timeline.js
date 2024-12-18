@@ -7,15 +7,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
   loadPosts();
   window.addEventListener('scroll', handleScroll);
-  postsContainer.addEventListener('click', function(event) {
-    const moreOptionsButton = event.target.closest('.tiny-icons[alt="more options"]');
+  postsContainer.addEventListener('click', function (event) {
+    const moreOptionsButton = event.target.closest(
+        '.tiny-icons[alt="more options"]');
     if (moreOptionsButton) {
       handleMoreOptionsClick(event, moreOptionsButton);
     }
   });
 
   function handleScroll() {
-    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 100) {
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight
+        - 100) {
       if (!isLoading && hasMorePosts) {
         pageNum++;
         loadPosts();
@@ -24,10 +26,14 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function loadPosts() {
-    if (isLoading) return;
+    if (isLoading) {
+      return;
+    }
 
     isLoading = true;
-    if (pageNum === 0) showLoader();
+    if (pageNum === 0) {
+      showLoader();
+    }
 
     try {
       const response = await fetch(`/api/timeline?page=${pageNum}&size=20`);
@@ -41,7 +47,6 @@ document.addEventListener("DOMContentLoaded", function () {
           postsContainer.appendChild(postElement);
           hasAddedPosts = true;
 
-          // 첫 번째 포스트가 추가되면 로딩 인디케이터 제거
           if (hasAddedPosts && pageNum === 0) {
             hideLoader();
           }
@@ -64,9 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-
   function attachEventListeners() {
-    // 기존의 이벤트 리스너들을 제거
     removeExistingEventListeners();
 
     addFriendButtonsEventListener();
@@ -108,7 +111,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     postElement.innerHTML = `
       <a href="/profile/${post.nickName}">
-        <img class="user-photo" src="${post.profileImage || '/images/icons/UI-user2.png'}" alt="user icon" />
+        <img class="user-photo" src="${post.profileImage
+    || '/images/icons/UI-user2.png'}" alt="user icon" />
       </a>
       <div class="post-content">
         <div class="user-info">
@@ -149,7 +153,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function createImagesHTML(images) {
-    if (!images || images.length === 0) return '';
+    if (!images || images.length === 0) {
+      return '';
+    }
     return `<img class="post-image" src="/images/upload/${images[0].fileName}" alt="post image"/>`;
   }
 
@@ -176,15 +182,25 @@ document.addEventListener("DOMContentLoaded", function () {
     const betweenTime = Math.floor(
         (today.getTime() - timeValue.getTime()) / 1000 / 60);
 
-    if (betweenTime < 1) return '방금전';
-    if (betweenTime < 60) return `${betweenTime}분전`;
+    if (betweenTime < 1) {
+      return '방금전';
+    }
+    if (betweenTime < 60) {
+      return `${betweenTime}분전`;
+    }
 
     const betweenTimeHour = Math.floor(betweenTime / 60);
-    if (betweenTimeHour < 24) return `${betweenTimeHour}시간전`;
+    if (betweenTimeHour < 24) {
+      return `${betweenTimeHour}시간전`;
+    }
 
     const betweenTimeDay = Math.floor(betweenTime / 60 / 24);
-    if (betweenTimeDay < 30) return `${betweenTimeDay}일전`;
-    if (betweenTimeDay < 365) return `${Math.floor(betweenTimeDay / 30)}개월전`;
+    if (betweenTimeDay < 30) {
+      return `${betweenTimeDay}일전`;
+    }
+    if (betweenTimeDay < 365) {
+      return `${Math.floor(betweenTimeDay / 30)}개월전`;
+    }
 
     return `${Math.floor(betweenTimeDay / 365)}년전`;
   }
@@ -215,7 +231,8 @@ document.addEventListener("DOMContentLoaded", function () {
           if (postContainer) {
             const optionIcons = postContainer.querySelector('.option-icons');
             if (optionIcons) {
-              const followButton = optionIcons.querySelector(`img[data-target-id="${targetId}"]`);
+              const followButton = optionIcons.querySelector(
+                  `img[data-target-id="${targetId}"]`);
               if (followButton) {
                 followButton.style.display = 'none';
               }
@@ -260,8 +277,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function handleMoreOptionsClick(event, moreOptionsButton) {
-    const optionsMenu = moreOptionsButton.closest('.option-icons').querySelector('.more-options-menu');
-    if (!optionsMenu) return;
+    const optionsMenu = moreOptionsButton.closest(
+        '.option-icons').querySelector('.more-options-menu');
+    if (!optionsMenu) {
+      return;
+    }
 
     const offsetX = event.clientX;
     const offsetY = event.clientY;
@@ -288,6 +308,15 @@ document.addEventListener("DOMContentLoaded", function () {
     event.stopPropagation();
   }
 
+  document.addEventListener('click', function (event) {
+    if (!event.target.closest('.more-options-menu') &&
+        !event.target.matches('.tiny-icons[alt="more options"]')) {
+      document.querySelectorAll('.more-options-menu').forEach(menu => {
+        menu.classList.remove('visible');
+        menu.classList.add('hidden');
+      });
+    }
+  });
 
   function showLoader() {
     const existingLoader = document.querySelector('.timeline-loader');
@@ -346,7 +375,6 @@ document.addEventListener("DOMContentLoaded", function () {
           .then(response => {
             if (response.ok) {
               alert('게시글 숨기기가 완료되었습니다.');
-              // 숨기기 성공 시 해당 게시글 요소 제거
               const postContainer = button.closest('.post-container');
               postContainer.remove();
             } else {
@@ -369,7 +397,9 @@ document.addEventListener("DOMContentLoaded", function () {
     likePostButtons.forEach(button => {
       button.addEventListener('click', async function () {
         const postId = this.dataset.postId;
-        if (!postId) return;
+        if (!postId) {
+          return;
+        }
 
         try {
           const likeResponse = await fetch('/api/post/like/' + postId, {
@@ -377,11 +407,13 @@ document.addEventListener("DOMContentLoaded", function () {
           });
 
           if (likeResponse.ok) {
-            const numberResponse = await fetch('/api/post/like/number/' + postId);
+            const numberResponse = await fetch(
+                '/api/post/like/number/' + postId);
             const countText = await numberResponse.text();
             const currentLikes = parseInt(countText, 10);
 
-            const likeCountElement = button.closest('div').querySelector('.like-count');
+            const likeCountElement = button.closest('div').querySelector(
+                '.like-count');
             if (likeCountElement) {
               likeCountElement.textContent = currentLikes;
               button.classList.toggle('liked');
@@ -421,8 +453,10 @@ document.addEventListener("DOMContentLoaded", function () {
   function addReportPostEventListener() {
     const reportPostButtons = document.querySelectorAll('.report-post');
     const reportModal = document.getElementById('reportModal');
-    const reportModalContainer = document.getElementById('reportModalContainer');
-    const closeReportModalButton = document.getElementById('closeReportModalBtn');
+    const reportModalContainer = document.getElementById(
+        'reportModalContainer');
+    const closeReportModalButton = document.getElementById(
+        'closeReportModalBtn');
     const reportSendButton = document.getElementById('reportSendBtn');
     const reportTypeSelect = document.getElementById('report-type-select');
 
@@ -476,7 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
       isReportButtonClicked = true;
 
       fetch(`/api/post/report/${postId}?reportType=${selectedReportType}`, {
-        method: 'POST',         headers: {
+        method: 'POST', headers: {
           'Content-Type': 'application/json',
         }
       })

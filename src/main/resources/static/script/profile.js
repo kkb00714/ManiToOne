@@ -136,8 +136,15 @@ document.addEventListener("DOMContentLoaded", function () {
             <a href="/profile/${post.nickName}" class="user-name">${post.nickName}</a>
             <span class="passed-time" data-created-at="${post.createdAt}" data-updated-at="${post.updatedAt}">${timeText}</span>
           </div>
-          <p class="content-text" data-post-id="${post.postId}">${post.content}</p>
-          <div class="reaction-icons">
+        <p class="content-text" data-post-id="${post.postId}">${post.content}</p>
+        ${post.postImages && post.postImages.length > 0 ? `
+          <div class="image-container">
+            ${post.postImages.map(image => `
+              <img class="post-image" src="${image.fileName}" alt="post image"/>
+            `).join('')}
+          </div>
+        ` : ''}
+        <div class="reaction-icons">
             ${myNickName !== post.nickName
         ? `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="I like this" data-post-id="${post.postId}"/>`
         : `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="my post"/>`}

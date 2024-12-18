@@ -522,6 +522,21 @@ h1 {
   font-size: 0.9rem;
   font-weight: bold;
   max-width: fit-content;
+  margin-left: auto;
+}
+
+/* 답장 작성 모달 */
+#new-reply-content {
+  all: unset;
+  font-weight: normal;
+  width: 100%;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  resize: none;
+  min-height: 4rem;
+  padding-top:0.1rem;
 }
 
 /* 타임라인 섹션 */

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/style/password-view.css}"/>
+  <link rel="stylesheet" th:href="@{/style/reset.css}"/>
+  <link rel="stylesheet" th:href="@{/style/common.css}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+  />
+  <link rel="icon" type="image/x-icon" th:href="@{/images/favicon/favicon.ico}">
+  <title>ManiToOne</title>
+</head>
+<body>
+<section class="sign-in-section">
+  <div class="logo-box">
+    <img th:src="@{/images/logo/long-logo.png}" alt="ManiToOne logo"/>
+  </div>
+  <div class="sign-in-container">
+    <form>
+      <div class="sign-in-input-container">
+        <input
+            class="sign-in-input"
+            type="text"
+            name="username"
+            id="user-id"
+            placeholder="사용자 아이디"
+            aria-label="사용자 아이디"
+            required
+        />
+        <input
+            class="sign-in-input"
+            type="password"
+            name="password"
+            id="user-password"
+            placeholder="비밀번호"
+            aria-label="비밀번호"
+            required
+        />
+        <span>
+          <button type="button" id="toggle-password-sign-in" aria-label="비밀번호 표시/숨기기">표시</button>
+        </span>
+        <button type="submit" class="sign-in-button">탈퇴하기</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="sign-up-link-container">
+    <p>회원 탈퇴를 취소하고 싶으신가요?</p>
+    <p class="sign-up-link"><a th:href="@{/}">돌아가기</a></p>
+  </div>
+</section>
+
+<script>
+  document.querySelector(".sign-in-button").addEventListener("click", function (event) {
+    event.preventDefault();
+
+    const userId = document.getElementById("user-id").value;
+    const password = document.getElementById("user-password").value;
+
+    if (!userId || !password) {
+      alert("아이디와 비밀번호를 확인해주세요.");
+      return;
+    }
+
+    if (confirm("정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+
+      const loginData = {
+        email: userId,
+        password: password,
+      };
+
+      fetch('/api/cancel-account', {
+        method: "DELETE",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(loginData),
+        credentials: "include",
+      })
+      .then(response => {
+        return response.text().then(message => {
+          if (!response.ok) {
+            throw new Error(message);
+          }
+          return message;
+        });
+      })
+      .then(message => {
+        alert(message);
+        window.location.href = "/";
+      })
+      .catch(error => {
+        alert(`회원 탈퇴 실패: ${error.message}`);
+      });
+    }
+  });
+
+  document.getElementById("toggle-password-sign-in").addEventListener("click", function () {
+    const passwordInput = document.getElementById("user-password");
+    const toggleButton = this;
+
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      toggleButton.textContent = "숨기기";
+    } else {
+      passwordInput.type = "password";
+      toggleButton.textContent = "표시";
+    }
+  });
+
+</script>
+
+</body>
+</html>

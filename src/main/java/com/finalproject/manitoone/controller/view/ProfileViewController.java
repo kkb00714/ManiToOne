@@ -1,4 +1,4 @@
-package com.finalproject.manitoone.controller;
+package com.finalproject.manitoone.controller.view;
 
 import com.finalproject.manitoone.service.FollowService;
 import com.finalproject.manitoone.service.UserService;
@@ -26,6 +26,6 @@ public class ProfileViewController {
         followService.isFollowed((String) session.getAttribute("nickname"), nickname));
     model.addAttribute("nickname", session.getAttribute("nickname"));
     model.addAttribute("user", userService.getUserByNickname(nickname));
-    return "profile";
+    return "pages/profile";
   }
 }

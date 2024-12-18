@@ -1,4 +1,4 @@
-package com.finalproject.manitoone.controller;
+package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.service.FollowService;
 import jakarta.servlet.http.HttpSession;

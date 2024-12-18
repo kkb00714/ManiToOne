@@ -5,12 +5,14 @@ import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.domain.Follow;
 import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.User;
+import com.finalproject.manitoone.dto.follow.FollowResponseDto;
 import com.finalproject.manitoone.repository.FollowRepository;
 import com.finalproject.manitoone.repository.NotificationRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.NotificationUtil;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,5 +83,14 @@ public class FollowService {
       }
       return Boolean.FALSE;
     }
+  }
+
+  public List<Follow> getFollowings(Long userId) {
+    List<Follow> list = followRepository.findAllByFollowing_UserId(userId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_GET_FOLLOWERS.getMessage()
+        ));
+
+    return list;
   }
 }

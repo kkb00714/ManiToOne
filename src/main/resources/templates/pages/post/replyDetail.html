@@ -91,7 +91,7 @@
                 />
                 <img
                   class="tiny-icons"
-                  th:if="${currentUser != post.user}"
+                  th:if="${currentUser != post.user && !#lists.contains(followings, post.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
@@ -340,7 +340,7 @@
                 />
                 <img
                   class="tiny-icons"
-                  th:if="${currentUser != reply.user}"
+                  th:if="${currentUser != reply.user && !#lists.contains(followings, reply.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
@@ -658,7 +658,7 @@
                 />
                 <img
                   class="tiny-icons"
-                  th:if="${currentUser != rereply.user}"
+                  th:if="${currentUser != rereply.user && !#lists.contains(followings, rereply.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />

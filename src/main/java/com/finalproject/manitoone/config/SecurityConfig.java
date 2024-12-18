@@ -51,7 +51,8 @@ public class SecurityConfig {
                 // 모든 사용자 접근 허용
                 .requestMatchers("/login-fail", "/access-deny", "/api/local-login",
                     "/api/email-validate", "/api/email-check", "/api/password-reset",
-                    "/api/check-email", "/api/check-nickname", "/api/upload", "/api/update")
+                    "/api/check-email", "/api/check-nickname", "/api/upload", "/api/update",
+                    "/api/signup")
                 .permitAll()
 
                 // 익명 사용자 전용 페이지 접근 제어

@@ -98,6 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
     addPostLikeEventListener();
     addPostDeleteEventHandler();
     postContentEventListener();
+    addReplyPostEventListener();
   }
 
   async function fetchPosts(apiUrl) {
@@ -141,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ? `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="I like this" data-post-id="${post.postId}"/>`
         : `<img class="tiny-icons" src="/images/icons/icon-clover2.png" alt="my post"/>`}
             <span class="like-count">${post.likeCount}</span>
-            <img class="tiny-icons" src="/images/icons/icon-comment2.png" alt="add reply" />
+            <img class="tiny-icons" src="/images/icons/icon-comment2.png" alt="add reply" data-post-id="${post.postId}" />
             <span class="reply-count">${post.replies.length}</span>
           </div>
         </div>
@@ -294,7 +295,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
   const profileImage = document.querySelector("#user-photo");
-  const currentUserProfile = document.querySelector(".user-photo");
   const profileImageInput = document.querySelector("#profile-image-input");
   const modal = document.querySelector("#image-action-modal");
   const deletePhotoBtn = document.querySelector("#delete-photo-btn");
@@ -410,7 +410,6 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .then(response => {
       if (response.ok) {
-        // const nickname = userData.nickname === null ? currentNickname : userData.nickname;
         location.reload();
         closeProfileUpdateModal();
       } else {
@@ -429,6 +428,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const userNickname = document.getElementById('user-nickname').value.trim();
     window.location.href = `/profile/${userNickname}`;
+  }
+
+  const postTextarea = document.getElementById('new-reply-content');
+  const postCount500Display = postTextarea?.closest('.manito-letter-text-container')?.querySelector('.letter-count');
+  if (postTextarea && postCount500Display) {
+    new CharacterCounter(postTextarea, postCount500Display, 500);
+    postTextarea.setAttribute('maxlength', '500');
   }
 
 });
@@ -578,6 +584,94 @@ function addPostDeleteEventHandler() {
   });
 }
 
+function addReplyPostEventListener() {
+  const replyButtons = document.querySelectorAll('img[alt="add reply"]');
+  const replyModal = document.getElementById('newReplyFormModal');
+  const replyModalContainer = document.getElementById('newReplyFormModalContainer');
+  const closeReplyModalButton = document.getElementById('closeNewReplyFormModalBtn');
+  const replySendButton = document.getElementById('replyAddBtn');
+
+  let isAddReplyButtonClicked = false;
+
+  replyButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      const postId = button.getAttribute('data-post-id');
+      console.log(postId);
+      replyModalContainer.setAttribute('data-post-id', postId);
+
+      replyModal.style.display = 'block';
+      replyModalContainer.style.display = 'block';
+
+      isAddReplyButtonClicked = false;
+    })
+  });
+
+  function handleReplySubmit(event) {
+    event.preventDefault();
+
+    if (isAddReplyButtonClicked) {
+      return;
+    }
+
+    const postId = replyModalContainer.getAttribute('data-post-id');
+    const content = document.getElementById('new-reply-content').value;
+
+    if (!content) {
+      alert('답글 내용을 입력해주세요.');
+      return;
+    }
+
+    if (!postId) {
+      alert('잘못된 게시글 ID입니다.');
+      return;
+    }
+
+    isAddReplyButtonClicked = true;
+    const url = `/api/reply/${postId}?content=${encodeURIComponent(content)}`;
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        alert('답글이 작성되었습니다.');
+        location.reload();
+      } else {
+        return response.json().then(errorData => {
+          alert(`답글 작성 실패: ${errorData.message || '알 수 없는 오류 발생'}`);
+        });
+      }
+    })
+    .catch(error => {
+      alert('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
+    })
+    .finally(() => {
+      isAddReplyButtonClicked = false;
+    });
+  }
+
+  if (!replySendButton.hasEventListener) {
+    replySendButton.addEventListener('click', handleReplySubmit);
+    replySendButton.hasEventListener = true;
+  }
+
+  closeReplyModalButton.addEventListener('click', function () {
+    replyModal.style.display = 'none';
+    replyModalContainer.style.display = 'none';
+  });
+
+  window.addEventListener('click', function (event) {
+    if (event.target === replyModal) {
+      replyModal.style.display = 'none';
+      replyModalContainer.style.display = 'none';
+    }
+  });
+
+}
+
 function addReportPostEventListener() {
   const reportPostButtons = document.querySelectorAll('.report-post');
   const reportModal = document.getElementById('reportModal');
@@ -600,7 +694,6 @@ function addReportPostEventListener() {
     });
   });
 
-  // 신고하기 버튼 클릭 시 API 요청
   function handleReportSubmit(event) {
     event.preventDefault();
 

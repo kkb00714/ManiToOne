@@ -79,8 +79,7 @@ public class ReplyController {
   public ResponseEntity<ReportResponseDto> reportReply(@PathVariable("replyId") Long replyId,
       @RequestParam("reportType") String reportType,
       HttpSession session) {
-    String email = session.getAttribute("email") + "";
-
+    String email = (String) session.getAttribute("email");
     ReportResponseDto report = replyService.reportReply(replyId, reportType, email);
     return ResponseEntity.status(HttpStatus.CREATED).body(report);
   }
@@ -89,8 +88,7 @@ public class ReplyController {
   @PostMapping("/reply/like/{replyId}")
   public ResponseEntity<ReplyResponseDto> likeReply(@PathVariable("replyId") Long replyId,
       HttpSession session) {
-    String email = session.getAttribute("email") + "";
-
+    String email = (String) session.getAttribute("email");
     ReplyResponseDto reply = replyService.likeReply(replyId, email);
     return ResponseEntity.ok(reply);
   }

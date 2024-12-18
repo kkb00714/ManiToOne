@@ -315,28 +315,6 @@
                       <p class="letter-count" id="countTo500">500/500</p>
                     </div>
                   </div>
-
-                  <div class="manito-response-toggle">
-                    <img
-                      class="tiny-icons"
-                      th:src="@{/images/icons/icon-check-empty.png}"
-                      alt="check icon"
-                      data-checked-src="@{/images/icons/icon-check.png}"
-                      data-unchecked-src="@{/images/icons/icon-check-empty.png}"
-                    />
-                    <p>이 게시물에 대해 마니또의 답변을 받습니다.</p>
-                  </div>
-
-                  <div class="ai-response-toggle" style="opacity: 0.3">
-                    <img
-                      class="tiny-icons"
-                      th:src="@{/images/icons/icon-check-empty.png}"
-                      alt="check icon"
-                      data-checked-src="@{/images/icons/icon-check.png}"
-                      data-unchecked-src="@{/images/icons/icon-check-empty.png}"
-                    />
-                    <p>이 게시물에 대해 AI의 피드백을 받습니다.</p>
-                  </div>
                 </div>
 
                 <div class="post-button-container">
@@ -388,6 +366,7 @@
                   />
                   <span
                     class="like-count"
+                    id = "reply-like-count"
                     th:text="${reply.likesNumber}"
                   ></span>
                   <img
@@ -491,32 +470,6 @@
                         ></textarea>
                         <p class="letter-count" id="count-500">500/500</p>
                       </div>
-                    </div>
-
-                    <div class="manito-response-toggle">
-                      <img
-                        class="tiny-icons"
-                        th:src="@{/images/icons/icon-check-empty.png}"
-                        alt="check icon"
-                        data-checked-src="@{/images/icons/icon-check.png}"
-                        data-unchecked-src="@{/images/icons/icon-check-empty.png}"
-                      />
-                      <p>이 게시물에 대해 마니또의 답변을 받습니다.</p>
-                    </div>
-
-                    <div
-                      class="ai-response-toggle"
-                      onclick="toggleAI(this)"
-                      style="opacity: 0.3"
-                    >
-                      <img
-                        class="tiny-icons"
-                        th:src="@{/images/icons/icon-check-empty.png}"
-                        alt="check icon"
-                        data-checked-src="@{/images/icons/icon-check.png}"
-                        data-unchecked-src="@{/images/icons/icon-check-empty.png}"
-                      />
-                      <p>이 게시물에 대해 AI의 피드백을 받습니다.</p>
                     </div>
                   </div>
 

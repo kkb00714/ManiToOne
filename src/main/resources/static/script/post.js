@@ -25,16 +25,22 @@ async function likePost(postId) {
 
 // 답글 좋아요
 async function likeReply(replyId) {
+  const likeCount = document.querySelector("#reply-like-count");
+
+  console.log("Reply ID: ", replyId);
+
   try {
     const response = await fetch(`/api/reply/like/${replyId}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
+
+    const data = await response.json();
+
+    console.log("Response: ", data.likesNumber);
 
     if (response.ok) {
       alert("해당 댓글에 좋아요를 누르셨습니다.");
+      likeCount.textContent = data.likesNumber;
     } else {
       alert("좋아요 요청에 실패하셨습니다.");
     }

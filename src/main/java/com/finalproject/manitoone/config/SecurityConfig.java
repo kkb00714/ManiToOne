@@ -52,7 +52,7 @@ public class SecurityConfig {
                 .requestMatchers("/login-fail", "/access-deny", "/api/local-login",
                     "/api/email-validate", "/api/email-check", "/api/password-reset",
                     "/api/check-email", "/api/check-nickname", "/api/upload", "/api/update",
-                    "/api/signup", "/oauth2/authorization/google")
+                    "/api/signup", "/oauth2/authorization/google", "/additional-info")
                 .permitAll()
 
                 // 익명 사용자 전용 페이지 접근 제어

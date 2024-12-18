@@ -52,12 +52,12 @@ public class SecurityConfig {
                 .requestMatchers("/login-fail", "/access-deny", "/api/local-login",
                     "/api/email-validate", "/api/email-check", "/api/password-reset",
                     "/api/check-email", "/api/check-nickname", "/api/upload", "/api/update",
-                    "/api/signup")
+                    "/api/signup", "/oauth2/authorization/google")
                 .permitAll()
 
                 // 익명 사용자 전용 페이지 접근 제어
                 .requestMatchers("/login", "/register", "/register-info", "/additional-info",
-                    "/find-password", "/find-password-confirm", "/oauth2/authorization/google")
+                    "/find-password", "/find-password-confirm")
                 .access((authentication, context) -> {
                   HttpServletRequest request = context.getRequest();
                   HttpSession session = request.getSession(false);
@@ -117,8 +117,7 @@ public class SecurityConfig {
       // 익명 사용자만 접근 가능한 페이지
       boolean isAnonymousPage = requestURI.equals("/login") || requestURI.equals("/register")
           || requestURI.equals("/register-info") || requestURI.equals("/additional-info")
-          || requestURI.equals("/find-password") || requestURI.equals("/find-password-confirm")
-          || requestURI.equals("/oauth2/authorization/google");
+          || requestURI.equals("/find-password") || requestURI.equals("/find-password-confirm");
 
       HttpSession session = request.getSession(false);
 

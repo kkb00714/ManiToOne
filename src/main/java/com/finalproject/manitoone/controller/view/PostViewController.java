@@ -37,6 +37,7 @@ public class PostViewController {
     ));
     model.addAttribute("post", postService.getPostDetail(postId));
     model.addAttribute("postImages", postService.getImages(postId));
+    model.addAttribute("postImagesNum", postService.getImages(postId).size());
     model.addAttribute("postRepliesNum", replyService.getRepliesNum(postId));
     model.addAttribute("replies", replyService.getReplies(postId, pageable));
     return "pages/post/postDetail";
@@ -56,6 +57,7 @@ public class PostViewController {
     ));
     model.addAttribute("post", reply.getPost());
     model.addAttribute("postImages", postService.getImages(reply.getPost().getPostId()));
+    model.addAttribute("postImagesNum", postService.getImages(reply.getPost().getPostId()).size());
     model.addAttribute("postLikesNum", postService.getPostLikesNum(reply.getPost().getPostId()));
     model.addAttribute("postRepliesNum", replyService.getRepliesNum(reply.getPost().getPostId()));
     model.addAttribute("reply", reply);

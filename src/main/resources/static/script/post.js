@@ -486,8 +486,9 @@ function closeUpdateRereplyModal() {
 }
 
 // 게시글 수정
-async function onUpdatePostSubmit(postId) {
+async function onUpdatePostSubmit(postId, uploadedImagesNum) {
   const content = document.getElementById("new-post-content").value.trim();
+  const images = document.getElementById("image-upload-btn").files;
 
   if (!content) {
     alert("내용을 입력해주세요.");
@@ -495,14 +496,31 @@ async function onUpdatePostSubmit(postId) {
   }
 
   console.log("Content: ", content);
+  console.log("Uploaded Images Number: ", uploadedImagesNum);
+
+  if (uploadedImagesNum >= 4 || images.length > 4 || (uploadedImagesNum + images.length) > 4) {
+    alert("이미지는 최대 4장까지만 업로드 가능합니다.");
+    return;
+  }
+
+  console.log("images: ", images);
 
   const url = `/api/post/${postId}?content=${encodeURIComponent(content)}`;
 
   console.log("URL: ", url);
 
+  const formData = new FormData();
+
+  if (images.length > 0) {
+    for (let i = 0; i < images.length; i++) {
+      formData.append("images", images[i]);
+    }
+  }
+
   try {
     const response = await fetch(url, {
       method: "PUT",
+      body: formData,
     });
 
     if (response.ok) {

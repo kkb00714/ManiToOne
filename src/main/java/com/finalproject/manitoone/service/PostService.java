@@ -114,7 +114,7 @@ public class PostService {
   }
 
   // 게시글 수정
-  // TODO: 이미지 수정 
+  @Transactional
   public PostResponseDto updatePost(Long postId, UpdatePostRequestDto request, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
@@ -126,6 +126,29 @@ public class PostService {
 
     if (!post.getUser().getUserId().equals(user.getUserId())) {
       throw new IllegalArgumentException(IllegalActionMessages.DIFFERENT_USER.getMessage());
+    }
+
+    int uploadedImagesNum = getImages(post.getPostId()).size();
+    int toUploadImagesNum = request.getImages().length;
+
+    if (uploadedImagesNum >= 4 || toUploadImagesNum > 4
+        || (uploadedImagesNum + toUploadImagesNum) > 4) {
+      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage());
+    }
+
+    if (request.getImages() != null) {
+      try {
+        for (MultipartFile image : request.getImages()) {
+          String fileName = s3Service.uploadImage(image);
+          postImageRepository.save(PostImage.builder()
+              .post(post)
+              .fileName(fileName)
+              .build());
+        }
+      } catch (IOException e) {
+        throw new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage() + ": " + e.getMessage());
+      }
     }
 
     post.updatePost(request.getContent());
@@ -325,7 +348,8 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
 
-    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
+    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(
+        user.getUserId(), post.getPostId());
 
     if (existingLike.isPresent()) {
       userPostLikeRepository.delete(existingLike.get());

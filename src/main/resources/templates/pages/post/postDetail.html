@@ -68,6 +68,7 @@
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-comment2.png}"
                     alt="add reply"
+                    th:onclick="'openNewReplyModal()'"
                   />
                   <span class="reply-count" th:text="${postRepliesNum}"></span>
                 </div>
@@ -93,7 +94,7 @@
                 id="post-options-modal"
                 style="display: none"
               >
-                <div class="options-modal-content">
+                <div class="options-modal-content" id="post-options-content">
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
@@ -276,7 +277,7 @@
               </div>
             </div>
 
-            <div id="reply-divider" th:onclick="'openNewReplyModal()'">
+            <div id="reply-divider">
               <p id="reply-divider-text">답글</p>
             </div>
 
@@ -421,7 +422,7 @@
                 id="reply-options-modal"
                 style="display: none"
               >
-                <div class="options-modal-content">
+                <div class="options-modal-content" id="reply-options-content">
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"

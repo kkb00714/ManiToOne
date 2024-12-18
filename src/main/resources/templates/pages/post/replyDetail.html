@@ -93,40 +93,40 @@
 
               <!-- 게시글 추가 기능 모달 -->
               <div
-                  class="list-group post-options-modal"
-                  id="post-options-modal"
-                  style="display: none"
+                class="list-group post-options-modal"
+                id="post-options-modal"
+                style="display: none"
               >
-                <div class="options-modal-content">
+                <div class="options-modal-content" id="post-options-content">
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      aria-current="true"
-                      th:if="${currentUser == post.user}"
-                      th:onclick="'openUpdatePostModal()'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    aria-current="true"
+                    th:if="${currentUser == post.user}"
+                    th:onclick="'openUpdatePostModal()'"
                   >
                     수정하기
                   </button>
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      th:if="${currentUser == post.user}"
-                      th:onclick="'hidePost(' + ${post.postId} + ')'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:if="${currentUser == post.user}"
+                    th:onclick="'hidePost(' + ${post.postId} + ')'"
                   >
                     숨기기
                   </button>
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      th:if="${currentUser == post.user}"
-                      th:onclick="'deletePost(' + ${post.postId} + ')'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:if="${currentUser == post.user}"
+                    th:onclick="'deletePost(' + ${post.postId} + ')'"
                   >
                     삭제하기
                   </button>
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      th:onclick="'openPostReportModal()'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'openPostReportModal()'"
                   >
                     신고하기
                   </button>
@@ -318,6 +318,7 @@
                     class="tiny-icons"
                     th:src="@{/images/icons/icon-comment2.png}"
                     alt="add reply"
+                    th:onclick="'openNewRereplyModal()'"
                   />
                   <span
                     class="reply-count"
@@ -342,40 +343,40 @@
 
               <!-- 답글 추가 기능 모달 -->
               <div
-                  class="list-group post-options-modal"
-                  id="reply-options-modal"
-                  style="display: none"
+                class="list-group post-options-modal"
+                id="reply-options-modal"
+                style="display: none"
               >
-                <div class="options-modal-content">
+                <div class="options-modal-content" id="reply-options-content">
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      aria-current="true"
-                      th:if="${currentUser == reply.user}"
-                      th:onclick="'openUpdateReplyModal()'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    aria-current="true"
+                    th:if="${currentUser == reply.user}"
+                    th:onclick="'openUpdateReplyModal()'"
                   >
                     수정하기
                   </button>
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      th:if="${currentUser == reply.user}"
-                      th:onclick="'hideReply(' + ${reply.replyPostId} + ')'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:if="${currentUser == reply.user}"
+                    th:onclick="'hideReply(' + ${reply.replyPostId} + ')'"
                   >
                     숨기기
                   </button>
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      th:if="${currentUser == reply.user}"
-                      th:onclick="'deleteReply(' + ${reply.replyPostId} + ')'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:if="${currentUser == reply.user}"
+                    th:onclick="'deleteReply(' + ${reply.replyPostId} + ')'"
                   >
                     삭제하기
                   </button>
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      th:onclick="'openReplyReportModal()'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'openReplyReportModal()'"
                   >
                     신고하기
                   </button>
@@ -519,7 +520,7 @@
               </div>
             </div>
 
-            <div id="reply-divider" th:onclick="'openNewRereplyModal()'">
+            <div id="reply-divider">
               <p id="reply-divider-text">답글</p>
             </div>
 
@@ -660,40 +661,40 @@
 
               <!--답글의 답글 추가 기능 모달 -->
               <div
-                  class="list-group post-options-modal"
-                  id="rereply-options-modal"
-                  style="display: none"
+                class="list-group post-options-modal"
+                id="rereply-options-modal"
+                style="display: none"
               >
-                <div class="options-modal-content">
+                <div class="options-modal-content" id="rereply-options-content">
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      aria-current="true"
-                      th:if="${currentUser == rereply.user}"
-                      th:onclick="'openUpdateRereplyModal()'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    aria-current="true"
+                    th:if="${currentUser == rereply.user}"
+                    th:onclick="'openUpdateRereplyModal()'"
                   >
                     수정하기
                   </button>
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      th:if="${currentUser == rereply.user}"
-                      th:onclick="'hideReply(' + ${rereply.replyPostId} + ')'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:if="${currentUser == rereply.user}"
+                    th:onclick="'hideReply(' + ${rereply.replyPostId} + ')'"
                   >
                     숨기기
                   </button>
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      th:if="${currentUser == rereply.user}"
-                      th:onclick="'deleteReply(' + ${rereply.replyPostId} + ')'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:if="${currentUser == rereply.user}"
+                    th:onclick="'deleteReply(' + ${rereply.replyPostId} + ')'"
                   >
                     삭제하기
                   </button>
                   <button
-                      type="button"
-                      class="list-group-item list-group-item-action"
-                      th:onclick="'openRereplyReportModal()'"
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    th:onclick="'openRereplyReportModal()'"
                   >
                     신고하기
                   </button>

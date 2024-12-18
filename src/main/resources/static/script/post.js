@@ -87,21 +87,21 @@ function togglesManito(element, responseType) {
 }
 
 function togglesAIFeedback(element, responseType) {
-  const imgElement = element.querySelector('img');
-  const currentSrc = imgElement.getAttribute('src');
+  const imgElement = element.querySelector("img");
+  const currentSrc = imgElement.getAttribute("src");
 
-  if (currentSrc.includes('icon-check.png')) {
+  if (currentSrc.includes("icon-check.png")) {
     imgElement.src = imgElement
-    .getAttribute("data-unchecked-src")
-    .replace("@{", "")
-    .replace("}", "");
+      .getAttribute("data-unchecked-src")
+      .replace("@{", "")
+      .replace("}", "");
     element.style.opacity = "0.3";
     isFeedbackReq = false;
   } else {
     imgElement.src = imgElement
-    .getAttribute("data-checked-src")
-    .replace("@{", "")
-    .replace("}", "");
+      .getAttribute("data-checked-src")
+      .replace("@{", "")
+      .replace("}", "");
     element.style.opacity = "1";
     isFeedbackReq = true;
   }
@@ -120,11 +120,10 @@ function countImages(input) {
 
 // 게시글 작성
 async function onPostSubmit() {
-  const baseUrl = '/api/post';
+  const baseUrl = "/api/post";
 
   const content = document.getElementById("new-post-content").value.trim();
   const images = document.getElementById("image-upload-btn").files;
-  const imageContainer = document.getElementById("upload-image-container");
 
   if (!content) {
     alert("내용을 입력해주세요.");
@@ -138,24 +137,12 @@ async function onPostSubmit() {
     return;
   }
 
-  if (images.length > 0) {
-    for (const image of images) {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        const img = document.createElement("img");
-        img.src = event.target.result;
-        img.alt = "image-upload";
-        imageContainer.appendChild(img);
-      };
-      reader.readAsDataURL(image);
-    }
-  }
-
   console.log("images: ", images);
 
-  let url = `${baseUrl}?content=${encodeURIComponent(content)}&isManito=${isManito ? "true" : "false"}&isFeedbackReq=${isFeedbackReq ? "true" : "false"}`;
+  let url = `${baseUrl}?content=${encodeURIComponent(content)}&isManito=${
+    isManito ? "true" : "false"
+  }&isFeedbackReq=${isFeedbackReq ? "true" : "false"}`;
   console.log(url);
-  alert('adg');
 
   const formData = new FormData();
   for (let i = 0; i < images.length; i++) {
@@ -181,37 +168,6 @@ async function onPostSubmit() {
 }
 
 // AI 피드백 받기
-let aiFeedback;
-
-function togglesAi(element) {
-  const imgElement = element.querySelector("img");
-
-  if (!imgElement) {
-    return;
-  }
-
-  const isChecked = imgElement.src.includes("icon-check.png");
-
-  if (isChecked) {
-    imgElement.src = imgElement
-      .getAttribute("data-unchecked-src")
-      .replace("@{", "")
-      .replace("}", "");
-    element.style.opacity = "0.3";
-    aiFeedback = false;
-  } else {
-    imgElement.src = imgElement
-      .getAttribute("data-checked-src")
-      .replace("@{", "")
-      .replace("}", "");
-    element.style.opacity = "1";
-    aiFeedback = true;
-    getFeedback();
-  }
-
-  console.log("AI: ", aiFeedback);
-}
-
 async function getFeedback() {
   if (aiFeedback === false) {
     return;

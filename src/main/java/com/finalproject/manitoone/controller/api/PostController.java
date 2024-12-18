@@ -40,7 +40,6 @@ public class PostController {
   private final PostService postService;
 
   // 게시글 생성
-  // TODO: 이미지 업로드
   @PostMapping
   public ResponseEntity<PostResponseDto> createPost(@RequestParam("content") String content,
       @RequestParam("isManito") Boolean isManito,

@@ -85,7 +85,7 @@ public class ManitoController {
   ) {
     String nickname = validateSession(session);
     return ResponseEntity.ok(
-        manitoService.answerManitoLetter(manitoPostId, request.getAnswerComment(), nickname)
+        manitoService.answerManitoLetter(manitoPostId, request, nickname)
     );
   }
 

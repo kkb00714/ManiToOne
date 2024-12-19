@@ -92,7 +92,7 @@ function togglesManito(element, responseType) {
   console.log(`isManito: ${isManito}`);
 }
 
-function togglesAIFeedback(element, responseType) {
+async function togglesAIFeedback(element, responseType) {
   const imgElement = element.querySelector("img");
   const currentSrc = imgElement.getAttribute("src");
 
@@ -104,12 +104,35 @@ function togglesAIFeedback(element, responseType) {
     element.style.opacity = "0.3";
     isFeedbackReq = false;
   } else {
-    imgElement.src = imgElement
+    // 여기서 서버통신으로 AI 피드백을 오늘 하루 3개 이상 받았는지 확인
+    // 서버 통신으로 AI 피드백 제한 확인
+    try {
+      const response = await fetch("/api/post/ai-feedback/count", { method: "GET" });
+      const isLimitExceeded = await response.json();
+      console.log(isLimitExceeded);
+
+      if (isLimitExceeded === null || isLimitExceeded === undefined) {
+        alert("AI 피드백 시스템을 현재 이용할 수 없습니다.");
+        return;
+      }
+
+      if (isLimitExceeded === true) {
+        // 제한 초과일 경우 알림 표시 및 토글 중단
+        alert("오늘은 더 이상 AI 피드백을 요청할 수 없습니다.");
+        return;
+      }
+
+      // 제한 초과가 아닌 경우, 체크 로직 실행
+      imgElement.src = imgElement
       .getAttribute("data-checked-src")
       .replace("@{", "")
       .replace("}", "");
-    element.style.opacity = "1";
-    isFeedbackReq = true;
+      element.style.opacity = "1";
+      isFeedbackReq = true;
+    } catch (error) {
+      console.error("서버 통신 오류:", error);
+      alert("AI 피드백 상태를 확인할 수 없습니다. 다시 시도해주세요.");
+    }
   }
 }
 

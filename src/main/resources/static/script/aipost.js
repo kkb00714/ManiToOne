@@ -21,19 +21,11 @@ document.addEventListener("DOMContentLoaded", function () {
   .then((data) => {
     if (data.content) {
       // AI 피드백 내용에서 줄바꿈 및 역슬래시 제거
-      const cleanedContent = data.content.replace(/\\n|\\/g, " ").trim();
-      aiFeedbackContent.textContent = cleanedContent;
-
+      aiFeedbackContent.textContent = data.content;
       // 음악 정보 처리
-      if (data.musicContent) {
-        const musicParts = data.musicContent.match(/\*\*(.*?)\*\*.*\((.*?)\)/);
-        if (musicParts) {
-          const artistSong = musicParts[1]; // 가수와 노래 제목
-          const link = musicParts[2]; // 링크만 추출
-
-          musicTitle.textContent = artistSong; // 제목 표시
-          musicLink.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
-        }
+      if (data.musicTitle != null) {
+          musicTitle.textContent = data.musicTitle; // 제목 표시
+          musicLink.innerHTML = `<a href="${data.musicLink}" target="_blank">${data.musicLink}</a>`;
       } else {
         // 음악 섹션 숨기기
         musicSection.style.display = "none";

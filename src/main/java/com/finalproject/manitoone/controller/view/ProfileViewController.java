@@ -24,6 +24,10 @@ public class ProfileViewController {
       return "redirect:/";
     model.addAttribute("isFollowed",
         followService.isFollowed((String) session.getAttribute("nickname"), nickname));
+    if (!session.getAttribute("nickname").equals(nickname)) {
+      model.addAttribute("isFollowing",
+          followService.isFollowed(nickname, (String) session.getAttribute("nickname")));
+    }
     model.addAttribute("nickname", session.getAttribute("nickname"));
     model.addAttribute("user", userService.getUserByNickname(nickname));
     return "pages/profile";

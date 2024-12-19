@@ -179,11 +179,16 @@ public class AlanUtil {
     // 피드백 내용 시작 인덱스 찾기
     int startIndex = content.indexOf("피드백:") + 4;
 
-    // 피드백 끝을 가장 마지막 '\n'으로 구분하여 가져오기
+    // 마지막 줄바꿈 위치 찾기 (Unix 스타일 '\n' 또는 Mac 스타일 '\r')
     int endIndex = content.lastIndexOf("\n");
+    if (endIndex == -1) { // \n이 없으면 \r을 확인
+      endIndex = content.lastIndexOf("\r");
+    }
 
     // 피드백만 추출 (피드백: 부분 제외)
-    return content.substring(startIndex, endIndex).trim();
+    return endIndex != -1
+        ? content.substring(startIndex, endIndex).trim()
+        : content.substring(startIndex).trim(); // 줄바꿈이 없으면 끝까지
   }
 
   public String getMusicTitle(String content) {

@@ -37,3 +37,8 @@
   line-height: 1.5;
   font-weight: bold;
 }
+
+.following-text {
+  margin: 0 auto;
+  font-size: 0.8rem
+}

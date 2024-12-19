@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const moreBtn = document.getElementById('more-options-btn');
   const tooltipMenu = document.getElementById('tooltip-menu');
   const logoutBtn = document.getElementById('logout-btn');
+  const cancelAccountBtn = document.getElementById('cancel-account-btn');
 
   // 툴팁 메뉴 토글
   moreBtn.addEventListener('click', function () {
@@ -76,6 +77,14 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error("로그아웃 요청 중 오류 발생:", error);
         alert("네트워크 오류로 로그아웃을 처리할 수 없습니다.");
       });
+    }
+  });
+
+  // 회원탈퇴 버튼 클릭 이벤트
+  cancelAccountBtn.addEventListener("click", function () {
+    const userConfirmed = confirm("정말 회원 탈퇴를 진행하시겠습니까?");
+    if (userConfirmed) {
+      window.location.href = "/cancel-account";
     }
   });
 });

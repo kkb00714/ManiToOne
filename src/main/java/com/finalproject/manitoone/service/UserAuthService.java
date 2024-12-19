@@ -86,8 +86,11 @@ public class UserAuthService {
   }
 
   @Transactional
-  public void deleteUser(String email, String password) {
-    User user = validateUserCredentials(email, password);
+  public void deleteUser(String loggedInEmail, String email, String password) {
+    User user = validateUserCredentials(loggedInEmail, password);
+    if(loggedInEmail.equals(email)){
+      throw new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage());
+    }
     user.setStatus(3);
   }
 

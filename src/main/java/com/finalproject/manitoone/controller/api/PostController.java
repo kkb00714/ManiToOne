@@ -1,32 +1,28 @@
 package com.finalproject.manitoone.controller.api;
 
 import com.finalproject.manitoone.domain.dto.AddPostRequestDto;
-import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.AiFeedbackDto;
 import com.finalproject.manitoone.domain.dto.PostResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
 import com.finalproject.manitoone.domain.dto.UpdatePostRequestDto;
 import com.finalproject.manitoone.dto.post.PostViewResponseDto;
+import com.finalproject.manitoone.service.AiFeedbackService;
 import com.finalproject.manitoone.service.PostService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostController {
 
   private final PostService postService;
+  private final AiFeedbackService aiFeedbackService;
 
   // 게시글 생성
   @PostMapping
@@ -58,7 +55,20 @@ public class PostController {
         .images(images)
         .build();
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(request, email));
+    PostResponseDto postResponseDto = postService.createPost(request, email);
+
+    // AI 피드백 요청 (비동기)
+    if (Boolean.TRUE.equals(isFeedbackReq)) {
+      aiFeedbackService.processFeedbackAsync(postResponseDto.getPostId(), postResponseDto.getContent());
+    }
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(postResponseDto);
+  }
+
+  // 오늘 하루 AI 피드백 개수 확인
+  @GetMapping("/ai-feedback/count")
+  public ResponseEntity<Object> checkDailyAiFeedbackCount(HttpServletRequest request) {
+    return ResponseEntity.ok(aiFeedbackService.isDailyAiFeedbackLimitExceeded(request.getSession()));
   }
 
   // 게시글 AI 피드백 받기

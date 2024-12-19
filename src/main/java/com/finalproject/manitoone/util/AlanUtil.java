@@ -170,4 +170,22 @@ public class AlanUtil {
     }
     return "없음";
   }
+
+  public String getFeedbackContent(String content) {
+    return content.substring(content.indexOf("피드백:") + 4, content.indexOf("유튜브 노래 추천:")).trim();
+  }
+
+  public String getMusicTitle(String content) {
+    // 가수와 제목 추출 (가장 마지막 [] 안의 내용)
+    int lastBracketStart = content.lastIndexOf("[");
+    int lastBracketEnd = content.lastIndexOf("]");
+    return content.substring(lastBracketStart + 1, lastBracketEnd);
+  }
+
+  public String getMusicLink(String content) {
+    // 링크 추출 (가장 마지막 () 안의 내용)
+    int lastParenthesisStart = content.lastIndexOf("(");
+    int lastParenthesisEnd = content.lastIndexOf(")");
+    return content.substring(lastParenthesisStart + 1, lastParenthesisEnd);
+  }
 }

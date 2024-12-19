@@ -43,6 +43,7 @@ public class AiFeedbackService {
           .content(AlanUtil.getFeedbackContent(latestLog.getAiContent()))
           .musicTitle(AlanUtil.getMusicTitle(latestLog.getAiContent()))
           .musicLink(AlanUtil.getMusicLink(latestLog.getAiContent()))
+          .postId(latestLog.getPost().getPostId())
           .build();
     }
     return AiPostLogResponseDto.builder().build();

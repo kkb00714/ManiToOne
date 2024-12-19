@@ -10,4 +10,5 @@ public class AiPostLogResponseDto {
   private String content;
   private String musicTitle;
   private String musicLink;
+  private Long postId;
 }

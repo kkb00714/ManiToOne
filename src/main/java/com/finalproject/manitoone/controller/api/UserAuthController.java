@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -98,9 +99,11 @@ public class UserAuthController {
   @DeleteMapping("/cancel-account")
   public ResponseEntity<String> deleteUser(
       @Valid
-      @RequestBody UserLoginRequestDto userLoginRequestDto
+      @RequestBody UserLoginRequestDto userLoginRequestDto,
+      HttpSession session
   ) {
-    userAuthService.deleteUser(userLoginRequestDto.getEmail(), userLoginRequestDto.getPassword());
+    String sessionEmail = (String) session.getAttribute("email");
+    userAuthService.deleteUser(sessionEmail, userLoginRequestDto.getEmail(), userLoginRequestDto.getPassword());
     return ResponseEntity.ok("회원 탈퇴 처리되었습니다.");
   }
 

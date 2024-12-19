@@ -2,7 +2,7 @@
   <div class="new-post-form">
     <img
         class="user-photo"
-        th:src="@{/images/icons/UI-user2.png}"
+        th:src="${session.profileImage}"
         alt="user icon"
     />
     <p id="openPostFormModalBtn">함께 나누고픈 감정이 있나요?</p>

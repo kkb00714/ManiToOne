@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.repository;
 
 import com.finalproject.manitoone.domain.Post;
+import com.finalproject.manitoone.domain.User;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -84,4 +85,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
       @Param("recentPeriod") LocalDateTime recentPeriod
   );
 
+  // 특정 User가 오늘 작성한 AI 포스트 로그가 있는 Post 개수 조회
+  @Query("SELECT COUNT(p) FROM Post p WHERE p.user = :user AND p.createdAt BETWEEN :start AND :end AND EXISTS (SELECT 1 FROM AiPostLog a WHERE a.post = p)")
+  long countByUserAndCreatedAtBetweenAndAiPostLogsExists(
+      @Param("user") User user,
+      @Param("start") LocalDateTime start,
+      @Param("end") LocalDateTime end
+  );
 }

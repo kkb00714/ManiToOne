@@ -26,7 +26,7 @@ public class WebViewController {
     Boolean isNewUser = (Boolean) session.getAttribute("isNewUser");
 
     if (Boolean.TRUE.equals(isNewUser)) {
-      return "/pages/auth/additional-info";
+      return "pages/auth/additional-info";
     }
 
     String nickname = (String) session.getAttribute("nickname");

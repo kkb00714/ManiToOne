@@ -40,7 +40,7 @@ public class User implements OAuth2User {
   @Column(name = "password", nullable = false, length = 200)
   private String password;
 
-  @Column(name = "name", nullable = false, length = 10)
+  @Column(name = "name", nullable = false, length = 31)
   private String name;
 
   @Column(name = "nickname", nullable = false, length = 10, unique = true)

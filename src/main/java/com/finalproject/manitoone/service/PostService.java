@@ -473,7 +473,7 @@ public class PostService {
         .stream()
         .map(userPostLike -> new PostViewResponseDto(
             userPostLike.getPost().getPostId(),
-            userPostLike.getUser().getProfileImage(),
+            userPostLike.getPost().getUser().getProfileImage(),
             userPostLike.getPost().getUser().getNickname(),
             userPostLike.getPost().getContent(),
             userPostLike.getPost().getCreatedAt(),

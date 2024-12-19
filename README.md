@@ -9,7 +9,7 @@
 
 |[김근아<br/>(조장 및 발표)](https://github.com/listoria)|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[위영석](https://github.com/WeeYoungSeok)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[김경빈](https://github.com/kkb00714)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[전원용](https://github.com/sqrt3)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[장윤종](https://github.com/yoonjong-j)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
 |---|---|---|---|---|
-|프론트 HTML, CSS, JS<br/>타임라인 조회<br/>마니또 편지 답장 CRUD<br/>편지, 답장 신고<br>마니또 매칭|관리자 페이지</br>및 유저 관리<br/></br>알림 서비스|유저 CRUD</br>OAuth2 ( Google )|프로필 페이지</br>(내 프로필, 타 유저)<br/></br>유저 팔로우<br/></br>게시물 목록, </br>좋아요 한 게시물 </br>목록 가져오기|게시물 CRUD</br>게시물 좋아요 기능</br>게시물 숨기기 기능</br>답글 CRUD</br>답글 신고</br>답글 숨기기|
+|프론트 HTML, CSS, JS<br/>타임라인 조회<br/>마니또 편지 답장 CRUD<br/>편지, 답장 신고<br>마니또 매칭|관리자 페이지</br>및 유저 관리<br/></br>알림 서비스 </br>(소켓)</br>Spring Security|유저 CRUD</br>OAuth2 ( Google )</br></br>회원 가입 및 </br>이메일 인증</br></br>로컬 로그인|프로필 페이지</br>(내 프로필, 타 유저)<br/></br>유저 팔로우<br/></br>게시물 목록, </br>좋아요 한 게시물 </br>목록 가져오기|게시물 CRUD</br>게시물 좋아요 기능</br>게시물 숨기기 기능</br>답글 CRUD</br>답글 신고</br>답글 숨기기|
 
 ## 사용된 기술 스택
 ### Backend
@@ -42,10 +42,10 @@
     사용자가 올린 **게시글**에 대해 AI가 1차적으로 분석하여 감정에 따라 적절한 노래 추천이나 위로의 글귀를 댓글이나 알림으로 제공함으로써, 더 따뜻한 소통이 이루어질 수 있도록 지원합니다.
     
 2. **마니또 게시글 기능**
-    - 사용자가 작성한 **게시글을** '마니또 **게시글** '로 지정하면 해당 **게시글이** 랜덤한 유저에게 전송됩니다.
-    - 부적절한 **게시글을** 걸러내기 위해 글자 수 제한 및 AI 검증 과정을 거친 뒤 전송됩니다.
-    - 마니또 **게시글을** 받은 유저는 편지(답글)를 보낼 수 있으며, 이 편지 또한 AI 검증을 거쳐 마니또 **게시글** 작성자에게 전달됩니다.
-    - 마니또 편지는 익명성을 유지하며, **게시글** 주인이 선택적으로 자신의 SNS에 공개할 수 있습니다.
+    - 사용자가 **게시글**을 작성할 때 마니또 **게시글**로 지정하면, 마니또 매칭을 요청한 유저에게 **게시글**이 랜덤으로 배정됩니다.
+    - 부적절한 **게시글** 걸러내기 위해 작성시 글자수 제한, 배정시 AI 검증 과정을 거친 뒤 전송됩니다.
+    - 마니또 **게시글**을 받은 유저는 편지(답글)를 보낼 수 있으며, 마니또 **게시글** 작성자에게 전달됩니다.
+    - 마니또 편지는 익명성을 유지하며, **게시글** 주인이 선택적으로 자신의 해당 게시물 아래에 공개할 수 있습니다.
 
 본 SNS 플랫폼은 단순한 **게시글** 업로드를 넘어 사용자 간 1:1 소통과 피드백을 유도함으로써 소통의 의무감을 부여하고, 보다 따뜻한 온라인 커뮤니티 문화를 조성하는 데 기여하고자 합니다.
 
@@ -249,14 +249,6 @@
 | passManitoMatch | PUT | /api/manito/pass/{matitoMatchesId} | 매칭된 마니또 패스 |
 
 </details>
-
----
-
-<details><summary>프로젝트 구조도 보기
-</summary>
-
-</details>
-
 
 ---
 ## ERD

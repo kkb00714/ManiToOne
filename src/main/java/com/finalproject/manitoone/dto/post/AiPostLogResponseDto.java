@@ -8,5 +8,6 @@ import lombok.Getter;
 public class AiPostLogResponseDto {
 
   private String content;
-  private String musicContent;
+  private String musicTitle;
+  private String musicLink;
 }

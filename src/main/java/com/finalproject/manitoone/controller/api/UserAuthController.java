@@ -99,10 +99,11 @@ public class UserAuthController {
   @DeleteMapping("/cancel-account")
   public ResponseEntity<String> deleteUser(
       @Valid
-      @RequestBody UserLoginRequestDto userLoginRequestDto
+      @RequestBody UserLoginRequestDto userLoginRequestDto,
+      HttpSession session
   ) {
-    String loggedInEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-    userAuthService.deleteUser(loggedInEmail, userLoginRequestDto.getEmail(), userLoginRequestDto.getPassword());
+    String sessionEmail = (String) session.getAttribute("email");
+    userAuthService.deleteUser(sessionEmail, userLoginRequestDto.getEmail(), userLoginRequestDto.getPassword());
     return ResponseEntity.ok("회원 탈퇴 처리되었습니다.");
   }
 

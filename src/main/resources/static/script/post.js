@@ -1,52 +1,58 @@
 // 게시글 좋아요
-async function likePost(postId) {
+function likePost(postId) {
   const likeCount = document.querySelector("#post-like-count");
 
   console.log("Post ID: ", postId);
 
-  try {
-    const response = await fetch(`/api/post/like/${postId}`, {
+  if (postId) {
+    fetch(`/api/post/like/${postId}`, {
       method: "POST",
+    }).then(response => {
+      if (response.status === 200) {
+        if (likeCount) {
+          fetch('/api/post/like/number/' + postId)
+          .then(response => response.text())
+          .then(countText => {
+            const currentLikes = parseInt(countText, 10);
+            likeCount.textContent = currentLikes;
+          })
+          .catch(error => {
+            console.error('Error fetching like count:', error);
+          });
+        }
+      }
+    }).catch(error => {
+      console.error('Error fetching like count:', error);
     });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert("해당 게시글에 좋아요를 누르셨습니다.");
-      likeCount.textContent = data.likesNumber;
-    } else {
-      alert("좋아요 요청에 실패하셨습니다.");
-    }
-  } catch (error) {
-    console.error("좋아요 요청 오류: ", error);
-    alert("좋아요 요청 중 오류가 발생했습니다.");
   }
 }
 
 // 답글 좋아요
-async function likeReply(replyId) {
+function likeReply(replyId) {
   const likeCount = document.querySelector("#reply-like-count");
 
   console.log("Reply ID: ", replyId);
 
-  try {
-    const response = await fetch(`/api/reply/like/${replyId}`, {
+  if (replyId) {
+    fetch(`/api/reply/like/${replyId}`, {
       method: "POST",
+    }).then(response => {
+      if (response.status === 200) {
+        if (likeCount) {
+          fetch('/api/reply/like/number/' + replyId)
+          .then(response => response.text())
+          .then(countText => {
+            const currentLikes = parseInt(countText, 10);
+            likeCount.textContent = currentLikes;
+          })
+          .catch(error => {
+            console.error('Error fetching like count:', error);
+          });
+        }
+      }
+    }).catch(error => {
+      console.error('Error fetching like count:', error);
     });
-
-    const data = await response.json();
-
-    console.log("Response: ", data.likesNumber);
-
-    if (response.ok) {
-      alert("해당 댓글에 좋아요를 누르셨습니다.");
-      likeCount.textContent = data.likesNumber;
-    } else {
-      alert("좋아요 요청에 실패하셨습니다.");
-    }
-  } catch (error) {
-    console.error("좋아요 요청 오류: ", error);
-    alert("좋아요 요청 중 오류가 발생했습니다.");
   }
 }
 
@@ -498,7 +504,7 @@ async function onUpdatePostSubmit(postId, uploadedImagesNum) {
   console.log("Content: ", content);
   console.log("Uploaded Images Number: ", uploadedImagesNum);
 
-  if (uploadedImagesNum >= 4 || images.length > 4 || (uploadedImagesNum + images.length) > 4) {
+  if (images.length > 4 || (uploadedImagesNum + images.length) > 4) {
     alert("이미지는 최대 4장까지만 업로드 가능합니다.");
     return;
   }

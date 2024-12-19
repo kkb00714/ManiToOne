@@ -134,8 +134,7 @@ public class PostService {
     int uploadedImagesNum = getImages(post.getPostId()).size();
     int toUploadImagesNum = request.getImages().length;
 
-    if (uploadedImagesNum >= 4 || toUploadImagesNum > 4
-        || (uploadedImagesNum + toUploadImagesNum) > 4) {
+    if (toUploadImagesNum > 4 || (uploadedImagesNum + toUploadImagesNum) > 4) {
       throw new IllegalArgumentException(IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage());
     }
 

@@ -530,6 +530,8 @@ function addHidePostEventListener() {
         .then(response => {
           if (response.ok) {
             alert('게시글 숨기기 토글이 완료되었습니다.');
+            const postContainer = button.closest('.post-container');
+            postContainer.remove();
           } else {
             alert('게시글 숨기기 토글에 실패했습니다.');
           }

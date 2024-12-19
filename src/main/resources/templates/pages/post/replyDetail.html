@@ -43,7 +43,7 @@
                   ></span>
                   <span
                     class="passed-time"
-                    th:text="${post.updatedAt != null ? #strings.concat(#temporals.format(post.updatedAt, 'mm'), '분') : #strings.concat(#temporals.format(post.createdAt, 'mm'), '분')}"
+                    th:text="${post.updatedAt != null ? #strings.concat(post.updatedDiff, '분 (수정)') : #strings.concat(post.createdDiff, '분')}"
                   ></span>
                 </div>
                 <p
@@ -60,7 +60,7 @@
                 </div>
                 <p
                   class="post-time"
-                  th:text="${post.updatedAt != null ? #temporals.format(post.updatedAt, 'yyyy년 MM월 dd일 a hh시 mm분') : #temporals.format(post.createdAt, 'yyyy년 MM월 dd일 a hh시 mm분')}"
+                  th:text="${post.updatedAt != null ? #temporals.format(post.updatedAt, 'yyyy년 MM월 dd일 a hh시 mm분 (수정)') : #temporals.format(post.createdAt, 'yyyy년 MM월 dd일 a hh시 mm분')}"
                 ></p>
                 <div class="reaction-icons">
                   <img
@@ -298,7 +298,7 @@
                   ></span>
                   <span
                     class="passed-time"
-                    th:text="${#temporals.format(reply.createdAt, 'mm분')}"
+                    th:text="${reply.createdDiff}"
                   ></span>
                 </div>
                 <p
@@ -571,7 +571,7 @@
                   ></span>
                   <span
                     class="passed-time"
-                    th:text="${#temporals.format(rereply.createdAt, 'mm분')}"
+                    th:text="${rereply.createdDiff}"
                   ></span>
                 </div>
                 <p

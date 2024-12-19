@@ -35,6 +35,7 @@ import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import com.finalproject.manitoone.util.FileUtil;
+import com.finalproject.manitoone.util.TimeFormatter;
 import jakarta.transaction.Transactional;
 import java.nio.file.Paths;
 import com.finalproject.manitoone.util.NotificationUtil;
@@ -104,6 +105,7 @@ public class PostService {
         .createdAt(post.getCreatedAt())
         .updatedAt(post.getUpdatedAt())
         .isManito(post.getIsManito())
+        .createdDiff(TimeFormatter.formatTimeDiff(post.getCreatedAt()))
         .build();
   }
 
@@ -181,6 +183,8 @@ public class PostService {
         post.getContent(),
         post.getCreatedAt(),
         post.getUpdatedAt(),
+        TimeFormatter.formatTimeDiff(post.getCreatedAt()),
+        TimeFormatter.formatTimeDiff(post.getUpdatedAt()),
         post.getIsManito(),
         getPostLikesNum(post.getPostId())
     ));
@@ -199,6 +203,8 @@ public class PostService {
         post.getContent(),
         post.getCreatedAt(),
         post.getUpdatedAt(),
+        TimeFormatter.formatTimeDiff(post.getCreatedAt()),
+        TimeFormatter.formatTimeDiff(post.getUpdatedAt()),
         post.getIsManito(),
         getPostLikesNum(post.getPostId())
     );

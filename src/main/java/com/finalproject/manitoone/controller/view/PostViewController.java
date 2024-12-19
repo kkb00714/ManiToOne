@@ -51,7 +51,7 @@ public class PostViewController {
     String nickname = (String) session.getAttribute("nickname");
     model.addAttribute("currentUser", userService.getCurrentUser(nickname));
     model.addAttribute("followings", userService.getUserByNickname(nickname).getFollowings());
-    model.addAttribute("post", reply.getPost());
+    model.addAttribute("post", postService.getPostDetail(reply.getPost().getPostId()));
     model.addAttribute("postImages", postService.getImages(reply.getPost().getPostId()));
     model.addAttribute("postImagesNum", postService.getImages(reply.getPost().getPostId()).size());
     model.addAttribute("postLikesNum", postService.getPostLikesNum(reply.getPost().getPostId()));

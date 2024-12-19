@@ -20,7 +20,9 @@ import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.NotificationUtil;
+import com.finalproject.manitoone.util.TimeFormatter;
 import java.io.IOException;
+import java.sql.Time;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -263,6 +265,7 @@ public class ReplyService {
         reply.getReplyPostId(),
         reply.getContent(),
         reply.getCreatedAt(),
+        TimeFormatter.formatTimeDiff(reply.getCreatedAt()),
         reply.getIsBlind(),
         getReRepliesNum(reply.getReplyPostId()),
         getReplyLikesNum(reply.getReplyPostId())
@@ -294,6 +297,7 @@ public class ReplyService {
         .replyPostId(reply.getReplyPostId())
         .content(reply.getContent())
         .createdAt(reply.getCreatedAt())
+        .createdDiff(TimeFormatter.formatTimeDiff(reply.getCreatedAt()))
         .isBlind(reply.getIsBlind())
         .rerepliesNumber(getReRepliesNum(reply.getReplyPostId()))
         .likesNumber(getReplyLikesNum(reply.getReplyPostId()))
@@ -316,6 +320,7 @@ public class ReplyService {
         rereply.getReplyPostId(),
         rereply.getContent(),
         rereply.getCreatedAt(),
+        TimeFormatter.formatTimeDiff(rereply.getCreatedAt()),
         rereply.getIsBlind(),
         getReRepliesNum(rereply.getReplyPostId()),
         getReplyLikesNum(rereply.getReplyPostId())

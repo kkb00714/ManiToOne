@@ -30,4 +30,8 @@ public class UserInformationResponseDto {
     this.introduce = introduce;
     this.profileImage = profileImage;
   }
+
+  public UserInformationResponseDto(String nickname) {
+    this.nickname = nickname;
+  }
 }

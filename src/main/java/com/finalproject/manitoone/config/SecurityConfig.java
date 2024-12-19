@@ -57,7 +57,7 @@ public class SecurityConfig {
 
                 // 익명 사용자 전용 페이지 접근 제어
                 .requestMatchers("/login", "/register", "/register-info", "/additional-info",
-                    "/find-password", "/find-password-confirm")
+                    "/find-password", "/find-password-confirm","/api/signup")
                 .anonymous()
 
                 // 인증된 사용자 페이지 접근 제어

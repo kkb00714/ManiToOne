@@ -2,8 +2,6 @@
 async function likePost(postId) {
   const likeCount = document.querySelector("#post-like-count");
 
-  console.log("Post ID: ", postId);
-
   try {
     const response = await fetch(`/api/post/like/${postId}`, {
       method: "POST",
@@ -27,16 +25,12 @@ async function likePost(postId) {
 async function likeReply(replyId) {
   const likeCount = document.querySelector("#reply-like-count");
 
-  console.log("Reply ID: ", replyId);
-
   try {
     const response = await fetch(`/api/reply/like/${replyId}`, {
       method: "POST",
     });
 
     const data = await response.json();
-
-    console.log("Response: ", data.likesNumber);
 
     if (response.ok) {
       alert("해당 댓글에 좋아요를 누르셨습니다.");
@@ -88,11 +82,9 @@ function togglesManito(element, responseType) {
     element.style.opacity = "1";
     isManito = true;
   }
-
-  console.log(`isManito: ${isManito}`);
 }
 
-function togglesAIFeedback(element, responseType) {
+async function togglesAIFeedback(element, responseType) {
   const imgElement = element.querySelector("img");
   const currentSrc = imgElement.getAttribute("src");
 
@@ -104,12 +96,34 @@ function togglesAIFeedback(element, responseType) {
     element.style.opacity = "0.3";
     isFeedbackReq = false;
   } else {
-    imgElement.src = imgElement
+    // 여기서 서버통신으로 AI 피드백을 오늘 하루 3개 이상 받았는지 확인
+    // 서버 통신으로 AI 피드백 제한 확인
+    try {
+      const response = await fetch("/api/post/ai-feedback/count", { method: "GET" });
+      const isLimitExceeded = await response.json();
+
+      if (isLimitExceeded === null || isLimitExceeded === undefined) {
+        alert("AI 피드백 시스템을 현재 이용할 수 없습니다.");
+        return;
+      }
+
+      if (isLimitExceeded === true) {
+        // 제한 초과일 경우 알림 표시 및 토글 중단
+        alert("오늘은 더 이상 AI 피드백을 요청할 수 없습니다.");
+        return;
+      }
+
+      // 제한 초과가 아닌 경우, 체크 로직 실행
+      imgElement.src = imgElement
       .getAttribute("data-checked-src")
       .replace("@{", "")
       .replace("}", "");
-    element.style.opacity = "1";
-    isFeedbackReq = true;
+      element.style.opacity = "1";
+      isFeedbackReq = true;
+    } catch (error) {
+      console.error("서버 통신 오류:", error);
+      alert("AI 피드백 상태를 확인할 수 없습니다. 다시 시도해주세요.");
+    }
   }
 }
 
@@ -136,19 +150,14 @@ async function onPostSubmit() {
     return;
   }
 
-  console.log("content: ", content);
-
   if (images.length > 4) {
     alert("이미지는 최대 4장까지만 업로드 가능합니다.");
     return;
   }
 
-  console.log("images: ", images);
-
   let url = `${baseUrl}?content=${encodeURIComponent(content)}&isManito=${
     isManito ? "true" : "false"
   }&isFeedbackReq=${isFeedbackReq ? "true" : "false"}`;
-  console.log(url);
 
   const formData = new FormData();
   for (let i = 0; i < images.length; i++) {
@@ -169,7 +178,6 @@ async function onPostSubmit() {
     }
   } catch (error) {
     alert("게시글 작성 중 오류가 발생했습니다.");
-    console.log("게시글 작성 오류: ", error);
   }
 }
 
@@ -188,7 +196,6 @@ async function getFeedback() {
     return;
   }
 
-  console.log("Content: ", content);
 
   const url = `/api/post/ai-feedback?content=${encodeURIComponent(content)}`;
 
@@ -208,7 +215,6 @@ async function getFeedback() {
     displayText.value = `AI: ${data.feedback}`;
   } catch (error) {
     alert("AI 피드백 받는 도중에 오류가 발생했습니다.");
-    console.log("AI 피드백 오류: ", error);
   }
 }
 
@@ -494,11 +500,7 @@ async function onUpdatePostSubmit(postId) {
     return;
   }
 
-  console.log("Content: ", content);
-
   const url = `/api/post/${postId}?content=${encodeURIComponent(content)}`;
-
-  console.log("URL: ", url);
 
   try {
     const response = await fetch(url, {
@@ -513,7 +515,6 @@ async function onUpdatePostSubmit(postId) {
     }
   } catch (error) {
     alert("게시글 수정 중 오류가 발생했습니다.");
-    console.log("게시글 수정 에러: ", error);
   }
 }
 
@@ -526,11 +527,7 @@ async function onUpdateReplySubmit(replyId) {
     return;
   }
 
-  console.log("Content: ", content);
-
   const url = `/api/reply/${replyId}?content=${encodeURIComponent(content)}`;
-
-  console.log("URL: ", url);
 
   try {
     const response = await fetch(url, {
@@ -545,7 +542,6 @@ async function onUpdateReplySubmit(replyId) {
     }
   } catch (error) {
     alert("답글 수정 중 오류가 발생했습니다.");
-    console.log("답글 수정 오류: ", error);
   }
 }
 
@@ -560,11 +556,7 @@ async function onUpdateRereplySubmit(replyId) {
     return;
   }
 
-  console.log("Content: ", content);
-
   const url = `/api/reply/${replyId}?content=${encodeURIComponent(content)}`;
-
-  console.log("URL: ", url);
 
   try {
     const response = await fetch(url, {
@@ -579,7 +571,6 @@ async function onUpdateRereplySubmit(replyId) {
     }
   } catch (error) {
     alert("답글 수정 중 오류가 발생했습니다.");
-    console.log("답글 수정 오류: ", error);
   }
 }
 
@@ -623,11 +614,7 @@ async function onNewReplySubmit(postId) {
     return;
   }
 
-  console.log("Content: ", content);
-
   const url = `/api/reply/${postId}?content=${encodeURIComponent(content)}`;
-
-  console.log("URL: ", url);
 
   try {
     const response = await fetch(url, {
@@ -642,7 +629,6 @@ async function onNewReplySubmit(postId) {
     }
   } catch (error) {
     alert("답글 작성 중 오류가 발생했습니다.");
-    console.log("답글 작성 오류: ", error);
   }
 }
 
@@ -668,11 +654,7 @@ async function onNewRereplySubmit(replyId) {
     return;
   }
 
-  console.log("Content: ", content);
-
   const url = `/api/rereply/${replyId}?content=${encodeURIComponent(content)}`;
-
-  console.log("URL: ", url);
 
   try {
     const response = await fetch(url, {
@@ -687,7 +669,6 @@ async function onNewRereplySubmit(replyId) {
     }
   } catch (error) {
     alert("답글 작성 중 오류가 발생했습니다.");
-    console.log("답글 작성 오류: ", error);
   }
 }
 

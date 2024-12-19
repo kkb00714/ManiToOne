@@ -43,7 +43,7 @@
                   ></span>
                   <span
                     class="passed-time"
-                    th:text="${post.updatedAt != null ? #strings.concat(post.updatedDiff, '분 (수정)') : #strings.concat(post.createdDiff, '분')}"
+                    th:text="${post.updatedDiff != post.createdDiff ? #strings.concat(post.updatedDiff, ' (수정)') : post.createdDiff}"
                   ></span>
                 </div>
                 <p
@@ -60,7 +60,7 @@
                 </div>
                 <p
                   class="post-time"
-                  th:text="${post.updatedAt != null ? #temporals.format(post.updatedAt, 'yyyy년 MM월 dd일 a hh시 mm분 (수정)') : #temporals.format(post.createdAt, 'yyyy년 MM월 dd일 a hh시 mm분')}"
+                  th:text="${post.updatedAt != post.createdAt ? #strings.concat(post.updatedAt, ' (수정)') : post.createdAt}"
                 ></p>
                 <div class="reaction-icons">
                   <img
@@ -590,15 +590,15 @@
                     class="like-count"
                     th:text="${rereply.likesNumber}"
                   ></span>
-                  <img
-                    class="tiny-icons"
-                    th:src="@{/images/icons/icon-comment2.png}"
-                    alt="add reply"
-                  />
-                  <span
-                    class="reply-count"
-                    th:text="${rereply.rerepliesNumber}"
-                  ></span>
+<!--                  <img-->
+<!--                    class="tiny-icons"-->
+<!--                    th:src="@{/images/icons/icon-comment2.png}"-->
+<!--                    alt="add reply"-->
+<!--                  />-->
+<!--                  <span-->
+<!--                    class="reply-count"-->
+<!--                    th:text="${rereply.rerepliesNumber}"-->
+<!--                  ></span>-->
                 </div>
               </div>
               <div class="option-icons">

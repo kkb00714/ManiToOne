@@ -102,8 +102,7 @@ public class PostService {
     return PostResponseDto.builder()
         .postId(post.getPostId())
         .content(post.getContent())
-        .createdAt(post.getCreatedAt())
-        .updatedAt(post.getUpdatedAt())
+        .createdAt(TimeFormatter.formatDateTime(post.getCreatedAt()))
         .isManito(post.getIsManito())
         .createdDiff(TimeFormatter.formatTimeDiff(post.getCreatedAt()))
         .build();
@@ -164,8 +163,8 @@ public class PostService {
         .postId(updatedPost.getPostId())
         .user(updatedPost.getUser())
         .content(updatedPost.getContent())
-        .createdAt(updatedPost.getCreatedAt())
-        .updatedAt(updatedPost.getUpdatedAt())
+        .createdAt(TimeFormatter.formatDateTime(updatedPost.getCreatedAt()))
+        .updatedAt(TimeFormatter.formatDateTime(updatedPost.getUpdatedAt()))
         .isManito(updatedPost.getIsManito())
         .build();
   }
@@ -181,8 +180,8 @@ public class PostService {
         post.getPostId(),
         post.getUser(),
         post.getContent(),
-        post.getCreatedAt(),
-        post.getUpdatedAt(),
+        TimeFormatter.formatDateTime(post.getCreatedAt()),
+        TimeFormatter.formatDateTime(post.getUpdatedAt()),
         TimeFormatter.formatTimeDiff(post.getCreatedAt()),
         TimeFormatter.formatTimeDiff(post.getUpdatedAt()),
         post.getIsManito(),
@@ -201,10 +200,10 @@ public class PostService {
         post.getPostId(),
         post.getUser(),
         post.getContent(),
-        post.getCreatedAt(),
-        post.getUpdatedAt(),
+        TimeFormatter.formatDateTime(post.getCreatedAt()),
+        TimeFormatter.formatDateTime(post.getUpdatedAt() == null ? post.getCreatedAt() : post.getUpdatedAt()),
         TimeFormatter.formatTimeDiff(post.getCreatedAt()),
-        TimeFormatter.formatTimeDiff(post.getUpdatedAt()),
+        TimeFormatter.formatTimeDiff(post.getUpdatedAt() ==  null ? post.getCreatedAt() : post.getUpdatedAt()),
         post.getIsManito(),
         getPostLikesNum(post.getPostId())
     );

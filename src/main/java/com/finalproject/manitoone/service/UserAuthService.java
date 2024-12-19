@@ -6,12 +6,13 @@ import com.finalproject.manitoone.domain.dto.UserLoginResponseDto;
 import com.finalproject.manitoone.domain.dto.UserSignUpDTO;
 import com.finalproject.manitoone.domain.dto.UserUpdateDto;
 import com.finalproject.manitoone.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
@@ -21,6 +22,7 @@ public class UserAuthService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final MailService mailService;
+  private final HttpServletRequest request;
 
   @Transactional
   public void registerUser(UserSignUpDTO userSignUpDTO) {
@@ -86,12 +88,17 @@ public class UserAuthService {
   }
 
   @Transactional
-  public void deleteUser(String loggedInEmail, String email, String password) {
-    User user = validateUserCredentials(loggedInEmail, password);
-    if(loggedInEmail.equals(email)){
-      throw new IllegalArgumentException(IllegalActionMessages.USER_NOT_FOUND.getMessage());
+  public void deleteUser(String sessionEmail, String email, String password) {
+    if (!sessionEmail.equals(email)) {
+      throw new IllegalArgumentException("탈퇴는 자기 자신만 가능합니다.");
     }
+
+    User user = validateUserCredentials(sessionEmail, password);
+
     user.setStatus(3);
+
+    HttpSession session = request.getSession(false);
+    session.invalidate();
   }
 
   public String isEmailExist(String email) {
@@ -113,7 +120,8 @@ public class UserAuthService {
 
     if (updateDto.getNickname() != null && !user.getNickname().equals(updateDto.getNickname())) {
       if (userRepository.existsByNickname(updateDto.getNickname())) {
-        throw new IllegalArgumentException(IllegalActionMessages.NICKNAME_ALREADY_IN_USE.getMessage());
+        throw new IllegalArgumentException(
+            IllegalActionMessages.NICKNAME_ALREADY_IN_USE.getMessage());
       }
       user.setNickname(updateDto.getNickname());
     }

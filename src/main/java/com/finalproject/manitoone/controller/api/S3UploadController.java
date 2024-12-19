@@ -32,7 +32,7 @@ public class S3UploadController {
   @PostMapping("/update-profile-image")
   public ResponseEntity<String> updateProfileImage(
       HttpServletRequest request,
-      @RequestParam("file") MultipartFile file) {
+      @RequestParam(value = "file", required = false) MultipartFile file) {
     try {
       HttpSession session = request.getSession(false);
       if (session == null || session.getAttribute("email") == null) {

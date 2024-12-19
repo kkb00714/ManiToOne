@@ -4,6 +4,7 @@ import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.domain.ManitoLetter;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.User;
+import com.finalproject.manitoone.dto.manito.ManitoAnswerRequestDto;
 import com.finalproject.manitoone.dto.manito.ManitoLetterRequestDto;
 import com.finalproject.manitoone.dto.manito.ManitoLetterResponseDto;
 import com.finalproject.manitoone.dto.manito.ManitoPageResponseDto;
@@ -172,13 +173,13 @@ public class ManitoService {
   }
 
   // 편지에 답장
-  public ManitoLetterResponseDto answerManitoLetter(Long manitoLetterId, String answerLetter,
+  public ManitoLetterResponseDto answerManitoLetter(Long manitoLetterId, ManitoAnswerRequestDto requestDto,
       String userNickname) {
     ManitoLetter manitoLetter = manitoLetterRepository.findById(manitoLetterId)
         .orElseThrow(() -> new EntityNotFoundException(
             ManitoErrorMessages.MANITO_LETTER_NOT_FOUND.getMessage()));
 
-    manitoLetter.addAnswer(answerLetter, userNickname);
+    manitoLetter.addAnswer(requestDto.getSanitizedAnswerComment(), userNickname);
 
     try {
       notificationUtil.createNotification(manitoLetter.getLetterWriter().getNickname(),

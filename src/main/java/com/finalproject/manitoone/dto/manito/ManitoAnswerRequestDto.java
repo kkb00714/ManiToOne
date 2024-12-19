@@ -17,4 +17,19 @@ public class ManitoAnswerRequestDto {
   @NotBlank
   @Size(min = 1, max = 500)
   private String answerComment;
+
+  private String sanitizeText(String text) {
+    if (text == null || text.trim().isEmpty()) {
+      return "";
+    }
+    return text.replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("&", "&amp;")
+        .replace("\"", "&quot;")
+        .replace("'", "&#x27;");
+  }
+
+  public String getSanitizedAnswerComment() {
+    return sanitizeText(answerComment);
+  }
 }

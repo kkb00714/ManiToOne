@@ -4,7 +4,6 @@ import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.MatchProcessStatus;
 import com.finalproject.manitoone.repository.MatchProcessStatusRepository;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class AsyncMatchService {
+
   private final ManitoMatchesService manitoMatchesService;
   private final MatchProcessStatusRepository statusRepository;
   private static final Object lock = new Object();
@@ -23,7 +23,7 @@ public class AsyncMatchService {
   @Async
   @Transactional
   public CompletableFuture<ManitoMatches> processMatchAsync(String nickname) {
-    synchronized(lock) {
+    synchronized (lock) {
       try {
         if (hasActiveProcess(nickname)) {
           log.info("Active match process exists for user: {}", nickname);

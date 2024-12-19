@@ -7,3 +7,11 @@
   padding-top: 20px;
   padding-bottom: 20px;
 }
+
+.clover-icon {
+  opacity: 75%;
+  height: 3rem;
+  width: 3rem;
+  border-radius: 50%;
+  object-fit: cover;
+}

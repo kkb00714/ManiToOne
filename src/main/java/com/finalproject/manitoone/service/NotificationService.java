@@ -1,6 +1,7 @@
 package com.finalproject.manitoone.service;
 
 import com.finalproject.manitoone.constants.IllegalActionMessages;
+import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.dto.NotificationResponseDto;
@@ -43,21 +44,34 @@ public class NotificationService {
 
     return notificationRepository.findByUserAndCreatedAtAfterOrderByCreatedAtDesc(user,
             thirtyDaysAgo).stream()
-        .map(notification -> NotificationResponseDto.builder()
-            .notiId(notification.getNotiId())
-            .relatedObjectId(notification.getRelatedObjectId())
-            .isRead(notification.getIsRead())
-            .createdAt(notification.getCreatedAt())
-            .user(new UserInformationResponseDto(user.getName(), user.getNickname(),
-                user.getIntroduce(), user.getProfileImage()))
-            .senderUser(new UserInformationResponseDto(notification.getSenderUser().getName(),
+        .map(notification -> {
+          // 특정 타입이면 senderUser를 null로 설정
+          UserInformationResponseDto senderUser = null;
+          if (notification.getType() != NotiType.RECEIVE_MANITO &&
+              notification.getType() != NotiType.MANITO_LETTER &&
+              notification.getType() != NotiType.MANITO_ANSWER_LETTER) {
+            senderUser = new UserInformationResponseDto(
+                notification.getSenderUser().getName(),
                 notification.getSenderUser().getNickname(),
                 notification.getSenderUser().getIntroduce(),
-                notification.getSenderUser().getProfileImage()))
-            .timeDifference(dataUtil.getTimeDifference(notification.getCreatedAt()))
-            .type(notification.getType())
-            .content(notification.getType().getMessage(notification.getSenderUser().getNickname()))
-            .build())
+                notification.getSenderUser().getProfileImage()
+            );
+          }
+
+          return NotificationResponseDto.builder()
+              .notiId(notification.getNotiId())
+              .relatedObjectId(notification.getRelatedObjectId())
+              .isRead(notification.getIsRead())
+              .createdAt(notification.getCreatedAt())
+              .user(new UserInformationResponseDto(user.getName(), user.getNickname(),
+                  user.getIntroduce(), user.getProfileImage()))
+              .senderUser(senderUser)
+              .timeDifference(dataUtil.getTimeDifference(notification.getCreatedAt()))
+              .type(notification.getType())
+              .content(
+                  notification.getType().getMessage(notification.getSenderUser().getNickname()))
+              .build();
+        })
         .toList();
   }
 
@@ -99,5 +113,31 @@ public class NotificationService {
 
   public boolean hasUnreadNotifications(String email) {
     return notificationRepository.existsByUserEmailAndIsRead(email, false);
+  }
+
+  public NotificationResponseDto getNotifications(Long notiId, HttpSession session) {
+    if (session == null || session.getAttribute("email") == null) {
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
+    }
+
+    Notification notification = notificationRepository.findById(notiId).orElseThrow(
+        () -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_NOTIFICATION.getMessage()));
+
+    if (!notification.getUser().getEmail().equals(session.getAttribute("email"))) {
+      throw new IllegalArgumentException(IllegalActionMessages.UNAUTORIZED.getMessage());
+    }
+
+    return NotificationResponseDto.builder()
+        .type(notification.getType())
+        .senderUser(
+            (notification.getType() == NotiType.RECEIVE_MANITO ||
+                notification.getType() == NotiType.MANITO_LETTER ||
+                notification.getType() == NotiType.MANITO_ANSWER_LETTER)
+                ? null
+                : new UserInformationResponseDto(notification.getSenderUser().getNickname())
+        )
+        .relatedObjectId(notification.getRelatedObjectId())
+        .build();
   }
 }

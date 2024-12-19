@@ -1,4 +1,5 @@
-![banner](https://github.com/user-attachments/assets/c97aadb8-b9ea-4a97-b08e-9f9ff492186a)
+[![banner](https://github.com/user-attachments/assets/c97aadb8-b9ea-4a97-b08e-9f9ff492186a)](http://ec2-43-201-222-153.ap-northeast-2.compute.amazonaws.com:8080/)
+배너를 누르시면 배포 URL로 이동합니다.
 # ManiToOne ( 24.11.22 ~ 24.12.19 )
 이스트소프트 오르미 백엔드 6기 1조 파이널 프로젝트
 > 공감 할 수 있는 한 마디, 소망이 담긴 게시물 하나.

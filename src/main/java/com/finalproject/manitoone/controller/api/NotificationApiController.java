@@ -34,4 +34,9 @@ public class NotificationApiController {
     return ResponseEntity.ok(notificationService.hasUnreadNotifications(
         (String) request.getSession().getAttribute("email")));
   }
+
+  @GetMapping("/notification/{notiId}")
+  public ResponseEntity<Object> getNotification(@PathVariable Long notiId, HttpServletRequest request) {
+    return ResponseEntity.ok(notificationService.getNotifications(notiId, request.getSession()));
+  }
 }

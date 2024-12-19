@@ -32,12 +32,14 @@
                 class="user-photo"
                 th:src="@{${post.user.profileImage}}"
                 alt="user icon"
+                th:onclick="'directToProfilePost()'"
               />
               <div class="post-content">
                 <div class="user-info">
                   <span
-                    class="user-name"
+                    class="user-name post-user-name"
                     th:text="${post.user.nickname}"
+                    th:onclick="'directToProfilePost()'"
                   ></span>
                   <span
                     class="passed-time"
@@ -85,7 +87,7 @@
                 />
                 <img
                   class="tiny-icons"
-                  th:if="${currentUser != post.user && !followings.contains(post.user)}"
+                  th:if="${currentUser != post.user || !followings.contains(post.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
@@ -285,12 +287,14 @@
                 class="user-photo"
                 th:src="@{${reply.user.profileImage}}"
                 alt="user icon"
+                th:onclick="'directToProfileReply()'"
               />
               <div class="post-content">
                 <div class="user-info">
                   <span
-                    class="user-name"
+                    class="user-name reply-user-name"
                     th:text="${reply.user.nickname}"
+                    th:onclick="'directToProfileReply()'"
                   ></span>
                   <span
                     class="passed-time"
@@ -334,7 +338,7 @@
                 />
                 <img
                   class="tiny-icons"
-                  th:if="${currentUser != reply.user && !followings.contains(reply.user)}"
+                  th:if="${currentUser != reply.user || !followings.contains(reply.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />
@@ -556,12 +560,14 @@
                 class="user-photo"
                 th:src="@{${rereply.user.profileImage}}"
                 alt="user icon"
+                th:onclick="'directToProfileRereply()'"
               />
               <div class="post-content">
                 <div class="user-info">
                   <span
-                    class="user-name"
+                    class="user-name rereply-user-name"
                     th:text="${rereply.user.nickname}"
+                    th:onclick="'directToProfileRereply()'"
                   ></span>
                   <span
                     class="passed-time"
@@ -604,7 +610,7 @@
                 />
                 <img
                   class="tiny-icons"
-                  th:if="${currentUser != rereply.user && !followings.contains(rereply.user)}"
+                  th:if="${currentUser != rereply.user || !followings.contains(rereply.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
                 />

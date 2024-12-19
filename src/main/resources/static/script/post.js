@@ -7,23 +7,25 @@ function likePost(postId) {
   if (postId) {
     fetch(`/api/post/like/${postId}`, {
       method: "POST",
-    }).then(response => {
-      if (response.status === 200) {
-        if (likeCount) {
-          fetch('/api/post/like/number/' + postId)
-          .then(response => response.text())
-          .then(countText => {
-            const currentLikes = parseInt(countText, 10);
-            likeCount.textContent = currentLikes;
-          })
-          .catch(error => {
-            console.error('Error fetching like count:', error);
-          });
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          if (likeCount) {
+            fetch("/api/post/like/number/" + postId)
+              .then((response) => response.text())
+              .then((countText) => {
+                const currentLikes = parseInt(countText, 10);
+                likeCount.textContent = currentLikes;
+              })
+              .catch((error) => {
+                console.error("Error fetching like count:", error);
+              });
+          }
         }
-      }
-    }).catch(error => {
-      console.error('Error fetching like count:', error);
-    });
+      })
+      .catch((error) => {
+        console.error("Error fetching like count:", error);
+      });
   }
 }
 
@@ -36,23 +38,25 @@ function likeReply(replyId) {
   if (replyId) {
     fetch(`/api/reply/like/${replyId}`, {
       method: "POST",
-    }).then(response => {
-      if (response.status === 200) {
-        if (likeCount) {
-          fetch('/api/reply/like/number/' + replyId)
-          .then(response => response.text())
-          .then(countText => {
-            const currentLikes = parseInt(countText, 10);
-            likeCount.textContent = currentLikes;
-          })
-          .catch(error => {
-            console.error('Error fetching like count:', error);
-          });
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          if (likeCount) {
+            fetch("/api/reply/like/number/" + replyId)
+              .then((response) => response.text())
+              .then((countText) => {
+                const currentLikes = parseInt(countText, 10);
+                likeCount.textContent = currentLikes;
+              })
+              .catch((error) => {
+                console.error("Error fetching like count:", error);
+              });
+          }
         }
-      }
-    }).catch(error => {
-      console.error('Error fetching like count:', error);
-    });
+      })
+      .catch((error) => {
+        console.error("Error fetching like count:", error);
+      });
   }
 }
 
@@ -504,7 +508,7 @@ async function onUpdatePostSubmit(postId, uploadedImagesNum) {
   console.log("Content: ", content);
   console.log("Uploaded Images Number: ", uploadedImagesNum);
 
-  if (images.length > 4 || (uploadedImagesNum + images.length) > 4) {
+  if (images.length > 4 || uploadedImagesNum + images.length > 4) {
     alert("이미지는 최대 4장까지만 업로드 가능합니다.");
     return;
   }
@@ -693,4 +697,23 @@ async function onNewRereplySubmit(replyId) {
     alert("답글 작성 중 오류가 발생했습니다.");
     console.log("답글 작성 오류: ", error);
   }
+}
+
+// 프로필 조회
+function directToProfilePost() {
+  const nickname = document.querySelector(".post-user-name").textContent;
+  console.log("nickname: ", nickname);
+  window.location.href = `/profile/${nickname}`;
+}
+
+function directToProfileReply() {
+  const nickname = document.querySelector(".reply-user-name").textContent;
+  console.log("nickname: ", nickname);
+  window.location.href = `/profile/${nickname}`;
+}
+
+function directToProfileRereply() {
+  const nickname = document.querySelector(".rereply-user-name").textContent;
+  console.log("nickname: ", nickname);
+  window.location.href = `/profile/${nickname}`;
 }

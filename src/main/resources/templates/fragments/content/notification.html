@@ -1,19 +1,24 @@
 <section class="notification-section" th:fragment="notification">
   <div th:each="notification : ${notifications}" class="notification-container"
        th:data-type="${notification.type}"
-       th:data-id="${notification.relatedObjectId}"
-       th:data-nickname="${notification.senderUser.nickname}">
-    <img class="user-photo"
-         th:if="${notification.senderUser != null and notification.senderUser.profileImage != null}"
-         th:src="${notification.senderUser.profileImage}"
-         alt="user icon"/>
-    <div class="notification-content">
+       th:data-id="${notification.notiId}">
+  <!-- 타입에 따른 이미지 처리 -->
+  <img class="user-photo"
+       th:if="${notification.senderUser != null}"
+       th:src="${notification.senderUser.profileImage}"
+       alt="user icon"/>
+  <img class="clover-icon"
+       th:if="${notification.senderUser == null}"
+       src="/images/icons/icon-clover2.png"
+       alt="clover icon"/>
+
+  <div class="notification-content">
               <span class="notification-description"
                     th:text="${notification.content}">
                 </span>
-      <span class="passed-time"
-            th:text="${notification.timeDifference}"></span>
-    </div>
+    <span class="passed-time"
+          th:text="${notification.timeDifference}"></span>
+  </div>
   </div>
   <div th:if="${notifications == null or notifications.isEmpty()}" class="no-notifications">
     <p class="no-notification-message">알림이 없습니다.</p>

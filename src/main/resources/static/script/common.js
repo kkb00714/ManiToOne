@@ -322,6 +322,13 @@ const CommonUtils = {
       new CharacterCounter(postTextarea, postCount500Display, 500);
       postTextarea.setAttribute('maxlength', '500');
     }
+
+    const replyTextarea = document.getElementById('new-reply-content');
+    const replyCount500Display = replyTextarea?.closest('.new-post-text-container')?.querySelector('.letter-count');
+    if (replyTextarea && replyCount500Display) {
+      new CharacterCounter(replyTextarea, replyCount500Display, 500);
+      replyTextarea.setAttribute('maxlength', '500');
+    }
   },
 
   initializePageModals() {

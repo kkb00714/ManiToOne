@@ -104,7 +104,7 @@
                     type="button"
                     class="list-group-item list-group-item-action"
                     aria-current="true"
-                    th:if="${currentUser == post.user}"
+                    th:if="${currentUser == post.user && post.isManito == false}"
                     th:onclick="'openUpdatePostModal()'"
                   >
                     수정하기
@@ -112,7 +112,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
-                    th:if="${currentUser == post.user}"
+                    th:if="${currentUser == post.user && post.isManito == false}"
                     th:onclick="'hidePost(' + ${post.postId} + ')'"
                   >
                     숨기기
@@ -120,7 +120,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
-                    th:if="${currentUser == post.user}"
+                    th:if="${currentUser == post.user && post.isManito == false}"
                     th:onclick="'deletePost(' + ${post.postId} + ')'"
                   >
                     삭제하기

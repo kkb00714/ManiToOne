@@ -32,11 +32,10 @@ public class PostViewController {
       Model model) {
     String nickname = (String) session.getAttribute("nickname");
     model.addAttribute("currentUser", userService.getCurrentUser(nickname));
-    model.addAttribute("followings", followService.getFollowings(
-        userService.getCurrentUser(nickname).getUserId()
-    ));
+    model.addAttribute("followings", userService.getUserByNickname(nickname).getFollowings());
     model.addAttribute("post", postService.getPostDetail(postId));
     model.addAttribute("postImages", postService.getImages(postId));
+    model.addAttribute("postImagesNum", postService.getImages(postId).size());
     model.addAttribute("postRepliesNum", replyService.getRepliesNum(postId));
     model.addAttribute("replies", replyService.getReplies(postId, pageable));
     return "pages/post/postDetail";
@@ -51,11 +50,10 @@ public class PostViewController {
     ReplyResponseDto reply = replyService.getReply(replyId);
     String nickname = (String) session.getAttribute("nickname");
     model.addAttribute("currentUser", userService.getCurrentUser(nickname));
-    model.addAttribute("followings", followService.getFollowings(
-        userService.getCurrentUser(nickname).getUserId()
-    ));
-    model.addAttribute("post", reply.getPost());
+    model.addAttribute("followings", userService.getUserByNickname(nickname).getFollowings());
+    model.addAttribute("post", postService.getPostDetail(reply.getPost().getPostId()));
     model.addAttribute("postImages", postService.getImages(reply.getPost().getPostId()));
+    model.addAttribute("postImagesNum", postService.getImages(reply.getPost().getPostId()).size());
     model.addAttribute("postLikesNum", postService.getPostLikesNum(reply.getPost().getPostId()));
     model.addAttribute("postRepliesNum", replyService.getRepliesNum(reply.getPost().getPostId()));
     model.addAttribute("reply", reply);

@@ -1,46 +1,58 @@
 // 게시글 좋아요
-async function likePost(postId) {
+function likePost(postId) {
   const likeCount = document.querySelector("#post-like-count");
 
-  try {
-    const response = await fetch(`/api/post/like/${postId}`, {
+  if (postId) {
+    fetch(`/api/post/like/${postId}`, {
       method: "POST",
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert("해당 게시글에 좋아요를 누르셨습니다.");
-      likeCount.textContent = data.likesNumber;
-    } else {
-      alert("좋아요 요청에 실패하셨습니다.");
-    }
-  } catch (error) {
-    console.error("좋아요 요청 오류: ", error);
-    alert("좋아요 요청 중 오류가 발생했습니다.");
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          if (likeCount) {
+            fetch("/api/post/like/number/" + postId)
+              .then((response) => response.text())
+              .then((countText) => {
+                const currentLikes = parseInt(countText, 10);
+                likeCount.textContent = currentLikes;
+              })
+              .catch((error) => {
+                console.error("Error fetching like count:", error);
+              });
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching like count:", error);
+      });
   }
 }
 
 // 답글 좋아요
-async function likeReply(replyId) {
+function likeReply(replyId) {
   const likeCount = document.querySelector("#reply-like-count");
 
-  try {
-    const response = await fetch(`/api/reply/like/${replyId}`, {
+  if (replyId) {
+    fetch(`/api/reply/like/${replyId}`, {
       method: "POST",
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert("해당 댓글에 좋아요를 누르셨습니다.");
-      likeCount.textContent = data.likesNumber;
-    } else {
-      alert("좋아요 요청에 실패하셨습니다.");
-    }
-  } catch (error) {
-    console.error("좋아요 요청 오류: ", error);
-    alert("좋아요 요청 중 오류가 발생했습니다.");
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          if (likeCount) {
+            fetch("/api/reply/like/number/" + replyId)
+              .then((response) => response.text())
+              .then((countText) => {
+                const currentLikes = parseInt(countText, 10);
+                likeCount.textContent = currentLikes;
+              })
+              .catch((error) => {
+                console.error("Error fetching like count:", error);
+              });
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching like count:", error);
+      });
   }
 }
 
@@ -492,19 +504,38 @@ function closeUpdateRereplyModal() {
 }
 
 // 게시글 수정
-async function onUpdatePostSubmit(postId) {
+async function onUpdatePostSubmit(postId, uploadedImagesNum) {
   const content = document.getElementById("new-post-content").value.trim();
+  const images = document.getElementById("image-upload-btn").files;
 
   if (!content) {
     alert("내용을 입력해주세요.");
     return;
   }
 
+  if (images.length > 4 || uploadedImagesNum + images.length > 4) {
+    alert("이미지는 최대 4장까지만 업로드 가능합니다.");
+    return;
+  }
+
+  console.log("images: ", images);
+
   const url = `/api/post/${postId}?content=${encodeURIComponent(content)}`;
+
+  console.log("URL: ", url);
+
+  const formData = new FormData();
+
+  if (images.length > 0) {
+    for (let i = 0; i < images.length; i++) {
+      formData.append("images", images[i]);
+    }
+  }
 
   try {
     const response = await fetch(url, {
       method: "PUT",
+      body: formData,
     });
 
     if (response.ok) {
@@ -669,6 +700,95 @@ async function onNewRereplySubmit(replyId) {
     }
   } catch (error) {
     alert("답글 작성 중 오류가 발생했습니다.");
+  }
+}
+
+// 프로필 조회
+function directToProfilePost() {
+  const nickname = document.querySelector(".post-user-name").textContent;
+  console.log("nickname: ", nickname);
+  window.location.href = `/profile/${nickname}`;
+}
+
+function directToProfileReply() {
+  const nickname = document.querySelector(".reply-user-name").textContent;
+  console.log("nickname: ", nickname);
+  window.location.href = `/profile/${nickname}`;
+}
+
+function directToProfileRereply() {
+  const nickname = document.querySelector(".rereply-user-name").textContent;
+  console.log("nickname: ", nickname);
+  window.location.href = `/profile/${nickname}`;
+}
+
+// 유저 팔로우
+function toggleFollowPost() {
+  const nickname = document.querySelector(".post-user-name").textContent;
+
+  console.log("nickname: ", nickname);
+
+  if (nickname) {
+    fetch(`/api/follow/${nickname}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (response.status === 201 || response.status === 200) {
+          alert(`${nickname}님을 팔로우하셨습니다.`);
+          window.location.reload();
+        } else {
+          alert(`${nickname}님 팔로우에 실패했습니다.`);
+        }
+      })
+      .catch((error) => {
+        alert(`${nickname}님 팔로우에 실패했습니다.`);
+      });
+  }
+}
+
+function toggleFollowReply() {
+  const nickname = document.querySelector(".reply-user-name").textContent;
+
+  console.log("nickname: ", nickname);
+
+  if (nickname) {
+    fetch(`/api/follow/${nickname}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (response.status === 201 || response.status === 200) {
+          alert(`${nickname}님을 팔로우하셨습니다.`);
+          window.location.reload();
+        } else {
+          alert(`${nickname}님 팔로우에 실패했습니다.`);
+        }
+      })
+      .catch((error) => {
+        alert(`${nickname}님 팔로우에 실패했습니다.`);
+      });
+  }
+}
+
+function toggleFollowRereply() {
+  const nickname = document.querySelector(".rereply-user-name").textContent;
+
+  console.log("nickname: ", nickname);
+
+  if (nickname) {
+    fetch(`/api/follow/${nickname}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (response.status === 201 || response.status === 200) {
+          alert(`${nickname}님을 팔로우하셨습니다.`);
+          window.location.reload();
+        } else {
+          alert(`${nickname}님 팔로우에 실패했습니다.`);
+        }
+      })
+      .catch((error) => {
+        alert(`${nickname}님 팔로우에 실패했습니다.`);
+      });
   }
 }
 

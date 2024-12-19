@@ -79,15 +79,16 @@ public class PostController {
   }
 
   // 게시글 수정
-  // TODO: 이미지 수정
   @PutMapping("/{postId}")
   public ResponseEntity<PostResponseDto> updatePost(@PathVariable("postId") Long postId,
       @RequestParam("content") String content,
+      @RequestParam(value = "images", required = false) MultipartFile[] images,
       HttpSession session) {
     String email = (String) session.getAttribute("email");
 
     UpdatePostRequestDto request = UpdatePostRequestDto.builder()
         .content(content)
+        .images(images != null ? images : new MultipartFile[0])
         .build();
 
     return ResponseEntity.ok(postService.updatePost(postId, request, email));
@@ -107,14 +108,6 @@ public class PostController {
     PostResponseDto post = postService.getPostDetail(postId);
     return ResponseEntity.ok(post);
   }
-
-//  public CompletableFuture<ResponseEntity<PostResponseDto>> createPost(
-//      @RequestBody AddPostRequestDto request,
-//      @AuthenticationPrincipal User user) {
-//    PostResponseDto post = postService.createPost(request, user);
-//    return CompletableFuture.supplyAsync(
-//        () -> ResponseEntity.status(HttpStatus.CREATED).body(post));
-//  }
 
   // 게시글 삭제
   @DeleteMapping("/{postId}")

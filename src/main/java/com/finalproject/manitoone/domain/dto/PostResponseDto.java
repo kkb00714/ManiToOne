@@ -18,6 +18,8 @@ public class PostResponseDto {
   private String content;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
+  private String createdDiff;
+  private String updatedDiff;
   private Boolean isManito;
   private Integer likesNumber;
 }

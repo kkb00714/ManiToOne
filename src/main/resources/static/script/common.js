@@ -331,19 +331,6 @@ const CommonUtils = {
     }
   },
 
-  initializePageModals() {
-    try {
-      if (document.getElementById("newPostFormModalContainer")) {
-        new PostFormModal();
-      }
-      if (document.getElementById("profileUpdateModalContainer")) {
-        new ProfileUpdateModal();
-      }
-    } catch (error) {
-      console.error('모달 초기화 중 오류 발생:', error);
-    }
-  },
-
   toggleElement(element) {
     const img = element.querySelector('img');
     if (!img) {
@@ -469,11 +456,9 @@ const CommonUtils = {
     const previousButton = document.querySelector('.previous-button');
     if (previousButton) {
       previousButton.addEventListener('click', () => {
-        // 브라우저 히스토리가 있는 경우
         if (window.history.length > 1) {
           window.history.back();
         } else {
-          // 히스토리가 없는 경우 (직접 URL로 접근한 경우) 기본 페이지로 이동
           window.location.href = '/';
         }
       });
@@ -488,7 +473,6 @@ const CommonUtils = {
       if (document.getElementById("profileUpdateModalContainer")) {
         new ProfileUpdateModal();
       }
-      // 이전 버튼 초기화 추가
       this.initializePreviousButton();
     } catch (error) {
       console.error('모달 초기화 중 오류 발생:', error);

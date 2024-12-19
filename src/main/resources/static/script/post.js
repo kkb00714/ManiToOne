@@ -589,10 +589,30 @@ function openNewReplyModal() {
   document.getElementById("newReplyFormModalContainer").style.display = "block";
 }
 
-function closeNewReplyModal() {
+function closeNewReplyModal(event) {
+  if (event && event.target && event.target.closest('#newReplyFormModalContainer')) {
+    return;
+  }
   document.getElementById("newReplyFormModal").style.display = "none";
   document.getElementById("newReplyFormModalContainer").style.display = "none";
 }
+
+const initializeReplyModalEvents = () => {
+  const modal = document.getElementById('newReplyFormModal');
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeNewReplyModal(e);
+      }
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('newReplyFormModal')?.style.display === 'block') {
+      closeNewReplyModal();
+    }
+  });
+};
 
 // 답글 작성
 async function onNewReplySubmit(postId) {
@@ -670,3 +690,7 @@ async function onNewRereplySubmit(replyId) {
     console.log("답글 작성 오류: ", error);
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  initializeReplyModalEvents();
+});

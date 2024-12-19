@@ -354,7 +354,6 @@ const ManitoPage = {
       this.showLoader();
 
       try {
-        // 세션 체크로 변경
         const sessionResponse = await fetch('/api/session-info');
         if (!sessionResponse.ok) {
           throw new Error('Failed to get user session');
@@ -1187,12 +1186,10 @@ async function requestMatch() {
   try {
     isRequestingMatch = true;
 
-    // 원본 컨텐츠 저장
     if (!originalContent) {
       originalContent = document.querySelector('.pre-match-container').innerHTML;
     }
 
-    // 매칭 진행 중 상태 표시
     const container = document.querySelector('.pre-match-container');
     const matchingHTML = `
             <div class="pre-match-content">
@@ -1201,7 +1198,6 @@ async function requestMatch() {
         `;
     container.innerHTML = matchingHTML;
 
-    // 매칭 요청
     const response = await fetch('/api/manito/match/request', {
       method: 'POST',
       headers: {
@@ -1215,7 +1211,7 @@ async function requestMatch() {
     }
 
     let retryCount = 0;
-    const maxRetries = 30; // 60초 타임아웃으로 증가
+    const maxRetries = 30;
 
     const checkMatchStatus = async () => {
       try {
@@ -1227,21 +1223,18 @@ async function requestMatch() {
           throw new Error('매칭 상태 확인에 실패했습니다.');
         }
 
-        // 매칭 완료
         if (statusData.status === 'COMPLETED') {
-          await new Promise(resolve => setTimeout(resolve, 500)); // 잠시 대기
+          await new Promise(resolve => setTimeout(resolve, 500));
           window.location.reload();
           return;
         }
 
-        // 매칭 실패
         if (statusData.status === 'FAILED') {
           console.log('Match failed:', statusData.message);
           handleMatchFailure(statusData.message);
           return;
         }
 
-        // 매칭 진행 중이거나 NO_PROCESS 상태
         if (retryCount >= maxRetries) {
           handleMatchFailure('매칭 시간이 초과되었습니다.');
           return;
@@ -1267,14 +1260,12 @@ async function requestMatch() {
 }
 
 function handleMatchFailure(message) {
-  console.log('Match failure:', message); // 디버깅용 로그
   isRequestingMatch = false;
   CommonUtils.showWarningMessage(message);
   restoreOriginalContent();
 }
 
 function handleMatchError(error) {
-  console.error('Match error:', error); // 디버깅용 로그
   isRequestingMatch = false;
   CommonUtils.showWarningMessage(error.message || '매칭 처리 중 오류가 발생했습니다.');
   restoreOriginalContent();
@@ -1287,7 +1278,6 @@ function restoreOriginalContent() {
   }
 }
 
-// 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', () => {
   originalContent = document.querySelector('.pre-match-container')?.innerHTML;
 });
@@ -1351,7 +1341,6 @@ function passMatch() {
   confirmationPopup.style.display = 'block';
 }
 
-// 남은 시간 표시
 function updateRemainingTime() {
   const matchedTime = document.querySelector(
       'meta[name="matched-time"]')?.content;

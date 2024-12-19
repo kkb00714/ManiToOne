@@ -61,7 +61,7 @@
         <button class="profile-update-button" id="openProfileUpdateBtn" th:if="${user.getNickname().equals(nickname)}">
           프로필 수정
         </button>
-        <div class="d-flex gap-3">
+        <div class="d-flex gap-3 flex-column">
           <button class="profile-update-button" id="followOnProfileBtn" th:if="${!user.getNickname().equals(nickname)}" th:text="${isFollowed ? '언팔로우' : '팔로우'}">
           </button>
           <p class="following-text" th:if="${isFollowing}" th:text="${user.getName()} + '님은 ' + ${session.nickname} + '님을 팔로우 중 입니다.'"></p>

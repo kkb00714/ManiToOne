@@ -1,5 +1,4 @@
 package com.finalproject.manitoone.service;
-
 import com.finalproject.manitoone.constants.ManitoErrorMessages;
 import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.domain.ManitoLetter;

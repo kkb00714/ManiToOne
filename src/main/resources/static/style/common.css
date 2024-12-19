@@ -330,6 +330,13 @@ h1 {
   font-size: 0.8rem;
   color: #3f624c;
   opacity: 70%;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+.music-link a {
+  word-break: break-all;
+  overflow-wrap: break-word;
 }
 
 /* 마니또 편지함 섹션 */

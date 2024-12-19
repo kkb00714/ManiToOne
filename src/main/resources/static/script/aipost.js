@@ -25,7 +25,13 @@ document.addEventListener("DOMContentLoaded", function () {
       // 음악 정보 처리
       if (data.musicTitle != null) {
           musicTitle.textContent = data.musicTitle; // 제목 표시
-          musicLink.innerHTML = `<a href="${data.musicLink}" target="_blank">${data.musicLink}</a>`;
+          if (data.musicLink != null) {
+            if (data.musicLink === "추천 노래 없음") {
+              musicLink.innerHTML = `${data.musicLink}`;
+            } else {
+              musicLink.innerHTML = `<a href="${data.musicLink}" target="_blank">${data.musicLink}</a>`;
+            }
+          }
       } else {
         // 음악 섹션 숨기기
         musicSection.style.display = "none";

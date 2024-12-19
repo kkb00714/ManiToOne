@@ -195,6 +195,9 @@ public class AlanUtil {
     // 가수와 제목 추출 (가장 마지막 [] 안의 내용)
     int lastBracketStart = content.lastIndexOf("[");
     int lastBracketEnd = content.lastIndexOf("]");
+    if (lastBracketStart == -1 || lastBracketEnd == -1) {
+      return "가수 제목 없음";
+    }
     return content.substring(lastBracketStart + 1, lastBracketEnd);
   }
 
@@ -202,6 +205,9 @@ public class AlanUtil {
     // 링크 추출 (가장 마지막 () 안의 내용)
     int lastParenthesisStart = content.lastIndexOf("(");
     int lastParenthesisEnd = content.lastIndexOf(")");
+    if (lastParenthesisStart == -1 || lastParenthesisEnd == -1) {
+      return "추천 노래 없음";
+    }
     return content.substring(lastParenthesisStart + 1, lastParenthesisEnd);
   }
 }

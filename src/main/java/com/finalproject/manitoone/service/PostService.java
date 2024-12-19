@@ -201,9 +201,11 @@ public class PostService {
         post.getUser(),
         post.getContent(),
         TimeFormatter.formatDateTime(post.getCreatedAt()),
-        TimeFormatter.formatDateTime(post.getUpdatedAt() == null ? post.getCreatedAt() : post.getUpdatedAt()),
+        TimeFormatter.formatDateTime(
+            post.getUpdatedAt() == null ? post.getCreatedAt() : post.getUpdatedAt()),
         TimeFormatter.formatTimeDiff(post.getCreatedAt()),
-        TimeFormatter.formatTimeDiff(post.getUpdatedAt() ==  null ? post.getCreatedAt() : post.getUpdatedAt()),
+        TimeFormatter.formatTimeDiff(
+            post.getUpdatedAt() == null ? post.getCreatedAt() : post.getUpdatedAt()),
         post.getIsManito(),
         getPostLikesNum(post.getPostId())
     );

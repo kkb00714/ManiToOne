@@ -717,3 +717,73 @@ function directToProfileRereply() {
   console.log("nickname: ", nickname);
   window.location.href = `/profile/${nickname}`;
 }
+
+// 유저 팔로우
+function toggleFollowPost() {
+  const nickname = document.querySelector(".post-user-name").textContent;
+
+  console.log("nickname: ", nickname);
+
+  if (nickname) {
+    fetch(`/api/follow/${nickname}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (response.status === 201 || response.status === 200) {
+          alert(`${nickname}님을 팔로우하셨습니다.`);
+          window.location.reload();
+        } else {
+          alert(`${nickname}님 팔로우에 실패했습니다.`);
+        }
+      })
+      .catch((error) => {
+        alert(`${nickname}님 팔로우에 실패했습니다.`);
+      });
+  }
+}
+
+function toggleFollowReply() {
+  const nickname = document.querySelector(".reply-user-name").textContent;
+
+  console.log("nickname: ", nickname);
+
+  if (nickname) {
+    fetch(`/api/follow/${nickname}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (response.status === 201 || response.status === 200) {
+          alert(`${nickname}님을 팔로우하셨습니다.`);
+          window.location.reload();
+        } else {
+          alert(`${nickname}님 팔로우에 실패했습니다.`);
+        }
+      })
+      .catch((error) => {
+        alert(`${nickname}님 팔로우에 실패했습니다.`);
+      });
+  }
+}
+
+function toggleFollowRereply() {
+  const nickname = document.querySelector(".rereply-user-name").textContent;
+
+  console.log("nickname: ", nickname);
+
+  if (nickname) {
+    fetch(`/api/follow/${nickname}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (response.status === 201 || response.status === 200) {
+          alert(`${nickname}님을 팔로우하셨습니다.`);
+          window.location.reload();
+        } else {
+          alert(`${nickname}님 팔로우에 실패했습니다.`);
+        }
+      })
+      .catch((error) => {
+        alert(`${nickname}님 팔로우에 실패했습니다.`);
+      });
+  }
+}

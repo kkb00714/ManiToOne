@@ -87,6 +87,7 @@
                   th:if="${currentUser != post.user || !followings.contains(post.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
+                  th:onclick="'toggleFollowPost()'"
                 />
               </div>
 
@@ -395,6 +396,7 @@
                   th:if="${currentUser != reply.user || !followings.contains(reply.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
+                  th:onclick="'toggleFollowReply()'"
                 />
               </div>
 

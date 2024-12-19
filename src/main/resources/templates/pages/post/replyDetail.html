@@ -32,16 +32,18 @@
                 class="user-photo"
                 th:src="@{${post.user.profileImage}}"
                 alt="user icon"
+                th:onclick="'directToProfilePost()'"
               />
               <div class="post-content">
                 <div class="user-info">
                   <span
-                    class="user-name"
+                    class="user-name post-user-name"
                     th:text="${post.user.nickname}"
+                    th:onclick="'directToProfilePost()'"
                   ></span>
                   <span
                     class="passed-time"
-                    th:text="${post.updatedAt != null ? #strings.concat(#temporals.format(post.updatedAt, 'mm'), '분') : #strings.concat(#temporals.format(post.createdAt, 'mm'), '분')}"
+                    th:text="${post.updatedDiff != post.createdDiff ? #strings.concat(post.updatedDiff, ' (수정)') : post.createdDiff}"
                   ></span>
                 </div>
                 <p
@@ -58,7 +60,7 @@
                 </div>
                 <p
                   class="post-time"
-                  th:text="${post.updatedAt != null ? #temporals.format(post.updatedAt, 'yyyy년 MM월 dd일 a hh시 mm분') : #temporals.format(post.createdAt, 'yyyy년 MM월 dd일 a hh시 mm분')}"
+                  th:text="${post.updatedAt != post.createdAt ? #strings.concat(post.updatedAt, ' (수정)') : post.createdAt}"
                 ></p>
                 <div class="reaction-icons">
                   <img
@@ -85,9 +87,10 @@
                 />
                 <img
                   class="tiny-icons"
-                  th:if="${currentUser != post.user && !#lists.contains(followings, post.user)}"
+                  th:if="${currentUser != post.user || !followings.contains(post.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
+                  th:onclick="'toggleFollowPost()'"
                 />
               </div>
 
@@ -102,7 +105,7 @@
                     type="button"
                     class="list-group-item list-group-item-action"
                     aria-current="true"
-                    th:if="${currentUser == post.user}"
+                    th:if="${currentUser == post.user && post.isManito == false}"
                     th:onclick="'openUpdatePostModal()'"
                   >
                     수정하기
@@ -110,7 +113,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
-                    th:if="${currentUser == post.user}"
+                    th:if="${currentUser == post.user && post.isManito == false}"
                     th:onclick="'hidePost(' + ${post.postId} + ')'"
                   >
                     숨기기
@@ -118,7 +121,7 @@
                   <button
                     type="button"
                     class="list-group-item list-group-item-action"
-                    th:if="${currentUser == post.user}"
+                    th:if="${currentUser == post.user && post.isManito == false}"
                     th:onclick="'deletePost(' + ${post.postId} + ')'"
                   >
                     삭제하기
@@ -168,15 +171,15 @@
                       </div>
                     </div>
 
-                    <div class="manito-response-toggle">
+                    <div
+                      class="more-image-container"
+                      th:if="${postImages != null}"
+                    >
                       <img
-                        class="tiny-icons"
-                        th:src="@{/images/icons/icon-check-empty.png}"
-                        alt="check icon"
-                        data-checked-src="@{/images/icons/icon-check.png}"
-                        data-unchecked-src="@{/images/icons/icon-check-empty.png}"
+                        th:each="image : ${postImages}"
+                        th:src="@{${image.fileName}}"
+                        alt="uploaded-image"
                       />
-                      <p>이 게시물에 대해 마니또의 답변을 받습니다.</p>
                     </div>
 
                     <div
@@ -202,7 +205,6 @@
                       name="images"
                       accept="image/jpeg, image/png"
                       multiple
-                      onchange="countImages(this)"
                       style="display: none"
                     />
                     <img
@@ -214,7 +216,7 @@
                     <button
                       class="post-button"
                       type="submit"
-                      th:onclick="'onUpdatePostSubmit(' + ${post.postId} + ')'"
+                      th:onclick="'onUpdatePostSubmit(' + ${post.postId} + ', ' + ${postImagesNum} + ')'"
                     >
                       수정하기
                     </button>
@@ -286,16 +288,18 @@
                 class="user-photo"
                 th:src="@{${reply.user.profileImage}}"
                 alt="user icon"
+                th:onclick="'directToProfileReply()'"
               />
               <div class="post-content">
                 <div class="user-info">
                   <span
-                    class="user-name"
+                    class="user-name reply-user-name"
                     th:text="${reply.user.nickname}"
+                    th:onclick="'directToProfileReply()'"
                   ></span>
                   <span
                     class="passed-time"
-                    th:text="${#temporals.format(reply.createdAt, 'mm분')}"
+                    th:text="${reply.createdDiff}"
                   ></span>
                 </div>
                 <p
@@ -335,9 +339,10 @@
                 />
                 <img
                   class="tiny-icons"
-                  th:if="${currentUser != reply.user && !#lists.contains(followings, reply.user)}"
+                  th:if="${currentUser != reply.user || !followings.contains(reply.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
+                  th:onclick="'toggleFollowReply()'"
                 />
               </div>
 
@@ -557,16 +562,18 @@
                 class="user-photo"
                 th:src="@{${rereply.user.profileImage}}"
                 alt="user icon"
+                th:onclick="'directToProfileRereply()'"
               />
               <div class="post-content">
                 <div class="user-info">
                   <span
-                    class="user-name"
+                    class="user-name rereply-user-name"
                     th:text="${rereply.user.nickname}"
+                    th:onclick="'directToProfileRereply()'"
                   ></span>
                   <span
                     class="passed-time"
-                    th:text="${#temporals.format(rereply.createdAt, 'mm분')}"
+                    th:text="${rereply.createdDiff}"
                   ></span>
                 </div>
                 <p
@@ -585,15 +592,6 @@
                     class="like-count"
                     th:text="${rereply.likesNumber}"
                   ></span>
-                  <img
-                    class="tiny-icons"
-                    th:src="@{/images/icons/icon-comment2.png}"
-                    alt="add reply"
-                  />
-                  <span
-                    class="reply-count"
-                    th:text="${rereply.rerepliesNumber}"
-                  ></span>
                 </div>
               </div>
               <div class="option-icons">
@@ -605,9 +603,10 @@
                 />
                 <img
                   class="tiny-icons"
-                  th:if="${currentUser != rereply.user && !#lists.contains(followings, rereply.user)}"
+                  th:if="${currentUser != rereply.user || !followings.contains(rereply.user)}"
                   th:src="@{/images/icons/icon-add-friend.png}"
                   alt="add friend"
+                  th:onclick="'toggleFollowRereply()'"
                 />
               </div>
 

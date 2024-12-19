@@ -20,6 +20,7 @@ public class ReplyResponseDto {
   private Long replyPostId;
   private String content;
   private LocalDateTime createdAt;
+  private String createdDiff;
   private Boolean isBlind;
   private Integer rerepliesNumber;
   private Integer likesNumber;

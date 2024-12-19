@@ -17,9 +17,12 @@ import com.finalproject.manitoone.repository.ReportRepository;
 import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.NotificationUtil;
+import com.finalproject.manitoone.util.TimeFormatter;
 import java.io.IOException;
+import java.sql.Time;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -211,11 +214,18 @@ public class ReplyService {
             IllegalActionMessages.CANNOT_FIND_REPLY_POST_WITH_GIVEN_ID.getMessage()
         ));
 
-    userPostLikeRepository.save(UserPostLike.builder()
-        .post(reply.getPost())
-        .user(user)
-        .replyPostId(reply.getReplyPostId())
-        .build());
+    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUserUserIdAndPostPostIdAndReplyPostId(
+        user.getUserId(), reply.getPost().getPostId(), reply.getReplyPostId());
+
+    if (existingLike.isPresent()) {
+      userPostLikeRepository.delete(existingLike.get());
+    } else {
+      userPostLikeRepository.save(UserPostLike.builder()
+          .post(reply.getPost())
+          .user(user)
+          .replyPostId(reply.getReplyPostId())
+          .build());
+    }
 
     return ReplyResponseDto.builder()
         .replyPostId(reply.getReplyPostId())
@@ -259,6 +269,7 @@ public class ReplyService {
         reply.getReplyPostId(),
         reply.getContent(),
         reply.getCreatedAt(),
+        TimeFormatter.formatTimeDiff(reply.getCreatedAt()),
         reply.getIsBlind(),
         getReRepliesNum(reply.getReplyPostId()),
         getReplyLikesNum(reply.getReplyPostId())
@@ -290,6 +301,7 @@ public class ReplyService {
         .replyPostId(reply.getReplyPostId())
         .content(reply.getContent())
         .createdAt(reply.getCreatedAt())
+        .createdDiff(TimeFormatter.formatTimeDiff(reply.getCreatedAt()))
         .isBlind(reply.getIsBlind())
         .rerepliesNumber(getReRepliesNum(reply.getReplyPostId()))
         .likesNumber(getReplyLikesNum(reply.getReplyPostId()))
@@ -312,6 +324,7 @@ public class ReplyService {
         rereply.getReplyPostId(),
         rereply.getContent(),
         rereply.getCreatedAt(),
+        TimeFormatter.formatTimeDiff(rereply.getCreatedAt()),
         rereply.getIsBlind(),
         getReRepliesNum(rereply.getReplyPostId()),
         getReplyLikesNum(rereply.getReplyPostId())

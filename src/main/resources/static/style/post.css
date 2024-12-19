@@ -74,3 +74,18 @@
   object-fit: cover;
   border-radius: 8px;
 }
+
+/* 게시글 수정 모달 이미지 */
+.more-image-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.more-image-container img {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 8px;
+}

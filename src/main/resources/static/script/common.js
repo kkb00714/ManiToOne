@@ -127,14 +127,12 @@ class BaseModal {
   }
 
   initializeCloseHandlers() {
-    // ESC 키 눌렀을 때 닫기
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.modal?.style.display === 'block') {
         this.close();
       }
     });
 
-    // 모달 바깥 클릭시 닫기
     if (this.background) {
       this.background.addEventListener('click', (e) => {
         if (e.target === this.background) {
@@ -190,43 +188,98 @@ const ContentValidator = {
   validateContentQuality(text) {
     const trimmedText = text.trim();
 
-    // 1. 연속된 같은 문자 패턴 (한글, 영문, 특수문자 모두 포함)
+    // 1. 키보드 패턴 검사 (예: asdf, qwer 등의 연속 입력)
+    const keyboardPatterns = [
+      /[asdf]{4,}/i,  // asdf 패턴
+      /[qwer]{4,}/i,  // qwer 패턴
+      /[zxcv]{4,}/i,  // zxcv 패턴
+      /[hjkl]{4,}/i,  // hjkl 패턴
+      /[yuio]{4,}/i   // yuio 패턴
+    ];
+
+    if (keyboardPatterns.some(pattern => pattern.test(trimmedText))) {
+      return {
+        isValid: false,
+        message: '키보드를 무작위로 입력한 것 같아요. 진심을 담아 작성해주세요.'
+      };
+    }
+
+    // 2. 자음/모음 비율 검사 (한글)
+    const koreanConsonants = trimmedText.match(/[ㄱ-ㅎ]/g) || [];
+    const koreanVowels = trimmedText.match(/[ㅏ-ㅣ]/g) || [];
+    const koreanChars = trimmedText.match(/[가-힣]/g) || [];
+
+    if (koreanConsonants.length + koreanVowels.length > koreanChars.length * 0.5) {
+      return {
+        isValid: false,
+        message: '완성되지 않은 한글이 너무 많아요. 정확한 단어로 작성해주세요.'
+      };
+    }
+
+    // 3. 무작위 문자열 패턴 검사
+    const randomnessCheck = this.checkRandomness(trimmedText);
+    if (!randomnessCheck.isValid) {
+      return randomnessCheck;
+    }
+
+    // 4. 연속된 같은 문자 패턴 검사 (30회 이상)
     const sameCharPattern = /(.)\1{29,}/;
-    const matches = trimmedText.match(sameCharPattern);
+    if (sameCharPattern.test(trimmedText)) {
+      return {
+        isValid: false,
+        message: '같은 문자가 과도하게 반복되었어요. 정성을 담아 작성해주세요.'
+      };
+    }
 
-    // 2. 연속된 자음/모음/특정 문자 패턴
-    const repeatedPattern = /([\u3131-\u314E\u314F-\u3163ㅋㅎㅠㅜzZ])\1{29,}/g;
-    const repeatedMatches = trimmedText.match(repeatedPattern) || [];
+    // 5. 자음만 연속으로 10회 이상 반복되는 패턴 검사
+    const consonantsPattern = /([ㄱ-ㅎ]){10,}/;
+    if (consonantsPattern.test(trimmedText)) {
+      return {
+        isValid: false,
+        message: '자음만 연속적으로 입력되었어요. 의미 있는 내용을 작성해주세요.'
+      };
+    }
 
-    // 3. 문장 반복 패턴 검사
+    // 6. 모음만 연속으로 10회 이상 반복되는 패턴 검사
+    const vowelsPattern = /([ㅏ-ㅣ]){10,}/;
+    if (vowelsPattern.test(trimmedText)) {
+      return {
+        isValid: false,
+        message: '모음만 연속적으로 입력되었어요. 의미 있는 내용을 작성해주세요.'
+      };
+    }
+
+    // 7. 특수문자나 이모티콘 연속 패턴 검사 (10회 이상)
+    const specialCharsPattern = /([!@#$%^&*()_+=\-`~,./<>?;:'"\[\]{}\\|])\1{9,}/;
+    const emojiPattern = /([\uD800-\uDBFF][\uDC00-\uDFFF])\1{9,}/;
+
+    if (specialCharsPattern.test(trimmedText) || emojiPattern.test(trimmedText)) {
+      return {
+        isValid: false,
+        message: '특수문자나 이모티콘이 과도하게 반복되었어요. 진정성 있는 메시지를 전달해보세요.'
+      };
+    }
+
+    // 8. 공백 문자 과다 사용 검사 (40% 이상)
+    const nonWhitespaceLength = trimmedText.replace(/\s/g, '').length;
+    if (nonWhitespaceLength < trimmedText.length * 0.6) {
+      return {
+        isValid: false,
+        message: '내용에 공백이 너무 많아요. 당신의 진심을 담아 작성해주세요.'
+      };
+    }
+
+    // 9. 문장 반복 패턴 검사
     const repeatingPhrases = this.findSignificantRepeats(trimmedText);
     const totalLength = trimmedText.length;
-    let totalRepeatedLength = repeatingPhrases.reduce((sum, phrase) =>
+    const totalRepeatedLength = repeatingPhrases.reduce((sum, phrase) =>
         sum + (phrase.text.length * (phrase.count - 1)), 0);
 
-    // 기존 검사 조건
-    if (matches || repeatedMatches.length > 0) {
+    if (totalRepeatedLength / totalLength > 0.4 && repeatingPhrases.some(phrase =>
+        phrase.count >= 3 && phrase.text.length >= 5)) {
       return {
         isValid: false,
-        message: '내용에 무의미하게 반복되는 글자가 많은 것 같아요. 정성을 담아 작성하면 편지를 받는 사람이 기쁠 거예요.'
-      };
-    }
-
-    // 공백 문자가 과도하게 많은 경우 체크
-    const nonWhitespaceLength = trimmedText.replace(/\s/g, '').length;
-    if (nonWhitespaceLength < trimmedText.length * 0.6) { // 40% 이상이 공백인 경우
-      return {
-        isValid: false,
-        message: '내용에 공백이 너무 많아요. 당신의 메세지를 조금 더 담아보면 좋을 것 같아요.'
-      };
-    }
-
-    // 유의미한 반복이 전체 텍스트의 50% 이상인 경우
-    if (totalRepeatedLength / totalLength > 0.5 && repeatingPhrases.some(phrase =>
-        phrase.count >= 3 && phrase.text.length >= 10)) {
-      return {
-        isValid: false,
-        message: '같은 내용이 너무 많이 반복되었어요. 더 다양하고 다채로운 이야기를 전해보는 게 어떨까요?'
+        message: '비슷한 내용이 너무 많이 반복되었어요. 다양한 이야기를 전달해보세요.'
       };
     }
 
@@ -236,30 +289,107 @@ const ContentValidator = {
     };
   },
 
-  findSignificantRepeats(text) {
-    const phrases = [];
-    const minPhraseLength = 10;  // 최소 10글자 이상의 문장만 검사
-    const words = text.split(/[\s,.!?]+/);  // 문장 부호와 공백으로 분리
+  checkRandomness(text) {
+    // 1. 연속된 자음 빈도 검사
+    const consonantGroups = text.match(/[bcdfghjklmnpqrstvwxyz]{5,}/gi) || [];
+    if (consonantGroups.length > 0) {
+      return {
+        isValid: false,
+        message: '의미 없는 자음 조합이 감지되었어요. 올바른 단어를 사용해주세요.'
+      };
+    }
 
-    // 각 위치에서 시작하는 가능한 모든 구문 검사
-    for (let len = minPhraseLength; len <= text.length / 2; len++) {
+    // 2. 문자 다양성 검사 - 더 관대한 임계값 적용
+    const chars = text.toLowerCase().replace(/\s/g, '').split('');
+    const uniqueChars = new Set(chars);
+    const diversity = uniqueChars.size / chars.length;
+
+    // 문자 다양성 임계값을 0.8에서 0.9로 상향 조정
+    // 길이가 더 긴 텍스트의 경우 다양성이 자연스럽게 높아질 수 있음을 고려
+    const diversityThreshold = chars.length > 100 ? 0.9 : 0.85;
+
+    if (diversity > diversityThreshold && chars.length > 20) {
+      // 영어 문장 패턴 검사 추가
+      const words = text.split(/\s+/);
+      const validWordCount = words.filter(word => this.isValidEnglishWord(word)).length;
+      const validWordRatio = validWordCount / words.length;
+
+      // 60% 이상의 단어가 유효한 영어 단어 패턴을 가지면 유효한 것으로 판단
+      if (validWordRatio < 0.6) {
+        return {
+          isValid: false,
+          message: '무작위로 입력된 것 같아요. 의미 있는 내용을 작성해주세요.'
+        };
+      }
+    }
+
+    // 3. 알파벳 분포 검사 개선
+    const alphabetCount = text.match(/[a-zA-Z]/g)?.length || 0;
+    const totalCount = text.replace(/\s/g, '').length;
+
+    if (alphabetCount / totalCount > 0.7) {
+      const words = text.split(/\s+/);
+      const validWords = words.filter(word => this.isValidEnglishWord(word));
+
+      if (validWords.length < words.length * 0.4) {  // 임계값을 0.3에서 0.4로 조정
+        return {
+          isValid: false,
+          message: '의미 없는 영문자 조합이 감지되었어요. 올바른 단어를 사용해주세요.'
+        };
+      }
+    }
+
+    return {
+      isValid: true,
+      message: ''
+    };
+  },
+
+  isValidEnglishWord(word) {
+    // 특수문자 제거
+    word = word.replace(/[^a-zA-Z]/g, '').toLowerCase();
+
+    if (word.length < 2) return true;  // 1글자는 통과
+
+    // 개선된 영단어 패턴 검사
+    // 1. 일반적인 영어 단어 패턴
+    const commonPattern = /^[a-z]+$/;
+    // 2. 최소한 하나의 모음을 포함
+    const hasVowel = /[aeiou]/;
+    // 3. 허용되지 않는 자음 조합 패턴
+    const invalidConsonants = /[bcdfghjklmnpqrstvwxyz]{5,}/;
+    // 4. 같은 문자가 3번 이상 연속되는 패턴
+    const repeatingChars = /(.)\1{2,}/;
+
+    return commonPattern.test(word) &&
+        hasVowel.test(word) &&
+        !invalidConsonants.test(word) &&
+        !repeatingChars.test(word);
+  },
+
+  findSignificantRepeats(text) {
+    // 기존 코드 유지
+    const phrases = [];
+    const minPhraseLength = 5;
+    const maxPhraseLength = Math.floor(text.length / 2);
+
+    for (let len = minPhraseLength; len <= maxPhraseLength; len++) {
       for (let start = 0; start <= text.length - len; start++) {
         const phrase = text.slice(start, start + len);
 
-        // 이미 처리된 구문이거나 의미 있는 구문이 아닌 경우 건너뛰기
         if (phrases.some(p => p.text.includes(phrase) || phrase.includes(p.text)) ||
             !this.isSignificantPhrase(phrase)) {
           continue;
         }
 
-        // 구문의 출현 횟수 계산
         let count = 0;
-        let pos = -1;
-        while ((pos = text.indexOf(phrase, pos + 1)) !== -1) {
+        let pos = 0;
+        while ((pos = text.indexOf(phrase, pos)) !== -1) {
           count++;
+          pos += phrase.length;
         }
 
-        if (count >= 3) {  // 3번 이상 반복되는 경우만 저장
+        if (count >= 3) {
           phrases.push({
             text: phrase,
             count: count
@@ -273,11 +403,13 @@ const ContentValidator = {
 
   isSignificantPhrase(phrase) {
     return (
-        phrase.length >= 10 && // 최소 길이
-        phrase.trim().split(/\s+/).length >= 2 && // 최소 2개 이상의 단어
-        !/^\s*$/.test(phrase) && // 공백으로만 이루어지지 않음
-        !/^[.,!?;\s]*$/.test(phrase) && // 문장 부호로만 이루어지지 않음
-        phrase.replace(/\s/g, '').length > phrase.length * 0.5 // 50% 이상이 실제 문자
+        phrase.length >= 5 &&
+        phrase.trim().length > 0 &&
+        phrase.replace(/\s/g, '').length > phrase.length * 0.5 &&
+        !/^[!@#$%^&*()_+=\-`~,./<>?;:'"\[\]{}\\|]+$/.test(phrase) &&
+        !/^[\uD800-\uDBFF][\uDC00-\uDFFF]+$/.test(phrase) &&
+        !/^[ㄱ-ㅎ]+$/.test(phrase) &&
+        !/^[ㅏ-ㅣ]+$/.test(phrase)
     );
   }
 };

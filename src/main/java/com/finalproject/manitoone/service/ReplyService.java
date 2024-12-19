@@ -9,11 +9,8 @@ import com.finalproject.manitoone.domain.ReplyPost;
 import com.finalproject.manitoone.domain.Report;
 import com.finalproject.manitoone.domain.User;
 import com.finalproject.manitoone.domain.UserPostLike;
-import com.finalproject.manitoone.domain.dto.AddReplyRequestDto;
-import com.finalproject.manitoone.domain.dto.AddReportRequestDto;
 import com.finalproject.manitoone.domain.dto.ReplyResponseDto;
 import com.finalproject.manitoone.domain.dto.ReportResponseDto;
-import com.finalproject.manitoone.domain.dto.UpdateReplyRequestDto;
 import com.finalproject.manitoone.repository.PostRepository;
 import com.finalproject.manitoone.repository.ReplyPostRepository;
 import com.finalproject.manitoone.repository.ReportRepository;
@@ -22,6 +19,7 @@ import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.NotificationUtil;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -57,11 +55,14 @@ public class ReplyService {
         .content(content)
         .build());
 
-    try {
-      notificationUtil.createNotification(post.getUser().getNickname(), user, NotiType.POST_REPLY,
-          post.getPostId());
-    } catch (IOException e) {
-      log.error(e.getMessage());
+    // 내 게시글에 내가 답글 남길때는 알림 생성 x
+    if (!Objects.equals(user.getUserId(), post.getUser().getUserId())) {
+      try {
+        notificationUtil.createNotification(post.getUser().getNickname(), user, NotiType.POST_REPLY,
+            post.getPostId());
+      } catch (IOException e) {
+        log.error(e.getMessage());
+      }
     }
 
     return ReplyResponseDto.builder()
@@ -93,11 +94,15 @@ public class ReplyService {
         .parentId(parentReply.getReplyPostId())
         .build());
 
-    try {
-      notificationUtil.createNotification(parentReply.getUser().getNickname(), user, NotiType.POST_RE_REPLY,
-          parentReply.getPost().getPostId());
-    } catch (IOException e) {
-      log.error(e.getMessage());
+    // 부모 답글이 자신인데 자신이 달 경우는 알림이 안간다.
+    if (!Objects.equals(user.getUserId(), parentReply.getUser().getUserId())) {
+      try {
+        notificationUtil.createNotification(parentReply.getUser().getNickname(), user,
+            NotiType.POST_RE_REPLY,
+            parentReply.getPost().getPostId());
+      } catch (IOException e) {
+        log.error(e.getMessage());
+      }
     }
 
     return ReplyResponseDto.builder()

@@ -5,6 +5,7 @@ import com.finalproject.manitoone.constants.NotiType;
 import com.finalproject.manitoone.constants.ReportObjectType;
 import com.finalproject.manitoone.constants.ReportType;
 import com.finalproject.manitoone.domain.AiPostLog;
+import com.finalproject.manitoone.domain.AiValidationLog;
 import com.finalproject.manitoone.domain.ManitoMatches;
 import com.finalproject.manitoone.domain.Notification;
 import com.finalproject.manitoone.domain.Post;
@@ -22,6 +23,7 @@ import com.finalproject.manitoone.dto.post.PostViewResponseDto;
 import com.finalproject.manitoone.dto.postimage.PostImageResponseDto;
 import com.finalproject.manitoone.dto.replypost.ReplyPostResponseDto;
 import com.finalproject.manitoone.repository.AiPostLogRepository;
+import com.finalproject.manitoone.repository.AiValidationLogRepository;
 import com.finalproject.manitoone.repository.ManitoLetterRepository;
 import com.finalproject.manitoone.repository.ManitoMatchesRepository;
 import com.finalproject.manitoone.repository.NotificationRepository;
@@ -33,6 +35,7 @@ import com.finalproject.manitoone.repository.UserPostLikeRepository;
 import com.finalproject.manitoone.repository.UserRepository;
 import com.finalproject.manitoone.util.AlanUtil;
 import com.finalproject.manitoone.util.FileUtil;
+import com.finalproject.manitoone.util.TimeFormatter;
 import jakarta.transaction.Transactional;
 import java.nio.file.Paths;
 import com.finalproject.manitoone.util.NotificationUtil;
@@ -63,6 +66,7 @@ public class PostService {
   private final UserRepository userRepository;
   private final NotificationRepository notificationRepository;
   private final ManitoMatchesRepository manitoMatchesRepository;
+  private final AiValidationLogRepository aiValidationLogRepository;
   private final S3Service s3Service;
   private final FileUtil fileUtil;
   private final NotificationUtil notificationUtil;
@@ -98,9 +102,9 @@ public class PostService {
     return PostResponseDto.builder()
         .postId(post.getPostId())
         .content(post.getContent())
-        .createdAt(post.getCreatedAt())
-        .updatedAt(post.getUpdatedAt())
+        .createdAt(TimeFormatter.formatDateTime(post.getCreatedAt()))
         .isManito(post.getIsManito())
+        .createdDiff(TimeFormatter.formatTimeDiff(post.getCreatedAt()))
         .build();
   }
 
@@ -114,7 +118,7 @@ public class PostService {
   }
 
   // 게시글 수정
-  // TODO: 이미지 수정 
+  @Transactional
   public PostResponseDto updatePost(Long postId, UpdatePostRequestDto request, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
         IllegalActionMessages.CANNOT_FIND_USER_WITH_GIVEN_ID.getMessage()
@@ -128,6 +132,28 @@ public class PostService {
       throw new IllegalArgumentException(IllegalActionMessages.DIFFERENT_USER.getMessage());
     }
 
+    int uploadedImagesNum = getImages(post.getPostId()).size();
+    int toUploadImagesNum = request.getImages().length;
+
+    if (toUploadImagesNum > 4 || (uploadedImagesNum + toUploadImagesNum) > 4) {
+      throw new IllegalArgumentException(IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage());
+    }
+
+    if (request.getImages() != null) {
+      try {
+        for (MultipartFile image : request.getImages()) {
+          String fileName = s3Service.uploadImage(image);
+          postImageRepository.save(PostImage.builder()
+              .post(post)
+              .fileName(fileName)
+              .build());
+        }
+      } catch (IOException e) {
+        throw new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_SAVE_IMAGE.getMessage() + ": " + e.getMessage());
+      }
+    }
+
     post.updatePost(request.getContent());
     post.changeUpdatedDate(LocalDateTime.now());
 
@@ -137,8 +163,8 @@ public class PostService {
         .postId(updatedPost.getPostId())
         .user(updatedPost.getUser())
         .content(updatedPost.getContent())
-        .createdAt(updatedPost.getCreatedAt())
-        .updatedAt(updatedPost.getUpdatedAt())
+        .createdAt(TimeFormatter.formatDateTime(updatedPost.getCreatedAt()))
+        .updatedAt(TimeFormatter.formatDateTime(updatedPost.getUpdatedAt()))
         .isManito(updatedPost.getIsManito())
         .build();
   }
@@ -154,8 +180,10 @@ public class PostService {
         post.getPostId(),
         post.getUser(),
         post.getContent(),
-        post.getCreatedAt(),
-        post.getUpdatedAt(),
+        TimeFormatter.formatDateTime(post.getCreatedAt()),
+        TimeFormatter.formatDateTime(post.getUpdatedAt()),
+        TimeFormatter.formatTimeDiff(post.getCreatedAt()),
+        TimeFormatter.formatTimeDiff(post.getUpdatedAt()),
         post.getIsManito(),
         getPostLikesNum(post.getPostId())
     ));
@@ -172,8 +200,12 @@ public class PostService {
         post.getPostId(),
         post.getUser(),
         post.getContent(),
-        post.getCreatedAt(),
-        post.getUpdatedAt(),
+        TimeFormatter.formatDateTime(post.getCreatedAt()),
+        TimeFormatter.formatDateTime(
+            post.getUpdatedAt() == null ? post.getCreatedAt() : post.getUpdatedAt()),
+        TimeFormatter.formatTimeDiff(post.getCreatedAt()),
+        TimeFormatter.formatTimeDiff(
+            post.getUpdatedAt() == null ? post.getCreatedAt() : post.getUpdatedAt()),
         post.getIsManito(),
         getPostLikesNum(post.getPostId())
     );
@@ -212,6 +244,7 @@ public class PostService {
     deleteNotis(postId);
     deleteManitoLetters(postId);
     deleteAiPostLogs(postId);
+    deleteAiValidationLogs(postId);
     postRepository.delete(post);
   }
 
@@ -221,10 +254,6 @@ public class PostService {
         .orElseThrow(() -> new IllegalArgumentException(
             IllegalActionMessages.CANNOT_FIND_POST_IMAGE_WITH_GIVEN_ID.getMessage()
         ));
-
-    for (PostImage postImage : postImages) {
-      fileUtil.cleanUp(Paths.get(postImage.getFileName()));
-    }
 
     postImageRepository.deleteAll(postImages);
   }
@@ -295,6 +324,16 @@ public class PostService {
     aiPostLogRepository.deleteAll(logs);
   }
 
+  // AI Validation Log 삭제
+  private void deleteAiValidationLogs(Long postId) {
+    List<AiValidationLog> logs = aiValidationLogRepository.findAllByPostPostId(postId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            IllegalActionMessages.CANNOT_FIND_AI_POST_LOG.getMessage()
+        ));
+
+    aiValidationLogRepository.deleteAll(logs);
+  }
+
   // 게시글 숨기기
   public void hidePost(Long postId, String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(
@@ -325,7 +364,8 @@ public class PostService {
             IllegalActionMessages.CANNOT_FIND_POST_WITH_GIVEN_ID.getMessage()
         ));
 
-    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(user.getUserId(), post.getPostId());
+    Optional<UserPostLike> existingLike = userPostLikeRepository.findByUser_UserIdAndPost_PostId(
+        user.getUserId(), post.getPostId());
 
     if (existingLike.isPresent()) {
       userPostLikeRepository.delete(existingLike.get());

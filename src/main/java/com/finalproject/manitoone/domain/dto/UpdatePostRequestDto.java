@@ -1,6 +1,5 @@
 package com.finalproject.manitoone.domain.dto;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,5 +13,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class UpdatePostRequestDto {
 
   private String content;
-  // private List<MultipartFile> images;
+  private MultipartFile[] images;
 }

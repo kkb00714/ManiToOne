@@ -53,19 +53,23 @@ public class S3Service {
       amazonS3.deleteObject(bucket, existingFileName);
     }
 
-    String newFileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
-    ObjectMetadata metadata = new ObjectMetadata();
-    metadata.setContentType(image.getContentType());
-    metadata.setContentLength(image.getSize());
+    if (image == null) {
+      user.updateDefaultImage();
+    } else {
+      String newFileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+      ObjectMetadata metadata = new ObjectMetadata();
+      metadata.setContentType(image.getContentType());
+      metadata.setContentLength(image.getSize());
 
-    PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, newFileName,
-        image.getInputStream(), metadata);
-    amazonS3.putObject(putObjectRequest);
+      PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, newFileName,
+          image.getInputStream(), metadata);
+      amazonS3.putObject(putObjectRequest);
 
-    String newImageUrl = getPublicUrl(newFileName);
-    user.updateProfileImage(newImageUrl);
+      String newImageUrl = getPublicUrl(newFileName);
+      user.updateProfileImage(newImageUrl);
+    }
     userRepository.save(user);
-    return newImageUrl;
+    return user.getProfileImage();
   }
 
   public void deleteImage(String imageUrl) {
